@@ -4,7 +4,7 @@ package io.rapid;
 import com.google.gson.Gson;
 
 
-public class GsonConverter implements RapidJsonConverter {
+public class RapidGsonConverter implements RapidJsonConverter {
 
 	Gson mGson = new Gson();
 

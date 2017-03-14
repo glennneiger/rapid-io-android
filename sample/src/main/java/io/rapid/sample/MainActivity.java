@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.util.Collection;
 
-import io.rapid.GsonConverter;
+import io.rapid.RapidGsonConverter;
 import io.rapid.Rapid;
 import io.rapid.RapidCollection;
 import io.rapid.RapidSubscription;
@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 		// set JSON converter
-		Rapid.getInstance().setJsonConverter(new GsonConverter());
+		Rapid.getInstance().setJsonConverter(new RapidGsonConverter());
 
 
 		// get Rapid collection

@@ -4,12 +4,12 @@ package io.rapid;
 public class Rapid {
 	private static Rapid sInstance;
 	private final String mApiKey;
-	private GsonConverter mJsonConverter;
+	private RapidJsonConverter mJsonConverter;
 
 
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
-		mJsonConverter = new GsonConverter();
+		mJsonConverter = new RapidGsonConverter();
 	}
 
 
@@ -30,7 +30,7 @@ public class Rapid {
 	}
 
 
-	public void setJsonConverter(GsonConverter jsonConverter) {
+	public void setJsonConverter(RapidJsonConverter jsonConverter) {
 		mJsonConverter = jsonConverter;
 	}
 }
