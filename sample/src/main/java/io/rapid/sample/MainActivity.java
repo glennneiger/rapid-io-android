@@ -14,10 +14,17 @@ import io.rapid.Sorting;
 
 public class MainActivity extends AppCompatActivity {
 
+	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		// initialize SDK
+		Rapid.initialize(RAPID_API_KEY);
+
 
 		// set JSON converter
 		Rapid.getInstance().setJsonConverter(new GsonConverter());

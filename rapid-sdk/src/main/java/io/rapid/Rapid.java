@@ -3,18 +3,25 @@ package io.rapid;
 
 public class Rapid {
 	private static Rapid sInstance;
+	private final String mApiKey;
 	private GsonConverter mJsonConverter;
 
 
-	private Rapid() {
+	private Rapid(String apiKey) {
+		mApiKey = apiKey;
 		mJsonConverter = new GsonConverter();
 	}
 
 
 	public static Rapid getInstance() {
 		if(sInstance == null)
-			sInstance = new Rapid();
+			throw new IllegalStateException("Rapid SDK not initialized. Please call Rapid.initialize() first");
 		return sInstance;
+	}
+
+
+	public static void initialize(String apiKey) {
+		sInstance = new Rapid(apiKey);
 	}
 
 
