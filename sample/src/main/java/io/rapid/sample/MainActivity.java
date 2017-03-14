@@ -1,4 +1,4 @@
-package rapid.io.sample;
+package io.rapid.sample;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
