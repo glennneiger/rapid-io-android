@@ -37,5 +37,7 @@ dependencies {
 
 	compile 'com.android.support:appcompat-v7:25.2.0'
 	compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
+
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
 	testCompile 'junit:junit:4.12'
 }

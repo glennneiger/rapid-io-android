@@ -2,10 +2,10 @@ package io.rapid.sample;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.util.Collection;
 
-import io.rapid.RapidGsonConverter;
 import io.rapid.Rapid;
 import io.rapid.RapidCollection;
 import io.rapid.RapidSubscription;
@@ -17,6 +17,11 @@ public class MainActivity extends AppCompatActivity {
 	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
 
 
+	private static void log(String message) {
+		Log.d("Rapid Sample", message);
+	}
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -26,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
 		Rapid.initialize(RAPID_API_KEY);
 
 
-		// set JSON converter
-		Rapid.getInstance().setJsonConverter(new RapidGsonConverter());
+		// set custom JSON converter
+		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
 
 
 		// get Rapid collection
@@ -35,18 +40,24 @@ public class MainActivity extends AppCompatActivity {
 
 
 		// simple subscription
-		RapidSubscription<Collection<Car>> carsSubscription = cars.subscribe(carCollection -> {
-			System.out.println(carCollection);
-		});
+		RapidSubscription<Collection<Car>> carsSubscription = cars.subscribe((carCollection, metadata) -> log(carCollection.toString()));
 
 		// unsubscribe when not needed anymore
 		carsSubscription.unsubscribe();
 
 
+		// error handling
+		cars.subscribe((carCollection, metadata) -> log(carCollection.toString()))
+				.onError(error -> log("Subscribe error"));
+
+
 		// filtering
-		cars.query().equalTo("type", "SUV").between("price", 0, 45000).subscribe(carCollection -> {
-			System.out.println(carCollection);
-		});
+		cars.query()
+				.equalTo("type", "SUV")
+				.between("price", 0, 45000)
+				.subscribe((carCollection, metadata) -> {
+					log(carCollection.toString());
+				});
 
 
 		// advanced filtering
@@ -60,12 +71,22 @@ public class MainActivity extends AppCompatActivity {
 				.orderBy("price", Sorting.ASC)
 				.skip(20)
 				.limit(20)
-				.subscribe(carCollection -> {
-					System.out.println(carCollection);
+				.subscribe((carCollection, metadata) -> {
+					log(carCollection.toString());
 				});
 
 		// basic mutation
 		cars.mutate(new Car());
 
+
+		// advanced mutation
+		cars.mutate(new Car())
+				.onSuccess(() -> {
+					log("Mutation successful");
+				})
+				.onError(error -> {
+					log("Mutation error");
+					error.printStackTrace();
+				});
 	}
 }

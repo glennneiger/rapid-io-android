@@ -1,4 +1,4 @@
-package io.rapid;
+package io.rapid.converter;
 
 
 import com.google.gson.Gson;
@@ -6,7 +6,12 @@ import com.google.gson.Gson;
 
 public class RapidGsonConverter implements RapidJsonConverter {
 
-	Gson mGson = new Gson();
+	Gson mGson;
+
+
+	public RapidGsonConverter(Gson gson) {
+		mGson = gson;
+	}
 
 
 	@Override

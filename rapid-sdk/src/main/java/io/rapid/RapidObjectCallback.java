@@ -2,5 +2,5 @@ package io.rapid;
 
 
 public interface RapidObjectCallback<T> {
-	void onValueChanged(T value);
+	void onValueChanged(T value, ValueMetadata metadata);
 }
