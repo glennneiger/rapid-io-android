@@ -6,20 +6,25 @@ import java.util.Collection;
 
 public class RapidCollection<T> {
 
-	private final Rapid mRapid;
 	private final String mCollectionName;
 	private RapidQuery<T> mQuery;
+	private RapidCollectionImpl<T> mImpl;
 
 
-	public RapidCollection(Rapid rapid, String collectionName) {
-		mRapid = rapid;
+	public RapidCollection(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
 		mQuery = new RapidQuery<>(mCollectionName);
+		mImpl = new MockRapidCollectionImpl<>(type, rapid.getJsonConverter());
 	}
 
 
-	public RapidFuture<T> mutate(T item) {
-		return new RapidFuture<>();
+	public RapidFuture<T> add(T item) {
+		return mImpl.add(item);
+	}
+
+
+	public RapidFuture<T> edit(String key, T item) {
+		return mImpl.edit(key, item);
 	}
 
 
@@ -29,6 +34,6 @@ public class RapidCollection<T> {
 
 
 	public RapidSubscription subscribe(RapidObjectCallback<Collection<T>> callback) {
-		return mQuery.subscribe(callback);
+		return mImpl.subscribe(callback);
 	}
 }

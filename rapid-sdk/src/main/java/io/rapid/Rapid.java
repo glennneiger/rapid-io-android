@@ -15,10 +15,14 @@ public class Rapid {
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
 
+	private Map<String, RapidCollection> mCollections = new HashMap<>();
+	private RapidCollectionProvider mCollectionProvider;
+
 
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
+		mCollectionProvider = new MockRapidCollectionProvider();
 	}
 
 
@@ -46,7 +50,7 @@ public class Rapid {
 
 
 	public <T> RapidCollection<T> collection(String collectionName, Class<T> itemClass) {
-		return new RapidCollection<>(this, collectionName);
+		return mCollectionProvider.provideCollection(this, collectionName, itemClass);
 	}
 
 

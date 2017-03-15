@@ -74,7 +74,7 @@ public class RapidQuery<T> {
 	}
 
 
-	public RapidSubscription subscribe(RapidObjectCallback<Collection<T>> callback) {
-		return new RapidSubscription();
+	public RapidSubscription<T> subscribe(RapidObjectCallback<Collection<T>> callback) {
+		return new RapidSubscription<>(callback);
 	}
 }
