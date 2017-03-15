@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import java.util.Collection;
-
 import io.rapid.Rapid;
 import io.rapid.RapidCollection;
 import io.rapid.RapidSubscription;
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 		// simple subscription
-		RapidSubscription<Collection<Car>> carsSubscription = cars.subscribe((carCollection, metadata) -> log(carCollection.toString()));
+		RapidSubscription carsSubscription = cars.subscribe((carCollection, metadata) -> log(carCollection.toString()));
 
 		// unsubscribe when not needed anymore
 		carsSubscription.unsubscribe();
@@ -64,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
 		cars.query()
 				.between("price", 0, 45000)
 				.beginGroup()
-				.equalTo("type", "SUV")
-				.or()
-				.equalTo("type", "sedan")
+					.equalTo("type", "SUV")
+					.or()
+					.equalTo("type", "sedan")
 				.endGroup()
 				.orderBy("price", Sorting.ASC)
 				.skip(20)

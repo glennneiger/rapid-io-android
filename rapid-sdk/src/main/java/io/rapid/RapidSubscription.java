@@ -1,12 +1,12 @@
 package io.rapid;
 
 
-public class RapidSubscription<T> extends RapidFuture<T> {
+public class RapidSubscription {
 
 	private boolean mSubscribed = true;
 
 
-	public RapidSubscription<T> onError(io.rapid.ErrorCallback callback) {
+	public RapidSubscription onError(io.rapid.ErrorCallback callback) {
 		return this;
 	}
 
