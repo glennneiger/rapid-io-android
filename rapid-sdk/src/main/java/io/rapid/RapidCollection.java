@@ -14,6 +14,7 @@ public class RapidCollection<T> {
 	public RapidCollection(Rapid rapid, String collectionName) {
 		mRapid = rapid;
 		mCollectionName = collectionName;
+		mQuery = new RapidQuery<>(mCollectionName);
 	}
 
 
@@ -23,13 +24,11 @@ public class RapidCollection<T> {
 
 
 	public RapidQuery<T> query() {
-		if(mQuery == null)
-			mQuery = new RapidQuery<>(mCollectionName);
 		return mQuery;
 	}
 
 
-	public RapidSubscription<Collection<T>> subscribe(RapidObjectCallback<Collection<T>> callback) {
+	public RapidSubscription subscribe(RapidObjectCallback<Collection<T>> callback) {
 		return mQuery.subscribe(callback);
 	}
 }
