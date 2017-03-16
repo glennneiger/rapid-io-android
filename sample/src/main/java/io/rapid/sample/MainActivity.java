@@ -45,7 +45,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 	public void addItem(View view) {
-		Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class).add(new Car(new Random().nextInt()))
+		Car newCar = new Car(new Random().nextInt());
+
+		Rapid.getInstance()
+				.collection(COLLECTIONS_CARS, Car.class)
+				.newDocument()
+				.mutate(newCar)
 				.onSuccess(() -> {
 					log("Mutation successful");
 				})

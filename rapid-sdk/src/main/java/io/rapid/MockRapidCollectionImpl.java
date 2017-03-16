@@ -41,7 +41,7 @@ class MockRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 
 	@Override
-	public RapidFuture<T> edit(String key, T value) {
+	public RapidFuture<T> set(String key, T value) {
 		RapidFuture<T> future = new RapidFuture<>();
 		delayOperation(() -> {
 			mDb.put(key, toJson(value));
@@ -53,11 +53,18 @@ class MockRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 
 	@Override
-	public RapidSubscription<T> subscribe(RapidObjectCallback<Collection<T>> callback) {
+	public RapidSubscription<T> subscribe(RapidCallback<Collection<T>> callback) {
 		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
 		mSubscriptions.add(subscription);
 		subscription.setOnUnsubscribeCallback(() -> mSubscriptions.remove(subscription));
 		return subscription;
+	}
+
+
+	@Override
+	public RapidSubscription subscribeDocument(RapidCallback<T> callback) {
+		//TODO
+		return new RapidSubscription(null);
 	}
 
 

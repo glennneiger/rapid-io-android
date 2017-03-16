@@ -5,6 +5,7 @@ import android.util.Log;
 
 import io.rapid.Rapid;
 import io.rapid.RapidCollection;
+import io.rapid.RapidDocument;
 import io.rapid.RapidSubscription;
 import io.rapid.Sorting;
 
@@ -19,7 +20,7 @@ public class SampleUsage {
 		Rapid.initialize(RAPID_API_KEY);
 
 
-		// set custom JSON converter
+		// mutate custom JSON converter
 		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
 
 
@@ -40,8 +41,7 @@ public class SampleUsage {
 
 
 		// filtering
-		cars.query()
-				.equalTo("type", "SUV")
+		cars.equalTo("type", "SUV")
 				.between("price", 0, 45000)
 				.subscribe((carCollection, metadata) -> {
 					log(carCollection.toString());
@@ -49,8 +49,7 @@ public class SampleUsage {
 
 
 		// advanced filtering
-		cars.query()
-				.between("price", 0, 45000)
+		cars.between("price", 0, 45000)
 				.beginGroup()
 				.equalTo("type", "SUV")
 				.or()
@@ -63,12 +62,17 @@ public class SampleUsage {
 					log(carCollection.toString());
 				});
 
-		// basic mutation
-		cars.add(new Car());
+
+		// basic adding
+		RapidDocument<Car> newCar = cars.newDocument();
+
+		log(newCar.getId());
+
+		newCar.mutate(new Car());
 
 
-		// advanced mutation
-		cars.add(new Car())
+		// advanced adding
+		cars.newDocument().mutate(new Car())
 				.onSuccess(() -> {
 					log("Mutation successful");
 				})
@@ -76,6 +80,10 @@ public class SampleUsage {
 					log("Mutation error");
 					error.printStackTrace();
 				});
+
+
+		// editing
+		cars.document("asfasdfwewqer").mutate(new Car());
 	}
 
 
