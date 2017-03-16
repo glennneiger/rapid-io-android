@@ -6,5 +6,5 @@ package io.rapid;
 
 public class RapidConfig
 {
-	public static final boolean LOGS = BuildConfig.LOGS;
+	public static final boolean LOGS = true;
 }

@@ -34,10 +34,24 @@ public class WebSocketConnection extends WebSocketClient
 	}
 
 
+	public void sendMessage(String json)
+	{
+		send(json);
+	}
+
+
 	@Override
 	public void onOpen(ServerHandshake handshakeData)
 	{
 		Logcat.d(handshakeData.getHttpStatusMessage() + " " + handshakeData.getHttpStatus());
+
+		send("{\n" +
+				"    \"sub\": {\n" +
+				"        \"evt-id\": \"fhddfhgddfgh\",\n" +
+				"        \"sub-id\": \"tryertysdfg\",\n" +
+				"        \"col-id\": \"cars\"\n" +
+				"    }\n" +
+				"}");
 	}
 
 
