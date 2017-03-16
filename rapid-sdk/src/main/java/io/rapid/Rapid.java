@@ -3,6 +3,9 @@ package io.rapid;
 
 import com.google.gson.Gson;
 
+import org.java_websocket.client.WebSocketClient;
+
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,11 +17,15 @@ public class Rapid {
 	private static Map<String, Rapid> sInstances = new HashMap<>();
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
+	private WebSocketClient mWebSocketConnection;
 
 
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
+		mWebSocketConnection = new WebSocketConnection(URI.create("ws://13.64.77.202:8080"));
+		mWebSocketConnection.connect();
+
 	}
 
 
