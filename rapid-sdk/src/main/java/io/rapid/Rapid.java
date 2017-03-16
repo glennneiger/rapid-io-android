@@ -19,6 +19,9 @@ public class Rapid {
 	private RapidJsonConverter mJsonConverter;
 	private WebSocketClient mWebSocketConnection;
 
+	private Map<String, RapidCollection> mCollections = new HashMap<>();
+	private RapidCollectionProvider mCollectionProvider;
+
 
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
@@ -26,6 +29,7 @@ public class Rapid {
 		mWebSocketConnection = new WebSocketConnection(URI.create("ws://13.64.77.202:8080"));
 		mWebSocketConnection.connect();
 
+		mCollectionProvider = new MockRapidCollectionProvider();
 	}
 
 
@@ -53,7 +57,7 @@ public class Rapid {
 
 
 	public <T> RapidCollection<T> collection(String collectionName, Class<T> itemClass) {
-		return new RapidCollection<>(this, collectionName);
+		return mCollectionProvider.provideCollection(this, collectionName, itemClass);
 	}
 
 

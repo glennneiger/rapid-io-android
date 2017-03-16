@@ -6,30 +6,93 @@ import java.util.Collection;
 
 public class RapidCollection<T> {
 
-	private final Rapid mRapid;
 	private final String mCollectionName;
-	private RapidQuery<T> mQuery;
+	private RapidCollectionImpl<T> mImpl;
 
 
-	public RapidCollection(Rapid rapid, String collectionName) {
-		mRapid = rapid;
+	public RapidCollection(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
+		mImpl = new MockRapidCollectionImpl<>(type, rapid.getJsonConverter());
 	}
 
 
-	public RapidFuture<T> mutate(T item) {
-		return new RapidFuture<>();
+	// Query methods
+	public RapidCollection<T> equalTo(String property, String value) {
+		return this;
 	}
 
 
-	public RapidQuery<T> query() {
-		if(mQuery == null)
-			mQuery = new RapidQuery<>(mCollectionName);
-		return mQuery;
+	public RapidCollection<T> not(String property, String value) {
+		return this;
 	}
 
 
-	public RapidSubscription<Collection<T>> subscribe(RapidObjectCallback<Collection<T>> callback) {
-		return mQuery.subscribe(callback);
+	public RapidCollection<T> lessThan(String property, String value) {
+		return this;
+	}
+
+
+	public RapidCollection<T> greaterThan(String property, String value) {
+		return this;
+	}
+
+
+	public RapidCollection<T> beginGroup() {
+		return this;
+	}
+
+
+	public RapidCollection<T> endGroup() {
+		return this;
+	}
+
+
+	public RapidCollection<T> or() {
+		return this;
+	}
+
+
+	public RapidCollection<T> between(String property, int from, int to) {
+		return this;
+	}
+
+
+	public RapidCollection<T> limit(int limit) {
+		return this;
+	}
+
+
+	public RapidCollection<T> skip(int skip) {
+		return this;
+	}
+
+
+	public RapidCollection<T> first() {
+		return limit(1);
+	}
+
+
+	public RapidCollection<T> orderBy(String property, Sorting sorting) {
+		return this;
+	}
+
+
+	public RapidCollection<T> orderBy(String property) {
+		return orderBy(property, Sorting.ASC);
+	}
+
+
+	public RapidSubscription subscribe(RapidCallback<Collection<T>> callback) {
+		return mImpl.subscribe(callback);
+	}
+
+
+	public RapidDocument<T> newDocument() {
+		return new RapidDocument<>(mCollectionName, mImpl);
+	}
+
+
+	public RapidDocument<T> document(String documentId) {
+		return new RapidDocument<>(mCollectionName, mImpl, documentId);
 	}
 }
