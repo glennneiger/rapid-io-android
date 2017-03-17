@@ -53,18 +53,18 @@ class MockRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 
 	@Override
-	public RapidSubscription<T> subscribe(RapidCallback<Collection<T>> callback) {
-		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
-		mSubscriptions.add(subscription);
-		subscription.setOnUnsubscribeCallback(() -> mSubscriptions.remove(subscription));
-		return subscription;
+	public RapidSubscription subscribeDocument(RapidDocumentCallback<T> callback) {
+		//TODO
+		return new RapidSubscription(null);
 	}
 
 
 	@Override
-	public RapidSubscription subscribeDocument(RapidCallback<T> callback) {
-		//TODO
-		return new RapidSubscription(null);
+	public RapidSubscription<T> subscribe(RapidCollectionCallback<T> callback) {
+		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
+		mSubscriptions.add(subscription);
+		subscription.setOnUnsubscribeCallback(() -> mSubscriptions.remove(subscription));
+		return subscription;
 	}
 
 
@@ -90,9 +90,9 @@ class MockRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 	private void notifyChange() {
 		for(RapidSubscription<T> subscription : mSubscriptions) {
-			Collection<T> objects = new ArrayList<T>();
-			for(String s : mDb.values()) {
-				objects.add(fromJson(s));
+			Collection<RapidWrapper<T>> objects = new ArrayList<>();
+			for(Map.Entry<String, String> entry : mDb.entrySet()) {
+				objects.add(new RapidWrapper<T>(entry.getKey(), fromJson(entry.getValue())));
 			}
 			subscription.invokeChange(objects);
 		}

@@ -26,7 +26,7 @@ public class RapidDocument<T> {
 	}
 
 
-	public RapidSubscription subscribe(RapidCallback<T> callback) {
+	public RapidSubscription subscribe(RapidDocumentCallback<T> callback) {
 		return mImpl.subscribeDocument(callback);
 	}
 }

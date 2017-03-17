@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)
-				.subscribe((carCollection, metadata) -> log(carCollection.toString()));
+				.subscribe((carCollection) -> log(carCollection.toString()));
 	}
 
 
