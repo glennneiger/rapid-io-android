@@ -7,4 +7,5 @@ package io.rapid;
 public class RapidConfig
 {
 	public static final boolean LOGS = true;
+	public static final String URI = "ws://13.64.77.202:8080";
 }

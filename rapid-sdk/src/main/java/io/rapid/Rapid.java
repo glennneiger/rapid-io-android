@@ -3,21 +3,20 @@ package io.rapid;
 
 import com.google.gson.Gson;
 
-import org.java_websocket.client.WebSocketClient;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.rapid.converter.RapidGsonConverter;
 import io.rapid.converter.RapidJsonConverter;
+import io.rapid.utility.Logcat;
 
 
-public class Rapid {
+public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	private static Map<String, Rapid> sInstances = new HashMap<>();
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
-	private WebSocketClient mWebSocketConnection;
+	private WebSocketConnection mWebSocketConnection;
 
 	private Map<String, RapidCollection> mCollections = new HashMap<>();
 	private RapidCollectionProvider mCollectionProvider;
@@ -26,7 +25,7 @@ public class Rapid {
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
-		mWebSocketConnection = new WebSocketConnection(URI.create("ws://13.64.77.202:8080"));
+		mWebSocketConnection = new WebSocketConnection(URI.create(RapidConfig.URI), this);
 		mWebSocketConnection.connect();
 
 		mCollectionProvider = new MockRapidCollectionProvider();
@@ -73,5 +72,33 @@ public class Rapid {
 
 	public String getApiKey() {
 		return mApiKey;
+	}
+
+
+	@Override
+	public void onOpen()
+	{
+
+	}
+
+
+	@Override
+	public void onMessage(MessageBase message)
+	{
+		Logcat.d(message.toString());
+	}
+
+
+	@Override
+	public void onClose(WebSocketConnection.CloseReasonEnum reason)
+	{
+
+	}
+
+
+	@Override
+	public void onError(Exception ex)
+	{
+
 	}
 }
