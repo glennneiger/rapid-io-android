@@ -1,1 +1,8 @@
-<manifest package="io.rapid" />
+<manifest
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	package="io.rapid">
+
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+</manifest>
