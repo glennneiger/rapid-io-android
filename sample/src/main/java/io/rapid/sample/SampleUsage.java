@@ -29,21 +29,27 @@ public class SampleUsage {
 
 
 		// simple subscription
-		RapidSubscription carsSubscription = cars.subscribe((carCollection, metadata) -> log(carCollection.toString()));
+		RapidSubscription carsSubscription = cars.subscribe((carCollection) -> log(carCollection.toString()));
 
 		// unsubscribe when not needed anymore
 		carsSubscription.unsubscribe();
 
 
+		// document subscription
+		cars.document("asdfasdfasdf").subscribe(value -> {
+			log(value.getValue().toString());
+		});
+
+
 		// error handling
-		cars.subscribe((carCollection, metadata) -> log(carCollection.toString()))
+		cars.subscribe((carCollection) -> log(carCollection.toString()))
 				.onError(error -> log("Subscribe error"));
 
 
 		// filtering
 		cars.equalTo("type", "SUV")
 				.between("price", 0, 45000)
-				.subscribe((carCollection, metadata) -> {
+				.subscribe((carCollection) -> {
 					log(carCollection.toString());
 				});
 
@@ -58,7 +64,7 @@ public class SampleUsage {
 				.orderBy("price", Sorting.ASC)
 				.skip(20)
 				.limit(20)
-				.subscribe((carCollection, metadata) -> {
+				.subscribe((carCollection) -> {
 					log(carCollection.toString());
 				});
 

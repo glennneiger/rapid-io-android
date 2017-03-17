@@ -1,9 +1,6 @@
 package io.rapid;
 
 
-import java.util.Collection;
-
-
 public class RapidCollection<T> {
 
 	private final String mCollectionName;
@@ -82,7 +79,7 @@ public class RapidCollection<T> {
 	}
 
 
-	public RapidSubscription subscribe(RapidCallback<Collection<T>> callback) {
+	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
 		return mImpl.subscribe(callback);
 	}
 

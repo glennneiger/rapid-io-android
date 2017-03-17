@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public class RapidSubscription<T> {
 
-	private final RapidCallback<Collection<T>> mCallback;
+	private final RapidCollectionCallback<T> mCallback;
 	private boolean mSubscribed = true;
 	private OnUnsubscribeCallback mOnUnsubscribeCallback;
 
@@ -16,7 +16,7 @@ public class RapidSubscription<T> {
 	}
 
 
-	public RapidSubscription(RapidCallback<Collection<T>> callback) {
+	public RapidSubscription(RapidCollectionCallback<T> callback) {
 		mCallback = callback;
 	}
 
@@ -43,7 +43,7 @@ public class RapidSubscription<T> {
 	}
 
 
-	public void invokeChange(Collection<T> value) {
-		mCallback.onValueChanged(value, new ValueMetadata());
+	public void invokeChange(Collection<RapidWrapper<T>> value) {
+		mCallback.onValueChanged(value);
 	}
 }
