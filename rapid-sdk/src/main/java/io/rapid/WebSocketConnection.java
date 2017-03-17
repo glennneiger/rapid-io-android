@@ -6,6 +6,8 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import io.rapid.utility.Logcat;
@@ -15,10 +17,12 @@ import io.rapid.utility.Logcat;
  * Created by Leos on 15.03.2017.
  */
 
-public class WebSocketConnection extends WebSocketClient
+class WebSocketConnection extends WebSocketClient
 {
 	private WebSocketConnectionListener mListener;
 	private boolean mConnected = false;
+
+	private List<MessageBase> mPendingMessageList = new ArrayList<>();
 
 
 	enum CloseReasonEnum
@@ -57,21 +61,36 @@ public class WebSocketConnection extends WebSocketClient
 	}
 
 
-	public boolean isConnected()
+	public void connectToServer()
 	{
-		return mConnected;
+		if(!mConnected) connect();
 	}
+
+
+//	public boolean isConnected()
+//	{
+//		return mConnected;
+//	}
 
 
 	public void sendMessage(MessageBase message)
 	{
-		try
+		if(mConnected)
 		{
-			send(message.toJson().toString());
+			try
+			{
+				String json = message.toJson().toString();
+				Logcat.d(json);
+				send(json);
+			}
+			catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch(JSONException e)
+		else
 		{
-			e.printStackTrace();
+			mPendingMessageList.add(message);
 		}
 	}
 
@@ -83,6 +102,11 @@ public class WebSocketConnection extends WebSocketClient
 
 		mConnected = true;
 		if(mListener != null) mListener.onOpen();
+
+		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
+		{
+			sendMessage(mPendingMessageList.remove(i));
+		}
 	}
 
 

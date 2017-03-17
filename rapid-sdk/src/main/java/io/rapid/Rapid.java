@@ -9,7 +9,6 @@ import java.util.Map;
 
 import io.rapid.converter.RapidGsonConverter;
 import io.rapid.converter.RapidJsonConverter;
-import io.rapid.utility.Logcat;
 
 
 public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
@@ -26,7 +25,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
 		mWebSocketConnection = new WebSocketConnection(URI.create(RapidConfig.URI), this);
-		mWebSocketConnection.connect();
+		mWebSocketConnection.connectToServer();
+		mWebSocketConnection.sendMessage(new MessageSub("afdasd", "cars", "asdfasdfasdfadfsgasefd"));
 
 		mCollectionProvider = new MockRapidCollectionProvider();
 	}
@@ -85,7 +85,6 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	@Override
 	public void onMessage(MessageBase message)
 	{
-		Logcat.d(message.toString());
 	}
 
 
