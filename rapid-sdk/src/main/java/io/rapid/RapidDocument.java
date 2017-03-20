@@ -1,32 +1,41 @@
 package io.rapid;
 
 
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import io.rapid.converter.RapidJsonConverter;
+
+
 public class RapidDocument<T> {
-	private final CollectionConnection<T> mImpl;
-	private final String mId;
+	private String id;
+	private T body;
 
 
-	public RapidDocument(String collectionName, CollectionConnection<T> impl) {
-		this(collectionName, impl, IdProvider.getNewDocumentId());
+	RapidDocument(String id, T value) {
+		this.id = id;
+		body = value;
 	}
 
 
-	public RapidDocument(String collectionName, CollectionConnection<T> impl, String documentId) {
-		mId = documentId;
-		mImpl = impl;
+	@Override
+	public String toString() {
+		return "RapidDocument(" + getId() + ": " + getBody().toString() + ")";
 	}
 
 
 	public String getId() {
-		return mId;
-	}
-
-	public RapidFuture<T> mutate(T item) {
-		return mImpl.set(mId, item);
+		return id;
 	}
 
 
-	public RapidSubscription subscribe(RapidDocumentCallback<T> callback) {
-		return mImpl.subscribeDocument(callback);
+	public T getBody() {
+		return body;
+	}
+
+
+	public static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, RapidJsonConverter jsonConverter, Class<T> documentType) throws IOException {
+		return new RapidDocument<T>(jsonObject.optString("id"), jsonConverter.fromJson(jsonObject.optString("body"), documentType));
 	}
 }

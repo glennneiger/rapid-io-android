@@ -12,17 +12,17 @@ import java.util.List;
 import java.util.Set;
 
 
-class RapidCollectionConnection<T> implements CollectionConnection<T> {
+class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
-	String mCollectionName;
-	Rapid mRapid;
-	Class<T> mType;
-	Set<RapidSubscription<T>> mSubscriptions = new HashSet<>();
+	private String mCollectionName;
+	private Rapid mRapid;
+	private Class<T> mType;
+	private Set<RapidSubscription<T>> mSubscriptions = new HashSet<>();
 
-	List<RapidWrapper<T>> mCollection = new ArrayList<>();
+	private List<RapidDocument<T>> mCollection = new ArrayList<>();
 
 
-	public RapidCollectionConnection(Rapid rapid, String collectionName, Class<T> type) {
+	WebSocketCollectionConnection(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
 		mRapid = rapid;
 		mType = type;
@@ -30,11 +30,12 @@ class RapidCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidFuture<T> set(String key, T value) {
+	public RapidFuture<T> mutate(String id, T value) {
 		RapidFuture<T> future = new RapidFuture<>();
-		RapidWrapper<T> wrapper = new RapidWrapper<T>(key, value);
 
-		mRapid.sendMessage(new MessageMut(IdProvider.getNewEventId(), mCollectionName, toJson(wrapper)));
+		RapidDocument<T> doc = new RapidDocument<>(id, value);
+		mRapid.sendMessage(new MessageMut(IdProvider.getNewEventId(), mCollectionName, toJson(doc)));
+		future.invokeSuccess(); // TODO: Call this when ACK is received for this message
 
 		return future;
 	}
@@ -61,14 +62,14 @@ class RapidCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onValue(MessageVal valMessage) {
-		mCollection = parseList(valMessage.getDocuments());
+		mCollection = parseDocumentList(valMessage.getDocuments());
 		notifyChange();
 	}
 
 
 	@Override
 	public void onUpdate(MessageUpd updMessage) {
-		RapidWrapper<T> doc = parseDocument(updMessage.getDocument());
+		RapidDocument<T> doc = parseDocument(updMessage.getDocument());
 		boolean modified = false;
 		for(int i = 0; i < mCollection.size(); i++) {
 			if(mCollection.get(i).getId().equals(doc.getId())) {
@@ -84,19 +85,18 @@ class RapidCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private String toJson(RapidWrapper<T> wrapper) {
+	private String toJson(RapidDocument<T> document) {
 		try {
-			return mRapid.getJsonConverter().toJson(wrapper);
+			return mRapid.getJsonConverter().toJson(document);
 		} catch(IOException e) {
-			e.printStackTrace();
-			// TODO: handle
-			return null;
+			throw new IllegalArgumentException(e);
 		}
 	}
 
 
 	private void notifyChange() {
 		for(RapidSubscription<T> subscription : mSubscriptions) {
+			// deliver result on UI thread
 			mRapid.getHandler().post(() -> {
 				subscription.invokeChange(new ArrayList<>(mCollection));
 			});
@@ -104,30 +104,27 @@ class RapidCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private List<RapidWrapper<T>> parseList(String documents) {
-		List<RapidWrapper<T>> list = new ArrayList<>();
+	private List<RapidDocument<T>> parseDocumentList(String documents) {
+		List<RapidDocument<T>> list = new ArrayList<>();
 		try {
 			JSONArray array = new JSONArray(documents);
 			for(int i = 0; i < array.length(); i++) {
-				list.add(parseDocument(array.optString(i)));
+				RapidDocument<T> doc = parseDocument(array.optString(i));
+				list.add(doc);
 			}
 			return list;
 		} catch(JSONException e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalArgumentException(e);
 		}
 	}
 
 
-	private RapidWrapper<T> parseDocument(String document) {
+	private RapidDocument<T> parseDocument(String document) {
 		try {
 			JSONObject jsonObject = new JSONObject(document);
-			return new RapidWrapper<T>(jsonObject.optString("id"), mRapid.getJsonConverter().fromJson(jsonObject.optString("body"), mType));
-		} catch(IOException e) {
-			e.printStackTrace();
-		} catch(JSONException e) {
-			e.printStackTrace();
+			return RapidDocument.fromJsonObject(jsonObject, mRapid.getJsonConverter(), mType);
+		} catch(IOException | JSONException e) {
+			throw new IllegalArgumentException(e);
 		}
-		return null;
 	}
 }

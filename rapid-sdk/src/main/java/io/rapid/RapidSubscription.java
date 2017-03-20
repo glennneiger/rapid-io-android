@@ -43,7 +43,7 @@ public class RapidSubscription<T> {
 	}
 
 
-	public void invokeChange(Collection<RapidWrapper<T>> value) {
+	public void invokeChange(Collection<RapidDocument<T>> value) {
 		mCallback.onValueChanged(value);
 	}
 }

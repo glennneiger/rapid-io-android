@@ -2,7 +2,7 @@ package io.rapid;
 
 
 public interface CollectionConnection<T> {
-	RapidFuture<T> set(String key, T value);
+	RapidFuture<T> mutate(String id, T value);
 	RapidSubscription subscribe(RapidCollectionCallback<T> callback);
 	RapidSubscription subscribeDocument(RapidDocumentCallback<T> callback);
 	void onValue(MessageVal valMessage);

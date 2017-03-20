@@ -20,16 +20,16 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	private WebSocketConnection mWebSocketConnection;
 	private Handler mHandler = new Handler();
 
-	private RapidCollectionProvider mCollectionProvider;
+	private CollectionProvider mCollectionProvider;
 
 
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
-		mWebSocketConnection = new WebSocketConnection(URI.create(RapidConfig.URI), this);
+		mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
 		mWebSocketConnection.connectToServer();
 
-		mCollectionProvider = new InMemoryRapidCollectionProvider();
+		mCollectionProvider = new InMemoryCollectionProvider();
 	}
 
 
@@ -56,7 +56,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	}
 
 
-	public <T> RapidCollection<T> collection(String collectionName, Class<T> itemClass) {
+	public <T> RapidCollectionReference<T> collection(String collectionName, Class<T> itemClass) {
 		return mCollectionProvider.provideCollection(this, collectionName, itemClass);
 	}
 

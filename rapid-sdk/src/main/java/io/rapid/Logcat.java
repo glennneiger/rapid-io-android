@@ -1,15 +1,13 @@
-package io.rapid.utility;
+package io.rapid;
 
 import android.util.Log;
-
-import io.rapid.RapidConfig;
 
 
 /**
  * Created by Leos on 16.03.2017.
  */
 
-public class Logcat
+class Logcat
 {
 	public static final String TAG = "Rapid.IO";
 
@@ -23,43 +21,43 @@ public class Logcat
 
 	public static void d(String msg, Object... args)
 	{
-		if(RapidConfig.LOGS) Log.d(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(Config.LOGS) Log.d(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void e(String msg, Object... args)
 	{
-		if(RapidConfig.LOGS) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(Config.LOGS) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void e(Throwable throwable, String msg, Object... args)
 	{
-		if(RapidConfig.LOGS) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args), throwable);
+		if(Config.LOGS) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args), throwable);
 	}
 
 
 	public static void i(String msg, Object... args)
 	{
-		if(RapidConfig.LOGS) Log.i(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(Config.LOGS) Log.i(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void v(String msg, Object... args)
 	{
-		if(RapidConfig.LOGS) Log.v(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(Config.LOGS) Log.v(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void w(String msg, Object... args)
 	{
-		if(RapidConfig.LOGS) Log.w(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(Config.LOGS) Log.w(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void wtf(String msg, Object... args)
 	{
-		if(RapidConfig.LOGS) Log.wtf(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(Config.LOGS) Log.wtf(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 

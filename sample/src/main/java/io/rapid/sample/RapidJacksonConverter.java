@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 
-import io.rapid.RapidWrapper;
 import io.rapid.converter.RapidJsonConverter;
 
 

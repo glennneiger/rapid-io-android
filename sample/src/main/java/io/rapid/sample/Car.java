@@ -2,7 +2,7 @@ package io.rapid.sample;
 
 
 public class Car {
-	private int mNumber;
+	private int number;
 
 
 	public Car() {
@@ -10,22 +10,22 @@ public class Car {
 
 
 	public Car(int number) {
-		mNumber = number;
+		this.number = number;
 	}
 
 
 	@Override
 	public String toString() {
-		return "Car number " + mNumber;
+		return "Car number " + number;
 	}
 
 
 	public int getNumber() {
-		return mNumber;
+		return number;
 	}
 
 
 	public void setNumber(int number) {
-		mNumber = number;
+		this.number = number;
 	}
 }

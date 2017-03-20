@@ -4,8 +4,8 @@ package io.rapid.sample;
 import android.util.Log;
 
 import io.rapid.Rapid;
-import io.rapid.RapidCollection;
-import io.rapid.RapidDocument;
+import io.rapid.RapidCollectionReference;
+import io.rapid.RapidDocumentReference;
 import io.rapid.RapidSubscription;
 import io.rapid.Sorting;
 
@@ -25,7 +25,7 @@ public class SampleUsage {
 
 
 		// get Rapid collection
-		RapidCollection<Car> cars = Rapid.getInstance().collection("cars", Car.class);
+		RapidCollectionReference<Car> cars = Rapid.getInstance().collection("cars", Car.class);
 
 
 		// simple subscription
@@ -70,7 +70,7 @@ public class SampleUsage {
 
 
 		// basic adding
-		RapidDocument<Car> newCar = cars.newDocument();
+		RapidDocumentReference<Car> newCar = cars.newDocument();
 
 		log(newCar.getId());
 

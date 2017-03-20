@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import io.rapid.utility.Logcat;
-
 
 /**
  * Created by Leos on 15.03.2017.

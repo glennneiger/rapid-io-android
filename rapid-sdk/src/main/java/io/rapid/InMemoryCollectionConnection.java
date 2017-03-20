@@ -15,24 +15,24 @@ import java.util.UUID;
 import io.rapid.converter.RapidJsonConverter;
 
 
-class MockCollectionConnection<T> implements CollectionConnection<T> {
+class InMemoryCollectionConnection<T> implements CollectionConnection<T> {
 	private final RapidJsonConverter mJsonConverter;
 	private final Class<T> mType;
 	Map<String, String> mDb = new HashMap<>();
 	Set<RapidSubscription<T>> mSubscriptions = new HashSet<>();
 
 
-	public MockCollectionConnection(Class<T> type, RapidJsonConverter jsonConverter) {
+	public InMemoryCollectionConnection(Class<T> type, RapidJsonConverter jsonConverter) {
 		mJsonConverter = jsonConverter;
 		mType = type;
 	}
 
 
 	@Override
-	public RapidFuture<T> set(String key, T value) {
+	public RapidFuture<T> mutate(String id, T value) {
 		RapidFuture<T> future = new RapidFuture<>();
 		delayOperation(() -> {
-			mDb.put(key, toJson(value));
+			mDb.put(id, toJson(value));
 			future.invokeSuccess();
 			notifyChange();
 		});
@@ -90,9 +90,9 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 	private void notifyChange() {
 		for(RapidSubscription<T> subscription : mSubscriptions) {
-			Collection<RapidWrapper<T>> objects = new ArrayList<>();
+			Collection<RapidDocument<T>> objects = new ArrayList<>();
 			for(Map.Entry<String, String> entry : mDb.entrySet()) {
-				objects.add(new RapidWrapper<T>(entry.getKey(), fromJson(entry.getValue())));
+				objects.add(new RapidDocument<T>(entry.getKey(), fromJson(entry.getValue())));
 			}
 			subscription.invokeChange(objects);
 		}

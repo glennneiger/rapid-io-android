@@ -12,13 +12,13 @@ import java.util.Random;
 
 import io.rapid.Rapid;
 import io.rapid.RapidSubscription;
-import io.rapid.RapidWrapper;
+import io.rapid.RapidDocument;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
 
 public class MainActivity extends AppCompatActivity {
 
-	public static final String COLLECTIONS_CARS = "cars";
+	public static final String COLLECTIONS_CARS = "cars_2";
 	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
 	private RapidSubscription mSubscription;
 	private ActivityMainBinding mBinding;
@@ -38,16 +38,12 @@ public class MainActivity extends AppCompatActivity {
 		mBinding.setViewModel(mViewModel);
 
 		Rapid.initialize(RAPID_API_KEY);
-//		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
-
 
 		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)
 				.subscribe((carCollection) -> {
-					log(carCollection.toString());
-
 					List<Car> cars = new ArrayList<>();
-					for(RapidWrapper<Car> carRapidWrapper : carCollection) {
-						cars.add(carRapidWrapper.getBody());
+					for(RapidDocument<Car> carRapidDocument : carCollection) {
+						cars.add(carRapidDocument.getBody());
 					}
 					mViewModel.items.update(cars);
 				});
