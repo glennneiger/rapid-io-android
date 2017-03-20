@@ -1,14 +1,19 @@
 package io.rapid.sample;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import io.rapid.Rapid;
 import io.rapid.RapidSubscription;
+import io.rapid.RapidWrapper;
+import io.rapid.sample.databinding.ActivityMainBinding;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -16,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
 	public static final String COLLECTIONS_CARS = "cars";
 	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
 	private RapidSubscription mSubscription;
+	private ActivityMainBinding mBinding;
+	private MainViewModel mViewModel;
 
 
 	private static void log(String message) {
@@ -26,14 +33,24 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		mViewModel = new MainViewModel();
+		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+		mBinding.setViewModel(mViewModel);
 
 		Rapid.initialize(RAPID_API_KEY);
 //		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
 
 
 		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)
-				.subscribe((carCollection) -> log(carCollection.toString()));
+				.subscribe((carCollection) -> {
+					log(carCollection.toString());
+
+					List<Car> cars = new ArrayList<>();
+					for(RapidWrapper<Car> carRapidWrapper : carCollection) {
+						cars.add(carRapidWrapper.getBody());
+					}
+					mViewModel.items.update(cars);
+				});
 	}
 
 

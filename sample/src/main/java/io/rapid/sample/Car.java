@@ -1,7 +1,7 @@
 package io.rapid.sample;
 
 
-class Car {
+public class Car {
 	private int mNumber;
 
 

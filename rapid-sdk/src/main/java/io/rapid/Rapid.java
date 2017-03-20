@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.os.Handler;
+
 import com.google.gson.Gson;
 
 import java.net.URI;
@@ -16,6 +18,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
 	private WebSocketConnection mWebSocketConnection;
+	private Handler mHandler = new Handler();
 
 	private RapidCollectionProvider mCollectionProvider;
 
@@ -70,6 +73,11 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 
 	public String getApiKey() {
 		return mApiKey;
+	}
+
+
+	public Handler getHandler() {
+		return mHandler;
 	}
 
 

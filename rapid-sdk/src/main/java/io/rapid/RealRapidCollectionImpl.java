@@ -101,7 +101,9 @@ class RealRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 	private void notifyChange() {
 		for(RapidSubscription<T> subscription : mSubscriptions) {
-			subscription.invokeChange(new ArrayList<>(mCollection));
+			mRapid.getHandler().post(() -> {
+				subscription.invokeChange(new ArrayList<>(mCollection));
+			});
 		}
 	}
 
