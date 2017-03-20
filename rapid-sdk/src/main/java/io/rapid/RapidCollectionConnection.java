@@ -14,7 +14,7 @@ import java.util.Set;
 import io.rapid.converter.RapidJsonConverter;
 
 
-class RealRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
+class RapidCollectionConnection<T> implements CollectionConnection<T> {
 
 	String mCollectionName;
 	Rapid mRapid;
@@ -25,7 +25,7 @@ class RealRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 	List<RapidWrapper<T>> mCollection = new ArrayList<>();
 
 
-	public RealRapidCollectionImpl(String collectionName, Rapid rapid, RapidJsonConverter rapidJsonConverter, Class<T> type) {
+	public RapidCollectionConnection(String collectionName, Rapid rapid, RapidJsonConverter rapidJsonConverter, Class<T> type) {
 		mCollectionName = collectionName;
 		mRapid = rapid;
 		mRapidJsonConverter = rapidJsonConverter;

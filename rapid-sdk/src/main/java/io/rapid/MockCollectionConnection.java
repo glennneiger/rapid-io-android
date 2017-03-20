@@ -15,14 +15,14 @@ import java.util.UUID;
 import io.rapid.converter.RapidJsonConverter;
 
 
-class MockRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
+class MockCollectionConnection<T> implements CollectionConnection<T> {
 	private final RapidJsonConverter mJsonConverter;
 	private final Class<T> mType;
 	Map<String, String> mDb = new HashMap<>();
 	Set<RapidSubscription<T>> mSubscriptions = new HashSet<>();
 
 
-	public MockRapidCollectionImpl(Class<T> type, RapidJsonConverter jsonConverter) {
+	public MockCollectionConnection(Class<T> type, RapidJsonConverter jsonConverter) {
 		mJsonConverter = jsonConverter;
 		mType = type;
 	}

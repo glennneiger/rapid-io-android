@@ -2,16 +2,16 @@ package io.rapid;
 
 
 public class RapidDocument<T> {
-	private final RapidCollectionImpl<T> mImpl;
+	private final CollectionConnection<T> mImpl;
 	private final String mId;
 
 
-	public RapidDocument(String collectionName, RapidCollectionImpl<T> impl) {
+	public RapidDocument(String collectionName, CollectionConnection<T> impl) {
 		this(collectionName, impl, IdProvider.getNewDocumentId());
 	}
 
 
-	public RapidDocument(String collectionName, RapidCollectionImpl<T> impl, String documentId) {
+	public RapidDocument(String collectionName, CollectionConnection<T> impl, String documentId) {
 		mId = documentId;
 		mImpl = impl;
 	}

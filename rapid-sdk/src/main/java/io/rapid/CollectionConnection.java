@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-public interface RapidCollectionImpl<T> {
+public interface CollectionConnection<T> {
 	RapidFuture<T> set(String key, T value);
 	RapidSubscription subscribe(RapidCollectionCallback<T> callback);
 	RapidSubscription subscribeDocument(RapidDocumentCallback<T> callback);

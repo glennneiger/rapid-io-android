@@ -4,12 +4,12 @@ package io.rapid;
 public class RapidCollection<T> {
 
 	private final String mCollectionName;
-	private RapidCollectionImpl<T> mImpl;
+	private CollectionConnection<T> mConnection;
 
 
 	public RapidCollection(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
-		mImpl = new RealRapidCollectionImpl<>(collectionName, rapid, rapid.getJsonConverter(), type);
+		mConnection = new RapidCollectionConnection<>(collectionName, rapid, rapid.getJsonConverter(), type);
 	}
 
 
@@ -80,26 +80,26 @@ public class RapidCollection<T> {
 
 
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
-		return mImpl.subscribe(callback);
+		return mConnection.subscribe(callback);
 	}
 
 
 	public RapidDocument<T> newDocument() {
-		return new RapidDocument<>(mCollectionName, mImpl);
+		return new RapidDocument<>(mCollectionName, mConnection);
 	}
 
 
 	public RapidDocument<T> document(String documentId) {
-		return new RapidDocument<>(mCollectionName, mImpl, documentId);
+		return new RapidDocument<>(mCollectionName, mConnection, documentId);
 	}
 
 
 	void onValue(MessageVal valMessage) {
-		mImpl.onValue(valMessage);
+		mConnection.onValue(valMessage);
 	}
 
 
 	void onUpdate(MessageUpd updMessage) {
-		mImpl.onUpdate(updMessage);
+		mConnection.onUpdate(updMessage);
 	}
 }
