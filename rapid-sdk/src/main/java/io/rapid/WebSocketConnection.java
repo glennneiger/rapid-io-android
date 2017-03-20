@@ -113,14 +113,17 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d(message);
 
-		try
+		new Thread(() ->
 		{
-			if(mListener != null) mListener.onMessage(MessageParser.parse(message));
-		}
-		catch(JSONException e)
-		{
-			e.printStackTrace();
-		}
+			try
+			{
+				if(mListener != null) mListener.onMessage(MessageParser.parse(message));
+			}
+			catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}).start();
 	}
 
 
