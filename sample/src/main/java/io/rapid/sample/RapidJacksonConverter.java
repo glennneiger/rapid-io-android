@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
+import io.rapid.RapidWrapper;
 import io.rapid.converter.RapidJsonConverter;
 
 
@@ -18,12 +20,6 @@ public class RapidJacksonConverter implements RapidJsonConverter {
 	@Override
 	public <T> T fromJson(String json, Class<T> type) throws IOException {
 		return mMapper.readValue(json, type);
-	}
-
-
-	@Override
-	public <T> T fromJson(String json, Type type) throws IOException {
-		return null; //TODO
 	}
 
 

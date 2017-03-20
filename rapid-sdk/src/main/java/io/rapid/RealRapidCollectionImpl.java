@@ -1,10 +1,11 @@
 package io.rapid;
 
 
-import com.google.gson.reflect.TypeToken;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -106,10 +107,14 @@ class RealRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 
 	private List<RapidWrapper<T>> parseList(String documents) {
-		Type t = new TypeToken<List<RapidWrapper<T>>>() {}.getType();
+		List<RapidWrapper<T>> list = new ArrayList<>();
 		try {
-			return mRapidJsonConverter.fromJson(documents, t);
-		} catch(IOException e) {
+			JSONArray array = new JSONArray(documents);
+			for(int i = 0; i < array.length(); i++) {
+				list.add(parseDocument(array.optString(i)));
+			}
+			return list;
+		} catch(JSONException e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -117,12 +122,14 @@ class RealRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 
 	private RapidWrapper<T> parseDocument(String document) {
-		Type t = new TypeToken<RapidWrapper<T>>() {}.getType();
 		try {
-			return mRapidJsonConverter.fromJson(document, t);
+			JSONObject jsonObject = new JSONObject(document);
+			return new RapidWrapper<T>(jsonObject.optString("id"), mRapidJsonConverter.fromJson(jsonObject.optString("body"), mType));
 		} catch(IOException e) {
 			e.printStackTrace();
-			return null;
+		} catch(JSONException e) {
+			e.printStackTrace();
 		}
+		return null;
 	}
 }
