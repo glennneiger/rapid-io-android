@@ -11,24 +11,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.rapid.converter.RapidJsonConverter;
-
 
 class RapidCollectionConnection<T> implements CollectionConnection<T> {
 
 	String mCollectionName;
 	Rapid mRapid;
-	RapidJsonConverter mRapidJsonConverter;
 	Class<T> mType;
 	Set<RapidSubscription<T>> mSubscriptions = new HashSet<>();
 
 	List<RapidWrapper<T>> mCollection = new ArrayList<>();
 
 
-	public RapidCollectionConnection(String collectionName, Rapid rapid, RapidJsonConverter rapidJsonConverter, Class<T> type) {
+	public RapidCollectionConnection(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
 		mRapid = rapid;
-		mRapidJsonConverter = rapidJsonConverter;
 		mType = type;
 	}
 
@@ -90,7 +86,7 @@ class RapidCollectionConnection<T> implements CollectionConnection<T> {
 
 	private String toJson(RapidWrapper<T> wrapper) {
 		try {
-			return mRapidJsonConverter.toJson(wrapper);
+			return mRapid.getJsonConverter().toJson(wrapper);
 		} catch(IOException e) {
 			e.printStackTrace();
 			// TODO: handle
@@ -126,7 +122,7 @@ class RapidCollectionConnection<T> implements CollectionConnection<T> {
 	private RapidWrapper<T> parseDocument(String document) {
 		try {
 			JSONObject jsonObject = new JSONObject(document);
-			return new RapidWrapper<T>(jsonObject.optString("id"), mRapidJsonConverter.fromJson(jsonObject.optString("body"), mType));
+			return new RapidWrapper<T>(jsonObject.optString("id"), mRapid.getJsonConverter().fromJson(jsonObject.optString("body"), mType));
 		} catch(IOException e) {
 			e.printStackTrace();
 		} catch(JSONException e) {

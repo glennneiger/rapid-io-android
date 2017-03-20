@@ -9,7 +9,7 @@ public class RapidCollection<T> {
 
 	public RapidCollection(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
-		mConnection = new RapidCollectionConnection<>(collectionName, rapid, rapid.getJsonConverter(), type);
+		mConnection = new RapidCollectionConnection<>(rapid, collectionName, type);
 	}
 
 
