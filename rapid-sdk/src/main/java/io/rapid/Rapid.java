@@ -13,7 +13,7 @@ import io.rapid.converter.RapidGsonConverter;
 import io.rapid.converter.RapidJsonConverter;
 
 
-public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
+public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	private static Map<String, Rapid> sInstances = new HashMap<>();
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
@@ -56,6 +56,36 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	}
 
 
+	@Override
+	public void onOpen() {
+
+	}
+
+
+	@Override
+	public void onMessage(MessageBase message) {
+		if(message.getMessageType() == MessageBase.MessageType.VAL) {
+			MessageVal valMessage = ((MessageVal) message);
+			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
+		} else if(message.getMessageType() == MessageBase.MessageType.UPD) {
+			MessageUpd updMessage = ((MessageUpd) message);
+			mCollectionProvider.findCollectionByName(updMessage.getCollectionId()).onUpdate(updMessage);
+		}
+	}
+
+
+	@Override
+	public void onClose(WebSocketConnection.CloseReasonEnum reason) {
+
+	}
+
+
+	@Override
+	public void onError(Exception ex) {
+
+	}
+
+
 	public <T> RapidCollectionReference<T> collection(String collectionName, Class<T> itemClass) {
 		return mCollectionProvider.provideCollection(this, collectionName, itemClass);
 	}
@@ -81,37 +111,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	}
 
 
-	@Override
-	public void onOpen()
-	{
-
-	}
-
-
-	@Override
-	public void onMessage(MessageBase message)
-	{
-		if (message.getMessageType() == MessageBase.MessageType.VAL ){
-			MessageVal valMessage = ((MessageVal) message);
-			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
-		} else if (message.getMessageType() == MessageBase.MessageType.UPD ){
-			MessageUpd updMessage = ((MessageUpd) message);
-			mCollectionProvider.findCollectionByName(updMessage.getCollectionId()).onUpdate(updMessage);
-		}
-	}
-
-
-	@Override
-	public void onClose(WebSocketConnection.CloseReasonEnum reason)
-	{
-
-	}
-
-
-	@Override
-	public void onError(Exception ex)
-	{
-
+	public ConnectionState getConnectionState() {
+		return mWebSocketConnection.getConnectionState();
 	}
 
 

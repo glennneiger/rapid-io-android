@@ -18,7 +18,7 @@ import java.util.Map;
 class WebSocketConnection extends WebSocketClient
 {
 	private WebSocketConnectionListener mListener;
-	private boolean mConnected = false;
+	private ConnectionState mConnectionState = ConnectionState.DISCONNECTED;
 
 	private List<MessageBase> mPendingMessageList = new ArrayList<>();
 
@@ -61,19 +61,16 @@ class WebSocketConnection extends WebSocketClient
 
 	public void connectToServer()
 	{
-		if(!mConnected) connect();
+		if(getConnectionState() == ConnectionState.DISCONNECTED) {
+			mConnectionState = ConnectionState.CONNECTING;
+			connect();
+		}
 	}
-
-
-//	public boolean isConnected()
-//	{
-//		return mConnected;
-//	}
 
 
 	public void sendMessage(MessageBase message)
 	{
-		if(mConnected)
+		if(getConnectionState() == ConnectionState.CONNECTED)
 		{
 			try
 			{
@@ -98,7 +95,7 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d("Status message: " + handshakeData.getHttpStatusMessage() + "; HTTP status: " + handshakeData.getHttpStatus());
 
-		mConnected = true;
+		mConnectionState = ConnectionState.CONNECTED;
 		if(mListener != null) mListener.onOpen();
 
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
@@ -132,7 +129,7 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
 
-		mConnected = false;
+		mConnectionState = ConnectionState.DISCONNECTED;
 
 		//TODO translate String reason to enum
 		CloseReasonEnum reasonEnum = CloseReasonEnum.UNKNOWN;
@@ -145,7 +142,12 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d(ex.getMessage());
 
-		mConnected = false;
+		mConnectionState = ConnectionState.DISCONNECTED;
 		if(mListener != null) mListener.onError(ex);
+	}
+
+
+	public ConnectionState getConnectionState() {
+		return mConnectionState;
 	}
 }
