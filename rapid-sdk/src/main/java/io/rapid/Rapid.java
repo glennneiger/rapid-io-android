@@ -17,7 +17,6 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	private RapidJsonConverter mJsonConverter;
 	private WebSocketConnection mWebSocketConnection;
 
-	private Map<String, RapidCollection> mCollections = new HashMap<>();
 	private RapidCollectionProvider mCollectionProvider;
 
 
@@ -26,9 +25,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 		mJsonConverter = new RapidGsonConverter(new Gson());
 		mWebSocketConnection = new WebSocketConnection(URI.create(RapidConfig.URI), this);
 		mWebSocketConnection.connectToServer();
-		mWebSocketConnection.sendMessage(new MessageSub("afdasd", "cars", "asdfasdfasdfadfsgasefd"));
 
-		mCollectionProvider = new MockRapidCollectionProvider();
+		mCollectionProvider = new InMemoryRapidCollectionProvider();
 	}
 
 
@@ -85,6 +83,13 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	@Override
 	public void onMessage(MessageBase message)
 	{
+		if (message.getMessageType() == MessageBase.MessageType.VAL ){
+			MessageVal valMessage = ((MessageVal) message);
+			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
+		} else if (message.getMessageType() == MessageBase.MessageType.UPD ){
+			MessageUpd updMessage = ((MessageUpd) message);
+			mCollectionProvider.findCollectionByName(updMessage.getCollectionId()).onUpdate(updMessage);
+		}
 	}
 
 
@@ -99,5 +104,10 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener{
 	public void onError(Exception ex)
 	{
 
+	}
+
+
+	public void sendMessage(MessageBase message) {
+		mWebSocketConnection.sendMessage(message);
 	}
 }

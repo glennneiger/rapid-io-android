@@ -9,7 +9,7 @@ public class RapidCollection<T> {
 
 	public RapidCollection(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
-		mImpl = new MockRapidCollectionImpl<>(type, rapid.getJsonConverter());
+		mImpl = new RealRapidCollectionImpl<>(collectionName, rapid, rapid.getJsonConverter(), type);
 	}
 
 
@@ -91,5 +91,15 @@ public class RapidCollection<T> {
 
 	public RapidDocument<T> document(String documentId) {
 		return new RapidDocument<>(mCollectionName, mImpl, documentId);
+	}
+
+
+	void onValue(MessageVal valMessage) {
+		mImpl.onValue(valMessage);
+	}
+
+
+	void onUpdate(MessageUpd updMessage) {
+		mImpl.onUpdate(updMessage);
 	}
 }

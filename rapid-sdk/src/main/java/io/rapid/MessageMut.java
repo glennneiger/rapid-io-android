@@ -38,7 +38,7 @@ class MessageMut extends MessageBase
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_COL_ID, getCollectionId());
-		innerJson.put(ATTR_DOC, getDocument());
+		innerJson.put(ATTR_DOC, new JSONObject(getDocument()));
 		json.put(getMessageType().getKey(), innerJson);
 		return json;
 	}

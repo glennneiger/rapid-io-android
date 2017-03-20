@@ -37,7 +37,7 @@ public class SampleUsage {
 
 		// document subscription
 		cars.document("asdfasdfasdf").subscribe(value -> {
-			log(value.getValue().toString());
+			log(value.getBody().toString());
 		});
 
 

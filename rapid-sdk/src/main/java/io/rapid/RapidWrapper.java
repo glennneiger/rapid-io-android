@@ -2,28 +2,28 @@ package io.rapid;
 
 
 public class RapidWrapper<T> {
-	private String mId;
-	private T mValue;
+	private String id;
+	private T body;
 
 
 	RapidWrapper(String id, T value) {
-		mId = id;
-		mValue = value;
+		this.id = id;
+		body = value;
 	}
 
 
 	@Override
 	public String toString() {
-		return "RapidWrapper(" + getId() + ": " + getValue().toString() + ")";
+		return "RapidWrapper(" + getId() + ": " + getBody().toString() + ")";
 	}
 
 
 	public String getId() {
-		return mId;
+		return id;
 	}
 
 
-	public T getValue() {
-		return mValue;
+	public T getBody() {
+		return body;
 	}
 }

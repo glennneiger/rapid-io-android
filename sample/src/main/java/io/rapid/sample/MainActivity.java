@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 
 		Rapid.initialize(RAPID_API_KEY);
-		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
+//		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
 
 
 		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)

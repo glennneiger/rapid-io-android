@@ -7,7 +7,7 @@ public class RapidDocument<T> {
 
 
 	public RapidDocument(String collectionName, RapidCollectionImpl<T> impl) {
-		this(collectionName, impl, DocumentIdProvider.getNewId());
+		this(collectionName, impl, IdProvider.getNewDocumentId());
 	}
 
 

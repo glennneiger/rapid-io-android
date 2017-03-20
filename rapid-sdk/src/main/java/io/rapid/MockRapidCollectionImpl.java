@@ -29,18 +29,6 @@ class MockRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 
 
 	@Override
-	public RapidFuture<T> add(T value) {
-		RapidFuture<T> future = new RapidFuture<>();
-		delayOperation(() -> {
-			mDb.put(getNewKey(), toJson(value));
-			future.invokeSuccess();
-			notifyChange();
-		});
-		return future;
-	}
-
-
-	@Override
 	public RapidFuture<T> set(String key, T value) {
 		RapidFuture<T> future = new RapidFuture<>();
 		delayOperation(() -> {
@@ -56,6 +44,18 @@ class MockRapidCollectionImpl<T> implements RapidCollectionImpl<T> {
 	public RapidSubscription subscribeDocument(RapidDocumentCallback<T> callback) {
 		//TODO
 		return new RapidSubscription(null);
+	}
+
+
+	@Override
+	public void onValue(MessageVal valMessage) {
+
+	}
+
+
+	@Override
+	public void onUpdate(MessageUpd updMessage) {
+
 	}
 
 
