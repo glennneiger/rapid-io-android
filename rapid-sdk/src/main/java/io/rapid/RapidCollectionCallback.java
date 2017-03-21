@@ -1,9 +1,9 @@
 package io.rapid;
 
 
-import java.util.Collection;
+import java.util.List;
 
 
 public interface RapidCollectionCallback<T> {
-	void onValueChanged(Collection<RapidDocument<T>> items);
+	void onValueChanged(List<RapidDocument<T>> documents);
 }

@@ -24,12 +24,17 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	public RapidCollectionReference<T> lessThan(String property, String value) {
+	public RapidCollectionReference<T> lessThan(String property, int value) {
 		return this;
 	}
 
 
-	public RapidCollectionReference<T> greaterThan(String property, String value) {
+	public RapidCollectionReference<T> greaterThan(String property, int value) {
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> greaterOrEqualThan(String property, int value) {
 		return this;
 	}
 

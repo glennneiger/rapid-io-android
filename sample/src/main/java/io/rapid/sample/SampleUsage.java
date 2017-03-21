@@ -3,10 +3,12 @@ package io.rapid.sample;
 
 import android.util.Log;
 
+import io.rapid.ConnectionState;
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
+import io.rapid.RapidDocument;
 import io.rapid.RapidDocumentReference;
-import io.rapid.RapidSubscription;
+import io.rapid.RapidError;
 import io.rapid.Sorting;
 
 
@@ -16,38 +18,92 @@ public class SampleUsage {
 
 
 	public static void sampleMethod() {
-		// initialize SDK
+		// Initialization
 		Rapid.initialize(RAPID_API_KEY);
 
+		// Connection State
+		if(Rapid.getInstance().getConnectionState() == ConnectionState.CONNECTING) {
+			log("Client is connecting.");
+		}
+		if(Rapid.getInstance().getConnectionState() == ConnectionState.CONNECTED) {
+			log("Client is connected.");
+		}
+		if(Rapid.getInstance().getConnectionState() == ConnectionState.DISCONNECTED) {
+			log("Client is disconnected.");
+		}
 
-		// mutate custom JSON converter
-		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
+
+		// Referencing Collections and Documents
+		RapidCollectionReference<Message> messages = Rapid.getInstance().collection("messages", Message.class);
+		RapidDocumentReference<Message> messageAbc = messages.document("abc");
+		RapidDocumentReference<Message> newMessage = messages.newDocument();
 
 
-		// get Rapid collection
-		RapidCollectionReference<Car> cars = Rapid.getInstance().collection("cars", Car.class);
+		// Subscriptions
+		// collection subscription
+		messages.subscribe((documents) -> {
+			RapidDocument<Message> firstDoc = documents.get(0);
+			String id = firstDoc.getId();
+			Message body = firstDoc.getBody();
+		}).onError(error -> {
+			boolean isPermissionDenied = error.getType().equals(RapidError.PERMISSION_DENIED);
+			error.printStackTrace();
+		});
+
+		// single document subscription
+		messages.document("1").subscribe(value -> {
+			Message message1 = value.getBody();
+			log(message1.toString());
+		});
 
 
-		// simple subscription
-		RapidSubscription carsSubscription = cars.subscribe((carCollection) -> log(carCollection.toString()));
+		// Filtering, Ordering, Paging
+		messages
+				.equalTo("receiver", "carl01")
+				.beginGroup()
+				.equalTo("sender", "john123")
+				.or()
+				.greaterOrEqualThan("urgency", 1)
+				.endGroup()
+				.orderBy("sentDate", Sorting.DESC)
+				.orderBy("urgency", Sorting.ASC)
+				.limit(50)
+				.skip(10)
+				.subscribe(documents -> {
+					log(documents.toString());
+				})
+				.onError(error -> {
+					error.printStackTrace();
+				});
 
-		// unsubscribe when not needed anymore
-		carsSubscription.unsubscribe();
+
+		// Mutation
+
+		messages.newDocument()
+				.mutate(new Message("john123", "carl01", "Hello!"))
+				.onSuccess(() -> {
+					log("Message successfuly written.");
+				})
+				.onError(error -> {
+					boolean isTimeout = error.getType().equals(RapidError.TIMEOUT);
+					boolean isPermissionDenied = error.getType().equals(RapidError.PERMISSION_DENIED);
+					error.printStackTrace();
+				});
 
 
 		// document subscription
-		cars.document("asdfasdfasdf").subscribe(value -> {
+		messages.document("asdfasdfasdf").subscribe(value -> {
 			log(value.getBody().toString());
 		});
 
 
 		// error handling
-		cars.subscribe((carCollection) -> log(carCollection.toString()))
+		messages.subscribe((carCollection) -> log(carCollection.toString()))
 				.onError(error -> log("Subscribe error"));
 
 
 		// filtering
-		cars.equalTo("type", "SUV")
+		messages.equalTo("type", "SUV")
 				.between("price", 0, 45000)
 				.subscribe((carCollection) -> {
 					log(carCollection.toString());
@@ -55,7 +111,7 @@ public class SampleUsage {
 
 
 		// advanced filtering
-		cars.between("price", 0, 45000)
+		messages.between("price", 0, 45000)
 				.beginGroup()
 				.equalTo("type", "SUV")
 				.or()
@@ -70,15 +126,15 @@ public class SampleUsage {
 
 
 		// basic adding
-		RapidDocumentReference<Car> newCar = cars.newDocument();
+		RapidDocumentReference<Message> m = messages.newDocument();
 
-		log(newCar.getId());
+		log(m.getId());
 
-		newCar.mutate(new Car());
+		m.mutate(new Message());
 
 
 		// advanced adding
-		cars.newDocument().mutate(new Car())
+		messages.newDocument().mutate(new Message())
 				.onSuccess(() -> {
 					log("Mutation successful");
 				})
@@ -89,7 +145,12 @@ public class SampleUsage {
 
 
 		// editing
-		cars.document("asfasdfwewqer").mutate(new Car());
+		messages.document("asfasdfwewqer").mutate(new Message());
+
+
+		// mutate custom JSON converter
+		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
+
 	}
 
 

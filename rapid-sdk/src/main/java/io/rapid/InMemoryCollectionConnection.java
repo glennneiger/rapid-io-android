@@ -5,9 +5,9 @@ import android.os.Handler;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -90,7 +90,7 @@ class InMemoryCollectionConnection<T> implements CollectionConnection<T> {
 
 	private void notifyChange() {
 		for(RapidSubscription<T> subscription : mSubscriptions) {
-			Collection<RapidDocument<T>> objects = new ArrayList<>();
+			List<RapidDocument<T>> objects = new ArrayList<>();
 			for(Map.Entry<String, String> entry : mDb.entrySet()) {
 				objects.add(new RapidDocument<T>(entry.getKey(), fromJson(entry.getValue())));
 			}

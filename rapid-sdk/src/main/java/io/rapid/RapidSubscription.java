@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-import java.util.Collection;
+import java.util.List;
 
 
 public class RapidSubscription<T> {
@@ -43,7 +43,7 @@ public class RapidSubscription<T> {
 	}
 
 
-	public void invokeChange(Collection<RapidDocument<T>> value) {
+	public void invokeChange(List<RapidDocument<T>> value) {
 		mCallback.onValueChanged(value);
 	}
 }
