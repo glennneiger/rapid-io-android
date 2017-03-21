@@ -18,4 +18,9 @@ class IdProvider {
 	static String getNewDocumentId() {
 		return UUID.randomUUID().toString();
 	}
+
+
+	static String getConnectionId() {
+		return UUID.randomUUID().toString();
+	}
 }

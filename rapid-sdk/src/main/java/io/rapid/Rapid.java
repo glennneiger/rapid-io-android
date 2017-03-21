@@ -6,7 +6,9 @@ import android.os.Handler;
 import com.google.gson.Gson;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.rapid.converter.RapidGsonConverter;
@@ -19,6 +21,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	private RapidJsonConverter mJsonConverter;
 	private WebSocketConnection mWebSocketConnection;
 	private Handler mHandler = new Handler();
+	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 
 	private CollectionProvider mCollectionProvider;
 
@@ -52,7 +55,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 
 	public static void initialize(String apiKey) {
-		sInstances.put(apiKey, new Rapid(apiKey));
+		if(!sInstances.containsKey(apiKey))
+			sInstances.put(apiKey, new Rapid(apiKey));
 	}
 
 
@@ -67,7 +71,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		if(message.getMessageType() == MessageBase.MessageType.VAL) {
 			MessageVal valMessage = ((MessageVal) message);
 			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
-		} else if(message.getMessageType() == MessageBase.MessageType.UPD) {
+		} else if(message.getMessageType() == MessageBase.MessageType.UPD)
+		{
 			MessageUpd updMessage = ((MessageUpd) message);
 			mCollectionProvider.findCollectionByName(updMessage.getCollectionId()).onUpdate(updMessage);
 		}
@@ -83,6 +88,13 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	@Override
 	public void onError(Exception ex) {
 
+	}
+
+
+	@Override
+	public void onConnectionStateChange(ConnectionState state)
+	{
+		invokeConnectionStateChanged(state);
 	}
 
 
@@ -106,8 +118,31 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	public Handler getHandler() {
+	Handler getHandler() {
 		return mHandler;
+	}
+
+
+	void sendMessage(MessageBase message) {
+		mWebSocketConnection.sendMessage(message);
+	}
+
+
+	public void addConnectionStateListener(RapidConnectionStateListener mListener)
+	{
+		mConnectionStateListeners.add(mListener);
+	}
+
+
+	public void removeConnectionStateListener(RapidConnectionStateListener mListener)
+	{
+		mConnectionStateListeners.remove(mListener);
+	}
+
+
+	public void removeAllConnectionStateListeners()
+	{
+		mConnectionStateListeners.clear();
 	}
 
 
@@ -116,7 +151,10 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	public void sendMessage(MessageBase message) {
-		mWebSocketConnection.sendMessage(message);
+	private void invokeConnectionStateChanged(ConnectionState state) {
+		for(RapidConnectionStateListener l : mConnectionStateListeners)
+		{
+			if(l != null) l.onConnectionStateChanged(state);
+		}
 	}
 }

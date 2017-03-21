@@ -19,7 +19,7 @@ class MessageErr extends MessageBase
 
 	enum ErrorType
 	{
-		INTERNAL_ERROR("internal-error");
+		INTERNAL_ERROR("internal-error"), PERMISSION_DENIED("permission-denied"), CONNECTION_TERMINATED("connection-terminated");
 
 
 		private String mKey;
