@@ -10,6 +10,13 @@ import org.json.JSONObject;
 
 class MessageAck extends MessageBase
 {
+
+	MessageAck(String eventId)
+	{
+		super(MessageType.ACK, eventId);
+	}
+
+
 	MessageAck(JSONObject json)
 	{
 		super(MessageType.ACK);

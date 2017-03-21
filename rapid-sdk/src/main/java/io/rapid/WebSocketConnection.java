@@ -1,5 +1,7 @@
 package io.rapid;
 
+import android.os.Handler;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
@@ -10,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static io.rapid.ConnectionState.CONNECTED;
+import static io.rapid.ConnectionState.CONNECTING;
+import static io.rapid.ConnectionState.DISCONNECTED;
+
 
 /**
  * Created by Leos on 15.03.2017.
@@ -17,10 +23,19 @@ import java.util.Map;
 
 class WebSocketConnection extends WebSocketClient
 {
+	private final int HB_TIMEOUT = 10 * 1000;
+
 	private WebSocketConnectionListener mListener;
-	private ConnectionState mConnectionState = ConnectionState.DISCONNECTED;
+	private ConnectionState mConnectionState = DISCONNECTED;
 
 	private List<MessageBase> mPendingMessageList = new ArrayList<>();
+	private String mConnectionId;
+	private Handler mHBHandler = new Handler();
+	private Runnable mHBRunnable = () ->
+	{
+		sendHB();
+		startHB();
+	};
 
 
 	enum CloseReasonEnum
@@ -35,6 +50,7 @@ class WebSocketConnection extends WebSocketClient
 		void onMessage(MessageBase message);
 		void onClose(CloseReasonEnum reason);
 		void onError(Exception ex);
+		void onConnectionStateChange(ConnectionState state);
 	}
 
 
@@ -61,8 +77,8 @@ class WebSocketConnection extends WebSocketClient
 
 	public void connectToServer()
 	{
-		if(getConnectionState() == ConnectionState.DISCONNECTED) {
-			mConnectionState = ConnectionState.CONNECTING;
+		if(getConnectionState() == DISCONNECTED) {
+			changeConnectionState(CONNECTING);
 			connect();
 		}
 	}
@@ -95,7 +111,10 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d("Status message: " + handshakeData.getHttpStatusMessage() + "; HTTP status: " + handshakeData.getHttpStatus());
 
-		mConnectionState = ConnectionState.CONNECTED;
+		changeConnectionState(CONNECTED);
+		sendConnect();
+		startHB();
+
 		if(mListener != null) mListener.onOpen();
 
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
@@ -106,15 +125,22 @@ class WebSocketConnection extends WebSocketClient
 
 
 	@Override
-	public void onMessage(String message)
+	public void onMessage(String messageJson)
 	{
-		Logcat.d(message);
+		Logcat.d(messageJson);
 
 		new Thread(() ->
 		{
 			try
 			{
-				if(mListener != null) mListener.onMessage(MessageParser.parse(message));
+				MessageBase parsedMessage = MessageParser.parse(messageJson);
+				sendAckIfNeeded(parsedMessage);
+
+				if(parsedMessage.getMessageType() == MessageBase.MessageType.ERR) {
+					handleErrorMessage(parsedMessage);
+				}
+
+				if(mListener != null) mListener.onMessage(parsedMessage);
 			}
 			catch(JSONException e)
 			{
@@ -129,7 +155,8 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
 
-		mConnectionState = ConnectionState.DISCONNECTED;
+		changeConnectionState(DISCONNECTED);
+		stopHB();
 
 		//TODO translate String reason to enum
 		CloseReasonEnum reasonEnum = CloseReasonEnum.UNKNOWN;
@@ -142,12 +169,60 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d(ex.getMessage());
 
-		mConnectionState = ConnectionState.DISCONNECTED;
+		changeConnectionState(DISCONNECTED);
+		stopHB();
 		if(mListener != null) mListener.onError(ex);
 	}
 
 
 	public ConnectionState getConnectionState() {
 		return mConnectionState;
+	}
+
+
+	private void changeConnectionState(ConnectionState state)
+	{
+		mConnectionState = state;
+		if(mListener != null) mListener.onConnectionStateChange(state);
+	}
+
+
+	private void sendConnect()
+	{
+		if(mConnectionId == null) mConnectionId = IdProvider.getConnectionId();
+		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId));
+	}
+
+
+	private void sendAckIfNeeded(MessageBase parsedMessage)
+	{
+		if(parsedMessage.getMessageType() == MessageBase.MessageType.VAL || parsedMessage.getMessageType() == MessageBase.MessageType.UPD) {
+			sendMessage(new MessageAck(parsedMessage.getEventId()));
+		}
+	}
+
+
+	private void handleErrorMessage(MessageBase parsedMessage)
+	{
+
+	}
+
+
+	private void sendHB()
+	{
+		sendMessage(new MessageHb(IdProvider.getNewEventId(), mConnectionId));
+	}
+
+
+	private void startHB()
+	{
+		stopHB();
+		mHBHandler.postDelayed(mHBRunnable, HB_TIMEOUT);
+	}
+
+
+	private void stopHB()
+	{
+		mHBHandler.removeCallbacks(mHBRunnable);
 	}
 }

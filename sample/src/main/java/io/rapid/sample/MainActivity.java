@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
 		Rapid.initialize(RAPID_API_KEY);
 
+		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
+
 		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)
 				.subscribe((carCollection) -> {
 					List<Car> cars = new ArrayList<>();
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		Rapid.getInstance().removeAllConnectionStateListeners();
 		mSubscription.unsubscribe();
 		super.onDestroy();
 	}
