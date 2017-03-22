@@ -18,7 +18,8 @@ abstract class MessageBase
 
 	public enum MessageType
 	{
-		ACK("ack"), ERR("err"), MUT("mut"), SUB("sub"), UNS("uns"), VAL("val"), UPD("upd"), CON("con"), DIS("dis"), HB("hb"), UNKNOWN("unw");
+		ACK("ack"), ERR("err"), MUT("mut"), SUB("sub"), UNS("uns"), VAL("val"),
+		UPD("upd"), CON("con"), DIS("dis"), HB("hb"), BATCH("batch"), UNKNOWN("unw");
 
 
 		private String mKey;
@@ -73,7 +74,7 @@ abstract class MessageBase
 	}
 
 
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		if(json != null) mEventId = json.optJSONObject(mMessageType.getKey()).optString(ATTR_EVENT_ID);
 	}

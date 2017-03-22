@@ -31,6 +31,8 @@ class MessageParser
 				return new MessageUpd(json);
 			case VAL:
 				return new MessageVal(json);
+			case BATCH:
+				return new MessageBatch(json);
 			case UNKNOWN:
 				return new MessageUnknown();
 			default:

@@ -23,7 +23,7 @@ class MessageCon extends MessageBase
 	}
 
 
-	public MessageCon(JSONObject json)
+	public MessageCon(JSONObject json) throws JSONException
 	{
 		super(MessageType.CON);
 		fromJson(json);
@@ -42,7 +42,7 @@ class MessageCon extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 

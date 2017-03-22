@@ -19,7 +19,7 @@ class MessageVal extends MessageBase
 	private String mDocuments;
 
 
-	MessageVal(JSONObject json)
+	MessageVal(JSONObject json) throws JSONException
 	{
 		super(MessageType.VAL);
 		fromJson(json);
@@ -40,7 +40,7 @@ class MessageVal extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 

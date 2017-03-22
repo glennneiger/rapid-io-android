@@ -53,7 +53,7 @@ class MessageErr extends MessageBase
 	}
 
 
-	MessageErr(JSONObject json)
+	MessageErr(JSONObject json) throws JSONException
 	{
 		super(MessageType.ERR);
 		fromJson(json);
@@ -73,7 +73,7 @@ class MessageErr extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 

@@ -17,7 +17,7 @@ class MessageAck extends MessageBase
 	}
 
 
-	MessageAck(JSONObject json)
+	MessageAck(JSONObject json) throws JSONException
 	{
 		super(MessageType.ACK);
 		fromJson(json);
@@ -32,7 +32,7 @@ class MessageAck extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 	}

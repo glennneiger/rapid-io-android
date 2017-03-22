@@ -23,7 +23,7 @@ class MessageDis extends MessageBase
 	}
 
 
-	public MessageDis(JSONObject json)
+	public MessageDis(JSONObject json) throws JSONException
 	{
 		super(MessageType.DIS);
 		fromJson(json);
@@ -42,7 +42,7 @@ class MessageDis extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 

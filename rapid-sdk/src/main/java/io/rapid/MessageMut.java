@@ -17,7 +17,7 @@ class MessageMut extends MessageBase
 	private String mDocument;
 
 
-	public MessageMut(JSONObject json)
+	public MessageMut(JSONObject json) throws JSONException
 	{
 		super(MessageType.MUT);
 		fromJson(json);
@@ -45,7 +45,7 @@ class MessageMut extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 

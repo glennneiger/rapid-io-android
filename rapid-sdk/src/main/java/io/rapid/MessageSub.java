@@ -26,7 +26,7 @@ class MessageSub extends MessageBase
 	}
 
 
-	public MessageSub(JSONObject json)
+	public MessageSub(JSONObject json) throws JSONException
 	{
 		super(MessageType.SUB);
 		fromJson(json);
@@ -46,7 +46,7 @@ class MessageSub extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 

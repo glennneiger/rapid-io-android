@@ -19,7 +19,7 @@ class MessageUpd extends MessageBase
 	private String mDocument;
 
 
-	MessageUpd(JSONObject json)
+	MessageUpd(JSONObject json) throws JSONException
 	{
 		super(MessageType.UPD);
 		fromJson(json);
@@ -40,7 +40,7 @@ class MessageUpd extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json)
+	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
 
