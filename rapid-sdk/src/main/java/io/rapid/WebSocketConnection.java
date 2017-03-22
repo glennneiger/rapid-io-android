@@ -134,13 +134,18 @@ class WebSocketConnection extends WebSocketClient
 			try
 			{
 				MessageBase parsedMessage = MessageParser.parse(messageJson);
-				sendAckIfNeeded(parsedMessage);
 
-				if(parsedMessage.getMessageType() == MessageBase.MessageType.ERR) {
-					handleErrorMessage(parsedMessage);
+				if(parsedMessage.getMessageType() == MessageBase.MessageType.BATCH)
+				{
+					for(MessageBase message : ((MessageBatch)parsedMessage).getMessageList())
+					{
+						handleNewMessage(message);
+					}
 				}
-
-				if(mListener != null) mListener.onMessage(parsedMessage);
+				else
+				{
+					handleNewMessage(parsedMessage);
+				}
 			}
 			catch(JSONException e)
 			{
@@ -199,6 +204,18 @@ class WebSocketConnection extends WebSocketClient
 		if(parsedMessage.getMessageType() == MessageBase.MessageType.VAL || parsedMessage.getMessageType() == MessageBase.MessageType.UPD) {
 			sendMessage(new MessageAck(parsedMessage.getEventId()));
 		}
+	}
+
+
+	private void handleNewMessage(MessageBase parsedMessage)
+	{
+		sendAckIfNeeded(parsedMessage);
+
+		if(parsedMessage.getMessageType() == MessageBase.MessageType.ERR) {
+			handleErrorMessage(parsedMessage);
+		}
+
+		if(mListener != null) mListener.onMessage(parsedMessage);
 	}
 
 
