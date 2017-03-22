@@ -5,6 +5,7 @@ public class RapidCollectionReference<T> {
 
 	private final String mCollectionName;
 	private CollectionConnection<T> mConnection;
+	private EntityOrder mOrder;
 
 
 	public RapidCollectionReference(Rapid rapid, String collectionName, Class<T> type) {
@@ -75,6 +76,9 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
+		if(mOrder == null) mOrder = new EntityOrder();
+		mOrder.putOrder(property, sorting);
+
 		return this;
 	}
 

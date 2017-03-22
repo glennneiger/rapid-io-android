@@ -43,8 +43,11 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
-		mRapid.sendMessage(new MessageSub(IdProvider.getNewEventId(), mCollectionName, IdProvider.getNewSubscriptionId()));
-
+		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, IdProvider.getNewSubscriptionId());
+		// TODO
+		subscriptionMsg.setSkip(10);
+		subscriptionMsg.setLimit(10);
+		mRapid.sendMessage(subscriptionMsg);
 
 		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
 		mSubscriptions.add(subscription);
