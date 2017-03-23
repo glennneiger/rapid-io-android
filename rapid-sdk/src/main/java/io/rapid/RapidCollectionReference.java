@@ -5,6 +5,8 @@ public class RapidCollectionReference<T> {
 
 	private final String mCollectionName;
 	private CollectionConnection<T> mConnection;
+	private int mLimit = Config.DEFAULT_LIMIT;
+	private int mSkip = 0;
 	private EntityOrder mOrder;
 
 
@@ -61,11 +63,13 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> limit(int limit) {
+		mLimit = limit;
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> skip(int skip) {
+		mSkip = skip;
 		return this;
 	}
 
@@ -89,7 +93,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
-		return mConnection.subscribe(callback, mOrder);
+		return mConnection.subscribe(callback, mOrder, mLimit, mSkip);
 	}
 
 
