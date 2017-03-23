@@ -12,12 +12,10 @@ class MessageUpd extends MessageBase
 {
 	private static final String ATTR_SUB_ID = "sub-id";
 	private static final String ATTR_COL_ID = "col-id";
-	private static final String ATTR_CON_ID = "con-id";
 	private static final String ATTR_DOC = "doc";
 
 	private String mSubscriptionId;
 	private String mCollectionId;
-	private String mConnectionId;
 	private String mDocument;
 
 
@@ -35,7 +33,6 @@ class MessageUpd extends MessageBase
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_SUB_ID, getSubscriptionId());
 		innerJson.put(ATTR_COL_ID, getCollectionId());
-		innerJson.put(ATTR_CON_ID, getConnectionId());
 		innerJson.put(ATTR_DOC, getDocument());
 		json.put(getMessageType().getKey(), innerJson);
 		return json;
@@ -49,7 +46,6 @@ class MessageUpd extends MessageBase
 
 		mSubscriptionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_SUB_ID);
 		mCollectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_COL_ID);
-		mConnectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_CON_ID);
 		mDocument = json.optJSONObject(getMessageType().getKey()).optString(ATTR_DOC);
 	}
 
@@ -69,11 +65,5 @@ class MessageUpd extends MessageBase
 	public String getDocument()
 	{
 		return mDocument;
-	}
-
-
-	public String getConnectionId()
-	{
-		return mConnectionId;
 	}
 }

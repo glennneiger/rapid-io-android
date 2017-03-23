@@ -90,8 +90,6 @@ class WebSocketConnection extends WebSocketClient
 		{
 			try
 			{
-				if(message.getMessageType() == MessageBase.MessageType.SUB) ((MessageSub) message).setConnectionId(mConnectionId);
-
 				String json = message.toJson().toString();
 				Logcat.d(json);
 				send(json);

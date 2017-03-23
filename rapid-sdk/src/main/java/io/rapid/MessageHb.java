@@ -10,16 +10,9 @@ import org.json.JSONObject;
 
 class MessageHb extends MessageBase
 {
-	private static final String ATTR_CON_ID = "con-id";
-
-	private String mConnectionId;
-
-
 	public MessageHb(String eventId, String connectionId)
 	{
 		super(MessageType.HB, eventId);
-
-		mConnectionId = connectionId;
 	}
 
 
@@ -35,7 +28,6 @@ class MessageHb extends MessageBase
 	{
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_CON_ID, getConnectionId());
 		json.put(getMessageType().getKey(), innerJson);
 		return json;
 	}
@@ -45,13 +37,5 @@ class MessageHb extends MessageBase
 	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
-
-		mConnectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_CON_ID);
-	}
-
-
-	public String getConnectionId()
-	{
-		return mConnectionId;
 	}
 }

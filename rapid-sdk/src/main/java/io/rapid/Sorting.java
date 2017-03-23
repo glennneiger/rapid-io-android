@@ -18,4 +18,19 @@ public enum Sorting
 	{
 		return mKey;
 	}
+
+
+	public static Sorting fromKey(String key)
+	{
+		if(key == null) return ASC;
+
+		for(Sorting item : Sorting.values())
+		{
+			if(item.getKey().equalsIgnoreCase(key))
+			{
+				return item;
+			}
+		}
+		return ASC;
+	}
 }

@@ -89,7 +89,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
-		return mConnection.subscribe(callback);
+		return mConnection.subscribe(callback, mOrder);
 	}
 
 

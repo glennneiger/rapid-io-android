@@ -60,7 +60,7 @@ class InMemoryCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidSubscription<T> subscribe(RapidCollectionCallback<T> callback) {
+	public RapidSubscription<T> subscribe(RapidCollectionCallback<T> callback, EntityOrder order) {
 		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
 		mSubscriptions.add(subscription);
 		subscription.setOnUnsubscribeCallback(() -> mSubscriptions.remove(subscription));

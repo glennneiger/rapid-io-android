@@ -12,15 +12,15 @@ class MessageSub extends MessageBase
 {
 	private static final String ATTR_SUB_ID = "sub-id";
 	private static final String ATTR_COL_ID = "col-id";
-	private static final String ATTR_CON_ID = "con-id";
 	private static final String ATTR_LIMIT = "limit";
 	private static final String ATTR_SKIP = "skip";
+	private static final String ATTR_ORDER = "order";
 
 	private String mSubscriptionId;
 	private String mCollectionId;
-	private String mConnectionId;
 	private int mLimit = Config.DEFAULT_LIMIT;
 	private int mSkip = 0;
+	private EntityOrder mOrder;
 
 
 	public MessageSub(String eventId, String collectionId, String subscriptionId)
@@ -46,9 +46,9 @@ class MessageSub extends MessageBase
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_SUB_ID, mSubscriptionId);
 		innerJson.put(ATTR_COL_ID, mCollectionId);
-		innerJson.put(ATTR_CON_ID, mConnectionId);
 		innerJson.put(ATTR_LIMIT, mLimit);
 		innerJson.put(ATTR_SKIP, mSkip);
+		if(mOrder != null && !mOrder.getOrderList().isEmpty()) innerJson.put(ATTR_ORDER, mOrder.toJson());
 
 		json.put(getMessageType().getKey(), innerJson);
 		return json;
@@ -62,9 +62,9 @@ class MessageSub extends MessageBase
 
 		mSubscriptionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_SUB_ID);
 		mCollectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_COL_ID);
-		mConnectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_CON_ID);
 		mLimit = json.optJSONObject(getMessageType().getKey()).optInt(ATTR_LIMIT);
 		mSkip = json.optJSONObject(getMessageType().getKey()).optInt(ATTR_SKIP);
+		mOrder = EntityOrder.fromJson(json.optJSONObject(getMessageType().getKey()).optJSONArray(ATTR_ORDER));
 	}
 
 
@@ -77,18 +77,6 @@ class MessageSub extends MessageBase
 	public String getCollectionId()
 	{
 		return mCollectionId;
-	}
-
-
-	public String getConnectionId()
-	{
-		return mConnectionId;
-	}
-
-
-	public void setConnectionId(String connectionId)
-	{
-		mConnectionId = connectionId;
 	}
 
 
@@ -113,5 +101,11 @@ class MessageSub extends MessageBase
 	public void setSkip(int skip)
 	{
 		mSkip = skip;
+	}
+
+
+	public void setOrder(EntityOrder order)
+	{
+		mOrder = order;
 	}
 }
