@@ -34,8 +34,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		RapidFuture<T> future = new RapidFuture<>();
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
-		mRapid.sendMessage(new MessageMut(IdProvider.getNewEventId(), mCollectionName, toJson(doc)));
-		future.invokeSuccess(); // TODO: Call this when ACK is received for this message
+		mRapid.sendMessage(new MessageMut(IdProvider.getNewEventId(), mCollectionName, toJson(doc))).onSuccess(future::invokeSuccess);
 
 		return future;
 	}

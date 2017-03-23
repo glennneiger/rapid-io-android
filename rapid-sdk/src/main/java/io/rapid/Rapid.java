@@ -24,6 +24,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 
 	private CollectionProvider mCollectionProvider;
+	private Map<String, MessageFuture> mPendingMessages = new HashMap<>();
 
 
 	private Rapid(String apiKey) {
@@ -66,7 +67,11 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	@Override
 	public void onMessage(MessageBase message) {
-		if(message.getMessageType() == MessageBase.MessageType.VAL) {
+		if (message.getMessageType()== MessageBase.MessageType.ACK){
+			MessageAck ackMessage = ((MessageAck) message);
+			MessageFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
+			messageFuture.invokeSuccess();
+		} else if(message.getMessageType() == MessageBase.MessageType.VAL) {
 			MessageVal valMessage = ((MessageVal) message);
 			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
 		} else if(message.getMessageType() == MessageBase.MessageType.UPD)
@@ -145,8 +150,11 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	void sendMessage(MessageBase message) {
+	MessageFuture sendMessage(MessageBase message) {
+		MessageFuture future = new MessageFuture();
+		mPendingMessages.put(message.getEventId(), future);
 		mWebSocketConnection.sendMessage(message);
+		return future;
 	}
 
 
