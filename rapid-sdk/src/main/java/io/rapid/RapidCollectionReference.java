@@ -14,9 +14,9 @@ public class RapidCollectionReference<T> {
 	private Stack<FilterGroup> mFilterStack = new Stack<>();
 
 
-	public RapidCollectionReference(Rapid rapid, String collectionName, Class<T> type) {
+	public RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName) {
 		mCollectionName = collectionName;
-		mConnection = new WebSocketCollectionConnection<>(rapid, collectionName, type);
+		mConnection = collectionConnection;
 		mFilterStack.push(new FilterAnd());
 	}
 
@@ -115,11 +115,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
-		if (mFilterStack.size()!=1){
-			throw new IllegalArgumentException("Wrong filter structure");
-		}
-
-		return mConnection.subscribe(callback, mOrder, mLimit, mSkip, mFilterStack.peek());
+		return mConnection.subscribe(callback, getOrder(), getLimit(), getSkip(), getFilter());
 	}
 
 
@@ -130,6 +126,29 @@ public class RapidCollectionReference<T> {
 
 	public RapidDocumentReference<T> document(String documentId) {
 		return new RapidDocumentReference<>(mCollectionName, mConnection, documentId);
+	}
+
+
+	Filter getFilter() {
+		if (mFilterStack.size()!=1){
+			throw new IllegalArgumentException("Wrong filter structure");
+		}
+		return mFilterStack.peek();
+	}
+
+
+	EntityOrder getOrder() {
+		return mOrder;
+	}
+
+
+	int getLimit() {
+		return mLimit;
+	}
+
+
+	int getSkip() {
+		return mSkip;
 	}
 
 
