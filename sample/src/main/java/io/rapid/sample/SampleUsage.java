@@ -60,11 +60,10 @@ public class SampleUsage {
 		// Filtering, Ordering, Paging
 		messages
 				.equalTo("receiver", "carl01")
-				.beginGroup()
+				.beginOr()
 				.equalTo("sender", "john123")
-				.or()
 				.greaterOrEqualThan("urgency", 1)
-				.endGroup()
+				.endOr()
 				.orderBy("sentDate", Sorting.DESC)
 				.orderBy("urgency", Sorting.ASC)
 				.limit(50)
@@ -112,11 +111,13 @@ public class SampleUsage {
 
 		// advanced filtering
 		messages.between("price", 0, 45000)
-				.beginGroup()
-				.equalTo("type", "SUV")
-				.or()
-				.equalTo("type", "sedan")
-				.endGroup()
+				.beginOr()
+					.beginAnd()
+						.equalTo("type", "SUV")
+						.equalTo("tyadsfasdfpe", "SUasdfasdfV")
+					.endAnd()
+					.equalTo("type", "sedan")
+				.endOr()
 				.orderBy("price", Sorting.ASC)
 				.skip(20)
 				.limit(20)

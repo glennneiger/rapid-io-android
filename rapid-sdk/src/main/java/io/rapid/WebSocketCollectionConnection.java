@@ -34,8 +34,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		RapidFuture<T> future = new RapidFuture<>();
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
-		mRapid.sendMessage(new MessageMut(IdProvider.getNewEventId(), mCollectionName, toJson(doc)));
-		future.invokeSuccess(); // TODO: Call this when ACK is received for this message
+		mRapid.sendMessage(new MessageMut(IdProvider.getNewEventId(), mCollectionName, toJson(doc))).onSuccess(future::invokeSuccess);
 
 		return future;
 	}
@@ -48,12 +47,18 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		subscriptionMsg.setLimit(limit);
 		subscriptionMsg.setOrder(order);
 
-		mRapid.sendMessage(subscriptionMsg);
-
 		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
+		mRapid.onSubscribe(subscription);
+		mRapid.sendMessage(subscriptionMsg);
 		mSubscriptions.add(subscription);
-		subscription.setOnUnsubscribeCallback(() -> mSubscriptions.remove(subscription));
+		subscription.setOnUnsubscribeCallback(() -> onUnsubscribed(subscription));
 		return subscription;
+	}
+
+
+	private void onUnsubscribed(RapidSubscription<T> subscription) {
+		mSubscriptions.remove(subscription);
+		mRapid.onUnsubscribe(subscription);
 	}
 
 
@@ -86,6 +91,12 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			mCollection.add(doc);
 		}
 		notifyChange();
+	}
+
+
+	@Override
+	public boolean isSubscribed() {
+		return !mSubscriptions.isEmpty();
 	}
 
 

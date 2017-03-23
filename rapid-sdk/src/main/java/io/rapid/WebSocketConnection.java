@@ -83,6 +83,12 @@ class WebSocketConnection extends WebSocketClient
 		}
 	}
 
+	public void disconnectFromServer()
+	{
+		sendDisconnect();
+		close();
+	}
+
 
 	public void sendMessage(MessageBase message)
 	{
@@ -196,6 +202,12 @@ class WebSocketConnection extends WebSocketClient
 	{
 		if(mConnectionId == null) mConnectionId = IdProvider.getConnectionId();
 		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId));
+	}
+
+
+	private void sendDisconnect()
+	{
+		sendMessage(new MessageDis(IdProvider.getNewEventId(), mConnectionId));
 	}
 
 

@@ -42,17 +42,21 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	public RapidCollectionReference<T> beginGroup() {
+	public RapidCollectionReference<T> beginOr() {
+		return this;
+	}
+
+	public RapidCollectionReference<T> beginAnd() {
 		return this;
 	}
 
 
-	public RapidCollectionReference<T> endGroup() {
+	public RapidCollectionReference<T> endOr() {
 		return this;
 	}
 
 
-	public RapidCollectionReference<T> or() {
+	public RapidCollectionReference<T> endAnd() {
 		return this;
 	}
 
@@ -104,6 +108,11 @@ public class RapidCollectionReference<T> {
 
 	public RapidDocumentReference<T> document(String documentId) {
 		return new RapidDocumentReference<>(mCollectionName, mConnection, documentId);
+	}
+
+
+	boolean isSubscribed() {
+		return mConnection.isSubscribed();
 	}
 
 

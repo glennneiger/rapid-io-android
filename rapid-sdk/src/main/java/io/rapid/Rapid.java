@@ -24,13 +24,12 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 
 	private CollectionProvider mCollectionProvider;
+	private Map<String, MessageFuture> mPendingMessages = new HashMap<>();
 
 
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
-		mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
-		mWebSocketConnection.connectToServer();
 
 		mCollectionProvider = new InMemoryCollectionProvider();
 	}
@@ -68,7 +67,11 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	@Override
 	public void onMessage(MessageBase message) {
-		if(message.getMessageType() == MessageBase.MessageType.VAL) {
+		if (message.getMessageType()== MessageBase.MessageType.ACK){
+			MessageAck ackMessage = ((MessageAck) message);
+			MessageFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
+			messageFuture.invokeSuccess();
+		} else if(message.getMessageType() == MessageBase.MessageType.VAL) {
 			MessageVal valMessage = ((MessageVal) message);
 			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
 		} else if(message.getMessageType() == MessageBase.MessageType.UPD)
@@ -118,13 +121,40 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
+	void onSubscribe(RapidSubscription subscription){
+		// some subscription subscribed - connect if not connected
+		mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
+		mWebSocketConnection.connectToServer();
+
+	}
+
+
+	void onUnsubscribe(RapidSubscription subscription) {
+		// some subscription unsubscribed - check if we have any more subscriptions and disconnect if not
+		boolean subscribed = false;
+		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values()) {
+			if (rapidCollectionReference.isSubscribed()){
+				subscribed = true;
+				break;
+			}
+		}
+
+		if (!subscribed){
+			mWebSocketConnection.disconnectFromServer();
+		}
+	}
+
+
 	Handler getHandler() {
 		return mHandler;
 	}
 
 
-	void sendMessage(MessageBase message) {
+	MessageFuture sendMessage(MessageBase message) {
+		MessageFuture future = new MessageFuture();
+		mPendingMessages.put(message.getEventId(), future);
 		mWebSocketConnection.sendMessage(message);
+		return future;
 	}
 
 
