@@ -43,8 +43,14 @@ public class MainActivity extends AppCompatActivity {
 		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
 
 		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)
-				.orderBy("id", Sorting.ASC)
-				.orderBy("name", Sorting.DESC)
+				.equalTo("receiver", "carl01")
+				.beginGroup()
+				.equalTo("sender", "john123")
+				.or()
+				.greaterOrEqualThan("urgency", 1)
+				.endGroup()
+				.orderBy("sentDate", Sorting.DESC)
+				.orderBy("urgency", Sorting.ASC)
 				.subscribe((carCollection) -> {
 					List<Car> cars = new ArrayList<>();
 					for(RapidDocument<Car> carRapidDocument : carCollection) {
