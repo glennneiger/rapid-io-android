@@ -40,17 +40,21 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	public RapidCollectionReference<T> beginGroup() {
+	public RapidCollectionReference<T> beginOr() {
+		return this;
+	}
+
+	public RapidCollectionReference<T> beginAnd() {
 		return this;
 	}
 
 
-	public RapidCollectionReference<T> endGroup() {
+	public RapidCollectionReference<T> endOr() {
 		return this;
 	}
 
 
-	public RapidCollectionReference<T> or() {
+	public RapidCollectionReference<T> endAnd() {
 		return this;
 	}
 
