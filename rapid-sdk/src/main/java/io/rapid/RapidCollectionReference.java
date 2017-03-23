@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import java.util.Stack;
+
+
 public class RapidCollectionReference<T> {
 
 	private final String mCollectionName;
@@ -8,55 +11,70 @@ public class RapidCollectionReference<T> {
 	private int mLimit = Config.DEFAULT_LIMIT;
 	private int mSkip = 0;
 	private EntityOrder mOrder;
+	private Stack<FilterGroup> mFilterStack = new Stack<>();
 
 
 	public RapidCollectionReference(Rapid rapid, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
 		mConnection = new WebSocketCollectionConnection<>(rapid, collectionName, type);
+		mFilterStack.push(new FilterAnd());
 	}
 
 
 	// Query methods
 	public RapidCollectionReference<T> equalTo(String property, String value) {
-		return this;
-	}
-
-
-	public RapidCollectionReference<T> not(String property, String value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessThan(String property, int value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> lessOrEqualThan(String property, int value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterThan(String property, int value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, int value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> beginOr() {
+		FilterOr or = new FilterOr();
+		mFilterStack.peek().add(or);
+		mFilterStack.push(or);
 		return this;
 	}
 
 	public RapidCollectionReference<T> beginAnd() {
+		FilterAnd and = new FilterAnd();
+		mFilterStack.peek().add(and);
+		mFilterStack.push(and);
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> endOr() {
+		mFilterStack.pop();
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> endAnd() {
+		mFilterStack.pop();
 		return this;
 	}
 
@@ -97,7 +115,11 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
-		return mConnection.subscribe(callback, mOrder, mLimit, mSkip);
+		if (mFilterStack.size()!=1){
+			throw new IllegalArgumentException("Wrong filter structure");
+		}
+
+		return mConnection.subscribe(callback, mOrder, mLimit, mSkip, mFilterStack.peek());
 	}
 
 

@@ -44,11 +44,10 @@ public class MainActivity extends AppCompatActivity {
 
 		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)
 				.equalTo("receiver", "carl01")
-				.beginGroup()
+				.beginOr()
 				.equalTo("sender", "john123")
-				.or()
 				.greaterOrEqualThan("urgency", 1)
-				.endGroup()
+				.endOr()
 				.orderBy("sentDate", Sorting.DESC)
 				.orderBy("urgency", Sorting.ASC)
 				.subscribe((carCollection) -> {

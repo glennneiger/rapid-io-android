@@ -13,6 +13,7 @@ class MessageSub extends MessageBase
 	private static final String ATTR_SUB_ID = "sub-id";
 	private static final String ATTR_COL_ID = "col-id";
 	private static final String ATTR_LIMIT = "limit";
+	private static final String ATTR_FILTER = "filter";
 	private static final String ATTR_SKIP = "skip";
 	private static final String ATTR_ORDER = "order";
 
@@ -21,6 +22,7 @@ class MessageSub extends MessageBase
 	private int mLimit = Config.DEFAULT_LIMIT;
 	private int mSkip = 0;
 	private EntityOrder mOrder;
+	private Filter mFilter;
 
 
 	public MessageSub(String eventId, String collectionId, String subscriptionId)
@@ -48,6 +50,7 @@ class MessageSub extends MessageBase
 		innerJson.put(ATTR_COL_ID, mCollectionId);
 //		innerJson.put(ATTR_LIMIT, mLimit);
 //		innerJson.put(ATTR_SKIP, mSkip);
+//		innerJson.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
 //		if(mOrder != null && !mOrder.getOrderList().isEmpty()) innerJson.put(ATTR_ORDER, mOrder.toJson());
 
 		json.put(getMessageType().getKey(), innerJson);
@@ -107,5 +110,10 @@ class MessageSub extends MessageBase
 	public void setOrder(EntityOrder order)
 	{
 		mOrder = order;
+	}
+
+
+	public void setFilter(Filter filter) {
+		mFilter = filter;
 	}
 }

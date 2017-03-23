@@ -41,11 +41,12 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip) {
+	public RapidSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
 		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, IdProvider.getNewSubscriptionId());
 		subscriptionMsg.setSkip(skip);
 		subscriptionMsg.setLimit(limit);
 		subscriptionMsg.setOrder(order);
+		subscriptionMsg.setFilter(filter);
 
 		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
 		mRapid.onSubscribe(subscription);
