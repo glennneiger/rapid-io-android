@@ -29,8 +29,6 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	private Rapid(String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
-		mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
-		mWebSocketConnection.connectToServer();
 
 		mCollectionProvider = new InMemoryCollectionProvider();
 	}
@@ -115,6 +113,30 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	public String getApiKey() {
 		return mApiKey;
+	}
+
+
+	void onSubscribe(RapidSubscription subscription){
+		// some subscription subscribed - connect if not connected
+		mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
+		mWebSocketConnection.connectToServer();
+
+	}
+
+
+	void onUnsubscribe(RapidSubscription subscription) {
+		// some subscription unsubscribed - check if we have any more subscriptions and disconnect if not
+		boolean subscribed = false;
+		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values()) {
+			if (rapidCollectionReference.isSubscribed()){
+				subscribed = true;
+				break;
+			}
+		}
+
+		if (!subscribed){
+			mWebSocketConnection.disconnectFromServer();
+		}
 	}
 
 

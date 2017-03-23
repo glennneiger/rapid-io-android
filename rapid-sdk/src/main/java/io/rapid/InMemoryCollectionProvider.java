@@ -21,4 +21,11 @@ class InMemoryCollectionProvider implements CollectionProvider {
 	public RapidCollectionReference findCollectionByName(String collectionName) {
 		return mCollections.get(collectionName);
 	}
+
+
+	@Override
+	public Map<String, RapidCollectionReference> getCollections() {
+		return mCollections;
+	}
+
 }

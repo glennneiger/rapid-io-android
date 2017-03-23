@@ -103,6 +103,11 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	boolean isSubscribed() {
+		return mConnection.isSubscribed();
+	}
+
+
 	void onValue(MessageVal valMessage) {
 		mConnection.onValue(valMessage);
 	}

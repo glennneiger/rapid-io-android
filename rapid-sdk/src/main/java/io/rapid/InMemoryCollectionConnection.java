@@ -59,6 +59,10 @@ class InMemoryCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
+	public boolean isSubscribed() {
+		return !mSubscriptions.isEmpty();
+	}
+
 	@Override
 	public RapidSubscription<T> subscribe(RapidCollectionCallback<T> callback, EntityOrder order) {
 		RapidSubscription<T> subscription = new RapidSubscription<>(callback);

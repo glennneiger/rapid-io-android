@@ -7,4 +7,5 @@ public interface CollectionConnection<T> {
 	RapidSubscription subscribeDocument(RapidDocumentCallback<T> callback);
 	void onValue(MessageVal valMessage);
 	void onUpdate(MessageUpd updMessage);
+	boolean isSubscribed();
 }
