@@ -11,7 +11,8 @@ class FilterValue implements Filter {
 
 
 	interface PropertyValue {
-		String TYPE_EQUALS = "eq";
+		String TYPE_EQUAL = "eq";
+		String TYPE_NOT_EQUAL = "neq";
 		String TYPE_GREATER_THAN = "gt";
 		String TYPE_GREATER_OR_EQUAL_THAN = "gte";
 		String TYPE_LESS_THAN = "lt";
@@ -54,7 +55,7 @@ class FilterValue implements Filter {
 
 		@Override
 		public String toJson() throws JSONException {
-			if(compareType.equals(TYPE_EQUALS)) {
+			if(compareType.equals(TYPE_EQUAL)) {
 				return String.valueOf(value);
 			} else {
 				JSONObject root = new JSONObject();
@@ -79,7 +80,7 @@ class FilterValue implements Filter {
 
 		@Override
 		public String toJson() throws JSONException {
-			if(compareType.equals(TYPE_EQUALS)) {
+			if(compareType.equals(TYPE_EQUAL)) {
 				return value;
 			} else {
 				JSONObject root = new JSONObject();
@@ -104,7 +105,7 @@ class FilterValue implements Filter {
 
 		@Override
 		public String toJson() throws JSONException {
-			if(compareType.equals(TYPE_EQUALS)) {
+			if(compareType.equals(TYPE_EQUAL)) {
 				return String.valueOf(value);
 			} else {
 				JSONObject root = new JSONObject();

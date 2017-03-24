@@ -22,26 +22,46 @@ public class RapidCollectionReference<T> {
 
 
 	// Query methods
+
+
 	public RapidCollectionReference<T> equalTo(String property, String value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, value)));
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> equalTo(String property, int value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, value)));
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> equalTo(String property, double value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, value)));
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> equalTo(String property, boolean value) {
 		mFilterStack.peek().add(new FilterValue(property, new FilterValue.BooleanComparePropertyValue(value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> notEqualTo(String property, String value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> notEqualTo(String property, int value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> notEqualTo(String property, double value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
 	}
 
@@ -94,6 +114,27 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> between(String property, int from, int to) {
+		beginAnd();
+		greaterOrEqualThan(property, from);
+		lessOrEqualThan(property, to);
+		endAnd();
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> between(String property, double from, double to) {
+		beginAnd();
+		greaterOrEqualThan(property, from);
+		lessOrEqualThan(property, to);
+		endAnd();
+		return this;
+	}
+
+
+	// Groups
+
+
 	public RapidCollectionReference<T> beginOr() {
 		FilterOr or = new FilterOr();
 		mFilterStack.peek().add(or);
@@ -128,13 +169,23 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	public RapidCollectionReference<T> between(String property, int from, int to) {
-		beginAnd();
-		greaterOrEqualThan(property, from);
-		lessOrEqualThan(property, to);
-		endAnd();
+	// Order
+
+
+	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
+		if(mOrder == null) mOrder = new EntityOrder();
+		mOrder.putOrder(property, sorting);
+
 		return this;
 	}
+
+
+	public RapidCollectionReference<T> orderBy(String property) {
+		return orderBy(property, Sorting.ASC);
+	}
+
+
+	// Limit, Skip
 
 
 	public RapidCollectionReference<T> limit(int limit) {
@@ -154,17 +205,7 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
-		if(mOrder == null) mOrder = new EntityOrder();
-		mOrder.putOrder(property, sorting);
-
-		return this;
-	}
-
-
-	public RapidCollectionReference<T> orderBy(String property) {
-		return orderBy(property, Sorting.ASC);
-	}
+	// Operations
 
 
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
@@ -180,6 +221,9 @@ public class RapidCollectionReference<T> {
 	public RapidDocumentReference<T> document(String documentId) {
 		return new RapidDocumentReference<>(mCollectionName, mConnection, documentId);
 	}
+
+
+	// Private
 
 
 	Filter getFilter() {

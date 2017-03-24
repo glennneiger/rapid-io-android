@@ -11,7 +11,7 @@ public class FilterJsonTest extends BaseTest {
 						new FilterValue("age", new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, 18)),
 						new FilterValue("age", new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, 60))
 				),
-				new FilterValue("name", new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, "Debil"))
+				new FilterValue("name", new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, "Debil"))
 		).toJson();
 
 		System.out.println(json);
@@ -20,7 +20,7 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test
 	public void test_2() throws Exception {
-		String json = new FilterValue("name", new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, "Debil")).toJson();
+		String json = new FilterValue("name", new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, "Debil")).toJson();
 
 		System.out.println(json);
 	}
