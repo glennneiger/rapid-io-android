@@ -133,6 +133,12 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public void resubscribe()
+	{
+		mConnection.resubscribe(getOrder(), getLimit(), getSkip(), getFilter());
+	}
+
+
 	Filter getFilter() {
 		if (mFilterStack.size()!=1){
 			throw new IllegalArgumentException("Wrong filter structure");

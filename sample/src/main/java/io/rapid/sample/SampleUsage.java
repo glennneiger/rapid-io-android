@@ -19,7 +19,7 @@ public class SampleUsage {
 
 	public static void sampleMethod() {
 		// Initialization
-		Rapid.initialize(RAPID_API_KEY);
+//		Rapid.initialize(RAPID_API_KEY);
 
 		// Connection State
 		if(Rapid.getInstance().getConnectionState() == ConnectionState.CONNECTING) {

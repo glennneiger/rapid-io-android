@@ -1,6 +1,13 @@
 package io.rapid;
 
 
+import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 
 import com.google.gson.Gson;
@@ -17,17 +24,44 @@ import io.rapid.converter.RapidJsonConverter;
 
 public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	private static Map<String, Rapid> sInstances = new HashMap<>();
+	private final Context mContext;
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
 	private WebSocketConnection mWebSocketConnection;
+	private String mConnectionId;
 	private Handler mHandler = new Handler();
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
+	private boolean mInternetConnected = true;
 
 	private CollectionProvider mCollectionProvider;
 	private Map<String, MessageFuture> mPendingMessages = new HashMap<>();
 
 
-	private Rapid(String apiKey) {
+	private BroadcastReceiver mInternetConnectionBroadcastReceiver = new BroadcastReceiver()
+	{
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
+			{
+				final ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+				final NetworkInfo info = connManager.getActiveNetworkInfo();
+				boolean hasInternetConnection = info != null && info.isConnected();
+				Logcat.d("Internet connected: " + hasInternetConnection);
+				if(hasInternetConnection) {
+					unregisterInternetConnectionBroadcast();
+					createNewWebSocketConnection();
+					mInternetConnected = true;
+					reconnectSubscriptions();
+				}
+			}
+		}
+
+	};
+
+
+	private Rapid(Context context, String apiKey) {
+		mContext = context;
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
 
@@ -53,9 +87,9 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	public static void initialize(String apiKey) {
+	public static void initialize(Application context, String apiKey) {
 		if(!sInstances.containsKey(apiKey))
-			sInstances.put(apiKey, new Rapid(apiKey));
+			sInstances.put(apiKey, new Rapid(context, apiKey));
 	}
 
 
@@ -84,7 +118,24 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	@Override
 	public void onClose(WebSocketConnection.CloseReasonEnum reason) {
+		if(reason == WebSocketConnection.CloseReasonEnum.INTERNET_CONNECTION_LOST ||
+				reason == WebSocketConnection.CloseReasonEnum.NO_INTERNET_CONNECTION)
+		{
+			mInternetConnected = false;
+			registerInternetConnectionBroadcast();
+		}
+	}
 
+
+	private void registerInternetConnectionBroadcast()
+	{
+		if(mContext != null) mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+	}
+
+
+	private void unregisterInternetConnectionBroadcast()
+	{
+		if(mContext != null) mContext.unregisterReceiver(mInternetConnectionBroadcastReceiver);
 	}
 
 
@@ -123,9 +174,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	void onSubscribe(RapidSubscription subscription){
 		// some subscription subscribed - connect if not connected
-		if(mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED) {
-			mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
-			mWebSocketConnection.connectToServer();
+		if(mInternetConnected && (mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED)) {
+			createNewWebSocketConnection();
 		}
 	}
 
@@ -142,6 +192,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 		if (!subscribed){
 			mWebSocketConnection.disconnectFromServer();
+			mConnectionId = null;
 		}
 	}
 
@@ -186,6 +237,26 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		for(RapidConnectionStateListener l : mConnectionStateListeners)
 		{
 			if(l != null) l.onConnectionStateChanged(state);
+		}
+	}
+
+
+	private void createNewWebSocketConnection()
+	{
+		if(mConnectionId == null) mConnectionId = IdProvider.getConnectionId();
+		mWebSocketConnection = new WebSocketConnection(mConnectionId, URI.create(Config.URI), this);
+		mWebSocketConnection.connectToServer();
+	}
+
+
+	private void reconnectSubscriptions()
+	{
+		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values())
+		{
+			if(rapidCollectionReference.isSubscribed())
+			{
+				rapidCollectionReference.resubscribe();
+			}
 		}
 	}
 }

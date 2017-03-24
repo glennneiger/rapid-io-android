@@ -28,9 +28,8 @@ class WebSocketConnection extends WebSocketClient
 
 	private WebSocketConnectionListener mListener;
 	private ConnectionState mConnectionState = DISCONNECTED;
-
-	private List<MessageBase> mPendingMessageList = new ArrayList<>();
 	private String mConnectionId;
+	private List<MessageBase> mPendingMessageList = new ArrayList<>();
 	private Handler mHBHandler = new Handler();
 	private Runnable mHBRunnable = () ->
 	{
@@ -41,7 +40,35 @@ class WebSocketConnection extends WebSocketClient
 
 	enum CloseReasonEnum
 	{
-		UNKNOWN;
+		UNKNOWN(Integer.MAX_VALUE), INTERNET_CONNECTION_LOST(1006), NO_INTERNET_CONNECTION(-1), CLOSED_MANUALLY(1000);
+
+		private int mCode;
+
+
+		CloseReasonEnum(int code)
+		{
+			mCode = code;
+		}
+
+
+		public int getCode()
+		{
+			return mCode;
+		}
+
+
+		static CloseReasonEnum get(int code)
+		{
+			for(CloseReasonEnum item : CloseReasonEnum.values())
+			{
+				if(item.getCode() == code)
+				{
+					return item;
+				}
+			}
+			return UNKNOWN;
+		}
+
 	}
 
 
@@ -55,23 +82,26 @@ class WebSocketConnection extends WebSocketClient
 	}
 
 
-	public WebSocketConnection(URI serverURI, WebSocketConnectionListener listener)
+	public WebSocketConnection(String connectionId, URI serverURI, WebSocketConnectionListener listener)
 	{
 		super(serverURI);
+		mConnectionId = connectionId;
 		mListener = listener;
 	}
 
 
-	public WebSocketConnection(URI serverUri, Draft draft, WebSocketConnectionListener listener)
+	public WebSocketConnection(String connectionId, URI serverUri, Draft draft, WebSocketConnectionListener listener)
 	{
 		super(serverUri, draft);
+		mConnectionId = connectionId;
 		mListener = listener;
 	}
 
 
-	public WebSocketConnection(URI serverUri, Draft draft, Map<String, String> headers, int connectTimeout, WebSocketConnectionListener listener)
+	public WebSocketConnection(String connectionId, URI serverUri, Draft draft, Map<String, String> headers, int connectTimeout, WebSocketConnectionListener listener)
 	{
 		super(serverUri, draft, headers, connectTimeout);
+		mConnectionId = connectionId;
 		mListener = listener;
 	}
 
@@ -170,8 +200,7 @@ class WebSocketConnection extends WebSocketClient
 		changeConnectionState(CLOSED);
 		stopHB();
 
-		//TODO translate String reason to enum
-		CloseReasonEnum reasonEnum = CloseReasonEnum.UNKNOWN;
+		CloseReasonEnum reasonEnum = CloseReasonEnum.get(code);
 		if(mListener != null) mListener.onClose(reasonEnum);
 	}
 
@@ -201,7 +230,6 @@ class WebSocketConnection extends WebSocketClient
 
 	private void sendConnect()
 	{
-		if(mConnectionId == null) mConnectionId = IdProvider.getConnectionId();
 		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId));
 	}
 
