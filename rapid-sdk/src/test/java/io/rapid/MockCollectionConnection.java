@@ -36,4 +36,10 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 	public boolean isSubscribed() {
 		return false;
 	}
+
+
+	@Override
+	public void resubscribe(EntityOrder order, int limit, int skip, Filter filter) {
+
+	}
 }

@@ -1,4 +1,4 @@
-package io.rapid;
+package io.rapid.base;
 
 
 import org.json.JSONArray;
@@ -6,7 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-class BaseTest {
+public class BaseTest {
 	protected void print(int message) {
 		System.out.println(message);
 	}
@@ -19,16 +19,16 @@ class BaseTest {
 
 	protected void printJson(String json) throws JSONException {
 		JSONObject object = new JSONObject(json);
-		System.out.println(object.toString(4));
+		System.out.println(object.toString());
 	}
 
 
 	protected void printJson(JSONArray jsonArray) throws JSONException {
-		System.out.println(jsonArray.toString(4));
+		System.out.println(jsonArray.toString());
 	}
 
 
 	private void printJson(JSONObject jsonObject) throws JSONException {
-		System.out.println(jsonObject.toString(4));
+		System.out.println(jsonObject.toString());
 	}
 }

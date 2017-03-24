@@ -5,13 +5,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 
 abstract class FilterGroup implements Filter {
-	Set<Filter> filters = new HashSet<>();
+	List<Filter> filters = new ArrayList<>();
 
 
 	public FilterGroup(Filter... filters) {

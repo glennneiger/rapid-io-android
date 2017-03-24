@@ -227,7 +227,7 @@ public class RapidCollectionReference<T> {
 		mConnection.resubscribe(getOrder(), getLimit(), getSkip(), getFilter());
 	}
 
-	
+
 	// Private
 
 
