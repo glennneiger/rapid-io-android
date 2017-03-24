@@ -68,12 +68,18 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> endOr() {
+		if (!(mFilterStack.peek() instanceof FilterOr))
+			throw new IllegalArgumentException("Trying to end OR group inside an AND group.");
+
 		mFilterStack.pop();
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> endAnd() {
+		if (!(mFilterStack.peek() instanceof FilterAnd))
+			throw new IllegalArgumentException("Trying to end AND group inside an OR group.");
+
 		mFilterStack.pop();
 		return this;
 	}
