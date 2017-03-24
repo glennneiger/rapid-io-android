@@ -123,9 +123,10 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	void onSubscribe(RapidSubscription subscription){
 		// some subscription subscribed - connect if not connected
-		mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
-		mWebSocketConnection.connectToServer();
-
+		if(mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED) {
+			mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
+			mWebSocketConnection.connectToServer();
+		}
 	}
 
 

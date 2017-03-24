@@ -2,6 +2,7 @@ package io.rapid.sample;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -57,6 +58,16 @@ public class MainActivity extends AppCompatActivity {
 					}
 					mViewModel.items.update(cars);
 				});
+
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable()
+		{
+		    @Override
+		    public void run()
+		    {
+				mSubscription.unsubscribe();
+		    }
+		}, 3000);
 	}
 
 

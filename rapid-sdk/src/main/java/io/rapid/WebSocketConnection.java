@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static io.rapid.ConnectionState.CLOSED;
 import static io.rapid.ConnectionState.CONNECTED;
 import static io.rapid.ConnectionState.CONNECTING;
 import static io.rapid.ConnectionState.DISCONNECTED;
@@ -166,7 +167,7 @@ class WebSocketConnection extends WebSocketClient
 	{
 		Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
 
-		changeConnectionState(DISCONNECTED);
+		changeConnectionState(CLOSED);
 		stopHB();
 
 		//TODO translate String reason to enum
