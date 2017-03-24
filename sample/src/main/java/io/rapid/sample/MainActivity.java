@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 		mBinding.setViewModel(mViewModel);
 
-		Rapid.initialize(RAPID_API_KEY);
+		Rapid.initialize(getApplication(), RAPID_API_KEY);
 
 		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
 

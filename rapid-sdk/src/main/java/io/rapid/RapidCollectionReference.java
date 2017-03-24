@@ -223,6 +223,11 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public void resubscribe() {
+		mConnection.resubscribe(getOrder(), getLimit(), getSkip(), getFilter());
+	}
+
+	
 	// Private
 
 

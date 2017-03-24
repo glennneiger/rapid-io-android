@@ -8,4 +8,5 @@ public interface CollectionConnection<T> {
 	void onValue(MessageVal valMessage);
 	void onUpdate(MessageUpd updMessage);
 	boolean isSubscribed();
+	void resubscribe(EntityOrder order, int limit, int skip, Filter filter);
 }

@@ -42,12 +42,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
-		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, IdProvider.getNewSubscriptionId());
-		subscriptionMsg.setSkip(skip);
-		subscriptionMsg.setLimit(limit);
-		subscriptionMsg.setOrder(order);
-		subscriptionMsg.setFilter(filter);
-
+		MessageSub subscriptionMsg = createSubscriptionMessage(order, limit, skip, filter);
 		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
 		mRapid.onSubscribe(subscription);
 		mRapid.sendMessage(subscriptionMsg);
@@ -101,6 +96,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
+	@Override
+	public void resubscribe(EntityOrder order, int limit, int skip, Filter filter)
+	{
+		MessageSub subscriptionMsg = createSubscriptionMessage(order, limit, skip, filter);
+		mRapid.sendMessage(subscriptionMsg);
+	}
+
+
 	private String toJson(RapidDocument<T> document) {
 		try {
 			return mRapid.getJsonConverter().toJson(document);
@@ -142,5 +145,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		} catch(IOException | JSONException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+
+	private MessageSub createSubscriptionMessage(EntityOrder order, int limit, int skip, Filter filter)
+	{
+		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, IdProvider.getNewSubscriptionId());
+		subscriptionMsg.setSkip(skip);
+		subscriptionMsg.setLimit(limit);
+		subscriptionMsg.setOrder(order);
+		subscriptionMsg.setFilter(filter);
+		return subscriptionMsg;
 	}
 }
