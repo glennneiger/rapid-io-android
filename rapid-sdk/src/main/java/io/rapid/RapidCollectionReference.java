@@ -28,8 +28,32 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> equalTo(String property, int value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> equalTo(String property, double value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUALS, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> equalTo(String property, boolean value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.BooleanComparePropertyValue(value)));
+		return this;
+	}
+
+
 	public RapidCollectionReference<T> lessThan(String property, int value) {
 		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> lessThan(String property, double value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
 	}
 
@@ -40,14 +64,32 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> lessOrEqualThan(String property, double value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
+		return this;
+	}
+
+
 	public RapidCollectionReference<T> greaterThan(String property, int value) {
 		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
 	}
 
 
+	public RapidCollectionReference<T> greaterThan(String property, double value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
+		return this;
+	}
+
+
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, int value) {
 		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> greaterOrEqualThan(String property, double value) {
+		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
@@ -59,6 +101,7 @@ public class RapidCollectionReference<T> {
 		return this;
 	}
 
+
 	public RapidCollectionReference<T> beginAnd() {
 		FilterAnd and = new FilterAnd();
 		mFilterStack.peek().add(and);
@@ -68,7 +111,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> endOr() {
-		if (!(mFilterStack.peek() instanceof FilterOr))
+		if(!(mFilterStack.peek() instanceof FilterOr))
 			throw new IllegalArgumentException("Trying to end OR group inside an AND group.");
 
 		mFilterStack.pop();
@@ -77,7 +120,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> endAnd() {
-		if (!(mFilterStack.peek() instanceof FilterAnd))
+		if(!(mFilterStack.peek() instanceof FilterAnd))
 			throw new IllegalArgumentException("Trying to end AND group inside an OR group.");
 
 		mFilterStack.pop();
@@ -140,7 +183,7 @@ public class RapidCollectionReference<T> {
 
 
 	Filter getFilter() {
-		if (mFilterStack.size()!=1){
+		if(mFilterStack.size() != 1) {
 			throw new IllegalArgumentException("Wrong filter structure");
 		}
 		return mFilterStack.peek();

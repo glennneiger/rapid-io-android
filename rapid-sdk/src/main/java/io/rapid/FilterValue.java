@@ -17,7 +17,7 @@ class FilterValue implements Filter {
 		String TYPE_LESS_THAN = "lt";
 		String TYPE_LESS_OR_EQUAL_THAN = "lte";
 
-		String toJson() throws JSONException;
+		Object toJson() throws JSONException;
 	}
 
 
@@ -30,10 +30,10 @@ class FilterValue implements Filter {
 	@Override
 	public String toJson() throws JSONException {
 		JSONObject root = new JSONObject();
-		String json = value.toJson();
+		Object json = value.toJson();
 		try {
-			root.put(property, new JSONObject(json));
-		} catch(JSONException e) {
+			root.put(property, new JSONObject((String) json));
+		} catch(Exception e) {
 			root.put(property, json);
 		}
 		return root.toString();
@@ -90,7 +90,7 @@ class FilterValue implements Filter {
 	}
 
 
-	class DoubleComparePropertyValue implements PropertyValue {
+	static class DoubleComparePropertyValue implements PropertyValue {
 
 		private final String compareType;
 		private double value;
@@ -111,6 +111,23 @@ class FilterValue implements Filter {
 				root.put(compareType, value);
 				return root.toString();
 			}
+		}
+	}
+
+
+	static class BooleanComparePropertyValue implements PropertyValue {
+
+		private boolean value;
+
+
+		public BooleanComparePropertyValue(boolean value) {
+			this.value = value;
+		}
+
+
+		@Override
+		public Boolean toJson() throws JSONException {
+			return value;
 		}
 	}
 }

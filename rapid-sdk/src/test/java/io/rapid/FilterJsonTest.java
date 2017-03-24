@@ -40,6 +40,7 @@ public class FilterJsonTest extends BaseTest {
 						.endOr()
 						.equalTo("transmission", "automatic")
 					.endAnd()
+					.equalTo("enabled", true)
 				.endOr()
 				.skip(10)
 				.limit(50)
