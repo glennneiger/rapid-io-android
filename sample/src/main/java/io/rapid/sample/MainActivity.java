@@ -2,7 +2,6 @@ package io.rapid.sample;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,8 +11,8 @@ import java.util.List;
 import java.util.Random;
 
 import io.rapid.Rapid;
-import io.rapid.RapidSubscription;
 import io.rapid.RapidDocument;
+import io.rapid.RapidSubscription;
 import io.rapid.Sorting;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
@@ -58,16 +57,6 @@ public class MainActivity extends AppCompatActivity {
 					}
 					mViewModel.items.update(cars);
 				});
-
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable()
-		{
-		    @Override
-		    public void run()
-		    {
-				mSubscription.unsubscribe();
-		    }
-		}, 3000);
 	}
 
 
