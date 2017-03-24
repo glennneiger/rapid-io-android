@@ -80,6 +80,10 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> between(String property, int from, int to) {
+		beginAnd();
+		greaterOrEqualThan(property, from);
+		lessOrEqualThan(property, to);
+		endAnd();
 		return this;
 	}
 
