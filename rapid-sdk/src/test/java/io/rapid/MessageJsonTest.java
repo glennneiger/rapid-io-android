@@ -53,16 +53,16 @@ public class MessageJsonTest extends BaseTest {
 		MessageBase msg = MessageParser.parse("{\"ack\": {\"evt-id\": \"eventId\"}}");
 		assertTrue(msg instanceof MessageAck);
 
-		MessageAck disMsg = (MessageAck) msg;
-		assertEquals(disMsg.getMessageType(), MessageBase.MessageType.ACK);
-		assertEquals(disMsg.getEventId(),"eventId");
+		MessageAck ackMsg = (MessageAck) msg;
+		assertEquals(ackMsg.getMessageType(), MessageBase.MessageType.ACK);
+		assertEquals(ackMsg.getEventId(),"eventId");
 	}
 
 
 	@Test
 	public void test_model2jsonAck() throws Exception {
-		MessageAck disMsg = new MessageAck("eventId");
-		JSONAssert.assertEquals(disMsg.toJson().toString(), "{\"ack\": {\"evt-id\": \"eventId\"}}", false);
+		MessageAck ackMsg = new MessageAck("eventId");
+		JSONAssert.assertEquals(ackMsg.toJson().toString(), "{\"ack\": {\"evt-id\": \"eventId\"}}", false);
 	}
 
 
@@ -202,6 +202,33 @@ public class MessageJsonTest extends BaseTest {
 		assertEquals(valMsg.getEventId(),"eventId");
 		assertEquals(valMsg.getSubscriptionId(),"subscriptionId");
 		assertEquals(valMsg.getCollectionId(),"collection");
+	}
+
+
+	@Test
+	public void test_json2modelBatch() throws Exception {
+		MessageBase msg = MessageParser.parse("{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"hb\": {\"evt-id\": " +
+				"\"eventId\"}}]}");
+		assertTrue(msg instanceof MessageBatch);
+
+		MessageBatch batchMsg = (MessageBatch) msg;
+		assertEquals(batchMsg.getMessageType(), MessageBase.MessageType.BATCH);
+		MessageAck ackMsg = (MessageAck) batchMsg.getMessageList().get(0);
+		assertEquals(ackMsg.getMessageType(), MessageBase.MessageType.ACK);
+		assertEquals(ackMsg.getEventId(),"eventId");
+		MessageHb hbMsg = (MessageHb) batchMsg.getMessageList().get(1);
+		assertEquals(hbMsg.getMessageType(), MessageBase.MessageType.HB);
+		assertEquals(hbMsg.getEventId(),"eventId");
+	}
+
+
+	@Test
+	public void test_model2jsonBatch() throws Exception {
+		MessageBatch batchMsg = new MessageBatch();
+		batchMsg.addMessage(new MessageAck("eventId"));
+		batchMsg.addMessage(new MessageHb("eventId"));
+		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"hb\": {\"evt-id\": " +
+				"\"eventId\"}}]}", false);
 	}
 
 }
