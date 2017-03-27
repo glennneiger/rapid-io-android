@@ -11,17 +11,14 @@ import org.json.JSONObject;
 class MessageUns extends MessageBase
 {
 	private static final String ATTR_SUB_ID = "sub-id";
-	private static final String ATTR_CON_ID = "con-id";
 
 	private String mSubscriptionId;
-	private String mConnectionId;
 
 
-	public MessageUns(String eventId, String connectionId, String subscriptionId)
+	public MessageUns(String eventId, String subscriptionId)
 	{
-		super(MessageType.SUB, eventId);
+		super(MessageType.UNS, eventId);
 
-		mConnectionId = connectionId;
 		mSubscriptionId = subscriptionId;
 	}
 
@@ -40,7 +37,6 @@ class MessageUns extends MessageBase
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_SUB_ID, getSubscriptionId());
-		innerJson.put(ATTR_CON_ID, getConnectionId());
 		json.put(getMessageType().getKey(), innerJson);
 		return json;
 	}
@@ -52,18 +48,11 @@ class MessageUns extends MessageBase
 		super.fromJson(json);
 
 		mSubscriptionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_SUB_ID);
-		mConnectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_CON_ID);
 	}
 
 
 	public String getSubscriptionId()
 	{
 		return mSubscriptionId;
-	}
-
-
-	public String getConnectionId()
-	{
-		return mConnectionId;
 	}
 }

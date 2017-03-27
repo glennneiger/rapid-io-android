@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 class MessageHb extends MessageBase
 {
-	public MessageHb(String eventId, String connectionId)
+	public MessageHb(String eventId)
 	{
 		super(MessageType.HB, eventId);
 	}

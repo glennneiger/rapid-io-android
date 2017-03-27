@@ -23,6 +23,8 @@ class MessageParser
 				return new MessageErr(json);
 			case MUT:
 				return new MessageMut(json);
+			case MER:
+				return new MessageMer(json);
 			case SUB:
 				return new MessageSub(json);
 			case UNS:
@@ -33,6 +35,12 @@ class MessageParser
 				return new MessageVal(json);
 			case BATCH:
 				return new MessageBatch(json);
+			case CON:
+				return new MessageCon(json);
+			case DIS:
+				return new MessageDis(json);
+			case HB:
+				return new MessageHb(json);
 			case UNKNOWN:
 				return new MessageUnknown();
 			default:
