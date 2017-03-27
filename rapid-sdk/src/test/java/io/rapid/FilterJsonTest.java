@@ -97,4 +97,35 @@ public class FilterJsonTest extends BaseTest {
 	}
 
 
+	@Test
+	public void test_query2json_7() throws Exception {
+		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		collection
+				.beginAnd()
+				.between("price", 3, 5.9)
+				.endAnd();
+
+		String json = "{\"and\":[{\"and\":[{\"and\":[{\"price\":{\"gte\":3}},{\"price\":{\"lte\":5.9}}]}]}]}";
+		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+	}
+
+
+	@Test
+	public void test_query2json_8() throws Exception {
+		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		collection
+				.beginOr()
+				.equalTo("model", "A5")
+				.equalTo("model", "A7")
+				.endOr()
+				.beginAnd()
+				.lessOrEqualThan("price", 10000)
+				.lessOrEqualThan("hp", 400)
+				.endAnd();
+
+		String json = "{\"and\":[{\"or\":[{\"model\":\"A5\"},{\"model\":\"A7\"}]},{\"and\":[{\"price\":{\"lte\":10000}},{\"hp\":{\"lte\":400}}]}]}";
+		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+	}
+
+
 }
