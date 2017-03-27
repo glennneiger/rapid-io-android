@@ -47,14 +47,53 @@ public class FilterJsonTest extends BaseTest {
 				.lessOrEqualThan("test", 123);
 
 
+		String json = "{\"and\":[{\"type\":\"SUV\"},{\"or\":[{\"size\":{\"gte\":3}},{\"size\":{\"lt\":2}},{\"and\":[{\"or\":[{\"open\":\"24/7\"},{\"time\":{\"lte\":3}}]},{\"transmission\":\"automatic\"}]},{\"enabled\":true}]},{\"test\":{\"lte\":123}}]}";
 		JSONAssert.assertEquals(
 				collection.getFilter().toJson(),
-				"{\"and\":[{\"type\":\"SUV\"},{\"or\":[{\"size\":{\"gte\":3}},{\"size\":{\"lt\":2}},{\"and\":[{\"or\":[{\"open\":\"24/7\"},{\"time\":{\"lte\":3}}]},{\"transmission\":\"automatic\"}]},{\"enabled\":true}]},{\"test\":{\"lte\":123}}]}",
+				json,
 				false
 		);
 		assertEquals(collection.getLimit(), 50);
 		assertEquals(collection.getSkip(), 10);
 		JSONAssert.assertEquals(collection.getOrder().toJson().toString(), "[{\"type\":\"asc\"},{\"price\":\"desc\"}]", false);
+	}
+
+
+	@Test
+	public void test_query2json_2() throws Exception {
+		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		collection
+				.lessOrEqualThan("mileage", 34.4)
+				.beginAnd()
+				.between("price", 321212.3, 1213123.2)
+				.equalTo("size", 121)
+				.endAnd();
+
+		String json = "{\"and\":[{\"mileage\":{\"lte\":34.4}},{\"and\":[{\"and\":[{\"price\":{\"gte\":321212.3}},{\"price\":{\"lte\":1213123.2}}]},{\"size\":\"121\"}]}]}";
+		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+	}
+
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_query2json_3() throws Exception {
+		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		collection
+				.beginAnd()
+				.beginAnd()
+				.beginAnd()
+				.beginAnd()
+				.endAnd();
+		collection.getFilter();
+	}
+
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_query2json_4() throws Exception {
+		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		collection
+				.beginAnd()
+				.endOr();
+		collection.getFilter();
 	}
 
 
