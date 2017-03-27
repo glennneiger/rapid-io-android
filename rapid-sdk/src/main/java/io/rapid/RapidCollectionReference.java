@@ -6,6 +6,7 @@ import java.util.Stack;
 
 public class RapidCollectionReference<T> {
 
+	private static final String ID_IDENTIFIER = "$id";
 	private final String mCollectionName;
 	private CollectionConnection<T> mConnection;
 	private int mLimit = Config.DEFAULT_LIMIT;
@@ -128,6 +129,18 @@ public class RapidCollectionReference<T> {
 		greaterOrEqualThan(property, from);
 		lessOrEqualThan(property, to);
 		endAnd();
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> idEqualTo(String id) {
+		equalTo(ID_IDENTIFIER, id);
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> idNotEqualTo(String id) {
+		notEqualTo(ID_IDENTIFIER, id);
 		return this;
 	}
 

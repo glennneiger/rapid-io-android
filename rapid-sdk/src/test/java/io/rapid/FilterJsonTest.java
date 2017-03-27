@@ -97,4 +97,14 @@ public class FilterJsonTest extends BaseTest {
 	}
 
 
+	@Test
+	public void test_query2json_6() throws Exception {
+		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		collection.idEqualTo("123").idNotEqualTo("223");
+
+		String json = "{\"and\":[{\"$id\":\"123\"},{\"$id\":{\"neq\":\"223\"}}]}";
+		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+	}
+
+
 }
