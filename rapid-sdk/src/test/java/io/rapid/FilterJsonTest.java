@@ -54,7 +54,7 @@ public class FilterJsonTest extends BaseTest {
 		);
 		assertEquals(collection.getLimit(), 50);
 		assertEquals(collection.getSkip(), 10);
-		assertEquals(collection.getOrder().toJson().toString(), "[{\"type\":\"asc\"},{\"price\":\"desc\"}]");
+		JSONAssert.assertEquals(collection.getOrder().toJson().toString(), "[{\"type\":\"asc\"},{\"price\":\"desc\"}]", false);
 	}
 
 
