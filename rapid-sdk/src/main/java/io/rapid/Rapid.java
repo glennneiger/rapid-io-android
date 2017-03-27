@@ -52,7 +52,6 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 					unregisterInternetConnectionBroadcast();
 					createNewWebSocketConnection();
 					mInternetConnected = true;
-					reconnectSubscriptions();
 				}
 			}
 		}
@@ -95,7 +94,6 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	@Override
 	public void onOpen() {
-
 	}
 
 
@@ -112,6 +110,19 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		{
 			MessageUpd updMessage = ((MessageUpd) message);
 			mCollectionProvider.findCollectionByName(updMessage.getCollectionId()).onUpdate(updMessage);
+		} else if(message.getMessageType() == MessageBase.MessageType.ERR)
+		{
+			switch(((MessageErr)message).getErrorType())
+			{
+				case CONNECTION_TERMINATED:
+					getHandler().post(() ->
+					{
+						disconnectFromServer();
+						createNewWebSocketConnection();
+						reconnectSubscriptions();
+					});
+					break;
+			}
 		}
 	}
 
@@ -191,8 +202,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		}
 
 		if (!subscribed){
-			mWebSocketConnection.disconnectFromServer();
-			mConnectionId = null;
+			disconnectFromServer();
 		}
 	}
 
@@ -238,6 +248,13 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		{
 			if(l != null) l.onConnectionStateChanged(state);
 		}
+	}
+
+
+	private void disconnectFromServer()
+	{
+		mWebSocketConnection.disconnectFromServer(false);
+		mConnectionId = null;
 	}
 
 

@@ -114,9 +114,9 @@ class WebSocketConnection extends WebSocketClient
 		}
 	}
 
-	public void disconnectFromServer()
+	public void disconnectFromServer(boolean sendDisconnectMessage)
 	{
-		sendDisconnect();
+		if(sendDisconnectMessage) sendDisconnect();
 		close();
 	}
 
