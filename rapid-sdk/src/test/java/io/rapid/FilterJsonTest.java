@@ -1,6 +1,7 @@
 package io.rapid;
 
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import io.rapid.base.BaseTest;
 
@@ -18,7 +19,7 @@ public class FilterJsonTest extends BaseTest {
 				new FilterValue("name", new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, "John"))
 		).toJson();
 
-		assertEquals(json, "{\"and\":[{\"or\":[{\"age\":{\"lt\":18}},{\"age\":{\"gt\":60}}]},{\"name\":\"John\"}]}");
+		JSONAssert.assertEquals(json, "{\"and\":[{\"or\":[{\"age\":{\"lt\":18}},{\"age\":{\"gt\":60}}]},{\"name\":\"John\"}]}", false);
 	}
 
 
@@ -46,7 +47,11 @@ public class FilterJsonTest extends BaseTest {
 				.lessOrEqualThan("test", 123);
 
 
-		assertEquals(collection.getFilter().toJson(), "{\"and\":[{\"type\":\"SUV\"},{\"or\":[{\"size\":{\"gte\":3}},{\"size\":{\"lt\":2}},{\"and\":[{\"or\":[{\"open\":\"24/7\"},{\"time\":{\"lte\":3}}]},{\"transmission\":\"automatic\"}]},{\"enabled\":true}]},{\"test\":{\"lte\":123}}]}");
+		JSONAssert.assertEquals(
+				collection.getFilter().toJson(),
+				"{\"and\":[{\"type\":\"SUV\"},{\"or\":[{\"size\":{\"gte\":3}},{\"size\":{\"lt\":2}},{\"and\":[{\"or\":[{\"open\":\"24/7\"},{\"time\":{\"lte\":3}}]},{\"transmission\":\"automatic\"}]},{\"enabled\":true}]},{\"test\":{\"lte\":123}}]}",
+				false
+		);
 		assertEquals(collection.getLimit(), 50);
 		assertEquals(collection.getSkip(), 10);
 		assertEquals(collection.getOrder().toJson().toString(), "[{\"type\":\"asc\"},{\"price\":\"desc\"}]");
