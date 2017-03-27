@@ -96,6 +96,15 @@ public class FilterJsonTest extends BaseTest {
 		collection.getFilter();
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void test_query2json_5() throws Exception {
+		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		collection
+				.beginNot()
+				.endAnd();
+		collection.getFilter();
+	}
+
 
 	@Test
 	public void test_query2json_6() throws Exception {
