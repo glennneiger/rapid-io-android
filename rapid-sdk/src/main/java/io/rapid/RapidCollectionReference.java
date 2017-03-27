@@ -6,6 +6,7 @@ import java.util.Stack;
 
 public class RapidCollectionReference<T> {
 
+	private static final String ID_IDENTIFIER = "$id";
 	private final String mCollectionName;
 	private CollectionConnection<T> mConnection;
 	private int mLimit = Config.DEFAULT_LIMIT;
@@ -132,6 +133,18 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> idEqualTo(String id) {
+		equalTo(ID_IDENTIFIER, id);
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> idNotEqualTo(String id) {
+		notEqualTo(ID_IDENTIFIER, id);
+		return this;
+	}
+
+
 	// Groups
 
 
@@ -150,10 +163,17 @@ public class RapidCollectionReference<T> {
 		return this;
 	}
 
+	public RapidCollectionReference<T> beginNot() {
+		FilterNot not = new FilterNot();
+		mFilterStack.peek().add(not);
+		mFilterStack.push(not);
+		return this;
+	}
+
 
 	public RapidCollectionReference<T> endOr() {
 		if(!(mFilterStack.peek() instanceof FilterOr))
-			throw new IllegalArgumentException("Trying to end OR group inside an AND group.");
+			throw new IllegalArgumentException("Trying to end OR group inside another group.");
 
 		mFilterStack.pop();
 		return this;
@@ -162,7 +182,16 @@ public class RapidCollectionReference<T> {
 
 	public RapidCollectionReference<T> endAnd() {
 		if(!(mFilterStack.peek() instanceof FilterAnd))
-			throw new IllegalArgumentException("Trying to end AND group inside an OR group.");
+			throw new IllegalArgumentException("Trying to end AND group inside another group.");
+
+		mFilterStack.pop();
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> endNot() {
+		if(!(mFilterStack.peek() instanceof FilterNot))
+			throw new IllegalArgumentException("Trying to end NOT group inside another group.");
 
 		mFilterStack.pop();
 		return this;

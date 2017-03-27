@@ -1,5 +1,7 @@
 package io.rapid;
 
+import android.support.annotation.NonNull;
+
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -25,7 +27,7 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test
 	public void test_query2json_1() throws Exception {
-		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		RapidCollectionReference<Object> collection = getNewCollection();
 		collection
 				.equalTo("type", "SUV")
 				.beginOr()
@@ -61,7 +63,7 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test
 	public void test_query2json_2() throws Exception {
-		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		RapidCollectionReference<Object> collection = getNewCollection();
 		collection
 				.lessOrEqualThan("mileage", 34.4)
 				.beginAnd()
@@ -76,7 +78,7 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void test_query2json_3() throws Exception {
-		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		RapidCollectionReference<Object> collection = getNewCollection();
 		collection
 				.beginAnd()
 				.beginAnd()
@@ -89,12 +91,36 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void test_query2json_4() throws Exception {
-		RapidCollectionReference<Object> collection = new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");
+		RapidCollectionReference<Object> collection = getNewCollection();
 		collection
 				.beginAnd()
 				.endOr();
 		collection.getFilter();
 	}
+
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_query2json_5() throws Exception {
+		RapidCollectionReference<Object> collection = getNewCollection();
+		collection
+				.beginNot()
+				.endAnd();
+		collection.getFilter();
+	}
+
+
+	@Test
+	public void test_query2json_6() throws Exception {
+		RapidCollectionReference<Object> collection = getNewCollection();
+		collection.idEqualTo("123").idNotEqualTo("223");
+
+		String json = "{\"and\":[{\"$id\":\"123\"},{\"$id\":{\"neq\":\"223\"}}]}";
+		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+	}
+
+
+	@NonNull
+	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");}
 
 
 	@Test
