@@ -97,6 +97,9 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	Filter getFilter() {
+		if(getFilterStack().size() != 1) {
+			throw new IllegalArgumentException("Wrong filter structure");
+		}
 		return mFilterStack.peek();
 	}
 

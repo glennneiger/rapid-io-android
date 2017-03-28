@@ -260,14 +260,6 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	Filter getFilter() {
-		if(mSubscription.getFilterStack().size() != 1) {
-			throw new IllegalArgumentException("Wrong filter structure");
-		}
-		return mSubscription.getFilterStack().peek();
-	}
-
-
 	// Private
 
 

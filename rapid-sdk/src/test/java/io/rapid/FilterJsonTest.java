@@ -1,5 +1,6 @@
 package io.rapid;
 
+import android.os.Handler;
 import android.support.annotation.NonNull;
 
 import org.junit.Test;
@@ -27,8 +28,7 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test
 	public void test_query2json_1() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection
+		RapidCollectionSubscription subscription = getNewCollection()
 				.equalTo("type", "SUV")
 				.beginOr()
 				.greaterOrEqualThan("size", 3)
@@ -46,96 +46,102 @@ public class FilterJsonTest extends BaseTest {
 				.limit(50)
 				.orderBy("type")
 				.orderBy("price", Sorting.DESC)
-				.lessOrEqualThan("test", 123);
+				.lessOrEqualThan("test", 123)
+				.subscribe(rapidDocuments -> {
+				});
 
 
 		String json = "{\"and\":[{\"type\":\"SUV\"},{\"or\":[{\"size\":{\"gte\":3}},{\"size\":{\"lt\":2}},{\"and\":[{\"or\":[{\"open\":\"24/7\"},{\"time\":{\"lte\":3}}]},{\"transmission\":\"automatic\"}]},{\"enabled\":true}]},{\"test\":{\"lte\":123}}]}";
 		JSONAssert.assertEquals(
-				collection.getFilter().toJson(),
+				subscription.getFilter().toJson(),
 				json,
 				false
 		);
-		assertEquals(collection.getLimit(), 50);
-		assertEquals(collection.getSkip(), 10);
-		JSONAssert.assertEquals(collection.getOrder().toJson().toString(), "[{\"type\":\"asc\"},{\"price\":\"desc\"}]", false);
+		assertEquals(subscription.getLimit(), 50);
+		assertEquals(subscription.getSkip(), 10);
+		JSONAssert.assertEquals(subscription.getOrder().toJson().toString(), "[{\"type\":\"asc\"},{\"price\":\"desc\"}]", false);
 	}
 
 
 	@Test
 	public void test_query2json_2() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection
+		RapidCollectionSubscription subscription = getNewCollection()
 				.lessOrEqualThan("mileage", 34.4)
 				.beginAnd()
 				.between("price", 321212.3, 1213123.2)
 				.equalTo("size", 121)
-				.endAnd();
+				.endAnd()
+				.subscribe(rapidDocuments -> {
+				});
 
 		String json = "{\"and\":[{\"mileage\":{\"lte\":34.4}},{\"and\":[{\"and\":[{\"price\":{\"gte\":321212.3}},{\"price\":{\"lte\":1213123.2}}]},{\"size\":\"121\"}]}]}";
-		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 
 
 	@Test(expected = IllegalArgumentException.class)
 	public void test_query2json_3() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection
+		RapidCollectionSubscription subscription = getNewCollection()
 				.beginAnd()
 				.beginAnd()
 				.beginAnd()
 				.beginAnd()
-				.endAnd();
-		collection.getFilter();
+				.endAnd()
+				.subscribe(rapidDocuments -> {
+				});
+		subscription.getFilter();
 	}
 
 
 	@Test(expected = IllegalArgumentException.class)
 	public void test_query2json_4() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection
+		RapidCollectionSubscription subscription = getNewCollection()
 				.beginAnd()
-				.endOr();
-		collection.getFilter();
+				.endOr()
+				.subscribe(rapidDocuments -> {
+				});
+		subscription.getFilter();
 	}
 
 
 	@Test(expected = IllegalArgumentException.class)
 	public void test_query2json_5() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection
+		RapidCollectionSubscription subscription = getNewCollection()
 				.beginNot()
-				.endAnd();
-		collection.getFilter();
+				.endAnd()
+				.subscribe(rapidDocuments -> {
+				});
+		subscription.getFilter();
 	}
 
 
 	@Test
 	public void test_query2json_6() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection.idEqualTo("123").idNotEqualTo("223");
+		RapidCollectionSubscription subscription = getNewCollection().idEqualTo("123").idNotEqualTo("223").subscribe(rapidDocuments -> {
+		});
 
 		String json = "{\"and\":[{\"$id\":\"123\"},{\"$id\":{\"neq\":\"223\"}}]}";
-		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 
 
 	@Test
 	public void test_query2json_7() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection
+		RapidCollectionSubscription subscription = getNewCollection()
 				.beginAnd()
 				.between("price", 3, 5.9)
-				.endAnd();
+				.endAnd()
+				.subscribe(rapidDocuments -> {
+				});
 
 		String json = "{\"and\":[{\"and\":[{\"and\":[{\"price\":{\"gte\":3}},{\"price\":{\"lte\":5.9}}]}]}]}";
-		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 
 
 	@Test
 	public void test_query2json_8() throws Exception {
-		RapidCollectionReference<Object> collection = getNewCollection();
-		collection
+		RapidCollectionSubscription subscription = getNewCollection()
 				.beginOr()
 				.equalTo("model", "A5")
 				.equalTo("model", "A7")
@@ -143,15 +149,17 @@ public class FilterJsonTest extends BaseTest {
 				.beginAnd()
 				.lessOrEqualThan("price", 10000)
 				.lessOrEqualThan("hp", 400)
-				.endAnd();
+				.endAnd()
+				.subscribe(rapidDocuments -> {
+				});
 
 		String json = "{\"and\":[{\"or\":[{\"model\":\"A5\"},{\"model\":\"A7\"}]},{\"and\":[{\"price\":{\"lte\":10000}},{\"hp\":{\"lte\":400}}]}]}";
-		JSONAssert.assertEquals(collection.getFilter().toJson(), json, false);
+		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 
 
 	@NonNull
-	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection");}
+	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection", new Handler());}
 
 
 }

@@ -2,6 +2,7 @@ package io.rapid;
 
 
 class MockCollectionConnection<T> implements CollectionConnection<T> {
+
 	@Override
 	public RapidFuture<T> mutate(String id, T value) {
 		return null;
@@ -9,14 +10,14 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidCollectionSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
-		return null;
+	public void subscribe(RapidCollectionSubscription<T> subscription) {
+
 	}
 
 
 	@Override
-	public RapidDocumentSubscription subscribeDocument(String id, RapidDocumentCallback<T> callback) {
-		return null;
+	public void subscribeDocument(RapidDocumentSubscription<T> subscription) {
+
 	}
 
 
@@ -39,7 +40,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void resubscribe(EntityOrder order, int limit, int skip, Filter filter) {
+	public void resubscribe() {
 
 	}
 }
