@@ -183,7 +183,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	void onSubscribe(RapidSubscription subscription){
+	void onSubscribe(Subscription subscription){
 		// some subscription subscribed - connect if not connected
 		if(mInternetConnected && (mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED)) {
 			createNewWebSocketConnection();
@@ -191,7 +191,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	void onUnsubscribe(RapidSubscription subscription) {
+	void onUnsubscribe(Subscription subscription) {
 		// some subscription unsubscribed - check if we have any more subscriptions and disconnect if not
 		boolean subscribed = false;
 		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values()) {

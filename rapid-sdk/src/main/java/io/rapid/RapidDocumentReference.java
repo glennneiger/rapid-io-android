@@ -26,7 +26,7 @@ public class RapidDocumentReference<T> {
 	}
 
 
-	public RapidSubscription subscribe(RapidDocumentCallback<T> callback) {
-		return mImpl.subscribeDocument(callback);
+	public RapidDocumentSubscription<T> subscribe(RapidDocumentCallback<T> callback) {
+		return mImpl.subscribeDocument(mId, callback);
 	}
 }

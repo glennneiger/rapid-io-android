@@ -9,13 +9,13 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
+	public RapidCollectionSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
 		return null;
 	}
 
 
 	@Override
-	public RapidSubscription subscribeDocument(RapidDocumentCallback<T> callback) {
+	public RapidDocumentSubscription subscribeDocument(String id, RapidDocumentCallback<T> callback) {
 		return null;
 	}
 

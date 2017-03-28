@@ -7,9 +7,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
@@ -17,7 +15,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private String mCollectionName;
 	private Rapid mRapid;
 	private Class<T> mType;
-	private Set<RapidSubscription<T>> mSubscriptions = new HashSet<>();
+	private RapidCollectionSubscription<T> mCollectionSubscription;
+	private RapidDocumentSubscription<T> mDocumentSubscription;
 
 	private List<RapidDocument<T>> mCollection = new ArrayList<>();
 
@@ -41,27 +40,28 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
+	public RapidCollectionSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
+		checkNotSubscribed();
 		MessageSub subscriptionMsg = createSubscriptionMessage(order, limit, skip, filter);
-		RapidSubscription<T> subscription = new RapidSubscription<>(callback);
+		RapidCollectionSubscription<T> subscription = new RapidCollectionSubscription<>(callback);
 		mRapid.onSubscribe(subscription);
 		mRapid.sendMessage(subscriptionMsg);
-		mSubscriptions.add(subscription);
-		subscription.setOnUnsubscribeCallback(() -> onUnsubscribed(subscription));
+		mCollectionSubscription = subscription;
+		subscription.setOnUnsubscribeCallback(() -> onCollectionUnsubscribed(subscription));
 		return subscription;
 	}
 
 
-	private void onUnsubscribed(RapidSubscription<T> subscription) {
-		mSubscriptions.remove(subscription);
-		mRapid.onUnsubscribe(subscription);
-	}
-
-
 	@Override
-	public RapidSubscription subscribeDocument(RapidDocumentCallback<T> callback) {
-		// TODO
-		return null;
+	public RapidDocumentSubscription subscribeDocument(String id, RapidDocumentCallback<T> callback) {
+		checkNotSubscribed();
+		MessageSub subscriptionMsg = createSubscriptionMessage(null, 1, 0, new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, id)));
+		RapidDocumentSubscription<T> subscription = new RapidDocumentSubscription<>(callback);
+		mRapid.onSubscribe(subscription);
+		mRapid.sendMessage(subscriptionMsg);
+		mDocumentSubscription = subscription;
+		subscription.setOnUnsubscribeCallback(() -> onDocumentUnsubscribed(subscription));
+		return subscription;
 	}
 
 
@@ -92,15 +92,31 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public boolean isSubscribed() {
-		return !mSubscriptions.isEmpty();
+		return mCollectionSubscription != null || mDocumentSubscription != null;
 	}
 
 
 	@Override
-	public void resubscribe(EntityOrder order, int limit, int skip, Filter filter)
-	{
+	public void resubscribe(EntityOrder order, int limit, int skip, Filter filter) {
 		MessageSub subscriptionMsg = createSubscriptionMessage(order, limit, skip, filter);
 		mRapid.sendMessage(subscriptionMsg);
+	}
+
+
+	private void checkNotSubscribed() {
+		if(mDocumentSubscription != null || mCollectionSubscription != null) {
+			throw new IllegalStateException("This collection/document is already subscribed.");
+		}
+	}
+
+
+	private void onCollectionUnsubscribed(RapidCollectionSubscription<T> subscription) {
+		mRapid.onUnsubscribe(subscription);
+	}
+
+
+	private void onDocumentUnsubscribed(RapidDocumentSubscription<T> subscription) {
+		mRapid.onUnsubscribe(subscription);
 	}
 
 
@@ -114,10 +130,15 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	private void notifyChange() {
-		for(RapidSubscription<T> subscription : mSubscriptions) {
+		if(mCollectionSubscription != null) {
 			// deliver result on UI thread
 			mRapid.getHandler().post(() -> {
-				subscription.invokeChange(new ArrayList<>(mCollection));
+				mCollectionSubscription.invokeChange(new ArrayList<>(mCollection));
+			});
+		} else if(mDocumentSubscription != null) {
+			// deliver result on UI thread
+			mRapid.getHandler().post(() -> {
+				mDocumentSubscription.invokeChange(mCollection.get(0));
 			});
 		}
 	}
@@ -148,8 +169,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private MessageSub createSubscriptionMessage(EntityOrder order, int limit, int skip, Filter filter)
-	{
+	private MessageSub createSubscriptionMessage(EntityOrder order, int limit, int skip, Filter filter) {
 		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, IdProvider.getNewSubscriptionId());
 		subscriptionMsg.setSkip(skip);
 		subscriptionMsg.setLimit(limit);

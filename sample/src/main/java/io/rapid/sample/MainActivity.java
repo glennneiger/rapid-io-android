@@ -12,7 +12,7 @@ import java.util.Random;
 
 import io.rapid.Rapid;
 import io.rapid.RapidDocument;
-import io.rapid.RapidSubscription;
+import io.rapid.RapidCollectionSubscription;
 import io.rapid.Sorting;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
 	public static final String COLLECTIONS_CARS = "cars_2";
 	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
-	private RapidSubscription mSubscription;
+	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
 

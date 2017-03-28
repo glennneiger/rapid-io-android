@@ -6,7 +6,6 @@ import java.util.Stack;
 
 public class RapidCollectionReference<T> {
 
-	private static final String ID_IDENTIFIER = "$id";
 	private final String mCollectionName;
 	private CollectionConnection<T> mConnection;
 	private int mLimit = Config.DEFAULT_LIMIT;
@@ -134,13 +133,13 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> idEqualTo(String id) {
-		equalTo(ID_IDENTIFIER, id);
+		equalTo(Config.ID_IDENTIFIER, id);
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> idNotEqualTo(String id) {
-		notEqualTo(ID_IDENTIFIER, id);
+		notEqualTo(Config.ID_IDENTIFIER, id);
 		return this;
 	}
 
@@ -237,7 +236,7 @@ public class RapidCollectionReference<T> {
 	// Operations
 
 
-	public RapidSubscription subscribe(RapidCollectionCallback<T> callback) {
+	public RapidCollectionSubscription subscribe(RapidCollectionCallback<T> callback) {
 		return mConnection.subscribe(callback, getOrder(), getLimit(), getSkip(), getFilter());
 	}
 
