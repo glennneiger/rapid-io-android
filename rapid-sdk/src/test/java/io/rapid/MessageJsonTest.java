@@ -5,6 +5,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import io.rapid.base.BaseTest;
 
+import static io.rapid.FilterValue.PropertyValue.TYPE_EQUAL;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -127,7 +128,8 @@ public class MessageJsonTest extends BaseTest {
 	@Test
 	public void test_json2modelSub() throws Exception {
 		MessageBase msg = MessageParser.parse("{\"sub\": {\"evt-id\": \"eventId\", \"col-id\":\"collection\", " +
-				"\"sub-id\":\"subscriptionId\", \"filter\":[], \"order\":[], \"limit\":10, \"skip\":0}}");
+				"\"sub-id\":\"subscriptionId\", \"order\":[{\"manufacturer\":\"asc\"}," +
+				"{\"model\":\"desc\"}], \"limit\":10,\"skip\":0}}");
 		assertTrue(msg instanceof MessageSub);
 
 		MessageSub subMsg = (MessageSub) msg;
@@ -137,6 +139,11 @@ public class MessageJsonTest extends BaseTest {
 		assertEquals(subMsg.getSubscriptionId(),"subscriptionId");
 		assertEquals(subMsg.getLimit(), 10);
 		assertEquals(subMsg.getSkip(), 0);
+		EntityOrder order = subMsg.getOrder();
+		assertEquals(order.getOrderList().get(0).getProperty(), "manufacturer");
+		assertEquals(order.getOrderList().get(0).getSorting(), Sorting.ASC);
+		assertEquals(order.getOrderList().get(1).getProperty(), "model");
+		assertEquals(order.getOrderList().get(1).getSorting(), Sorting.DESC);
 	}
 
 
@@ -148,7 +155,7 @@ public class MessageJsonTest extends BaseTest {
 		order.putOrder("model", Sorting.DESC);
 		subMsg.setOrder(order);
 		FilterGroup filter = new FilterAnd();
-		filter.add(new FilterValue("model", new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, "A5")));
+		filter.add(new FilterValue("model", new FilterValue.StringComparePropertyValue(TYPE_EQUAL, "A5")));
 		subMsg.setFilter(filter);
 		subMsg.setLimit(10);
 		subMsg.setSkip(0);
@@ -229,6 +236,38 @@ public class MessageJsonTest extends BaseTest {
 		batchMsg.addMessage(new MessageHb("eventId"));
 		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"hb\": {\"evt-id\": " +
 				"\"eventId\"}}]}", false);
+	}
+
+
+	@Test
+	public void test_json2modelErr() throws Exception {
+		MessageBase msg = MessageParser.parse("{\"err\": {\"evt-id\": \"eventId\", \"err-type\": \"connection-terminated\", \"err-msg\": " +
+				"\"Something went wrong\"}}");
+		assertTrue(msg instanceof MessageErr);
+
+		MessageErr errMsg = (MessageErr) msg;
+		assertEquals(errMsg.getMessageType(), MessageBase.MessageType.ERR);
+		assertEquals(errMsg.getEventId(),"eventId");
+		assertEquals(errMsg.getErrorType(), MessageErr.ErrorType.CONNECTION_TERMINATED);
+		assertEquals(errMsg.getErrorMessage(), "Something went wrong");
+	}
+
+
+	@Test
+	public void test_model2jsonErr() throws Exception {
+		MessageErr errMsg = new MessageErr("eventId", MessageErr.ErrorType.CONNECTION_TERMINATED, "Something went wrong");
+		JSONAssert.assertEquals(errMsg.toJson().toString(), "{\"err\": {\"evt-id\": \"eventId\", \"err-type\": \"connection-terminated\", " +
+				"\"err-msg\":\"Something went wrong\"}}", false);
+	}
+
+
+	@Test
+	public void test_json2modelUnknown() throws Exception {
+		MessageBase msg = MessageParser.parse("{\"asd\": {}}");
+		assertTrue(msg instanceof MessageUnknown);
+
+		MessageUnknown unknownMsg = (MessageUnknown) msg;
+		assertEquals(unknownMsg.getMessageType(), MessageBase.MessageType.UNKNOWN);
 	}
 
 }
