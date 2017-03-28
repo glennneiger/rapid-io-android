@@ -1,19 +1,26 @@
 package io.rapid;
 
 
+import android.os.Handler;
+
+
 public class RapidDocumentReference<T> {
 	private final CollectionConnection<T> mImpl;
 	private final String mId;
+	private final RapidDocumentSubscription<T> mSubscription;
+	private final Handler mUiThreadHandler;
 
 
-	public RapidDocumentReference(String collectionName, CollectionConnection<T> impl) {
-		this(collectionName, impl, IdProvider.getNewDocumentId());
+	public RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl) {
+		this(uiThreadHandler, collectionName, impl, IdProvider.getNewDocumentId());
 	}
 
 
-	public RapidDocumentReference(String collectionName, CollectionConnection<T> impl, String documentId) {
+	public RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl, String documentId) {
 		mId = documentId;
 		mImpl = impl;
+		mUiThreadHandler = uiThreadHandler;
+		mSubscription = new RapidDocumentSubscription<T>(collectionName, documentId, mUiThreadHandler);
 	}
 
 
@@ -21,12 +28,14 @@ public class RapidDocumentReference<T> {
 		return mId;
 	}
 
+
 	public RapidFuture<T> mutate(T item) {
 		return mImpl.mutate(mId, item);
 	}
 
 
-	public RapidDocumentSubscription<T> subscribe(RapidDocumentCallback<T> callback) {
-		return mImpl.subscribeDocument(mId, callback);
+	public void subscribe(RapidDocumentCallback<T> callback) {
+		mSubscription.setCallback(callback);
+		mImpl.subscribeDocument(mSubscription);
 	}
 }

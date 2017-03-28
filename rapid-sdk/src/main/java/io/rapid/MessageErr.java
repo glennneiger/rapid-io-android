@@ -8,8 +8,7 @@ import org.json.JSONObject;
  * Created by Leos on 17.03.2017.
  */
 
-class MessageErr extends MessageBase
-{
+class MessageErr extends MessageBase {
 	private static final String ATTR_ERR_TYPE = "err-type";
 	private static final String ATTR_ERR_MSG = "err-msg";
 
@@ -17,22 +16,23 @@ class MessageErr extends MessageBase
 	private String mErrorMessage;
 
 
-	enum ErrorType
-	{
+	enum ErrorType {
 		INTERNAL_ERROR("internal-error"), PERMISSION_DENIED("permission-denied"), CONNECTION_TERMINATED("connection-terminated");
 
 
 		private String mKey;
 
 
-		static ErrorType get(String key)
-		{
+		ErrorType(String key) {
+			mKey = key;
+		}
+
+
+		static ErrorType get(String key) {
 			if(key == null) return INTERNAL_ERROR;
 
-			for(ErrorType item : ErrorType.values())
-			{
-				if(item.getKey().equalsIgnoreCase(key))
-				{
+			for(ErrorType item : ErrorType.values()) {
+				if(item.getKey().equalsIgnoreCase(key)) {
 					return item;
 				}
 			}
@@ -40,37 +40,27 @@ class MessageErr extends MessageBase
 		}
 
 
-		ErrorType(String key)
-		{
-			mKey = key;
-		}
-
-
-		String getKey()
-		{
+		String getKey() {
 			return mKey;
 		}
 	}
 
 
-	MessageErr(String eventId, ErrorType errorType, String errorMessage) throws JSONException
-	{
+	MessageErr(String eventId, ErrorType errorType, String errorMessage) throws JSONException {
 		super(MessageType.ERR, eventId);
 		mErrorType = errorType;
 		mErrorMessage = errorMessage;
 	}
 
 
-	MessageErr(JSONObject json) throws JSONException
-	{
+	MessageErr(JSONObject json) throws JSONException {
 		super(MessageType.ERR);
 		fromJson(json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException
-	{
+	public JSONObject toJson() throws JSONException {
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_ERR_TYPE, getErrorType().getKey());
@@ -81,8 +71,7 @@ class MessageErr extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException
-	{
+	public void fromJson(JSONObject json) throws JSONException {
 		super.fromJson(json);
 
 		mErrorType = ErrorType.get(json.optJSONObject(getMessageType().getKey()).optString(ATTR_ERR_TYPE));
@@ -90,14 +79,12 @@ class MessageErr extends MessageBase
 	}
 
 
-	public ErrorType getErrorType()
-	{
+	public ErrorType getErrorType() {
 		return mErrorType;
 	}
 
 
-	public String getErrorMessage()
-	{
+	public String getErrorMessage() {
 		return mErrorMessage;
 	}
 }

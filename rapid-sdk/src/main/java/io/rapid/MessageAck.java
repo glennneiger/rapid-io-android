@@ -8,32 +8,27 @@ import org.json.JSONObject;
  * Created by Leos on 17.03.2017.
  */
 
-class MessageAck extends MessageBase
-{
+class MessageAck extends MessageBase {
 
-	MessageAck(String eventId)
-	{
+	MessageAck(String eventId) {
 		super(MessageType.ACK, eventId);
 	}
 
 
-	MessageAck(JSONObject json) throws JSONException
-	{
+	MessageAck(JSONObject json) throws JSONException {
 		super(MessageType.ACK);
 		fromJson(json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException
-	{
+	public JSONObject toJson() throws JSONException {
 		return super.toJson();
 	}
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException
-	{
+	public void fromJson(JSONObject json) throws JSONException {
 		super.fromJson(json);
 	}
 }

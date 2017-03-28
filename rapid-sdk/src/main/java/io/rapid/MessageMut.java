@@ -8,8 +8,7 @@ import org.json.JSONObject;
  * Created by Leos on 17.03.2017.
  */
 
-class MessageMut extends MessageBase
-{
+class MessageMut extends MessageBase {
 	private static final String ATTR_COL_ID = "col-id";
 	private static final String ATTR_DOC = "doc";
 
@@ -17,15 +16,13 @@ class MessageMut extends MessageBase
 	private String mDocument;
 
 
-	public MessageMut(JSONObject json) throws JSONException
-	{
+	public MessageMut(JSONObject json) throws JSONException {
 		super(MessageType.MUT);
 		fromJson(json);
 	}
 
 
-	public MessageMut(String eventId, String collectionId, String document)
-	{
+	public MessageMut(String eventId, String collectionId, String document) {
 		super(MessageType.MUT, eventId);
 		mCollectionId = collectionId;
 		mDocument = document;
@@ -33,8 +30,7 @@ class MessageMut extends MessageBase
 
 
 	@Override
-	public JSONObject toJson() throws JSONException
-	{
+	public JSONObject toJson() throws JSONException {
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_COL_ID, getCollectionId());
@@ -45,8 +41,7 @@ class MessageMut extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException
-	{
+	public void fromJson(JSONObject json) throws JSONException {
 		super.fromJson(json);
 
 		mCollectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_COL_ID);
@@ -54,14 +49,12 @@ class MessageMut extends MessageBase
 	}
 
 
-	public String getCollectionId()
-	{
+	public String getCollectionId() {
 		return mCollectionId;
 	}
 
 
-	public String getDocument()
-	{
+	public String getDocument() {
 		return mDocument;
 	}
 }

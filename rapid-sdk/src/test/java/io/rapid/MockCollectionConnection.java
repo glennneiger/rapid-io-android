@@ -33,7 +33,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public boolean isSubscribed() {
+	public boolean hasActiveSubscription() {
 		return false;
 	}
 

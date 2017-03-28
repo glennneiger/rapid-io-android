@@ -37,13 +37,10 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	private Map<String, MessageFuture> mPendingMessages = new HashMap<>();
 
 
-	private BroadcastReceiver mInternetConnectionBroadcastReceiver = new BroadcastReceiver()
-	{
+	private BroadcastReceiver mInternetConnectionBroadcastReceiver = new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-			if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
-			{
+		public void onReceive(Context context, Intent intent) {
+			if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
 				final ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 				final NetworkInfo info = connManager.getActiveNetworkInfo();
 				boolean hasInternetConnection = info != null && info.isConnected();
@@ -99,21 +96,18 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	@Override
 	public void onMessage(MessageBase message) {
-		if (message.getMessageType()== MessageBase.MessageType.ACK){
+		if(message.getMessageType() == MessageBase.MessageType.ACK) {
 			MessageAck ackMessage = ((MessageAck) message);
 			MessageFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
 			messageFuture.invokeSuccess();
 		} else if(message.getMessageType() == MessageBase.MessageType.VAL) {
 			MessageVal valMessage = ((MessageVal) message);
 			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
-		} else if(message.getMessageType() == MessageBase.MessageType.UPD)
-		{
+		} else if(message.getMessageType() == MessageBase.MessageType.UPD) {
 			MessageUpd updMessage = ((MessageUpd) message);
 			mCollectionProvider.findCollectionByName(updMessage.getCollectionId()).onUpdate(updMessage);
-		} else if(message.getMessageType() == MessageBase.MessageType.ERR)
-		{
-			switch(((MessageErr)message).getErrorType())
-			{
+		} else if(message.getMessageType() == MessageBase.MessageType.ERR) {
+			switch(((MessageErr) message).getErrorType()) {
 				case CONNECTION_TERMINATED:
 					getHandler().post(() ->
 					{
@@ -130,23 +124,10 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	@Override
 	public void onClose(WebSocketConnection.CloseReasonEnum reason) {
 		if(reason == WebSocketConnection.CloseReasonEnum.INTERNET_CONNECTION_LOST ||
-				reason == WebSocketConnection.CloseReasonEnum.NO_INTERNET_CONNECTION)
-		{
+				reason == WebSocketConnection.CloseReasonEnum.NO_INTERNET_CONNECTION) {
 			mInternetConnected = false;
 			registerInternetConnectionBroadcast();
 		}
-	}
-
-
-	private void registerInternetConnectionBroadcast()
-	{
-		if(mContext != null) mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
-	}
-
-
-	private void unregisterInternetConnectionBroadcast()
-	{
-		if(mContext != null) mContext.unregisterReceiver(mInternetConnectionBroadcastReceiver);
 	}
 
 
@@ -157,8 +138,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 
 	@Override
-	public void onConnectionStateChange(ConnectionState state)
-	{
+	public void onConnectionStateChange(ConnectionState state) {
 		invokeConnectionStateChanged(state);
 	}
 
@@ -183,7 +163,27 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	void onSubscribe(Subscription subscription){
+	public void addConnectionStateListener(RapidConnectionStateListener mListener) {
+		mConnectionStateListeners.add(mListener);
+	}
+
+
+	public void removeConnectionStateListener(RapidConnectionStateListener mListener) {
+		mConnectionStateListeners.remove(mListener);
+	}
+
+
+	public void removeAllConnectionStateListeners() {
+		mConnectionStateListeners.clear();
+	}
+
+
+	public ConnectionState getConnectionState() {
+		return mWebSocketConnection.getConnectionState();
+	}
+
+
+	void onSubscribe(Subscription subscription) {
 		// some subscription subscribed - connect if not connected
 		if(mInternetConnected && (mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED)) {
 			createNewWebSocketConnection();
@@ -195,13 +195,13 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		// some subscription unsubscribed - check if we have any more subscriptions and disconnect if not
 		boolean subscribed = false;
 		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values()) {
-			if (rapidCollectionReference.isSubscribed()){
+			if(rapidCollectionReference.isSubscribed()) {
 				subscribed = true;
 				break;
 			}
 		}
 
-		if (!subscribed){
+		if(!subscribed) {
 			disconnectFromServer();
 		}
 	}
@@ -220,58 +220,40 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	public void addConnectionStateListener(RapidConnectionStateListener mListener)
-	{
-		mConnectionStateListeners.add(mListener);
+	private void registerInternetConnectionBroadcast() {
+		if(mContext != null)
+			mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 	}
 
 
-	public void removeConnectionStateListener(RapidConnectionStateListener mListener)
-	{
-		mConnectionStateListeners.remove(mListener);
-	}
-
-
-	public void removeAllConnectionStateListeners()
-	{
-		mConnectionStateListeners.clear();
-	}
-
-
-	public ConnectionState getConnectionState() {
-		return mWebSocketConnection.getConnectionState();
+	private void unregisterInternetConnectionBroadcast() {
+		if(mContext != null) mContext.unregisterReceiver(mInternetConnectionBroadcastReceiver);
 	}
 
 
 	private void invokeConnectionStateChanged(ConnectionState state) {
-		for(RapidConnectionStateListener l : mConnectionStateListeners)
-		{
+		for(RapidConnectionStateListener l : mConnectionStateListeners) {
 			if(l != null) l.onConnectionStateChanged(state);
 		}
 	}
 
 
-	private void disconnectFromServer()
-	{
+	private void disconnectFromServer() {
 		mWebSocketConnection.disconnectFromServer(false);
 		mConnectionId = null;
 	}
 
 
-	private void createNewWebSocketConnection()
-	{
+	private void createNewWebSocketConnection() {
 		if(mConnectionId == null) mConnectionId = IdProvider.getConnectionId();
 		mWebSocketConnection = new WebSocketConnection(mConnectionId, URI.create(Config.URI), this);
 		mWebSocketConnection.connectToServer();
 	}
 
 
-	private void reconnectSubscriptions()
-	{
-		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values())
-		{
-			if(rapidCollectionReference.isSubscribed())
-			{
+	private void reconnectSubscriptions() {
+		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values()) {
+			if(rapidCollectionReference.isSubscribed()) {
 				rapidCollectionReference.resubscribe();
 			}
 		}

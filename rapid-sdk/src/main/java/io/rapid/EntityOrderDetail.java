@@ -4,39 +4,33 @@ package io.rapid;
  * Created by Leos on 22.03.2017.
  */
 
-class EntityOrderDetail
-{
+class EntityOrderDetail {
 	private String mProperty;
 	private Sorting mSorting;
 
 
-	public EntityOrderDetail(String property, Sorting sorting)
-	{
+	public EntityOrderDetail(String property, Sorting sorting) {
 		mProperty = property;
 		mSorting = sorting;
 	}
 
 
-	public String getProperty()
-	{
+	public String getProperty() {
 		return mProperty;
 	}
 
 
-	public void setProperty(String property)
-	{
+	public void setProperty(String property) {
 		mProperty = property;
 	}
 
 
-	public Sorting getSorting()
-	{
+	public Sorting getSorting() {
 		return mSorting;
 	}
 
 
-	public void setSorting(Sorting sorting)
-	{
+	public void setSorting(Sorting sorting) {
 		mSorting = sorting;
 	}
 }

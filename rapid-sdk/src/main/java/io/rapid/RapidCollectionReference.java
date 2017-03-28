@@ -1,115 +1,114 @@
 package io.rapid;
 
 
-import java.util.Stack;
+import android.os.Handler;
 
 
 public class RapidCollectionReference<T> {
 
 	private final String mCollectionName;
+	private final Handler mUiThreadHandler;
+	private RapidCollectionSubscription<T> mSubscription;
 	private CollectionConnection<T> mConnection;
-	private int mLimit = Config.DEFAULT_LIMIT;
-	private int mSkip = 0;
-	private EntityOrder mOrder;
-	private Stack<FilterGroup> mFilterStack = new Stack<>();
 
 
-	public RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName) {
+	public RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, Handler uiThreadHandler) {
 		mCollectionName = collectionName;
 		mConnection = collectionConnection;
-		mFilterStack.push(new FilterAnd());
+		mUiThreadHandler = uiThreadHandler;
+		initSubscription();
+	}
+
+
+	public RapidCollectionReference<T> equalTo(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
+		return this;
 	}
 
 
 	// Query methods
 
 
-	public RapidCollectionReference<T> equalTo(String property, String value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
-		return this;
-	}
-
-
 	public RapidCollectionReference<T> equalTo(String property, int value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> equalTo(String property, double value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> equalTo(String property, boolean value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.BooleanComparePropertyValue(value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.BooleanComparePropertyValue(value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> notEqualTo(String property, String value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> notEqualTo(String property, int value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> notEqualTo(String property, double value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessThan(String property, int value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessThan(String property, double value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessOrEqualThan(String property, int value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessOrEqualThan(String property, double value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterThan(String property, int value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterThan(String property, double value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, int value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, double value) {
-		mFilterStack.peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
@@ -144,55 +143,63 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	// Groups
-
-
 	public RapidCollectionReference<T> beginOr() {
 		FilterOr or = new FilterOr();
-		mFilterStack.peek().add(or);
-		mFilterStack.push(or);
+		mSubscription.getFilterStack().peek().add(or);
+		mSubscription.getFilterStack().push(or);
 		return this;
 	}
+
+
+	// Groups
 
 
 	public RapidCollectionReference<T> beginAnd() {
 		FilterAnd and = new FilterAnd();
-		mFilterStack.peek().add(and);
-		mFilterStack.push(and);
+		mSubscription.getFilterStack().peek().add(and);
+		mSubscription.getFilterStack().push(and);
 		return this;
 	}
 
+
 	public RapidCollectionReference<T> beginNot() {
 		FilterNot not = new FilterNot();
-		mFilterStack.peek().add(not);
-		mFilterStack.push(not);
+		mSubscription.getFilterStack().peek().add(not);
+		mSubscription.getFilterStack().push(not);
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> endOr() {
-		if(!(mFilterStack.peek() instanceof FilterOr))
+		if(!(mSubscription.getFilterStack().peek() instanceof FilterOr))
 			throw new IllegalArgumentException("Trying to end OR group inside another group.");
 
-		mFilterStack.pop();
+		mSubscription.getFilterStack().pop();
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> endAnd() {
-		if(!(mFilterStack.peek() instanceof FilterAnd))
+		if(!(mSubscription.getFilterStack().peek() instanceof FilterAnd))
 			throw new IllegalArgumentException("Trying to end AND group inside another group.");
 
-		mFilterStack.pop();
+		mSubscription.getFilterStack().pop();
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> endNot() {
-		if(!(mFilterStack.peek() instanceof FilterNot))
+		if(!(mSubscription.getFilterStack().peek() instanceof FilterNot))
 			throw new IllegalArgumentException("Trying to end NOT group inside another group.");
 
-		mFilterStack.pop();
+		mSubscription.getFilterStack().pop();
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
+		mSubscription.orderBy(property, sorting);
+
 		return this;
 	}
 
@@ -200,30 +207,22 @@ public class RapidCollectionReference<T> {
 	// Order
 
 
-	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
-		if(mOrder == null) mOrder = new EntityOrder();
-		mOrder.putOrder(property, sorting);
-
-		return this;
+	public RapidCollectionReference<T> orderBy(String property) {
+		return orderBy(property, Sorting.ASC);
 	}
 
 
-	public RapidCollectionReference<T> orderBy(String property) {
-		return orderBy(property, Sorting.ASC);
+	public RapidCollectionReference<T> limit(int limit) {
+		mSubscription.setLimit(limit);
+		return this;
 	}
 
 
 	// Limit, Skip
 
 
-	public RapidCollectionReference<T> limit(int limit) {
-		mLimit = limit;
-		return this;
-	}
-
-
 	public RapidCollectionReference<T> skip(int skip) {
-		mSkip = skip;
+		mSubscription.setSkip(skip);
 		return this;
 	}
 
@@ -233,57 +232,47 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	// Operations
-
-
 	public RapidCollectionSubscription subscribe(RapidCollectionCallback<T> callback) {
-		return mConnection.subscribe(callback, getOrder(), getLimit(), getSkip(), getFilter());
+		mSubscription.setCallback(callback);
+		mConnection.subscribe(mSubscription);
+
+		RapidCollectionSubscription<T> temp = mSubscription;
+		initSubscription();
+		return temp;
 	}
 
 
+	// Operations
+
+
 	public RapidDocumentReference<T> newDocument() {
-		return new RapidDocumentReference<>(mCollectionName, mConnection);
+		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection);
 	}
 
 
 	public RapidDocumentReference<T> document(String documentId) {
-		return new RapidDocumentReference<>(mCollectionName, mConnection, documentId);
+		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection, documentId);
 	}
 
 
-	public void resubscribe() {
-		mConnection.resubscribe(getOrder(), getLimit(), getSkip(), getFilter());
+	void resubscribe() {
+		mConnection.resubscribe();
+	}
+
+
+	Filter getFilter() {
+		if(mSubscription.getFilterStack().size() != 1) {
+			throw new IllegalArgumentException("Wrong filter structure");
+		}
+		return mSubscription.getFilterStack().peek();
 	}
 
 
 	// Private
 
 
-	Filter getFilter() {
-		if(mFilterStack.size() != 1) {
-			throw new IllegalArgumentException("Wrong filter structure");
-		}
-		return mFilterStack.peek();
-	}
-
-
-	EntityOrder getOrder() {
-		return mOrder;
-	}
-
-
-	int getLimit() {
-		return mLimit;
-	}
-
-
-	int getSkip() {
-		return mSkip;
-	}
-
-
 	boolean isSubscribed() {
-		return mConnection.isSubscribed();
+		return mConnection.hasActiveSubscription();
 	}
 
 
@@ -294,5 +283,11 @@ public class RapidCollectionReference<T> {
 
 	void onUpdate(MessageUpd updMessage) {
 		mConnection.onUpdate(updMessage);
+	}
+
+
+	private void initSubscription() {
+		mSubscription = new RapidCollectionSubscription<T>(mCollectionName, mUiThreadHandler);
+		mSubscription.getFilterStack().push(new FilterAnd());
 	}
 }

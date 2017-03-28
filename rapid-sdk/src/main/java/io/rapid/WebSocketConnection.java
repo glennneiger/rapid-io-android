@@ -22,8 +22,7 @@ import static io.rapid.ConnectionState.DISCONNECTED;
  * Created by Leos on 15.03.2017.
  */
 
-class WebSocketConnection extends WebSocketClient
-{
+class WebSocketConnection extends WebSocketClient {
 	private final int HB_TIMEOUT = 10 * 1000;
 
 	private WebSocketConnectionListener mListener;
@@ -38,42 +37,35 @@ class WebSocketConnection extends WebSocketClient
 	};
 
 
-	enum CloseReasonEnum
-	{
+	enum CloseReasonEnum {
 		UNKNOWN(Integer.MAX_VALUE), INTERNET_CONNECTION_LOST(1006), NO_INTERNET_CONNECTION(-1), CLOSED_MANUALLY(1000);
 
 		private int mCode;
 
 
-		CloseReasonEnum(int code)
-		{
+		CloseReasonEnum(int code) {
 			mCode = code;
 		}
 
 
-		public int getCode()
-		{
-			return mCode;
-		}
-
-
-		static CloseReasonEnum get(int code)
-		{
-			for(CloseReasonEnum item : CloseReasonEnum.values())
-			{
-				if(item.getCode() == code)
-				{
+		static CloseReasonEnum get(int code) {
+			for(CloseReasonEnum item : CloseReasonEnum.values()) {
+				if(item.getCode() == code) {
 					return item;
 				}
 			}
 			return UNKNOWN;
 		}
 
+
+		public int getCode() {
+			return mCode;
+		}
+
 	}
 
 
-	interface WebSocketConnectionListener
-	{
+	interface WebSocketConnectionListener {
 		void onOpen();
 		void onMessage(MessageBase message);
 		void onClose(CloseReasonEnum reason);
@@ -82,70 +74,29 @@ class WebSocketConnection extends WebSocketClient
 	}
 
 
-	public WebSocketConnection(String connectionId, URI serverURI, WebSocketConnectionListener listener)
-	{
+	public WebSocketConnection(String connectionId, URI serverURI, WebSocketConnectionListener listener) {
 		super(serverURI);
 		mConnectionId = connectionId;
 		mListener = listener;
 	}
 
 
-	public WebSocketConnection(String connectionId, URI serverUri, Draft draft, WebSocketConnectionListener listener)
-	{
+	public WebSocketConnection(String connectionId, URI serverUri, Draft draft, WebSocketConnectionListener listener) {
 		super(serverUri, draft);
 		mConnectionId = connectionId;
 		mListener = listener;
 	}
 
 
-	public WebSocketConnection(String connectionId, URI serverUri, Draft draft, Map<String, String> headers, int connectTimeout, WebSocketConnectionListener listener)
-	{
+	public WebSocketConnection(String connectionId, URI serverUri, Draft draft, Map<String, String> headers, int connectTimeout, WebSocketConnectionListener listener) {
 		super(serverUri, draft, headers, connectTimeout);
 		mConnectionId = connectionId;
 		mListener = listener;
 	}
 
 
-	public void connectToServer()
-	{
-		if(getConnectionState() == DISCONNECTED) {
-			changeConnectionState(CONNECTING);
-			connect();
-		}
-	}
-
-	public void disconnectFromServer(boolean sendDisconnectMessage)
-	{
-		if(sendDisconnectMessage) sendDisconnect();
-		close();
-	}
-
-
-	public void sendMessage(MessageBase message)
-	{
-		if(getConnectionState() == ConnectionState.CONNECTED)
-		{
-			try
-			{
-				String json = message.toJson().toString();
-				Logcat.d(json);
-				send(json);
-			}
-			catch(JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else
-		{
-			mPendingMessageList.add(message);
-		}
-	}
-
-
 	@Override
-	public void onOpen(ServerHandshake handshakeData)
-	{
+	public void onOpen(ServerHandshake handshakeData) {
 		Logcat.d("Status message: " + handshakeData.getHttpStatusMessage() + "; HTTP status: " + handshakeData.getHttpStatus());
 
 		changeConnectionState(CONNECTED);
@@ -154,38 +105,29 @@ class WebSocketConnection extends WebSocketClient
 
 		if(mListener != null) mListener.onOpen();
 
-		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
-		{
+		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
 			sendMessage(mPendingMessageList.remove(i));
 		}
 	}
 
 
 	@Override
-	public void onMessage(String messageJson)
-	{
+	public void onMessage(String messageJson) {
 		Logcat.d(messageJson);
 
 		new Thread(() ->
 		{
-			try
-			{
+			try {
 				MessageBase parsedMessage = MessageParser.parse(messageJson);
 
-				if(parsedMessage.getMessageType() == MessageBase.MessageType.BATCH)
-				{
-					for(MessageBase message : ((MessageBatch)parsedMessage).getMessageList())
-					{
+				if(parsedMessage.getMessageType() == MessageBase.MessageType.BATCH) {
+					for(MessageBase message : ((MessageBatch) parsedMessage).getMessageList()) {
 						handleNewMessage(message);
 					}
-				}
-				else
-				{
+				} else {
 					handleNewMessage(parsedMessage);
 				}
-			}
-			catch(JSONException e)
-			{
+			} catch(JSONException e) {
 				e.printStackTrace();
 			}
 		}).start();
@@ -193,8 +135,7 @@ class WebSocketConnection extends WebSocketClient
 
 
 	@Override
-	public void onClose(int code, String reason, boolean remote)
-	{
+	public void onClose(int code, String reason, boolean remote) {
 		Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
 
 		changeConnectionState(CLOSED);
@@ -206,8 +147,7 @@ class WebSocketConnection extends WebSocketClient
 
 
 	@Override
-	public void onError(Exception ex)
-	{
+	public void onError(Exception ex) {
 		Logcat.d(ex.getMessage());
 
 		changeConnectionState(DISCONNECTED);
@@ -216,40 +156,64 @@ class WebSocketConnection extends WebSocketClient
 	}
 
 
+	public void connectToServer() {
+		if(getConnectionState() == DISCONNECTED) {
+			changeConnectionState(CONNECTING);
+			connect();
+		}
+	}
+
+
+	public void disconnectFromServer(boolean sendDisconnectMessage) {
+		if(sendDisconnectMessage) sendDisconnect();
+		close();
+	}
+
+
+	public void sendMessage(MessageBase message) {
+		if(getConnectionState() == ConnectionState.CONNECTED) {
+			try {
+				String json = message.toJson().toString();
+				Logcat.d(json);
+				send(json);
+			} catch(JSONException e) {
+				e.printStackTrace();
+			}
+		} else {
+			mPendingMessageList.add(message);
+		}
+	}
+
+
 	public ConnectionState getConnectionState() {
 		return mConnectionState;
 	}
 
 
-	private void changeConnectionState(ConnectionState state)
-	{
+	private void changeConnectionState(ConnectionState state) {
 		mConnectionState = state;
 		if(mListener != null) mListener.onConnectionStateChange(state);
 	}
 
 
-	private void sendConnect()
-	{
+	private void sendConnect() {
 		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId));
 	}
 
 
-	private void sendDisconnect()
-	{
+	private void sendDisconnect() {
 		sendMessage(new MessageDis(IdProvider.getNewEventId()));
 	}
 
 
-	private void sendAckIfNeeded(MessageBase parsedMessage)
-	{
+	private void sendAckIfNeeded(MessageBase parsedMessage) {
 		if(parsedMessage.getMessageType() == MessageBase.MessageType.VAL || parsedMessage.getMessageType() == MessageBase.MessageType.UPD) {
 			sendMessage(new MessageAck(parsedMessage.getEventId()));
 		}
 	}
 
 
-	private void handleNewMessage(MessageBase parsedMessage)
-	{
+	private void handleNewMessage(MessageBase parsedMessage) {
 		sendAckIfNeeded(parsedMessage);
 
 		if(parsedMessage.getMessageType() == MessageBase.MessageType.ERR) {
@@ -260,27 +224,23 @@ class WebSocketConnection extends WebSocketClient
 	}
 
 
-	private void handleErrorMessage(MessageBase parsedMessage)
-	{
+	private void handleErrorMessage(MessageBase parsedMessage) {
 
 	}
 
 
-	private void sendHB()
-	{
+	private void sendHB() {
 		sendMessage(new MessageHb(IdProvider.getNewEventId()));
 	}
 
 
-	private void startHB()
-	{
+	private void startHB() {
 		stopHB();
 		mHBHandler.postDelayed(mHBRunnable, HB_TIMEOUT);
 	}
 
 
-	private void stopHB()
-	{
+	private void stopHB() {
 		mHBHandler.removeCallbacks(mHBRunnable);
 	}
 }

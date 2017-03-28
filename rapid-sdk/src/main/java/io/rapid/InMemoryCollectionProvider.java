@@ -12,7 +12,7 @@ class InMemoryCollectionProvider implements CollectionProvider {
 	@Override
 	public <T> RapidCollectionReference<T> provideCollection(Rapid rapid, String collectionName, Class<T> itemClass) {
 		if(!mCollections.containsKey(collectionName))
-			mCollections.put(collectionName, new RapidCollectionReference<T>(new WebSocketCollectionConnection<>(rapid, collectionName, itemClass), collectionName));
+			mCollections.put(collectionName, new RapidCollectionReference<T>(new WebSocketCollectionConnection<>(rapid, collectionName, itemClass), collectionName, rapid.getHandler()));
 		return mCollections.get(collectionName);
 	}
 

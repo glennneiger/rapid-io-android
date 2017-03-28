@@ -7,7 +7,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
@@ -15,10 +17,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private String mCollectionName;
 	private Rapid mRapid;
 	private Class<T> mType;
-	private RapidCollectionSubscription<T> mCollectionSubscription;
-	private RapidDocumentSubscription<T> mDocumentSubscription;
-
-	private List<RapidDocument<T>> mCollection = new ArrayList<>();
+	private Map<String, Subscription<T>> mSubscriptions = new HashMap<>();
 
 
 	WebSocketCollectionConnection(Rapid rapid, String collectionName, Class<T> type) {
@@ -40,82 +39,67 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidCollectionSubscription subscribe(RapidCollectionCallback<T> callback, EntityOrder order, int limit, int skip, Filter filter) {
-		checkNotSubscribed();
-		MessageSub subscriptionMsg = createSubscriptionMessage(order, limit, skip, filter);
-		RapidCollectionSubscription<T> subscription = new RapidCollectionSubscription<>(callback);
+	public void subscribe(RapidCollectionSubscription<T> subscription) {
+		String subscriptionId = IdProvider.getNewSubscriptionId();
+		MessageSub subscriptionMsg = subscription.createSubscriptionMessage(subscriptionId);
 		mRapid.onSubscribe(subscription);
 		mRapid.sendMessage(subscriptionMsg);
-		mCollectionSubscription = subscription;
-		subscription.setOnUnsubscribeCallback(() -> onCollectionUnsubscribed(subscription));
-		return subscription;
+		mSubscriptions.put(subscriptionId, subscription);
+		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 	}
 
 
 	@Override
-	public RapidDocumentSubscription subscribeDocument(String id, RapidDocumentCallback<T> callback) {
-		checkNotSubscribed();
-		MessageSub subscriptionMsg = createSubscriptionMessage(null, 1, 0, new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, id)));
-		RapidDocumentSubscription<T> subscription = new RapidDocumentSubscription<>(callback);
+	public void subscribeDocument(RapidDocumentSubscription<T> subscription) {
+		String subscriptionId = IdProvider.getNewSubscriptionId();
+		MessageSub subscriptionMsg = subscription.createSubscriptionMessage(subscriptionId);
 		mRapid.onSubscribe(subscription);
 		mRapid.sendMessage(subscriptionMsg);
-		mDocumentSubscription = subscription;
-		subscription.setOnUnsubscribeCallback(() -> onDocumentUnsubscribed(subscription));
-		return subscription;
+		mSubscriptions.put(subscriptionId, subscription);
+		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 	}
 
 
 	@Override
 	public void onValue(MessageVal valMessage) {
-		mCollection = parseDocumentList(valMessage.getDocuments());
-		notifyChange();
+		Subscription<T> subscription = mSubscriptions.get(valMessage.getSubscriptionId());
+		if(subscription instanceof RapidDocumentSubscription) {
+			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(valMessage.getDocuments()).get(0));
+		} else if(subscription instanceof RapidCollectionSubscription) {
+			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(valMessage.getDocuments()));
+		}
 	}
 
 
 	@Override
 	public void onUpdate(MessageUpd updMessage) {
-		RapidDocument<T> doc = parseDocument(updMessage.getDocument());
-		boolean modified = false;
-		for(int i = 0; i < mCollection.size(); i++) {
-			if(mCollection.get(i).getId().equals(doc.getId())) {
-				mCollection.set(i, doc);
-				modified = true;
-				break;
-			}
-		}
-		if(!modified) {
-			mCollection.add(doc);
-		}
-		notifyChange();
+		Subscription<T> subscription = mSubscriptions.get(updMessage.getSubscriptionId());
+		subscription.onDocumentUpdated(parseDocument(updMessage.getDocument()));
 	}
 
 
 	@Override
-	public boolean isSubscribed() {
-		return mCollectionSubscription != null || mDocumentSubscription != null;
+	public boolean hasActiveSubscription() {
+		for(Subscription<T> subscription : mSubscriptions.values()) {
+			if(subscription.isSubscribed())
+				return true;
+		}
+		return false;
 	}
 
 
 	@Override
-	public void resubscribe(EntityOrder order, int limit, int skip, Filter filter) {
-		MessageSub subscriptionMsg = createSubscriptionMessage(order, limit, skip, filter);
-		mRapid.sendMessage(subscriptionMsg);
-	}
-
-
-	private void checkNotSubscribed() {
-		if(mDocumentSubscription != null || mCollectionSubscription != null) {
-			throw new IllegalStateException("This collection/document is already subscribed.");
+	public void resubscribe() {
+		for(Map.Entry<String, Subscription<T>> subscriptionEntry : mSubscriptions.entrySet()) {
+			Subscription<T> subscription = subscriptionEntry.getValue();
+			MessageSub subscriptionMsg = subscription.createSubscriptionMessage(subscriptionEntry.getKey());
+			mRapid.sendMessage(subscriptionMsg);
 		}
 	}
 
 
-	private void onCollectionUnsubscribed(RapidCollectionSubscription<T> subscription) {
-		mRapid.onUnsubscribe(subscription);
-	}
-
-
-	private void onDocumentUnsubscribed(RapidDocumentSubscription<T> subscription) {
+	private void onSubscriptionUnsubscribed(Subscription<T> subscription) {
+		mSubscriptions.remove(subscription);
 		mRapid.onUnsubscribe(subscription);
 	}
 
@@ -125,21 +109,6 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			return mRapid.getJsonConverter().toJson(document);
 		} catch(IOException e) {
 			throw new IllegalArgumentException(e);
-		}
-	}
-
-
-	private void notifyChange() {
-		if(mCollectionSubscription != null) {
-			// deliver result on UI thread
-			mRapid.getHandler().post(() -> {
-				mCollectionSubscription.invokeChange(new ArrayList<>(mCollection));
-			});
-		} else if(mDocumentSubscription != null) {
-			// deliver result on UI thread
-			mRapid.getHandler().post(() -> {
-				mDocumentSubscription.invokeChange(mCollection.get(0));
-			});
 		}
 	}
 
@@ -168,13 +137,4 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		}
 	}
 
-
-	private MessageSub createSubscriptionMessage(EntityOrder order, int limit, int skip, Filter filter) {
-		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, IdProvider.getNewSubscriptionId());
-		subscriptionMsg.setSkip(skip);
-		subscriptionMsg.setLimit(limit);
-		subscriptionMsg.setOrder(order);
-		subscriptionMsg.setFilter(filter);
-		return subscriptionMsg;
-	}
 }

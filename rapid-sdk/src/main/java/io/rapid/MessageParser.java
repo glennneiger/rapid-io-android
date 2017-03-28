@@ -8,15 +8,12 @@ import org.json.JSONObject;
  * Created by Leos on 17.03.2017.
  */
 
-class MessageParser
-{
-	static MessageBase parse(String message) throws JSONException
-	{
+class MessageParser {
+	static MessageBase parse(String message) throws JSONException {
 		JSONObject json = new JSONObject(message);
 		String messageType = json.keys().hasNext() ? json.keys().next() : null;
 
-		switch(MessageBase.MessageType.get(messageType))
-		{
+		switch(MessageBase.MessageType.get(messageType)) {
 			case ACK:
 				return new MessageAck(json);
 			case ERR:

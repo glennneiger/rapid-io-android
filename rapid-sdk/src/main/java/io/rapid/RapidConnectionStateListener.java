@@ -1,7 +1,6 @@
 package io.rapid;
 
 
-public interface RapidConnectionStateListener
-{
+public interface RapidConnectionStateListener {
 	void onConnectionStateChanged(ConnectionState state);
 }

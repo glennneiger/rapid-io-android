@@ -8,8 +8,7 @@ import org.json.JSONObject;
  * Created by Leos on 17.03.2017.
  */
 
-class MessageVal extends MessageBase
-{
+class MessageVal extends MessageBase {
 	private static final String ATTR_SUB_ID = "sub-id";
 	private static final String ATTR_COL_ID = "col-id";
 	private static final String ATTR_DOCS = "docs";
@@ -19,16 +18,14 @@ class MessageVal extends MessageBase
 	private String mDocuments;
 
 
-	MessageVal(JSONObject json) throws JSONException
-	{
+	MessageVal(JSONObject json) throws JSONException {
 		super(MessageType.VAL);
 		fromJson(json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException
-	{
+	public JSONObject toJson() throws JSONException {
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_SUB_ID, getSubscriptionId());
@@ -40,8 +37,7 @@ class MessageVal extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException
-	{
+	public void fromJson(JSONObject json) throws JSONException {
 		super.fromJson(json);
 
 		mSubscriptionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_SUB_ID);
@@ -50,20 +46,17 @@ class MessageVal extends MessageBase
 	}
 
 
-	public String getSubscriptionId()
-	{
+	public String getSubscriptionId() {
 		return mSubscriptionId;
 	}
 
 
-	public String getCollectionId()
-	{
+	public String getCollectionId() {
 		return mCollectionId;
 	}
 
 
-	public String getDocuments()
-	{
+	public String getDocuments() {
 		return mDocuments;
 	}
 }

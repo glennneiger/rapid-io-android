@@ -19,6 +19,11 @@ public class RapidDocument<T> {
 	}
 
 
+	public static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, RapidJsonConverter jsonConverter, Class<T> documentType) throws IOException {
+		return new RapidDocument<T>(jsonObject.optString("id"), jsonConverter.fromJson(jsonObject.optString("body"), documentType));
+	}
+
+
 	@Override
 	public String toString() {
 		return "RapidDocument(" + getId() + ": " + getBody().toString() + ")";
@@ -32,10 +37,5 @@ public class RapidDocument<T> {
 
 	public T getBody() {
 		return body;
-	}
-
-
-	public static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, RapidJsonConverter jsonConverter, Class<T> documentType) throws IOException {
-		return new RapidDocument<T>(jsonObject.optString("id"), jsonConverter.fromJson(jsonObject.optString("body"), documentType));
 	}
 }

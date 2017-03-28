@@ -8,31 +8,27 @@ import org.json.JSONObject;
  * Created by Leos on 17.03.2017.
  */
 
-class MessageCon extends MessageBase
-{
+class MessageCon extends MessageBase {
 	private static final String ATTR_CON_ID = "con-id";
 
 	private String mConnectionId;
 
 
-	public MessageCon(String eventId, String connectionId)
-	{
+	public MessageCon(String eventId, String connectionId) {
 		super(MessageType.CON, eventId);
 
 		mConnectionId = connectionId;
 	}
 
 
-	public MessageCon(JSONObject json) throws JSONException
-	{
+	public MessageCon(JSONObject json) throws JSONException {
 		super(MessageType.CON);
 		fromJson(json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException
-	{
+	public JSONObject toJson() throws JSONException {
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_CON_ID, getConnectionId());
@@ -42,16 +38,14 @@ class MessageCon extends MessageBase
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException
-	{
+	public void fromJson(JSONObject json) throws JSONException {
 		super.fromJson(json);
 
 		mConnectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_CON_ID);
 	}
 
 
-	public String getConnectionId()
-	{
+	public String getConnectionId() {
 		return mConnectionId;
 	}
 }
