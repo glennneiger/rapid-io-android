@@ -48,10 +48,10 @@ class MessageSub extends MessageBase
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
 		innerJson.put(ATTR_SUB_ID, mSubscriptionId);
 		innerJson.put(ATTR_COL_ID, mCollectionId);
-//		innerJson.put(ATTR_LIMIT, mLimit);
-//		innerJson.put(ATTR_SKIP, mSkip);
-//		innerJson.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
-//		if(mOrder != null && !mOrder.getOrderList().isEmpty()) innerJson.put(ATTR_ORDER, mOrder.toJson());
+		innerJson.put(ATTR_LIMIT, mLimit);
+		innerJson.put(ATTR_SKIP, mSkip);
+		innerJson.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
+		if(mOrder != null && !mOrder.getOrderList().isEmpty()) innerJson.put(ATTR_ORDER, mOrder.toJson());
 
 		json.put(getMessageType().getKey(), innerJson);
 		return json;
@@ -115,5 +115,17 @@ class MessageSub extends MessageBase
 
 	public void setFilter(Filter filter) {
 		mFilter = filter;
+	}
+
+
+	public EntityOrder getOrder()
+	{
+		return mOrder;
+	}
+
+
+	public Filter getFilter()
+	{
+		return mFilter;
 	}
 }

@@ -63,12 +63,6 @@ class MessageBatch extends MessageBase
 	}
 
 
-	public void setMessageList(List<MessageBase> messageList)
-	{
-		mMessageList = messageList;
-	}
-
-
 	public void addMessage(MessageBase message)
 	{
 		mMessageList.add(message);

@@ -53,6 +53,14 @@ class MessageErr extends MessageBase
 	}
 
 
+	MessageErr(String eventId, ErrorType errorType, String errorMessage) throws JSONException
+	{
+		super(MessageType.ERR, eventId);
+		mErrorType = errorType;
+		mErrorMessage = errorMessage;
+	}
+
+
 	MessageErr(JSONObject json) throws JSONException
 	{
 		super(MessageType.ERR);

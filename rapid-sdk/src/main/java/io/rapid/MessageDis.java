@@ -10,16 +10,11 @@ import org.json.JSONObject;
 
 class MessageDis extends MessageBase
 {
-	private static final String ATTR_CON_ID = "con-id";
-
-	private String mConnectionId;
 
 
-	public MessageDis(String eventId, String connectionId)
+	public MessageDis(String eventId)
 	{
 		super(MessageType.DIS, eventId);
-
-		mConnectionId = connectionId;
 	}
 
 
@@ -35,7 +30,6 @@ class MessageDis extends MessageBase
 	{
 		JSONObject json = super.toJson();
 		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_CON_ID, getConnectionId());
 		json.put(getMessageType().getKey(), innerJson);
 		return json;
 	}
@@ -45,13 +39,5 @@ class MessageDis extends MessageBase
 	public void fromJson(JSONObject json) throws JSONException
 	{
 		super.fromJson(json);
-
-		mConnectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_CON_ID);
-	}
-
-
-	public String getConnectionId()
-	{
-		return mConnectionId;
 	}
 }
