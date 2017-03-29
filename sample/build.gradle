@@ -46,7 +46,6 @@ dependencies {
 
 	compile 'com.android.support:appcompat-v7:25.3.0'
 	compile 'com.android.support:recyclerview-v7:25.3.0'
-	compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
 	compile 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter:2.0.1'
 	compile 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter-recyclerview:2.0.1'
 
