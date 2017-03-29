@@ -181,6 +181,7 @@ public class FilterJsonTest extends BaseTest {
 		JSONAssert.assertEquals(subscription2.getFilter().toJson(), "{\"and\":[{\"model2\":\"A1\"}]}", false);
 		JSONAssert.assertEquals(subscription2.getOrder().toJson().toString(), "[{\"p2\":\"asc\"}]", false);
 		assertEquals(0, subscription2.getSkip());
+		
 	}
 
 
