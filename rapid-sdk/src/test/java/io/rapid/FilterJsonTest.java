@@ -158,6 +158,32 @@ public class FilterJsonTest extends BaseTest {
 	}
 
 
+	@Test
+	public void test_multiple_subscribes_1() throws Exception {
+
+		RapidCollectionReference<Object> col = getNewCollection();
+
+		RapidCollectionSubscription subscription = col
+				.equalTo("model", "A5")
+				.orderBy("p1")
+				.skip(10)
+				.subscribe(rapidDocuments -> {
+				});
+		JSONAssert.assertEquals(subscription.getFilter().toJson(), "{\"and\":[{\"model\":\"A5\"}]}", false);
+		JSONAssert.assertEquals(subscription.getOrder().toJson().toString(), "[{\"p1\":\"asc\"}]", false);
+		assertEquals(10, subscription.getSkip());
+
+		RapidCollectionSubscription subscription2 = col
+				.equalTo("model2", "A1")
+				.orderBy("p2")
+				.subscribe(rapidDocuments -> {
+				});
+		JSONAssert.assertEquals(subscription2.getFilter().toJson(), "{\"and\":[{\"model2\":\"A1\"}]}", false);
+		JSONAssert.assertEquals(subscription2.getOrder().toJson().toString(), "[{\"p2\":\"asc\"}]", false);
+		assertEquals(0, subscription2.getSkip());
+	}
+
+
 	@NonNull
 	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection", new Handler());}
 
