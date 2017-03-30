@@ -12,7 +12,7 @@ public class RapidCollectionReference<T> {
 	private CollectionConnection<T> mConnection;
 
 
-	public RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, Handler uiThreadHandler) {
+	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, Handler uiThreadHandler) {
 		mCollectionName = collectionName;
 		mConnection = collectionConnection;
 		mUiThreadHandler = uiThreadHandler;

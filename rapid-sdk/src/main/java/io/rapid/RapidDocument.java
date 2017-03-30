@@ -19,7 +19,7 @@ public class RapidDocument<T> {
 	}
 
 
-	public static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, RapidJsonConverter jsonConverter, Class<T> documentType) throws IOException {
+	static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, RapidJsonConverter jsonConverter, Class<T> documentType) throws IOException {
 		return new RapidDocument<T>(jsonObject.optString("id"), jsonConverter.fromJson(jsonObject.optString("body"), documentType));
 	}
 
