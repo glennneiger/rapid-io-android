@@ -14,6 +14,8 @@ abstract class MessageBase {
 	private MessageType mMessageType;
 	private String mEventId;
 
+	private Long mSentTimestamp;
+
 
 	public enum MessageType {
 		ACK("ack"), ERR("err"), MUT("mut"), MER("mer"), SUB("sub"), UNS("uns"), VAL("val"),
@@ -76,5 +78,17 @@ abstract class MessageBase {
 
 	public String getEventId() {
 		return mEventId;
+	}
+
+
+	public Long getSentTimestamp()
+	{
+		return mSentTimestamp;
+	}
+
+
+	public void setSentTimestamp(Long sentTimestamp)
+	{
+		mSentTimestamp = sentTimestamp;
 	}
 }

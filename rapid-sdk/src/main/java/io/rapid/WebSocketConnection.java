@@ -9,6 +9,7 @@ import org.json.JSONException;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,17 +24,25 @@ import static io.rapid.ConnectionState.DISCONNECTED;
  */
 
 class WebSocketConnection extends WebSocketClient {
-	private final int HB_TIMEOUT = 10 * 1000;
+	private final int HB_PERIODE = 10 * 1000;
+	private final int MESSAGE_TIMEOUT_PERIODE = 10 * 1000;
 
 	private WebSocketConnectionListener mListener;
 	private ConnectionState mConnectionState = DISCONNECTED;
 	private String mConnectionId;
 	private List<MessageBase> mPendingMessageList = new ArrayList<>();
+	private List<MessageBase> mSentMessageList = new ArrayList<>();
 	private Handler mHBHandler = new Handler();
 	private Runnable mHBRunnable = () ->
 	{
 		sendHB();
 		startHB();
+	};
+	private Handler mTimeoutHandler = new Handler();
+	private Runnable mTimeoutRunnable = () ->
+	{
+		checkMessageTimeout();
+		startMessageTimeout();
 	};
 
 
@@ -100,6 +109,7 @@ class WebSocketConnection extends WebSocketClient {
 		Logcat.d("Status message: " + handshakeData.getHttpStatusMessage() + "; HTTP status: " + handshakeData.getHttpStatus());
 
 		changeConnectionState(CONNECTED);
+		startMessageTimeout();
 		sendConnect();
 		startHB();
 
@@ -140,6 +150,7 @@ class WebSocketConnection extends WebSocketClient {
 
 		changeConnectionState(CLOSED);
 		stopHB();
+		stopMessageTimeout();
 
 		CloseReasonEnum reasonEnum = CloseReasonEnum.get(code);
 		if(mListener != null) mListener.onClose(reasonEnum);
@@ -152,6 +163,7 @@ class WebSocketConnection extends WebSocketClient {
 
 		changeConnectionState(DISCONNECTED);
 		stopHB();
+		stopMessageTimeout();
 		if(mListener != null) mListener.onError(ex);
 	}
 
@@ -173,6 +185,8 @@ class WebSocketConnection extends WebSocketClient {
 	public void sendMessage(MessageBase message) {
 		if(getConnectionState() == ConnectionState.CONNECTED) {
 			try {
+				message.setSentTimestamp(new Date().getTime());
+				if(message.getMessageType() != MessageBase.MessageType.ACK) mSentMessageList.add(message);
 				String json = message.toJson().toString();
 				Logcat.d(json);
 				send(json);
@@ -217,15 +231,28 @@ class WebSocketConnection extends WebSocketClient {
 		sendAckIfNeeded(parsedMessage);
 
 		if(parsedMessage.getMessageType() == MessageBase.MessageType.ERR) {
-			handleErrorMessage(parsedMessage);
+			handleErrorMessage((MessageErr)parsedMessage);
+		}
+		else if(parsedMessage.getMessageType() == MessageBase.MessageType.ACK) {
+			handleAckMessage((MessageAck) parsedMessage);
 		}
 
 		if(mListener != null) mListener.onMessage(parsedMessage);
 	}
 
 
-	private void handleErrorMessage(MessageBase parsedMessage) {
+	private void handleErrorMessage(MessageErr parsedMessage) {
 
+	}
+
+
+	private void handleAckMessage(MessageAck ackMessage) {
+		for(int i = 0; i < mSentMessageList.size(); i++) {
+			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getEventId())) {
+				if(i == mSentMessageList.size()-1) mSentMessageList.clear();
+				else mSentMessageList = mSentMessageList.subList(i+1, mSentMessageList.size());
+			}
+		}
 	}
 
 
@@ -236,11 +263,38 @@ class WebSocketConnection extends WebSocketClient {
 
 	private void startHB() {
 		stopHB();
-		mHBHandler.postDelayed(mHBRunnable, HB_TIMEOUT);
+		mHBHandler.postDelayed(mHBRunnable, HB_PERIODE);
 	}
 
 
 	private void stopHB() {
 		mHBHandler.removeCallbacks(mHBRunnable);
+	}
+
+
+	private void checkMessageTimeout()
+	{
+		Logcat.d(mSentMessageList.size()+"");
+
+		long now = new Date().getTime();
+		for(MessageBase msg : mSentMessageList)
+		{
+			if(now - msg.getSentTimestamp() > Config.MESSAGE_TIMEOUT)
+			{
+				// TODO message after timeout, handle error
+			}
+		}
+	}
+
+
+	private void startMessageTimeout()
+	{
+		stopMessageTimeout();
+		mTimeoutHandler.postDelayed(mTimeoutRunnable, MESSAGE_TIMEOUT_PERIODE);
+	}
+
+
+	private void stopMessageTimeout() {
+		mTimeoutHandler.removeCallbacks(mTimeoutRunnable);
 	}
 }
