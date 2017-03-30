@@ -1,2 +1,55 @@
 # Rapid.io SDK for Android
 [![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android)
+
+Rapid.io SDK for Android is an SDK written in Java for accessing Rapid.io realtime database.
+
+## Features
+
+- [-] Connect to Rapid.io database
+- [-] Subscribe to changes
+- [-] Mutate database
+- [-] Authenticate
+- [-] Complete Documentation
+
+## Requirements
+
+- Android API level 15
+
+## Communication
+
+- If you **found a bug**, open an issue.
+- If you **have a feature request**, open an issue.
+- If you **want to contribute**, submit a pull request.
+
+## Installation
+
+```groovy
+compile 'io.rapid:rapidsdk:0.0.0'
+```
+
+## Usage
+
+## Changelog
+
+## Credits
+
+Rapid iOS SDK is owned and maintained by the [Rapid.io](http://www.rapid.io).
+
+### Security Disclosure
+
+If you believe you have identified a security vulnerability with Rapid iOS SDK, you should report it as soon as possible via email to security@rapid.io. Please do not post it to a public issue tracker.
+
+## License
+    Copyright 2017 Rapid.io
+    
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+      http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
