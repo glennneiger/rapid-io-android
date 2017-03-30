@@ -37,7 +37,7 @@ Rapid iOS SDK is owned and maintained by the [Rapid.io](http://www.rapid.io).
 
 ### Security Disclosure
 
-If you believe you have identified a security vulnerability with Rapid iOS SDK, you should report it as soon as possible via email to security@rapid.io. Please do not post it to a public issue tracker.
+If you believe you have identified a security vulnerability with Rapid Android SDK, you should report it as soon as possible via email to security@rapid.io. Please do not post it to a public issue tracker.
 
 ## License
     Copyright 2017 Rapid.io
