@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Random;
 
 import io.rapid.Rapid;
-import io.rapid.RapidDocument;
 import io.rapid.RapidCollectionSubscription;
+import io.rapid.RapidDocument;
 import io.rapid.Sorting;
 import io.rapid.sample.databinding.ActivityMainBinding;
 

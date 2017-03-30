@@ -34,6 +34,11 @@ public class RapidDocumentReference<T> {
 	}
 
 
+	public RapidFuture<T> delete() {
+		return mImpl.mutate(mId, null);
+	}
+
+
 	public void subscribe(RapidDocumentCallback<T> callback) {
 		mSubscription.setCallback(callback);
 		mImpl.subscribeDocument(mSubscription);
