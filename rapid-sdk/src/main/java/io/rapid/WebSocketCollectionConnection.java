@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,13 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidFuture<T> mutate(String id, T value) {
+
+		// TODO
+		for(Field f : mType.getDeclaredFields())
+		{
+			if(f.isAnnotationPresent(Index.class)) Logcat.d(f.getName());
+		}
+
 		RapidFuture<T> future = new RapidFuture<>();
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);

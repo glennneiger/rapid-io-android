@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 	public void addItem(View view) {
-		Car newCar = new Car(new Random().nextInt());
+		Car newCar = new Car(new Random().nextInt(), "New model");
 
 		Rapid.getInstance()
 				.collection(COLLECTIONS_CARS, Car.class)
