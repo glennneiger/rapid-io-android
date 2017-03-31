@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +36,17 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		// TODO
 		for(Field f : mType.getDeclaredFields())
 		{
-			if(f.isAnnotationPresent(Index.class)) Logcat.d(f.getName());
+			if(f.isAnnotationPresent(Index.class))
+			{
+				if(f.isAnnotationPresent(SerializedName.class))
+				{
+					Logcat.d(((SerializedName)f.getAnnotation(SerializedName.class)).value());
+				}
+				else
+				{
+					Logcat.d(f.getName());
+				}
+			}
 		}
 
 		RapidFuture<T> future = new RapidFuture<>();

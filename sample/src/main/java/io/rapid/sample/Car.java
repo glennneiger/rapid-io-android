@@ -1,11 +1,14 @@
 package io.rapid.sample;
 
 
+import com.google.gson.annotations.SerializedName;
+
 import io.rapid.Index;
 
 public class Car {
 	@Index
-	private int number;
+	@SerializedName("number")
+	private int mNumber;
 	private String model;
 
 
@@ -14,24 +17,24 @@ public class Car {
 
 
 	public Car(int number, String model) {
-		this.number = number;
+		this.mNumber = number;
 		this.model = model;
 	}
 
 
 	@Override
 	public String toString() {
-		return "Car number " + number + ", model: " + model;
+		return "Car number " + mNumber + ", model: " + model;
 	}
 
 
 	public int getNumber() {
-		return number;
+		return mNumber;
 	}
 
 
 	public void setNumber(int number) {
-		this.number = number;
+		this.mNumber = number;
 	}
 
 
