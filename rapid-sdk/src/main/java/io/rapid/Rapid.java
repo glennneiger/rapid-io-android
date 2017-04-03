@@ -112,7 +112,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 				case CONNECTION_TERMINATED:
 					getHandler().post(() ->
 					{
-						disconnectFromServer();
+						disconnectFromServer(false);
 						createNewWebSocketConnection();
 						reconnectSubscriptions();
 					});
@@ -140,6 +140,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	@Override
 	public void onConnectionStateChange(ConnectionState state) {
+		Logcat.d(state.name());
 		invokeConnectionStateChanged(state);
 	}
 
@@ -203,7 +204,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		}
 
 		if(!subscribed) {
-			disconnectFromServer();
+			disconnectFromServer(true);
 		}
 	}
 
@@ -239,8 +240,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 	}
 
 
-	private void disconnectFromServer() {
-		mWebSocketConnection.disconnectFromServer(false);
+	private void disconnectFromServer(boolean sendDisconnectMessage) {
+		mWebSocketConnection.disconnectFromServer(sendDisconnectMessage);
 		mConnectionId = null;
 	}
 

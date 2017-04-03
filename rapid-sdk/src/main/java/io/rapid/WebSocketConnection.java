@@ -180,6 +180,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	public void disconnectFromServer(boolean sendDisconnectMessage) {
 		if(sendDisconnectMessage) sendDisconnect();
+		changeConnectionState(CLOSED);
 		close();
 	}
 
