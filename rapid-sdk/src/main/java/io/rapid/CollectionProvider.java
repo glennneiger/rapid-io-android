@@ -1,17 +1,31 @@
 package io.rapid;
 
 
+import android.os.Handler;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import io.rapid.converter.RapidJsonConverter;
+
 
 class CollectionProvider {
+	private final Handler mOriginalThreadHandler;
+	private final RapidJsonConverter mJsonConverter;
+	RapidConnection mConnection;
 	private Map<String, RapidCollectionReference> mCollections = new HashMap<>();
 
 
-	<T> RapidCollectionReference<T> provideCollection(Rapid rapid, String collectionName, Class<T> itemClass) {
+	public CollectionProvider(RapidConnection connection, RapidJsonConverter jsonConverter, Handler originalThreadHandler) {
+		mConnection = connection;
+		mJsonConverter = jsonConverter;
+		mOriginalThreadHandler = originalThreadHandler;
+	}
+
+
+	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollections.containsKey(collectionName))
-			mCollections.put(collectionName, new RapidCollectionReference<T>(new WebSocketCollectionConnection<>(rapid, collectionName, itemClass), collectionName, rapid.getHandler()));
+			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass), collectionName, mOriginalThreadHandler));
 		return mCollections.get(collectionName);
 	}
 

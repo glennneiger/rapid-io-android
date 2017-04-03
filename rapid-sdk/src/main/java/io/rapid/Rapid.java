@@ -26,7 +26,6 @@ public class Rapid {
 	private Rapid(Context context, String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
-		mCollectionProvider = new CollectionProvider();
 		mHandler = new Handler();
 		mRapidConnection = new WebSocketRapidConnection(context, mHandler, new RapidConnection.Callback() {
 			@Override
@@ -46,6 +45,7 @@ public class Rapid {
 				mCollectionProvider.resubscribeAll();
 			}
 		});
+		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mHandler);
 	}
 
 
@@ -74,7 +74,7 @@ public class Rapid {
 
 
 	public <T> RapidCollectionReference<T> collection(String collectionName, Class<T> itemClass) {
-		return mCollectionProvider.provideCollection(this, collectionName, itemClass);
+		return mCollectionProvider.provideCollection(collectionName, itemClass);
 	}
 
 
@@ -110,24 +110,6 @@ public class Rapid {
 
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
-	}
-
-
-	void onSubscribe(Subscription subscription) {
-		mRapidConnection.onSubscribe();
-	}
-
-
-	void onUnsubscribe(Subscription subscription) {
-		// find out if this was the last subscription
-		boolean stillSomeSubscription = false;
-		for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values()) {
-			if(rapidCollectionReference.isSubscribed()) {
-				stillSomeSubscription = true;
-				break;
-			}
-		}
-		mRapidConnection.onUnsubscribe(!stillSomeSubscription);
 	}
 
 

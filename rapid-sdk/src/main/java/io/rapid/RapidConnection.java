@@ -35,7 +35,7 @@ abstract class RapidConnection {
 	abstract void onSubscribe();
 
 
-	abstract void onUnsubscribe(boolean lastSubscription);
+	abstract void onUnsubscribe();
 
 
 	Callback getCallback() {

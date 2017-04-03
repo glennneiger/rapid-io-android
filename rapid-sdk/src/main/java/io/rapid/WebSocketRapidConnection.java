@@ -44,6 +44,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 
 	};
+	private int mSubscriptionCount = 0;
 
 
 	public WebSocketRapidConnection(Context context, Handler originalThreadHandler, Callback rapidConnectionCallback) {
@@ -143,12 +144,14 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(mInternetConnected && (mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED)) {
 			createNewWebSocketConnection();
 		}
+		mSubscriptionCount++;
 	}
 
 
 	@Override
-	public void onUnsubscribe(boolean lastSubscription) {
-		if(lastSubscription) {
+	public void onUnsubscribe() {
+		mSubscriptionCount--;
+		if(mSubscriptionCount == 0) {
 			disconnectFromServer(true);
 		}
 	}
