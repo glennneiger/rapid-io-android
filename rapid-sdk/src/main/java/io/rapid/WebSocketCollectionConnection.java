@@ -36,8 +36,18 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		// TODO
 		for(Field f : mType.getDeclaredFields())
 		{
-			if(f.isAnnotationPresent(Index.class))
-			{
+			boolean isIndexed = false;
+			// cache indexing annotation
+			Boolean cacheResult = Index.Cache.getInstance().get(mType.getName(), f.getName());
+			if (cacheResult == null) {
+				isIndexed = f.isAnnotationPresent(Index.class);
+				Index.Cache.getInstance().put(mType.getName(), f.getName(), isIndexed);
+			} else{
+				isIndexed = cacheResult;
+			}
+
+
+			if (isIndexed){
 				if(f.isAnnotationPresent(SerializedName.class))
 				{
 					Logcat.d(((SerializedName)f.getAnnotation(SerializedName.class)).value());
