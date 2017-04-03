@@ -257,7 +257,7 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void sendHB() {
-		sendMessage(new MessageHb(IdProvider.getNewEventId()));
+		sendMessage(new MessageNop(IdProvider.getNewEventId()));
 	}
 
 

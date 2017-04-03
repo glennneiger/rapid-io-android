@@ -99,7 +99,8 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 		if(message.getMessageType() == MessageBase.MessageType.ACK) {
 			MessageAck ackMessage = ((MessageAck) message);
 			MessageFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
-			messageFuture.invokeSuccess();
+			if(messageFuture != null)
+				messageFuture.invokeSuccess();
 		} else if(message.getMessageType() == MessageBase.MessageType.VAL) {
 			MessageVal valMessage = ((MessageVal) message);
 			mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);

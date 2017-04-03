@@ -70,17 +70,17 @@ public class MessageJsonTest extends BaseTest {
 	@Test
 	public void test_json2modelHb() throws Exception {
 		MessageBase msg = MessageParser.parse("{\"hb\": {\"evt-id\": \"eventId\"}}");
-		assertTrue(msg instanceof MessageHb);
+		assertTrue(msg instanceof MessageNop);
 
-		MessageHb hbMsg = (MessageHb) msg;
-		assertEquals(hbMsg.getMessageType(), MessageBase.MessageType.HB);
+		MessageNop hbMsg = (MessageNop) msg;
+		assertEquals(hbMsg.getMessageType(), MessageBase.MessageType.NOP);
 		assertEquals(hbMsg.getEventId(),"eventId");
 	}
 
 
 	@Test
 	public void test_model2jsonHb() throws Exception {
-		MessageHb hbMsg = new MessageHb("eventId");
+		MessageNop hbMsg = new MessageNop("eventId");
 		JSONAssert.assertEquals(hbMsg.toJson().toString(), "{\"hb\": {\"evt-id\": \"eventId\"}}", false);
 	}
 
@@ -223,8 +223,8 @@ public class MessageJsonTest extends BaseTest {
 		MessageAck ackMsg = (MessageAck) batchMsg.getMessageList().get(0);
 		assertEquals(ackMsg.getMessageType(), MessageBase.MessageType.ACK);
 		assertEquals(ackMsg.getEventId(),"eventId");
-		MessageHb hbMsg = (MessageHb) batchMsg.getMessageList().get(1);
-		assertEquals(hbMsg.getMessageType(), MessageBase.MessageType.HB);
+		MessageNop hbMsg = (MessageNop) batchMsg.getMessageList().get(1);
+		assertEquals(hbMsg.getMessageType(), MessageBase.MessageType.NOP);
 		assertEquals(hbMsg.getEventId(),"eventId");
 	}
 
@@ -233,7 +233,7 @@ public class MessageJsonTest extends BaseTest {
 	public void test_model2jsonBatch() throws Exception {
 		MessageBatch batchMsg = new MessageBatch();
 		batchMsg.addMessage(new MessageAck("eventId"));
-		batchMsg.addMessage(new MessageHb("eventId"));
+		batchMsg.addMessage(new MessageNop("eventId"));
 		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"hb\": {\"evt-id\": " +
 				"\"eventId\"}}]}", false);
 	}

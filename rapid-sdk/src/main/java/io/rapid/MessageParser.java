@@ -36,8 +36,8 @@ class MessageParser {
 				return new MessageCon(json);
 			case DIS:
 				return new MessageDis(json);
-			case HB:
-				return new MessageHb(json);
+			case NOP:
+				return new MessageNop(json);
 			case UNKNOWN:
 				return new MessageUnknown();
 			default:
