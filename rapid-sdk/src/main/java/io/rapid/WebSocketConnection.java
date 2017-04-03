@@ -161,7 +161,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	@Override
 	public void onError(Exception ex) {
-		Logcat.d(ex.getMessage());
+		ex.printStackTrace();
 
 		changeConnectionState(DISCONNECTED);
 		stopHB();
