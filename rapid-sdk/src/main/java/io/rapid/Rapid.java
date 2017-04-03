@@ -224,7 +224,7 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 	private void registerInternetConnectionBroadcast() {
 		if(mContext != null)
-			mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+			mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 
