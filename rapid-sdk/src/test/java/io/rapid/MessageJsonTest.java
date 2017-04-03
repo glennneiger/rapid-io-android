@@ -26,7 +26,7 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonCon() throws Exception {
-		MessageCon conMsg = new MessageCon("eventId", "connectionId");
+		MessageCon conMsg = new MessageCon("eventId", "connectionId", false);
 		JSONAssert.assertEquals(conMsg.toJson().toString(), "{\"con\": {\"evt-id\": \"eventId\", \"con-id\": \"connectionId\"}}", false);
 	}
 
@@ -69,7 +69,7 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_json2modelHb() throws Exception {
-		MessageBase msg = MessageParser.parse("{\"hb\": {\"evt-id\": \"eventId\"}}");
+		MessageBase msg = MessageParser.parse("{\"nop\": {\"evt-id\": \"eventId\"}}");
 		assertTrue(msg instanceof MessageNop);
 
 		MessageNop hbMsg = (MessageNop) msg;
@@ -81,7 +81,7 @@ public class MessageJsonTest extends BaseTest {
 	@Test
 	public void test_model2jsonHb() throws Exception {
 		MessageNop hbMsg = new MessageNop("eventId");
-		JSONAssert.assertEquals(hbMsg.toJson().toString(), "{\"hb\": {\"evt-id\": \"eventId\"}}", false);
+		JSONAssert.assertEquals(hbMsg.toJson().toString(), "{\"nop\": null}", false);
 	}
 
 
@@ -214,7 +214,7 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_json2modelBatch() throws Exception {
-		MessageBase msg = MessageParser.parse("{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"hb\": {\"evt-id\": " +
+		MessageBase msg = MessageParser.parse("{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": {\"evt-id\": " +
 				"\"eventId\"}}]}");
 		assertTrue(msg instanceof MessageBatch);
 
@@ -234,8 +234,7 @@ public class MessageJsonTest extends BaseTest {
 		MessageBatch batchMsg = new MessageBatch();
 		batchMsg.addMessage(new MessageAck("eventId"));
 		batchMsg.addMessage(new MessageNop("eventId"));
-		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"hb\": {\"evt-id\": " +
-				"\"eventId\"}}]}", false);
+		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": null}]}", false);
 	}
 
 
