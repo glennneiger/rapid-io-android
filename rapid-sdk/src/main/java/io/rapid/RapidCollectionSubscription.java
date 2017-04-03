@@ -43,17 +43,6 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	@Override
-	MessageSub createSubscriptionMessage(String subscriptionId) {
-		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, subscriptionId);
-		subscriptionMsg.setSkip(getSkip());
-		subscriptionMsg.setLimit(getLimit());
-		subscriptionMsg.setOrder(getOrder());
-		subscriptionMsg.setFilter(getFilter());
-		return subscriptionMsg;
-	}
-
-
 	void orderBy(String property, Sorting sorting) {
 		if(mOrder == null) mOrder = new EntityOrder();
 		mOrder.putOrder(property, sorting);
@@ -71,11 +60,13 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
+	@Override
 	EntityOrder getOrder() {
 		return mOrder;
 	}
 
 
+	@Override
 	int getSkip() {
 		return mSkip;
 	}
@@ -86,6 +77,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
+	@Override
 	int getLimit() {
 		return mLimit;
 	}
@@ -96,6 +88,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
+	@Override
 	Filter getFilter() {
 		if(getFilterStack().size() != 1) {
 			throw new IllegalArgumentException("Wrong filter structure");

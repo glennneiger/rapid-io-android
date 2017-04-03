@@ -76,8 +76,12 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					});
 					break;
 			}
-		} else {
-			getCallback().onMessage(message);
+		} else if(message.getMessageType() == MessageBase.MessageType.VAL) {
+			MessageVal valMessage = ((MessageVal) message);
+			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
+		} else if(message.getMessageType() == MessageBase.MessageType.UPD) {
+			MessageUpd updMessage = ((MessageUpd) message);
+			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
 		}
 	}
 
@@ -106,15 +110,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public MessageFuture sendMessage(MessageBase message) {
-		MessageFuture future = new MessageFuture();
-		mPendingMessages.put(message.getEventId(), future);
-		mWebSocketConnection.sendMessage(message);
-		return future;
-	}
-
-
-	@Override
 	public void addConnectionStateListener(RapidConnectionStateListener listener) {
 		mConnectionStateListeners.add(listener);
 	}
@@ -139,11 +134,20 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onSubscribe() {
-		// some subscription subscribed - connect if not connected
+	void subscribe(String subscriptionId, Subscription subscription) {
+		MessageSub messageSub = new MessageSub(IdProvider.getNewEventId(), subscription.getCollectionName(), subscriptionId);
+		messageSub.setFilter(subscription.getFilter());
+		messageSub.setLimit(subscription.getLimit());
+		messageSub.setOrder(subscription.getOrder());
+		messageSub.setSkip(subscription.getSkip());
+
+
 		if(mInternetConnected && (mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED)) {
 			createNewWebSocketConnection();
 		}
+
+		sendMessage(messageSub);
+
 		mSubscriptionCount++;
 	}
 
@@ -154,6 +158,20 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(mSubscriptionCount == 0) {
 			disconnectFromServer(true);
 		}
+	}
+
+
+	@Override
+	public MessageFuture mutate(String collectionName, String documentJson) {
+		return sendMessage(new MessageMut(IdProvider.getNewEventId(), collectionName, documentJson));
+	}
+
+
+	private MessageFuture sendMessage(MessageBase message) {
+		MessageFuture future = new MessageFuture();
+		mPendingMessages.put(message.getEventId(), future);
+		mWebSocketConnection.sendMessage(message);
+		return future;
 	}
 
 

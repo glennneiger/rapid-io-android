@@ -25,7 +25,16 @@ abstract class Subscription<T> {
 	abstract void onDocumentUpdated(RapidDocument<T> document);
 
 
-	abstract MessageSub createSubscriptionMessage(String subscriptionId);
+	abstract int getSkip();
+
+
+	abstract int getLimit();
+
+
+	abstract Filter getFilter();
+
+
+	abstract EntityOrder getOrder();
 
 
 	public void unsubscribe() {
@@ -42,5 +51,10 @@ abstract class Subscription<T> {
 
 	public Subscription onError(ErrorCallback callback) {
 		return this;
+	}
+
+
+	public String getCollectionName() {
+		return mCollectionName;
 	}
 }

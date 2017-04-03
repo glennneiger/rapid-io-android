@@ -25,12 +25,26 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	MessageSub createSubscriptionMessage(String subscriptionId) {
-		MessageSub subscriptionMsg = new MessageSub(IdProvider.getNewEventId(), mCollectionName, subscriptionId);
-		subscriptionMsg.setSkip(0);
-		subscriptionMsg.setLimit(1);
-		subscriptionMsg.setFilter(new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, mId)));
-		return subscriptionMsg;
+	int getSkip() {
+		return 0;
+	}
+
+
+	@Override
+	int getLimit() {
+		return 1;
+	}
+
+
+	@Override
+	Filter getFilter() {
+		return new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, mId));
+	}
+
+
+	@Override
+	EntityOrder getOrder() {
+		return null;
 	}
 
 

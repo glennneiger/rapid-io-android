@@ -268,13 +268,13 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	void onValue(MessageVal valMessage) {
-		mConnection.onValue(valMessage);
+	void onValue(String subscriptionId, String documents) {
+		mConnection.onValue(subscriptionId, documents);
 	}
 
 
-	void onUpdate(MessageUpd updMessage) {
-		mConnection.onUpdate(updMessage);
+	void onUpdate(String subscriptionId, String documents) {
+		mConnection.onUpdate(subscriptionId, documents);
 	}
 
 

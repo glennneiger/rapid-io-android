@@ -29,14 +29,14 @@ public class Rapid {
 		mHandler = new Handler();
 		mRapidConnection = new WebSocketRapidConnection(context, mHandler, new RapidConnection.Callback() {
 			@Override
-			public void onMessage(MessageBase message) {
-				if(message.getMessageType() == MessageBase.MessageType.VAL) {
-					MessageVal valMessage = ((MessageVal) message);
-					mCollectionProvider.findCollectionByName(valMessage.getCollectionId()).onValue(valMessage);
-				} else if(message.getMessageType() == MessageBase.MessageType.UPD) {
-					MessageUpd updMessage = ((MessageUpd) message);
-					mCollectionProvider.findCollectionByName(updMessage.getCollectionId()).onUpdate(updMessage);
-				}
+			public void onValue(String subscriptionId, String collectionId, String documentsJson) {
+				mCollectionProvider.findCollectionByName(collectionId).onValue(subscriptionId, documentsJson);
+			}
+
+
+			@Override
+			public void onUpdate(String subscriptionId, String collectionId, String documentJson) {
+				mCollectionProvider.findCollectionByName(collectionId).onUpdate(subscriptionId, documentJson);
 			}
 
 
@@ -110,15 +110,5 @@ public class Rapid {
 
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
-	}
-
-
-	Handler getHandler() {
-		return mHandler;
-	}
-
-
-	MessageFuture sendMessage(MessageBase message) {
-		return mRapidConnection.sendMessage(message);
 	}
 }

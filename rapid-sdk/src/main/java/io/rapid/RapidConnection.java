@@ -7,7 +7,8 @@ abstract class RapidConnection {
 
 
 	interface Callback {
-		void onMessage(MessageBase messageBase);
+		void onValue(String subscriptionId, String collectionId, String documentsJson);
+		void onUpdate(String subscriptionId, String collectionId, String documentJson);
 		void onReconnected();
 	}
 
@@ -15,9 +16,6 @@ abstract class RapidConnection {
 	public RapidConnection(Callback callback) {
 		mCallback = callback;
 	}
-
-
-	abstract MessageFuture sendMessage(MessageBase message);
 
 
 	abstract void addConnectionStateListener(RapidConnectionStateListener listener);
@@ -32,10 +30,13 @@ abstract class RapidConnection {
 	abstract ConnectionState getConnectionState();
 
 
-	abstract void onSubscribe();
+	abstract void subscribe(String subscriptionId, Subscription subscription);
 
 
 	abstract void onUnsubscribe();
+
+
+	public abstract MessageFuture mutate(String collectionName, String documentJson);
 
 
 	Callback getCallback() {
