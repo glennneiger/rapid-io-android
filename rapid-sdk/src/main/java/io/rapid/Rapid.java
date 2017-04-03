@@ -20,7 +20,6 @@ public class Rapid {
 	private RapidJsonConverter mJsonConverter;
 	private Handler mHandler;
 	private RapidConnection mRapidConnection;
-
 	private CollectionProvider mCollectionProvider;
 
 
@@ -29,7 +28,7 @@ public class Rapid {
 		mJsonConverter = new RapidGsonConverter(new Gson());
 		mCollectionProvider = new CollectionProvider();
 		mHandler = new Handler();
-		mRapidConnection = new WebSocketRapidConnection(context, mHandler, new RapidConnection.Listener() {
+		mRapidConnection = new WebSocketRapidConnection(context, mHandler, new RapidConnection.Callback() {
 			@Override
 			public void onMessage(MessageBase message) {
 				if(message.getMessageType() == MessageBase.MessageType.VAL) {
@@ -44,11 +43,7 @@ public class Rapid {
 
 			@Override
 			public void onReconnected() {
-				for(RapidCollectionReference rapidCollectionReference : mCollectionProvider.getCollections().values()) {
-					if(rapidCollectionReference.isSubscribed()) {
-						rapidCollectionReference.resubscribe();
-					}
-				}
+				mCollectionProvider.resubscribeAll();
 			}
 		});
 	}

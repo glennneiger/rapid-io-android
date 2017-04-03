@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 
-class WebSocketRapidConnection implements WebSocketConnection.WebSocketConnectionListener, RapidConnection {
+class WebSocketRapidConnection extends RapidConnection implements WebSocketConnection.WebSocketConnectionListener {
 
 	private final Context mContext;
 	private final Handler mOriginalThreadHandler;
@@ -25,7 +25,6 @@ class WebSocketRapidConnection implements WebSocketConnection.WebSocketConnectio
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 	private boolean mInternetConnected = true;
 	private String mConnectionId;
-	private Listener mRapidConnectionListener;
 
 
 	private BroadcastReceiver mInternetConnectionBroadcastReceiver = new BroadcastReceiver() {
@@ -47,10 +46,10 @@ class WebSocketRapidConnection implements WebSocketConnection.WebSocketConnectio
 	};
 
 
-	public WebSocketRapidConnection(Context context, Handler originalThreadHandler, Listener rapidConnectionListener) {
+	public WebSocketRapidConnection(Context context, Handler originalThreadHandler, Callback rapidConnectionCallback) {
+		super(rapidConnectionCallback);
 		mContext = context;
 		mOriginalThreadHandler = originalThreadHandler;
-		mRapidConnectionListener = rapidConnectionListener;
 	}
 
 
@@ -77,7 +76,7 @@ class WebSocketRapidConnection implements WebSocketConnection.WebSocketConnectio
 					break;
 			}
 		} else {
-			mRapidConnectionListener.onMessage(message);
+			getCallback().onMessage(message);
 		}
 	}
 
@@ -191,7 +190,7 @@ class WebSocketRapidConnection implements WebSocketConnection.WebSocketConnectio
 
 
 	private void reconnectSubscriptions() {
-		mRapidConnectionListener.onReconnected();
+		getCallback().onReconnected();
 	}
 
 }

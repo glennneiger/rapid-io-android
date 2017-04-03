@@ -1,18 +1,44 @@
 package io.rapid;
 
 
-interface RapidConnection {
+abstract class RapidConnection {
 
-	interface Listener {
+	Callback mCallback;
+
+
+	interface Callback {
 		void onMessage(MessageBase messageBase);
 		void onReconnected();
 	}
 
-	MessageFuture sendMessage(MessageBase message);
-	void addConnectionStateListener(RapidConnectionStateListener listener);
-	void removeConnectionStateListener(RapidConnectionStateListener listener);
-	void removeAllConnectionStateListeners();
-	ConnectionState getConnectionState();
-	void onSubscribe();
-	void onUnsubscribe(boolean lastSubscription);
+
+	public RapidConnection(Callback callback) {
+		mCallback = callback;
+	}
+
+
+	abstract MessageFuture sendMessage(MessageBase message);
+
+
+	abstract void addConnectionStateListener(RapidConnectionStateListener listener);
+
+
+	abstract void removeConnectionStateListener(RapidConnectionStateListener listener);
+
+
+	abstract void removeAllConnectionStateListeners();
+
+
+	abstract ConnectionState getConnectionState();
+
+
+	abstract void onSubscribe();
+
+
+	abstract void onUnsubscribe(boolean lastSubscription);
+
+
+	Callback getCallback() {
+		return mCallback;
+	}
 }
