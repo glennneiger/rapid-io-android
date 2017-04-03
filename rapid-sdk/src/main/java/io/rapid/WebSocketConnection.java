@@ -26,6 +26,7 @@ import static io.rapid.ConnectionState.DISCONNECTED;
 class WebSocketConnection extends WebSocketClient {
 	private final int HB_PERIODE = 10 * 1000;
 	private final int MESSAGE_TIMEOUT_PERIODE = 10 * 1000;
+	private boolean mReconnect = false;
 
 	private WebSocketConnectionListener mListener;
 	private ConnectionState mConnectionState = DISCONNECTED;
@@ -83,10 +84,11 @@ class WebSocketConnection extends WebSocketClient {
 	}
 
 
-	public WebSocketConnection(String connectionId, URI serverURI, WebSocketConnectionListener listener) {
+	public WebSocketConnection(String connectionId, URI serverURI, boolean reconnect, WebSocketConnectionListener listener) {
 		super(serverURI);
 		mConnectionId = connectionId;
 		mListener = listener;
+		mReconnect = reconnect;
 	}
 
 
@@ -211,7 +213,7 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void sendConnect() {
-		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId));
+		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId, mReconnect));
 	}
 
 

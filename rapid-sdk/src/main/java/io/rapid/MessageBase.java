@@ -19,7 +19,7 @@ abstract class MessageBase {
 
 	public enum MessageType {
 		ACK("ack"), ERR("err"), MUT("mut"), MER("mer"), SUB("sub"), UNS("uns"), VAL("val"),
-		UPD("upd"), CON("con"), DIS("dis"), NOP("nop"), BATCH("batch"), UNKNOWN("unw");
+		UPD("upd"), CON("con"), REC("rec"), DIS("dis"), NOP("nop"), BATCH("batch"), UNKNOWN("unw");
 
 
 		private String mKey;

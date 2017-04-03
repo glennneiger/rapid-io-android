@@ -14,8 +14,8 @@ class MessageCon extends MessageBase {
 	private String mConnectionId;
 
 
-	public MessageCon(String eventId, String connectionId) {
-		super(MessageType.CON, eventId);
+	public MessageCon(String eventId, String connectionId, boolean reconnect) {
+		super(reconnect ? MessageType.REC : MessageType.CON, eventId);
 
 		mConnectionId = connectionId;
 	}

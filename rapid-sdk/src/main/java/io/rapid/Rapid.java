@@ -246,8 +246,12 @@ public class Rapid implements WebSocketConnection.WebSocketConnectionListener {
 
 
 	private void createNewWebSocketConnection() {
-		if(mConnectionId == null) mConnectionId = IdProvider.getConnectionId();
-		mWebSocketConnection = new WebSocketConnection(mConnectionId, URI.create(Config.URI), this);
+		boolean reconnect = true;
+		if(mConnectionId == null) {
+			mConnectionId = IdProvider.getConnectionId();
+			reconnect = false;
+		}
+		mWebSocketConnection = new WebSocketConnection(mConnectionId, URI.create(Config.URI), reconnect, this);
 		mWebSocketConnection.connectToServer();
 	}
 

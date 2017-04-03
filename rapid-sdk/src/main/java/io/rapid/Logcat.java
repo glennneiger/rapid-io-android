@@ -12,7 +12,7 @@ class Logcat {
 
 	private static final boolean SHOW_CODE_LOCATION = true;
 	private static final boolean SHOW_CODE_LOCATION_THREAD = false;
-	private static final boolean SHOW_CODE_LOCATION_LINE = false;
+	private static final boolean SHOW_CODE_LOCATION_LINE = true;
 
 
 	private Logcat() {}
