@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -15,9 +16,12 @@ import java.util.Map;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Index {
+	String value() default "";
+
+
 	class Cache {
 		private static Cache sInstance;
-		Map<String, Boolean> mCache = new HashMap<>();
+		Map<String, List<String>> mCache = new HashMap<>();
 
 
 		public static Cache getInstance() {
@@ -27,18 +31,13 @@ public @interface Index {
 		}
 
 
-		public void put(String className, String fieldName, boolean indexed) {
-			mCache.put(getKey(className, fieldName), indexed);
+		public void put(String className, List<String> indexList) {
+			mCache.put(className, indexList);
 		}
 
 
-		public Boolean get(String className, String fieldName) {
-			return mCache.get(getKey(className, fieldName));
-		}
-
-
-		private String getKey(String className, String fieldName) {
-			return className + "$" + fieldName;
+		public List<String> get(String className) {
+			return mCache.get(className);
 		}
 	}
 }

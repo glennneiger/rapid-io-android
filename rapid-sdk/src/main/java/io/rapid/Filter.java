@@ -12,19 +12,6 @@ import java.util.List;
 
 interface Filter {
 	String toJson() throws JSONException;
-	class And extends Group {
-
-		public And(Filter... filters) {
-			super(filters);
-		}
-
-
-		@Override
-		protected String getKeyword() {
-			return "and";
-		}
-
-	}
 
 
 	abstract class Group implements Filter {
@@ -53,6 +40,21 @@ interface Filter {
 
 		public void add(Filter filter) {
 			filters.add(filter);
+		}
+
+	}
+
+
+	class And extends Group {
+
+		public And(Filter... filters) {
+			super(filters);
+		}
+
+
+		@Override
+		protected String getKeyword() {
+			return "and";
 		}
 
 	}
