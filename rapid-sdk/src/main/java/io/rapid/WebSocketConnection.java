@@ -34,9 +34,9 @@ class WebSocketConnection extends WebSocketClient {
 	private List<Message> mPendingMessageList = new ArrayList<>();
 	private List<Message> mSentMessageList = new ArrayList<>();
 	private Handler mHBHandler = new Handler();
-	private long mLastCommunticationTimestamp = 0;
+	private long mLastCommunicationTimestamp = 0;
 	private Runnable mHBRunnable = () -> {
-		if(System.currentTimeMillis() - mLastCommunticationTimestamp >= HB_PERIOD)
+		if(System.currentTimeMillis() - mLastCommunicationTimestamp >= HB_PERIOD)
 			sendHB();
 		startHB();
 	};
@@ -125,7 +125,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	@Override
 	public void onMessage(String messageJson) {
-		mLastCommunticationTimestamp = System.currentTimeMillis();
+		mLastCommunicationTimestamp = System.currentTimeMillis();
 		Logcat.d(messageJson);
 
 		new Thread(() ->
@@ -194,7 +194,7 @@ class WebSocketConnection extends WebSocketClient {
 				String json = message.toJson().toString();
 				Logcat.d(json);
 				send(json);
-				mLastCommunticationTimestamp = System.currentTimeMillis();
+				mLastCommunicationTimestamp = System.currentTimeMillis();
 			} catch(JSONException e) {
 				e.printStackTrace();
 			}
@@ -267,7 +267,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	private void startHB() {
 		stopHB();
-		long nextHb = Config.HB_PERIOD - (System.currentTimeMillis() - mLastCommunticationTimestamp);
+		long nextHb = Config.HB_PERIOD - (System.currentTimeMillis() - mLastCommunicationTimestamp);
 		mHBHandler.postDelayed(mHBRunnable, nextHb);
 	}
 
