@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-public interface CollectionConnection<T> {
+interface CollectionConnection<T> {
 	RapidFuture mutate(String id, T value);
 	void subscribe(RapidCollectionSubscription<T> subscription);
 	void subscribeDocument(RapidDocumentSubscription<T> subscription);
