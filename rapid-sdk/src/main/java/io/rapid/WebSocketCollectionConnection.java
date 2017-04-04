@@ -38,29 +38,27 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public RapidFuture mutate(String id, T value) {
 
 		// TODO
-		for(Field f : mType.getDeclaredFields())
+
+		if(Index.Cache.getInstance().get(mType.getName()) == null)
 		{
-			boolean isIndexed = false;
-			// cache indexing annotation
-			Boolean cacheResult = Index.Cache.getInstance().get(mType.getName(), f.getName());
-			if (cacheResult == null) {
-				isIndexed = f.isAnnotationPresent(Index.class);
-				Index.Cache.getInstance().put(mType.getName(), f.getName(), isIndexed);
-			} else{
-				isIndexed = cacheResult;
-			}
-
-
-			if (isIndexed){
-				if(f.isAnnotationPresent(SerializedName.class))
+			List<String> indexList = new ArrayList<>();
+			for(Field f : mType.getDeclaredFields())
+			{
+				if(f.isAnnotationPresent(Index.class))
 				{
-					Logcat.d(((SerializedName)f.getAnnotation(SerializedName.class)).value());
-				}
-				else
-				{
-					Logcat.d(f.getName());
+					if(f.isAnnotationPresent(SerializedName.class))
+					{
+						indexList.add(f.getAnnotation(SerializedName.class).value());
+					}
+					else
+					{
+						String indexName = f.getAnnotation(Index.class).value();
+						indexList.add(indexName.isEmpty() ? f.getName() : indexName);
+					}
+					Logcat.d(indexList.get(indexList.size()-1));
 				}
 			}
+			Index.Cache.getInstance().put(mType.getName(), indexList);
 		}
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);

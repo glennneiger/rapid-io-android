@@ -9,6 +9,7 @@ public class Car {
 	@Index
 	@SerializedName("number")
 	private int mNumber;
+	@Index("model")
 	private String model;
 
 
