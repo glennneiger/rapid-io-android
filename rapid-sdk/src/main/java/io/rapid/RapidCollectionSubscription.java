@@ -27,15 +27,16 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	void onDocumentUpdated(RapidDocument<T> document) {
+	synchronized void onDocumentUpdated(RapidDocument<T> document) {
 		if(document.getBody() == null) {
-			int i;
-			for(i = 0; i < mDocuments.size(); i++) {
+			int pos = -1;
+			for(int i = 0; i < mDocuments.size(); i++) {
 				if(mDocuments.get(i).getId().equals(document.getId())) {
+					pos = i;
 					break;
 				}
 			}
-			mDocuments.remove(i);
+			if(pos != -1) mDocuments.remove(pos);
 		} else {
 			boolean modified = false;
 			for(int i = 0; i < mDocuments.size(); i++) {
@@ -96,7 +97,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	void setDocuments(List<RapidDocument<T>> rapidDocuments) {
+	synchronized void setDocuments(List<RapidDocument<T>> rapidDocuments) {
 		mDocuments = rapidDocuments;
 		invokeChange();
 	}
@@ -117,7 +118,11 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	private void invokeChange() {
-		mUiThreadHandler.post(() -> mCallback.onValueChanged(mDocuments));
+	private synchronized void invokeChange() {
+		mUiThreadHandler.post(() -> {
+			synchronized(mCallback){
+				mCallback.onValueChanged(mDocuments);
+			}
+		});
 	}
 }
