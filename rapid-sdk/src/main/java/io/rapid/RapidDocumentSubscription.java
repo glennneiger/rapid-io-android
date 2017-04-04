@@ -38,7 +38,7 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 
 	@Override
 	Filter getFilter() {
-		return new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, mId));
+		return new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, mId));
 	}
 
 

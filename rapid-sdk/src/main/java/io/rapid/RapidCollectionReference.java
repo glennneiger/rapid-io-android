@@ -21,7 +21,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> equalTo(String property, String value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
@@ -30,85 +30,85 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> equalTo(String property, int value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> equalTo(String property, double value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> equalTo(String property, boolean value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.BooleanComparePropertyValue(value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.BooleanPropertyValue(value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> notEqualTo(String property, String value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> notEqualTo(String property, int value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> notEqualTo(String property, double value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessThan(String property, int value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessThan(String property, double value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessOrEqualThan(String property, int value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> lessOrEqualThan(String property, double value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterThan(String property, int value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterThan(String property, double value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, int value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
 
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, double value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoubleComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
@@ -144,7 +144,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> beginOr() {
-		FilterOr or = new FilterOr();
+		Filter.Or or = new Filter.Or();
 		mSubscription.getFilterStack().peek().add(or);
 		mSubscription.getFilterStack().push(or);
 		return this;
@@ -155,7 +155,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> beginAnd() {
-		FilterAnd and = new FilterAnd();
+		Filter.And and = new Filter.And();
 		mSubscription.getFilterStack().peek().add(and);
 		mSubscription.getFilterStack().push(and);
 		return this;
@@ -163,7 +163,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> beginNot() {
-		FilterNot not = new FilterNot();
+		Filter.Not not = new Filter.Not();
 		mSubscription.getFilterStack().peek().add(not);
 		mSubscription.getFilterStack().push(not);
 		return this;
@@ -171,7 +171,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> endOr() {
-		if(!(mSubscription.getFilterStack().peek() instanceof FilterOr))
+		if(!(mSubscription.getFilterStack().peek() instanceof Filter.Or))
 			throw new IllegalArgumentException("Trying to end OR group inside another group.");
 
 		mSubscription.getFilterStack().pop();
@@ -180,7 +180,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> endAnd() {
-		if(!(mSubscription.getFilterStack().peek() instanceof FilterAnd))
+		if(!(mSubscription.getFilterStack().peek() instanceof Filter.And))
 			throw new IllegalArgumentException("Trying to end AND group inside another group.");
 
 		mSubscription.getFilterStack().pop();
@@ -189,7 +189,7 @@ public class RapidCollectionReference<T> {
 
 
 	public RapidCollectionReference<T> endNot() {
-		if(!(mSubscription.getFilterStack().peek() instanceof FilterNot))
+		if(!(mSubscription.getFilterStack().peek() instanceof Filter.Not))
 			throw new IllegalArgumentException("Trying to end NOT group inside another group.");
 
 		mSubscription.getFilterStack().pop();
@@ -280,6 +280,6 @@ public class RapidCollectionReference<T> {
 
 	private void initSubscription() {
 		mSubscription = new RapidCollectionSubscription<T>(mCollectionName, mUiThreadHandler);
-		mSubscription.getFilterStack().push(new FilterAnd());
+		mSubscription.getFilterStack().push(new Filter.And());
 	}
 }

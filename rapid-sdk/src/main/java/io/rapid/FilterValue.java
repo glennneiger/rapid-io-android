@@ -41,13 +41,13 @@ class FilterValue implements Filter {
 	}
 
 
-	static class IntComparePropertyValue implements PropertyValue {
+	static class IntPropertyValue implements PropertyValue {
 
 		private final String compareType;
 		private int value;
 
 
-		public IntComparePropertyValue(String compareType, int value) {
+		public IntPropertyValue(String compareType, int value) {
 			this.value = value;
 			this.compareType = compareType;
 		}
@@ -66,13 +66,13 @@ class FilterValue implements Filter {
 	}
 
 
-	static class StringComparePropertyValue implements PropertyValue {
+	static class StringPropertyValue implements PropertyValue {
 
 		private final String compareType;
 		private String value;
 
 
-		public StringComparePropertyValue(String compareType, String value) {
+		public StringPropertyValue(String compareType, String value) {
 			this.value = value;
 			this.compareType = compareType;
 		}
@@ -91,13 +91,13 @@ class FilterValue implements Filter {
 	}
 
 
-	static class DoubleComparePropertyValue implements PropertyValue {
+	static class DoublePropertyValue implements PropertyValue {
 
 		private final String compareType;
 		private double value;
 
 
-		public DoubleComparePropertyValue(String compareType, double value) {
+		public DoublePropertyValue(String compareType, double value) {
 			this.value = value;
 			this.compareType = compareType;
 		}
@@ -116,12 +116,12 @@ class FilterValue implements Filter {
 	}
 
 
-	static class BooleanComparePropertyValue implements PropertyValue {
+	static class BooleanPropertyValue implements PropertyValue {
 
 		private boolean value;
 
 
-		public BooleanComparePropertyValue(boolean value) {
+		public BooleanPropertyValue(boolean value) {
 			this.value = value;
 		}
 

@@ -13,7 +13,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	private List<RapidDocument<T>> mDocuments = new ArrayList<>();
 
-	private Stack<FilterGroup> mFilterStack = new Stack<>();
+	private Stack<Filter.Group> mFilterStack = new Stack<>();
 	private int mLimit = Config.DEFAULT_LIMIT;
 	private int mSkip = 0;
 	private EntityOrder mOrder;
@@ -97,7 +97,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	Stack<FilterGroup> getFilterStack() {
+	Stack<Filter.Group> getFilterStack() {
 		return mFilterStack;
 	}
 

@@ -154,8 +154,8 @@ public class MessageJsonTest extends BaseTest {
 		order.putOrder("manufacturer", Sorting.ASC);
 		order.putOrder("model", Sorting.DESC);
 		subMsg.setOrder(order);
-		FilterGroup filter = new FilterAnd();
-		filter.add(new FilterValue("model", new FilterValue.StringComparePropertyValue(TYPE_EQUAL, "A5")));
+		Filter.Group filter = new Filter.And();
+		filter.add(new FilterValue("model", new FilterValue.StringPropertyValue(TYPE_EQUAL, "A5")));
 		subMsg.setFilter(filter);
 		subMsg.setLimit(10);
 		subMsg.setSkip(0);
