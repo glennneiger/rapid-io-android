@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static io.rapid.Config.HB_PERIOD;
 import static io.rapid.ConnectionState.CLOSED;
 import static io.rapid.ConnectionState.CONNECTED;
 import static io.rapid.ConnectionState.CONNECTING;
@@ -24,8 +25,7 @@ import static io.rapid.ConnectionState.DISCONNECTED;
  */
 
 class WebSocketConnection extends WebSocketClient {
-	private final int HB_PERIODE = 10 * 1000;
-	private final int MESSAGE_TIMEOUT_PERIODE = 10 * 1000;
+	private final int MESSAGE_TIMEOUT_PERIOD = 10 * 1000;
 	private boolean mReconnect = false;
 
 	private WebSocketConnectionListener mListener;
@@ -34,14 +34,14 @@ class WebSocketConnection extends WebSocketClient {
 	private List<Message> mPendingMessageList = new ArrayList<>();
 	private List<Message> mSentMessageList = new ArrayList<>();
 	private Handler mHBHandler = new Handler();
-	private Runnable mHBRunnable = () ->
-	{
-		sendHB();
+	private long mLastCommunticationTimestamp = 0;
+	private Runnable mHBRunnable = () -> {
+		if(System.currentTimeMillis() - mLastCommunticationTimestamp >= HB_PERIOD)
+			sendHB();
 		startHB();
 	};
 	private Handler mTimeoutHandler = new Handler();
-	private Runnable mTimeoutRunnable = () ->
-	{
+	private Runnable mTimeoutRunnable = () -> {
 		checkMessageTimeout();
 		startMessageTimeout();
 	};
@@ -125,6 +125,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	@Override
 	public void onMessage(String messageJson) {
+		mLastCommunticationTimestamp = System.currentTimeMillis();
 		Logcat.d(messageJson);
 
 		new Thread(() ->
@@ -193,6 +194,7 @@ class WebSocketConnection extends WebSocketClient {
 				String json = message.toJson().toString();
 				Logcat.d(json);
 				send(json);
+				mLastCommunticationTimestamp = System.currentTimeMillis();
 			} catch(JSONException e) {
 				e.printStackTrace();
 			}
@@ -234,9 +236,8 @@ class WebSocketConnection extends WebSocketClient {
 		sendAckIfNeeded(parsedMessage);
 
 		if(parsedMessage.getMessageType() == MessageType.ERR) {
-			handleErrorMessage((Message.Err)parsedMessage);
-		}
-		else if(parsedMessage.getMessageType() == MessageType.ACK) {
+			handleErrorMessage((Message.Err) parsedMessage);
+		} else if(parsedMessage.getMessageType() == MessageType.ACK) {
 			handleAckMessage((Message.Ack) parsedMessage);
 		}
 
@@ -252,8 +253,8 @@ class WebSocketConnection extends WebSocketClient {
 	private void handleAckMessage(Message.Ack ackMessage) {
 		for(int i = 0; i < mSentMessageList.size(); i++) {
 			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getEventId())) {
-				if(i == mSentMessageList.size()-1) mSentMessageList.clear();
-				else mSentMessageList = mSentMessageList.subList(i+1, mSentMessageList.size());
+				if(i == mSentMessageList.size() - 1) mSentMessageList.clear();
+				else mSentMessageList = mSentMessageList.subList(i + 1, mSentMessageList.size());
 			}
 		}
 	}
@@ -266,7 +267,8 @@ class WebSocketConnection extends WebSocketClient {
 
 	private void startHB() {
 		stopHB();
-		mHBHandler.postDelayed(mHBRunnable, HB_PERIODE);
+		long nextHb = Config.HB_PERIOD - (System.currentTimeMillis() - mLastCommunticationTimestamp);
+		mHBHandler.postDelayed(mHBRunnable, nextHb);
 	}
 
 
@@ -275,25 +277,21 @@ class WebSocketConnection extends WebSocketClient {
 	}
 
 
-	private void checkMessageTimeout()
-	{
-		Logcat.d(mSentMessageList.size()+"");
+	private void checkMessageTimeout() {
+		Logcat.d(mSentMessageList.size() + "");
 
 		long now = new Date().getTime();
-		for(Message msg : mSentMessageList)
-		{
-			if(now - msg.getSentTimestamp() > Config.MESSAGE_TIMEOUT)
-			{
+		for(Message msg : mSentMessageList) {
+			if(now - msg.getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
 				// TODO message after timeout, handle error
 			}
 		}
 	}
 
 
-	private void startMessageTimeout()
-	{
+	private void startMessageTimeout() {
 		stopMessageTimeout();
-		mTimeoutHandler.postDelayed(mTimeoutRunnable, MESSAGE_TIMEOUT_PERIODE);
+		mTimeoutHandler.postDelayed(mTimeoutRunnable, MESSAGE_TIMEOUT_PERIOD);
 	}
 
 
