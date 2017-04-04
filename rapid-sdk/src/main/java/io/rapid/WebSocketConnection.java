@@ -190,7 +190,7 @@ class WebSocketConnection extends WebSocketClient {
 		if(getConnectionState() == ConnectionState.CONNECTED) {
 			try {
 				message.setSentTimestamp(new Date().getTime());
-				if(message.getMessageType() != MessageType.ACK) mSentMessageList.add(message);
+				if(message.getMessageType() != MessageType.ACK && message.getMessageType() != MessageType.NOP) mSentMessageList.add(message);
 				String json = message.toJson().toString();
 				Logcat.d(json);
 				send(json);
