@@ -31,7 +31,7 @@ class WebSocketConnection extends WebSocketClient {
 	private WebSocketConnectionListener mListener;
 	private ConnectionState mConnectionState = DISCONNECTED;
 	private String mConnectionId;
-	private List<Message> mPendingMessageList = new ArrayList<>();
+	private List<MessageFuture> mPendingMessageList = new ArrayList<>();
 	private List<MessageFuture> mSentMessageList = new ArrayList<>();
 	private Handler mHBHandler = new Handler();
 	private long mLastCommunicationTimestamp = 0;
@@ -189,19 +189,25 @@ class WebSocketConnection extends WebSocketClient {
 	public RapidFuture sendMessage(Message message) {
 		RapidFuture future = new RapidFuture();
 		if(getConnectionState() == ConnectionState.CONNECTED) {
-			try {
-				if(message.getMessageType() != MessageType.ACK && message.getMessageType() != MessageType.NOP) mSentMessageList.add(new MessageFuture(message.getEventId(), future));
-				String json = message.toJson().toString();
-				Logcat.d(json);
-				send(json);
-				mLastCommunicationTimestamp = System.currentTimeMillis();
-			} catch(JSONException e) {
-				e.printStackTrace();
-			}
+			sendMessage(new MessageFuture(message, future));
 		} else {
-			mPendingMessageList.add(message);
+			mPendingMessageList.add(new MessageFuture(message, future));
 		}
 		return future;
+	}
+
+
+	private void sendMessage(MessageFuture msg) {
+		try {
+			if(msg.getMessage().getMessageType() != MessageType.ACK && msg.getMessage().getMessageType() != MessageType.NOP)
+				mSentMessageList.add(msg);
+			String json = msg.getMessage().toJson().toString();
+			Logcat.d(json);
+			send(json);
+			mLastCommunicationTimestamp = System.currentTimeMillis();
+		} catch(JSONException e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -253,7 +259,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	private void handleAckMessage(Message.Ack ackMessage) {
 		for(int i = 0; i < mSentMessageList.size(); i++) {
-			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getEventId())) {
+			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getMessage().getEventId())) {
 				if(i == mSentMessageList.size() - 1) {
 					for(MessageFuture messageFuture : mSentMessageList) {
 						messageFuture.getRapidFuture().invokeSuccess();
@@ -289,10 +295,16 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void checkMessageTimeout() {
-		Logcat.d(mSentMessageList.size() + "");
+		Logcat.d("Pending list: " + mPendingMessageList.size());
+		Logcat.d("Sent list: " + mSentMessageList.size());
 
 		long now = new Date().getTime();
 		for(MessageFuture mf : mSentMessageList) {
+			if(now - mf.getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
+				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
+			}
+		}
+		for(MessageFuture mf : mPendingMessageList) {
 			if(now - mf.getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
 				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
 			}
@@ -312,29 +324,32 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private class MessageFuture {
-		String mEventId;
+		Message mMessage;
 		RapidFuture mRapidFuture;
 		long mSentTimestamp;
 
 
-		public MessageFuture(String eventId, RapidFuture rapidFuture) {
-			mEventId = eventId;
+		public MessageFuture(Message message, RapidFuture rapidFuture) {
+			mMessage = message;
 			mRapidFuture = rapidFuture;
 			mSentTimestamp = System.currentTimeMillis();
 		}
 
 
-		public String getEventId() {
-			return mEventId;
+		public Message getMessage()
+		{
+			return mMessage;
 		}
 
 
-		public RapidFuture getRapidFuture() {
+		public RapidFuture getRapidFuture()
+		{
 			return mRapidFuture;
 		}
 
 
-		public long getSentTimestamp() {
+		public long getSentTimestamp()
+		{
 			return mSentTimestamp;
 		}
 	}
