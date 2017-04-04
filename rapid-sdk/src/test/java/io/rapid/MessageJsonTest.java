@@ -26,8 +26,8 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonCon() throws Exception {
-		Message.Con conMsg = new Message.Con("eventId", "connectionId", false);
-		JSONAssert.assertEquals(conMsg.toJson().toString(), "{\"con\": {\"evt-id\": \"eventId\", \"con-id\": \"connectionId\"}}", false);
+		Message.Con conMsg = new Message.Con("connectionId", false);
+		JSONAssert.assertEquals(conMsg.toJson().toString(), "{\"con\": {\"evt-id\": \""+conMsg.getEventId()+"\", \"con-id\": \"connectionId\"}}", false);
 	}
 
 
@@ -44,8 +44,8 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonDis() throws Exception {
-		Message.Dis disMsg = new Message.Dis("eventId");
-		JSONAssert.assertEquals(disMsg.toJson().toString(), "{\"dis\": {\"evt-id\": \"eventId\"}}", false);
+		Message.Dis disMsg = new Message.Dis();
+		JSONAssert.assertEquals(disMsg.toJson().toString(), "{\"dis\": {\"evt-id\": \""+disMsg.getEventId()+"\"}}", false);
 	}
 
 
@@ -80,8 +80,8 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonHb() throws Exception {
-		Message.Nop hbMsg = new Message.Nop("eventId");
-		JSONAssert.assertEquals(hbMsg.toJson().toString(), "{\"nop\": null}", false);
+		Message.Nop hbMsg = new Message.Nop();
+		JSONAssert.assertEquals(hbMsg.toJson().toString(), "{\"nop\":{}}", false);
 	}
 
 
@@ -100,8 +100,8 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonMut() throws Exception {
-		Message.Mut mutMsg = new Message.Mut("eventId", "collection", "{}");
-		JSONAssert.assertEquals(mutMsg.toJson().toString(), "{\"mut\": {\"evt-id\": \"eventId\", \"col-id\":\"collection\", \"doc\": {}}}", false);
+		Message.Mut mutMsg = new Message.Mut("collection", "{}");
+		JSONAssert.assertEquals(mutMsg.toJson().toString(), "{\"mut\": {\"evt-id\": \""+mutMsg.getEventId()+"\", \"col-id\":\"collection\", \"doc\": {}}}", false);
 	}
 
 
@@ -120,8 +120,8 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonMer() throws Exception {
-		Message.Mer merMsg = new Message.Mer("eventId", "collection", "{}");
-		JSONAssert.assertEquals(merMsg.toJson().toString(), "{\"mer\": {\"evt-id\": \"eventId\", \"col-id\":\"collection\", \"doc\": {}}}", false);
+		Message.Mer merMsg = new Message.Mer("collection", "{}");
+		JSONAssert.assertEquals(merMsg.toJson().toString(), "{\"mer\": {\"evt-id\": \""+merMsg.getEventId()+"\", \"col-id\":\"collection\", \"doc\": {}}}", false);
 	}
 
 
@@ -129,7 +129,7 @@ public class MessageJsonTest extends BaseTest {
 	public void test_json2modelSub() throws Exception {
 		Message msg = MessageParser.parse("{\"sub\": {\"evt-id\": \"eventId\", \"col-id\":\"collection\", " +
 				"\"sub-id\":\"subscriptionId\", \"order\":[{\"manufacturer\":\"asc\"}," +
-				"{\"model\":\"desc\"}], \"limit\":10,\"skip\":0}}");
+				"{\"model\":\"desc\"}], \"limit\":10,\"skip\":1}}");
 		assertTrue(msg instanceof Message.Sub);
 
 		Message.Sub subMsg = (Message.Sub) msg;
@@ -137,19 +137,21 @@ public class MessageJsonTest extends BaseTest {
 		assertEquals(subMsg.getEventId(),"eventId");
 		assertEquals(subMsg.getCollectionId(),"collection");
 		assertEquals(subMsg.getSubscriptionId(),"subscriptionId");
-		assertEquals(subMsg.getLimit(), 10);
-		assertEquals(subMsg.getSkip(), 0);
+
 		EntityOrder order = subMsg.getOrder();
 		assertEquals(order.getOrderList().get(0).getProperty(), "manufacturer");
 		assertEquals(order.getOrderList().get(0).getSorting(), Sorting.ASC);
 		assertEquals(order.getOrderList().get(1).getProperty(), "model");
 		assertEquals(order.getOrderList().get(1).getSorting(), Sorting.DESC);
+
+		assertEquals(10, subMsg.getLimit());
+		assertEquals(1, subMsg.getSkip());
 	}
 
 
 	@Test
 	public void test_model2jsonSub() throws Exception {
-		Message.Sub subMsg = new Message.Sub("eventId", "collection", "subscriptionId");
+		Message.Sub subMsg = new Message.Sub("collection", "subscriptionId");
 		EntityOrder order = new EntityOrder();
 		order.putOrder("manufacturer", Sorting.ASC);
 		order.putOrder("model", Sorting.DESC);
@@ -159,7 +161,7 @@ public class MessageJsonTest extends BaseTest {
 		subMsg.setFilter(filter);
 		subMsg.setLimit(10);
 		subMsg.setSkip(0);
-		JSONAssert.assertEquals(subMsg.toJson().toString(), "{\"sub\": {\"evt-id\": \"eventId\", \"col-id\":\"collection\", " +
+		JSONAssert.assertEquals(subMsg.toJson().toString(), "{\"sub\": {\"evt-id\": \""+subMsg.getEventId()+"\", \"col-id\":\"collection\", " +
 				"\"sub-id\":\"subscriptionId\", \"filter\":{\"and\":[{\"model\":\"A5\"}]}, \"order\":[{\"manufacturer\":\"asc\"}," +
 				"{\"model\":\"desc\"}], \"limit\":10,\"skip\":0}}", false);
 	}
@@ -179,8 +181,8 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonUns() throws Exception {
-		Message.Uns unsMsg = new Message.Uns("eventId", "subscriptionId");
-		JSONAssert.assertEquals(unsMsg.toJson().toString(), "{\"uns\": {\"evt-id\": \"eventId\", \"sub-id\":\"subscriptionId\"}}", false);
+		Message.Uns unsMsg = new Message.Uns("subscriptionId");
+		JSONAssert.assertEquals(unsMsg.toJson().toString(), "{\"uns\": {\"evt-id\": \""+unsMsg.getEventId()+"\", \"sub-id\":\"subscriptionId\"}}", false);
 	}
 
 
@@ -214,8 +216,7 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_json2modelBatch() throws Exception {
-		Message msg = MessageParser.parse("{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": {\"evt-id\": " +
-				"\"eventId\"}}]}");
+		Message msg = MessageParser.parse("{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": {}}]}");
 		assertTrue(msg instanceof Message.Batch);
 
 		Message.Batch batchMsg = (Message.Batch) msg;
@@ -225,7 +226,6 @@ public class MessageJsonTest extends BaseTest {
 		assertEquals(ackMsg.getEventId(),"eventId");
 		Message.Nop hbMsg = (Message.Nop) batchMsg.getMessageList().get(1);
 		assertEquals(hbMsg.getMessageType(), MessageType.NOP);
-		assertEquals(hbMsg.getEventId(),"eventId");
 	}
 
 
@@ -233,8 +233,8 @@ public class MessageJsonTest extends BaseTest {
 	public void test_model2jsonBatch() throws Exception {
 		Message.Batch batchMsg = new Message.Batch();
 		batchMsg.addMessage(new Message.Ack("eventId"));
-		batchMsg.addMessage(new Message.Nop("eventId"));
-		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": null}]}", false);
+		batchMsg.addMessage(new Message.Nop());
+		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": {}}]}", false);
 	}
 
 
@@ -254,8 +254,8 @@ public class MessageJsonTest extends BaseTest {
 
 	@Test
 	public void test_model2jsonErr() throws Exception {
-		Message.Err errMsg = new Message.Err("eventId", Message.Err.ErrorType.CONNECTION_TERMINATED, "Something went wrong");
-		JSONAssert.assertEquals(errMsg.toJson().toString(), "{\"err\": {\"evt-id\": \"eventId\", \"err-type\": \"connection-terminated\", " +
+		Message.Err errMsg = new Message.Err(Message.Err.ErrorType.CONNECTION_TERMINATED, "Something went wrong");
+		JSONAssert.assertEquals(errMsg.toJson().toString(), "{\"err\": {\"evt-id\": \""+errMsg.getEventId()+"\", \"err-type\": \"connection-terminated\", " +
 				"\"err-msg\":\"Something went wrong\"}}", false);
 	}
 

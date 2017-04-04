@@ -334,7 +334,7 @@ abstract class Message {
 
 
 	static class Batch extends Message {
-		private List<Message> mMessageList = new ArrayList<>();
+		private List<Message> mMessageList;
 
 
 		Batch() {
@@ -362,6 +362,9 @@ abstract class Message {
 
 		@Override
 		public void fromJson(JSONObject json) throws JSONException {
+			if(mMessageList == null) {
+				mMessageList = new ArrayList<>();
+			}
 			JSONArray array = json.optJSONArray(getMessageType().getKey());
 			for(int i = 0; i < array.length(); i++) {
 				mMessageList.add(MessageParser.parse(array.optString(i)));
@@ -376,6 +379,9 @@ abstract class Message {
 
 
 		public void addMessage(Message message) {
+			if(mMessageList == null) {
+				mMessageList = new ArrayList<>();
+			}
 			mMessageList.add(message);
 		}
 	}
@@ -398,8 +404,8 @@ abstract class Message {
 
 		private String mSubscriptionId;
 		private String mCollectionId;
-		private int mLimit = Config.DEFAULT_LIMIT;
-		private int mSkip = 0;
+		private int mLimit;
+		private int mSkip;
 		private EntityOrder mOrder;
 		private Filter mFilter;
 
@@ -433,6 +439,8 @@ abstract class Message {
 		@Override
 		protected void parseJsonBody(JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
+			mLimit = Config.DEFAULT_LIMIT;
+			mSkip = 0;
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
 			mLimit = jsonBody.optInt(ATTR_LIMIT);

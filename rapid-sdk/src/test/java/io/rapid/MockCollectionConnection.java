@@ -5,7 +5,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidFuture<T> mutate(String id, T value) {
+	public RapidFuture mutate(String id, T value) {
 		return null;
 	}
 
