@@ -22,8 +22,7 @@ class MessageBatch extends MessageBase {
 
 
 	MessageBatch(JSONObject json) throws JSONException {
-		super(MessageType.BATCH);
-		fromJson(json);
+		super(MessageType.BATCH, json);
 	}
 
 

@@ -17,35 +17,31 @@ class MessageMer extends MessageBase {
 
 
 	public MessageMer(JSONObject json) throws JSONException {
-		super(MessageType.MER);
-		fromJson(json);
+		super(MessageType.MER, json);
 	}
 
 
-	public MessageMer(String eventId, String collectionId, String document) {
-		super(MessageType.MER, eventId);
+	public MessageMer(String collectionId, String document) {
+		super(MessageType.MER);
 		mCollectionId = collectionId;
 		mDocument = document;
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = super.toJson();
-		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_COL_ID, getCollectionId());
-		innerJson.put(ATTR_DOC, new JSONObject(getDocument()));
-		json.put(getMessageType().getKey(), innerJson);
-		return json;
+	protected JSONObject createJsonBody() throws JSONException {
+		JSONObject body = super.createJsonBody();
+		body.put(ATTR_COL_ID, getCollectionId());
+		body.put(ATTR_DOC, new JSONObject(getDocument()));
+		return body;
 	}
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException {
-		super.fromJson(json);
-
-		mCollectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_COL_ID);
-		mDocument = json.optJSONObject(getMessageType().getKey()).optString(ATTR_DOC);
+	protected void parseJsonBody(JSONObject jsonBody) {
+		super.parseJsonBody(jsonBody);
+		mCollectionId = jsonBody.optString(ATTR_COL_ID);
+		mDocument = jsonBody.optString(ATTR_DOC);
 	}
 
 

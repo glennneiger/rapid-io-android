@@ -4,10 +4,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-/**
- * Created by Leos on 17.03.2017.
- */
-
 class MessageSub extends MessageBase {
 	private static final String ATTR_SUB_ID = "sub-id";
 	private static final String ATTR_COL_ID = "col-id";
@@ -24,8 +20,8 @@ class MessageSub extends MessageBase {
 	private Filter mFilter;
 
 
-	public MessageSub(String eventId, String collectionId, String subscriptionId) {
-		super(MessageType.SUB, eventId);
+	public MessageSub(String collectionId, String subscriptionId) {
+		super(MessageType.SUB);
 
 		mCollectionId = collectionId;
 		mSubscriptionId = subscriptionId;
@@ -33,36 +29,31 @@ class MessageSub extends MessageBase {
 
 
 	public MessageSub(JSONObject json) throws JSONException {
-		super(MessageType.SUB);
-		fromJson(json);
+		super(MessageType.SUB, json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = super.toJson();
-		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_SUB_ID, mSubscriptionId);
-		innerJson.put(ATTR_COL_ID, mCollectionId);
-//		innerJson.put(ATTR_LIMIT, mLimit);
-//		innerJson.put(ATTR_SKIP, mSkip);
-//		innerJson.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
-//		if(mOrder != null && !mOrder.getOrderList().isEmpty()) innerJson.put(ATTR_ORDER, mOrder.toJson());
-
-		json.put(getMessageType().getKey(), innerJson);
-		return json;
+	protected JSONObject createJsonBody() throws JSONException {
+		JSONObject body = super.createJsonBody();
+		body.put(ATTR_SUB_ID, mSubscriptionId);
+		body.put(ATTR_COL_ID, mCollectionId);
+		body.put(ATTR_LIMIT, mLimit);
+		body.put(ATTR_SKIP, mSkip);
+		body.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
+		if(mOrder != null && !mOrder.getOrderList().isEmpty()) body.put(ATTR_ORDER, mOrder.toJson());
+		return body;
 	}
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException {
-		super.fromJson(json);
-
-		mSubscriptionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_SUB_ID);
-		mCollectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_COL_ID);
-		mLimit = json.optJSONObject(getMessageType().getKey()).optInt(ATTR_LIMIT);
-		mSkip = json.optJSONObject(getMessageType().getKey()).optInt(ATTR_SKIP);
-		mOrder = EntityOrder.fromJson(json.optJSONObject(getMessageType().getKey()).optJSONArray(ATTR_ORDER));
+	protected void parseJsonBody(JSONObject jsonBody) {
+		super.parseJsonBody(jsonBody);
+		mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+		mCollectionId = jsonBody.optString(ATTR_COL_ID);
+		mLimit = jsonBody.optInt(ATTR_LIMIT);
+		mSkip = jsonBody.optInt(ATTR_SKIP);
+		mOrder = EntityOrder.fromJson(jsonBody.optJSONArray(ATTR_ORDER));
 	}
 
 

@@ -4,10 +4,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-/**
- * Created by Leos on 17.03.2017.
- */
-
 class MessageMut extends MessageBase {
 	private static final String ATTR_COL_ID = "col-id";
 	private static final String ATTR_DOC = "doc";
@@ -17,35 +13,31 @@ class MessageMut extends MessageBase {
 
 
 	public MessageMut(JSONObject json) throws JSONException {
-		super(MessageType.MUT);
-		fromJson(json);
+		super(MessageType.MUT, json);
 	}
 
 
-	public MessageMut(String eventId, String collectionId, String document) {
-		super(MessageType.MUT, eventId);
+	public MessageMut(String collectionId, String document) {
+		super(MessageType.MUT);
 		mCollectionId = collectionId;
 		mDocument = document;
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = super.toJson();
-		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_COL_ID, getCollectionId());
-		innerJson.put(ATTR_DOC, new JSONObject(getDocument()));
-		json.put(getMessageType().getKey(), innerJson);
-		return json;
+	protected JSONObject createJsonBody() throws JSONException {
+		JSONObject body = super.createJsonBody();
+		body.put(ATTR_COL_ID, getCollectionId());
+		body.put(ATTR_DOC, new JSONObject(getDocument()));
+		return body;
 	}
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException {
-		super.fromJson(json);
-
-		mCollectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_COL_ID);
-		mDocument = json.optJSONObject(getMessageType().getKey()).optString(ATTR_DOC);
+	protected void parseJsonBody(JSONObject jsonBody) {
+		super.parseJsonBody(jsonBody);
+		mCollectionId = jsonBody.optString(ATTR_COL_ID);
+		mDocument = jsonBody.optString(ATTR_DOC);
 	}
 
 

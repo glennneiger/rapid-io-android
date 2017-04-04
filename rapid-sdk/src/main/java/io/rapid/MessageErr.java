@@ -46,36 +46,32 @@ class MessageErr extends MessageBase {
 	}
 
 
-	MessageErr(String eventId, ErrorType errorType, String errorMessage) throws JSONException {
-		super(MessageType.ERR, eventId);
+	MessageErr(ErrorType errorType, String errorMessage) throws JSONException {
+		super(MessageType.ERR);
 		mErrorType = errorType;
 		mErrorMessage = errorMessage;
 	}
 
 
 	MessageErr(JSONObject json) throws JSONException {
-		super(MessageType.ERR);
-		fromJson(json);
+		super(MessageType.ERR, json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = super.toJson();
-		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_ERR_TYPE, getErrorType().getKey());
-		innerJson.put(ATTR_ERR_MSG, getErrorMessage());
-		json.put(getMessageType().getKey(), innerJson);
-		return json;
+	protected JSONObject createJsonBody() throws JSONException {
+		JSONObject body = super.createJsonBody();
+		body.put(ATTR_ERR_TYPE, getErrorType().getKey());
+		body.put(ATTR_ERR_MSG, getErrorMessage());
+		return body;
 	}
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException {
-		super.fromJson(json);
-
-		mErrorType = ErrorType.get(json.optJSONObject(getMessageType().getKey()).optString(ATTR_ERR_TYPE));
-		mErrorMessage = json.optJSONObject(getMessageType().getKey()).optString(ATTR_ERR_MSG);
+	protected void parseJsonBody(JSONObject jsonBody) {
+		super.parseJsonBody(jsonBody);
+		mErrorType = ErrorType.get(jsonBody.optString(ATTR_ERR_TYPE));
+		mErrorMessage = jsonBody.optString(ATTR_ERR_MSG);
 	}
 
 

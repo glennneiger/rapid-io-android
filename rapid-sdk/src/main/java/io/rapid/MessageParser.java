@@ -4,10 +4,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-/**
- * Created by Leos on 17.03.2017.
- */
-
 class MessageParser {
 	static MessageBase parse(String message) throws JSONException {
 		JSONObject json = new JSONObject(message);

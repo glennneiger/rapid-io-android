@@ -9,7 +9,7 @@ import org.json.JSONObject;
  */
 
 abstract class MessageBase {
-	static final String ATTR_EVENT_ID = "evt-id";
+	private static final String ATTR_EVENT_ID = "evt-id";
 
 	private MessageType mMessageType;
 	private String mEventId;
@@ -48,8 +48,14 @@ abstract class MessageBase {
 	}
 
 
-	public MessageBase(MessageType messageType) {
+	public MessageBase(MessageType messageType, JSONObject json) throws JSONException {
 		mMessageType = messageType;
+		fromJson(json);
+	}
+
+
+	public MessageBase(MessageType messageType) {
+		this(messageType, IdProvider.getNewEventId());
 	}
 
 
@@ -61,13 +67,19 @@ abstract class MessageBase {
 
 	public JSONObject toJson() throws JSONException {
 		JSONObject json = new JSONObject();
-		json.put(mMessageType.getKey(), new JSONObject().put(ATTR_EVENT_ID, mEventId));
+		JSONObject body = createJsonBody();
+		if(mEventId != null && !mEventId.isEmpty())
+			body.put(ATTR_EVENT_ID, mEventId);
+		json.put(mMessageType.getKey(), body);
 		return json;
 	}
 
 
 	public void fromJson(JSONObject json) throws JSONException {
-		if(json != null) mEventId = json.optJSONObject(mMessageType.getKey()).optString(ATTR_EVENT_ID);
+		if(json != null) {
+			mEventId = json.optJSONObject(mMessageType.getKey()).optString(ATTR_EVENT_ID);
+			parseJsonBody(json.optJSONObject(mMessageType.getKey()));
+		}
 	}
 
 
@@ -81,14 +93,22 @@ abstract class MessageBase {
 	}
 
 
-	public Long getSentTimestamp()
-	{
+	public Long getSentTimestamp() {
 		return mSentTimestamp;
 	}
 
 
-	public void setSentTimestamp(Long sentTimestamp)
-	{
+	public void setSentTimestamp(Long sentTimestamp) {
 		mSentTimestamp = sentTimestamp;
+	}
+
+
+	protected JSONObject createJsonBody() throws JSONException {
+		return new JSONObject();
+	}
+
+
+	protected void parseJsonBody(JSONObject jsonBody) {
+
 	}
 }

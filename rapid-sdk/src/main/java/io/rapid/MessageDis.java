@@ -11,28 +11,12 @@ import org.json.JSONObject;
 class MessageDis extends MessageBase {
 
 
-	public MessageDis(String eventId) {
-		super(MessageType.DIS, eventId);
+	public MessageDis() {
+		super(MessageType.DIS);
 	}
 
 
 	public MessageDis(JSONObject json) throws JSONException {
-		super(MessageType.DIS);
-		fromJson(json);
-	}
-
-
-	@Override
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = super.toJson();
-		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		json.put(getMessageType().getKey(), innerJson);
-		return json;
-	}
-
-
-	@Override
-	public void fromJson(JSONObject json) throws JSONException {
-		super.fromJson(json);
+		super(MessageType.DIS, json);
 	}
 }

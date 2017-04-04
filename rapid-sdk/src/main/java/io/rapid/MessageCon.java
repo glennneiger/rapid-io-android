@@ -14,34 +14,29 @@ class MessageCon extends MessageBase {
 	private String mConnectionId;
 
 
-	public MessageCon(String eventId, String connectionId, boolean reconnect) {
-		super(reconnect ? MessageType.REC : MessageType.CON, eventId);
-
+	public MessageCon(String connectionId, boolean reconnect) {
+		super(reconnect ? MessageType.REC : MessageType.CON);
 		mConnectionId = connectionId;
 	}
 
 
 	public MessageCon(JSONObject json) throws JSONException {
-		super(MessageType.CON);
-		fromJson(json);
+		super(MessageType.CON, json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = super.toJson();
-		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_CON_ID, getConnectionId());
-		json.put(getMessageType().getKey(), innerJson);
-		return json;
+	protected JSONObject createJsonBody() throws JSONException {
+		JSONObject body = super.createJsonBody();
+		body.put(ATTR_CON_ID, getConnectionId());
+		return body;
 	}
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException {
-		super.fromJson(json);
-
-		mConnectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_CON_ID);
+	protected void parseJsonBody(JSONObject jsonBody) {
+		super.parseJsonBody(jsonBody);
+		mConnectionId = jsonBody.optString(ATTR_CON_ID);
 	}
 
 

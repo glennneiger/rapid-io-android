@@ -4,10 +4,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-/**
- * Created by Leos on 17.03.2017.
- */
-
 class MessageVal extends MessageBase {
 	private static final String ATTR_SUB_ID = "sub-id";
 	private static final String ATTR_COL_ID = "col-id";
@@ -19,30 +15,26 @@ class MessageVal extends MessageBase {
 
 
 	MessageVal(JSONObject json) throws JSONException {
-		super(MessageType.VAL);
-		fromJson(json);
+		super(MessageType.VAL, json);
 	}
 
 
 	@Override
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = super.toJson();
-		JSONObject innerJson = json.optJSONObject(getMessageType().getKey());
-		innerJson.put(ATTR_SUB_ID, getSubscriptionId());
-		innerJson.put(ATTR_COL_ID, getCollectionId());
-		innerJson.put(ATTR_DOCS, getDocuments());
-		json.put(getMessageType().getKey(), innerJson);
-		return json;
+	protected JSONObject createJsonBody() throws JSONException {
+		JSONObject body = super.createJsonBody();
+		body.put(ATTR_SUB_ID, getSubscriptionId());
+		body.put(ATTR_COL_ID, getCollectionId());
+		body.put(ATTR_DOCS, getDocuments());
+		return body;
 	}
 
 
 	@Override
-	public void fromJson(JSONObject json) throws JSONException {
-		super.fromJson(json);
-
-		mSubscriptionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_SUB_ID);
-		mCollectionId = json.optJSONObject(getMessageType().getKey()).optString(ATTR_COL_ID);
-		mDocuments = json.optJSONObject(getMessageType().getKey()).optString(ATTR_DOCS);
+	protected void parseJsonBody(JSONObject jsonBody) {
+		super.parseJsonBody(jsonBody);
+		mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+		mCollectionId = jsonBody.optString(ATTR_COL_ID);
+		mDocuments = jsonBody.optString(ATTR_DOCS);
 	}
 
 

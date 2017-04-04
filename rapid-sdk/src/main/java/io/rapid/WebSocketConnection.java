@@ -214,12 +214,12 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void sendConnect() {
-		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId, mReconnect));
+		sendMessage(new MessageCon(mConnectionId, mReconnect));
 	}
 
 
 	private void sendDisconnect() {
-		sendMessage(new MessageDis(IdProvider.getNewEventId()));
+		sendMessage(new MessageDis());
 	}
 
 
@@ -260,7 +260,7 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void sendHB() {
-		sendMessage(new MessageNop(IdProvider.getNewEventId()));
+		sendMessage(new MessageNop());
 	}
 
 

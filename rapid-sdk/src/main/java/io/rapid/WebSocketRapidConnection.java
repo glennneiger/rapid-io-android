@@ -135,7 +135,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	@Override
 	void subscribe(String subscriptionId, Subscription subscription) {
-		MessageSub messageSub = new MessageSub(IdProvider.getNewEventId(), subscription.getCollectionName(), subscriptionId);
+		MessageSub messageSub = new MessageSub(subscription.getCollectionName(), subscriptionId);
 		messageSub.setFilter(subscription.getFilter());
 		messageSub.setLimit(subscription.getLimit());
 		messageSub.setOrder(subscription.getOrder());
@@ -163,7 +163,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	@Override
 	public MessageFuture mutate(String collectionName, String documentJson) {
-		return sendMessage(new MessageMut(IdProvider.getNewEventId(), collectionName, documentJson));
+		return sendMessage(new MessageMut(collectionName, documentJson));
 	}
 
 
