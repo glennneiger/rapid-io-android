@@ -28,13 +28,14 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	@Override
 	void onDocumentUpdated(RapidDocument<T> document) {
-		if (document.getBody()==null){
-			for(RapidDocument<T> doc : mDocuments) {
-				if (doc.getId().equals(document.getId())){
-					mDocuments.remove(doc);
+		if(document.getBody() == null) {
+			int i;
+			for(i = 0; i < mDocuments.size(); i++) {
+				if(mDocuments.get(i).getId().equals(document.getId())) {
 					break;
 				}
 			}
+			mDocuments.remove(i);
 		} else {
 			boolean modified = false;
 			for(int i = 0; i < mDocuments.size(); i++) {
@@ -49,23 +50,6 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 			}
 		}
 		invokeChange();
-	}
-
-
-	void orderBy(String property, Sorting sorting) {
-		if(mOrder == null) mOrder = new EntityOrder();
-		mOrder.putOrder(property, sorting);
-	}
-
-
-	void setDocuments(List<RapidDocument<T>> rapidDocuments) {
-		mDocuments = rapidDocuments;
-		invokeChange();
-	}
-
-
-	void setCallback(RapidCollectionCallback<T> callback) {
-		mCallback = callback;
 	}
 
 
@@ -103,6 +87,23 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 			throw new IllegalArgumentException("Wrong filter structure");
 		}
 		return mFilterStack.peek();
+	}
+
+
+	void orderBy(String property, Sorting sorting) {
+		if(mOrder == null) mOrder = new EntityOrder();
+		mOrder.putOrder(property, sorting);
+	}
+
+
+	void setDocuments(List<RapidDocument<T>> rapidDocuments) {
+		mDocuments = rapidDocuments;
+		invokeChange();
+	}
+
+
+	void setCallback(RapidCollectionCallback<T> callback) {
+		mCallback = callback;
 	}
 
 
