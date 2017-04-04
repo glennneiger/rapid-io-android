@@ -18,15 +18,30 @@
 			android:layout_weight="1"
 			android:padding="4dp"
 			android:clipToPadding="false"
-			app:layoutManager="@{LayoutManagers.grid(3)}"
+			app:layoutManager="@{LayoutManagers.linear()}"
 			app:itemBinding="@{viewModel.itemBinding}"
 			app:items="@{viewModel.items}" />
 
-		<Button
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="Add item"
-			android:onClick="addItem" />
+			android:orientation="horizontal">
+			<Button
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="2"
+				android:text="@string/add_title"
+				android:onClick="addItem"
+				style="@style/Widget.AppCompat.Button.Colored" />
+			<Button
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/add_random"
+				android:onClick="addRandomItem"
+				style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+		</LinearLayout>
+
 
 	</LinearLayout>
 </layout>

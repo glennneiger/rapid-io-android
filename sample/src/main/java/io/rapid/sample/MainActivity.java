@@ -2,25 +2,29 @@ package io.rapid.sample;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 
-import java.util.Random;
+import java.util.UUID;
 
 import io.rapid.Rapid;
+import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
 import io.rapid.Sorting;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
 
-public class MainActivity extends AppCompatActivity implements CarItemViewModel.CarItemHandler {
+public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
-	public static final String COLLECTIONS_CARS = "cars_2";
 	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
+	private RapidCollectionReference<Todo> mTodos;
 
 
 	private static void log(String message) {
@@ -39,7 +43,9 @@ public class MainActivity extends AppCompatActivity implements CarItemViewModel.
 
 		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
 
-		mSubscription = Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class)
+		mTodos = Rapid.getInstance().collection("todos_xyz", Todo.class);
+
+		mSubscription = mTodos
 				.equalTo("receiver", "carl01")
 				.beginOr()
 				.equalTo("sender", "john123")
@@ -47,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements CarItemViewModel.
 				.endOr()
 				.orderBy("sentDate", Sorting.DESC)
 				.orderBy("urgency", Sorting.ASC)
-				.map(document -> new CarItemViewModel(document.getId(), document.getBody(), MainActivity.this))
+				.map(document -> new TodoItemViewModel(document.getId(), document.getBody(), MainActivity.this))
 				.subscribe(items -> mViewModel.items.update(items));
 	}
 
@@ -60,25 +66,43 @@ public class MainActivity extends AppCompatActivity implements CarItemViewModel.
 	}
 
 
-	public void addItem(View view) {
-		Car newCar = new Car(new Random().nextInt(), "New model");
-
-		Rapid.getInstance()
-				.collection(COLLECTIONS_CARS, Car.class)
-				.newDocument()
-				.mutate(newCar)
-				.onSuccess(() -> {
-					log("Mutation successful");
-				})
-				.onError(error -> {
-					log("Mutation error");
-					error.printStackTrace();
-				});
+	@Override
+	public void onDelete(String id, Todo todo) {
+		mTodos.document(id).delete().onSuccess(() -> log("Deleted"));
 	}
 
 
 	@Override
-	public void onDelete(String carId, Car car) {
-		Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class).document(carId).delete().onSuccess(() -> Log.d("CARS", "Deleted"));
+	public void onChange(String id, Todo todo) {
+		mTodos.document(id).mutate(todo);
+	}
+
+
+	public void addRandomItem(View view) {
+		addTodo(UUID.randomUUID().toString());
+	}
+
+
+	public void addItem(View view) {
+		final EditText input = new EditText(this);
+		input.setHint(R.string.add_hint);
+		input.setInputType(EditorInfo.TYPE_TEXT_FLAG_CAP_WORDS);
+
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.add_title)
+				.setView(input)
+				.setPositiveButton(R.string.add, (dialog, whichButton) -> {
+					String title = input.getText().toString();
+					addTodo(title);
+				})
+				.setNegativeButton(R.string.cancel, (dialog, whichButton) -> {
+				})
+				.show();
+	}
+
+
+	private void addTodo(String title) {
+		Todo todo = new Todo(title);
+		mTodos.newDocument().mutate(todo);
 	}
 }

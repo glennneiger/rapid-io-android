@@ -6,16 +6,16 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
 
 public class MainViewModel {
-	public ItemBinding<CarItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_car);
-	public DiffObservableList<CarItemViewModel> items = new DiffObservableList<>(new DiffObservableList.Callback<CarItemViewModel>() {
+	public ItemBinding<TodoItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_todo);
+	public DiffObservableList<TodoItemViewModel> items = new DiffObservableList<>(new DiffObservableList.Callback<TodoItemViewModel>() {
 		@Override
-		public boolean areItemsTheSame(CarItemViewModel oldItem, CarItemViewModel newItem) {
-			return oldItem.getCar().getNumber() == newItem.getCar().getNumber();
+		public boolean areItemsTheSame(TodoItemViewModel oldItem, TodoItemViewModel newItem) {
+			return oldItem.getId().equals(newItem.getId());
 		}
 
 
 		@Override
-		public boolean areContentsTheSame(CarItemViewModel oldItem, CarItemViewModel newItem) {
+		public boolean areContentsTheSame(TodoItemViewModel oldItem, TodoItemViewModel newItem) {
 			return false;
 		}
 	});
