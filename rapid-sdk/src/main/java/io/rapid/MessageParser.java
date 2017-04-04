@@ -4,44 +4,40 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-/**
- * Created by Leos on 17.03.2017.
- */
-
 class MessageParser {
-	static MessageBase parse(String message) throws JSONException {
+	static Message parse(String message) throws JSONException {
 		JSONObject json = new JSONObject(message);
 		String messageType = json.keys().hasNext() ? json.keys().next() : null;
 
-		switch(MessageBase.MessageType.get(messageType)) {
+		switch(MessageType.get(messageType)) {
 			case ACK:
-				return new MessageAck(json);
+				return new Message.Ack(json);
 			case ERR:
-				return new MessageErr(json);
+				return new Message.Err(json);
 			case MUT:
-				return new MessageMut(json);
+				return new Message.Mut(json);
 			case MER:
-				return new MessageMer(json);
+				return new Message.Mer(json);
 			case SUB:
-				return new MessageSub(json);
+				return new Message.Sub(json);
 			case UNS:
-				return new MessageUns(json);
+				return new Message.Uns(json);
 			case UPD:
-				return new MessageUpd(json);
+				return new Message.Upd(json);
 			case VAL:
-				return new MessageVal(json);
+				return new Message.Val(json);
 			case BATCH:
-				return new MessageBatch(json);
+				return new Message.Batch(json);
 			case CON:
-				return new MessageCon(json);
+				return new Message.Con(json);
 			case DIS:
-				return new MessageDis(json);
+				return new Message.Dis(json);
 			case NOP:
-				return new MessageNop(json);
+				return new Message.Nop(json);
 			case UNKNOWN:
-				return new MessageUnknown();
+				return new Message.Unknown();
 			default:
-				return new MessageUnknown();
+				return new Message.Unknown();
 		}
 	}
 }

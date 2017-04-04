@@ -1,11 +1,50 @@
 package io.rapid;
 
 
+import android.os.Handler;
+
+import java.util.HashMap;
 import java.util.Map;
 
+import io.rapid.converter.RapidJsonConverter;
 
-interface CollectionProvider {
-	<T> RapidCollectionReference<T> provideCollection(Rapid rapid, String collectionName, Class<T> itemClass);
-	RapidCollectionReference findCollectionByName(String collectionId);
-	Map<String, RapidCollectionReference> getCollections();
+
+class CollectionProvider {
+	private final Handler mOriginalThreadHandler;
+	private final RapidJsonConverter mJsonConverter;
+	RapidConnection mConnection;
+	private Map<String, RapidCollectionReference> mCollections = new HashMap<>();
+
+
+	public CollectionProvider(RapidConnection connection, RapidJsonConverter jsonConverter, Handler originalThreadHandler) {
+		mConnection = connection;
+		mJsonConverter = jsonConverter;
+		mOriginalThreadHandler = originalThreadHandler;
+	}
+
+
+	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
+		if(!mCollections.containsKey(collectionName))
+			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass), collectionName, mOriginalThreadHandler));
+		return mCollections.get(collectionName);
+	}
+
+
+	RapidCollectionReference findCollectionByName(String collectionName) {
+		return mCollections.get(collectionName);
+	}
+
+
+	Map<String, RapidCollectionReference> getCollections() {
+		return mCollections;
+	}
+
+
+	void resubscribeAll() {
+		for(RapidCollectionReference rapidCollectionReference : getCollections().values()) {
+			if(rapidCollectionReference.isSubscribed()) {
+				rapidCollectionReference.resubscribe();
+			}
+		}
+	}
 }

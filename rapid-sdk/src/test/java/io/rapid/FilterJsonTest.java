@@ -14,12 +14,12 @@ import static junit.framework.Assert.assertEquals;
 public class FilterJsonTest extends BaseTest {
 	@Test
 	public void test_model2json_1() throws Exception {
-		String json = new FilterAnd(
-				new FilterOr(
-						new FilterValue("age", new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, 18)),
-						new FilterValue("age", new FilterValue.IntComparePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, 60))
+		String json = new Filter.And(
+				new Filter.Or(
+						new FilterValue("age", new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, 18)),
+						new FilterValue("age", new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, 60))
 				),
-				new FilterValue("name", new FilterValue.StringComparePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, "John"))
+				new FilterValue("name", new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, "John"))
 		).toJson();
 
 		JSONAssert.assertEquals(json, "{\"and\":[{\"or\":[{\"age\":{\"lt\":18}},{\"age\":{\"gt\":60}}]},{\"name\":\"John\"}]}", false);

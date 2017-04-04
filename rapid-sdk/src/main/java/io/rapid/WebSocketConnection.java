@@ -31,8 +31,8 @@ class WebSocketConnection extends WebSocketClient {
 	private WebSocketConnectionListener mListener;
 	private ConnectionState mConnectionState = DISCONNECTED;
 	private String mConnectionId;
-	private List<MessageBase> mPendingMessageList = new ArrayList<>();
-	private List<MessageBase> mSentMessageList = new ArrayList<>();
+	private List<Message> mPendingMessageList = new ArrayList<>();
+	private List<Message> mSentMessageList = new ArrayList<>();
 	private Handler mHBHandler = new Handler();
 	private Runnable mHBRunnable = () ->
 	{
@@ -77,7 +77,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	interface WebSocketConnectionListener {
 		void onOpen();
-		void onMessage(MessageBase message);
+		void onMessage(Message message);
 		void onClose(CloseReasonEnum reason);
 		void onError(Exception ex);
 		void onConnectionStateChange(ConnectionState state);
@@ -130,10 +130,10 @@ class WebSocketConnection extends WebSocketClient {
 		new Thread(() ->
 		{
 			try {
-				MessageBase parsedMessage = MessageParser.parse(messageJson);
+				Message parsedMessage = MessageParser.parse(messageJson);
 
-				if(parsedMessage.getMessageType() == MessageBase.MessageType.BATCH) {
-					for(MessageBase message : ((MessageBatch) parsedMessage).getMessageList()) {
+				if(parsedMessage.getMessageType() == MessageType.BATCH) {
+					for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
 						handleNewMessage(message);
 					}
 				} else {
@@ -161,7 +161,7 @@ class WebSocketConnection extends WebSocketClient {
 
 	@Override
 	public void onError(Exception ex) {
-		Logcat.d(ex.getMessage());
+		ex.printStackTrace();
 
 		changeConnectionState(DISCONNECTED);
 		stopHB();
@@ -185,11 +185,11 @@ class WebSocketConnection extends WebSocketClient {
 	}
 
 
-	public void sendMessage(MessageBase message) {
+	public void sendMessage(Message message) {
 		if(getConnectionState() == ConnectionState.CONNECTED) {
 			try {
 				message.setSentTimestamp(new Date().getTime());
-				if(message.getMessageType() != MessageBase.MessageType.ACK) mSentMessageList.add(message);
+				if(message.getMessageType() != MessageType.ACK) mSentMessageList.add(message);
 				String json = message.toJson().toString();
 				Logcat.d(json);
 				send(json);
@@ -214,42 +214,42 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void sendConnect() {
-		sendMessage(new MessageCon(IdProvider.getNewEventId(), mConnectionId, mReconnect));
+		sendMessage(new Message.Con(mConnectionId, mReconnect));
 	}
 
 
 	private void sendDisconnect() {
-		sendMessage(new MessageDis(IdProvider.getNewEventId()));
+		sendMessage(new Message.Dis());
 	}
 
 
-	private void sendAckIfNeeded(MessageBase parsedMessage) {
-		if(parsedMessage.getMessageType() == MessageBase.MessageType.VAL || parsedMessage.getMessageType() == MessageBase.MessageType.UPD) {
-			sendMessage(new MessageAck(parsedMessage.getEventId()));
+	private void sendAckIfNeeded(Message parsedMessage) {
+		if(parsedMessage.getMessageType() == MessageType.VAL || parsedMessage.getMessageType() == MessageType.UPD) {
+			sendMessage(new Message.Ack(parsedMessage.getEventId()));
 		}
 	}
 
 
-	private void handleNewMessage(MessageBase parsedMessage) {
+	private void handleNewMessage(Message parsedMessage) {
 		sendAckIfNeeded(parsedMessage);
 
-		if(parsedMessage.getMessageType() == MessageBase.MessageType.ERR) {
-			handleErrorMessage((MessageErr)parsedMessage);
+		if(parsedMessage.getMessageType() == MessageType.ERR) {
+			handleErrorMessage((Message.Err)parsedMessage);
 		}
-		else if(parsedMessage.getMessageType() == MessageBase.MessageType.ACK) {
-			handleAckMessage((MessageAck) parsedMessage);
+		else if(parsedMessage.getMessageType() == MessageType.ACK) {
+			handleAckMessage((Message.Ack) parsedMessage);
 		}
 
 		if(mListener != null) mListener.onMessage(parsedMessage);
 	}
 
 
-	private void handleErrorMessage(MessageErr parsedMessage) {
+	private void handleErrorMessage(Message.Err parsedMessage) {
 
 	}
 
 
-	private void handleAckMessage(MessageAck ackMessage) {
+	private void handleAckMessage(Message.Ack ackMessage) {
 		for(int i = 0; i < mSentMessageList.size(); i++) {
 			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getEventId())) {
 				if(i == mSentMessageList.size()-1) mSentMessageList.clear();
@@ -260,7 +260,7 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void sendHB() {
-		sendMessage(new MessageNop(IdProvider.getNewEventId()));
+		sendMessage(new Message.Nop());
 	}
 
 
@@ -280,7 +280,7 @@ class WebSocketConnection extends WebSocketClient {
 		Logcat.d(mSentMessageList.size()+"");
 
 		long now = new Date().getTime();
-		for(MessageBase msg : mSentMessageList)
+		for(Message msg : mSentMessageList)
 		{
 			if(now - msg.getSentTimestamp() > Config.MESSAGE_TIMEOUT)
 			{

@@ -14,24 +14,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.rapid.converter.RapidJsonConverter;
+
 
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
+	private final RapidJsonConverter mJsonConverter;
 	private String mCollectionName;
-	private Rapid mRapid;
+	private RapidConnection mConnection;
 	private Class<T> mType;
 	private Map<String, Subscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketCollectionConnection(Rapid rapid, String collectionName, Class<T> type) {
+	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type) {
 		mCollectionName = collectionName;
-		mRapid = rapid;
+		mConnection = connection;
+		mJsonConverter = jsonConverter;
 		mType = type;
 	}
 
 
 	@Override
-	public RapidFuture<T> mutate(String id, T value) {
+	public RapidFuture mutate(String id, T value) {
 
 		// TODO
 		for(Field f : mType.getDeclaredFields())
@@ -59,21 +63,15 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			}
 		}
 
-		RapidFuture<T> future = new RapidFuture<>();
-
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
-		mRapid.sendMessage(new MessageMut(IdProvider.getNewEventId(), mCollectionName, toJson(doc))).onSuccess(future::invokeSuccess);
-
-		return future;
+		return mConnection.mutate(mCollectionName, toJson(doc));
 	}
 
 
 	@Override
 	public void subscribe(RapidCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
-		MessageSub subscriptionMsg = subscription.createSubscriptionMessage(subscriptionId);
-		mRapid.onSubscribe(subscription);
-		mRapid.sendMessage(subscriptionMsg);
+		mConnection.subscribe(subscriptionId, subscription);
 		mSubscriptions.put(subscriptionId, subscription);
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 	}
@@ -82,29 +80,27 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void subscribeDocument(RapidDocumentSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
-		MessageSub subscriptionMsg = subscription.createSubscriptionMessage(subscriptionId);
-		mRapid.onSubscribe(subscription);
-		mRapid.sendMessage(subscriptionMsg);
+		mConnection.subscribe(subscriptionId, subscription);
 		mSubscriptions.put(subscriptionId, subscription);
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 	}
 
 
 	@Override
-	public void onValue(MessageVal valMessage) {
-		Subscription<T> subscription = mSubscriptions.get(valMessage.getSubscriptionId());
+	public void onValue(String subscriptionId, String documents) {
+		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription instanceof RapidDocumentSubscription) {
-			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(valMessage.getDocuments()).get(0));
+			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(documents).get(0));
 		} else if(subscription instanceof RapidCollectionSubscription) {
-			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(valMessage.getDocuments()));
+			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents));
 		}
 	}
 
 
 	@Override
-	public void onUpdate(MessageUpd updMessage) {
-		Subscription<T> subscription = mSubscriptions.get(updMessage.getSubscriptionId());
-		subscription.onDocumentUpdated(parseDocument(updMessage.getDocument()));
+	public void onUpdate(String subscriptionId, String document) {
+		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
+		subscription.onDocumentUpdated(parseDocument(document));
 	}
 
 
@@ -122,21 +118,20 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public void resubscribe() {
 		for(Map.Entry<String, Subscription<T>> subscriptionEntry : mSubscriptions.entrySet()) {
 			Subscription<T> subscription = subscriptionEntry.getValue();
-			MessageSub subscriptionMsg = subscription.createSubscriptionMessage(subscriptionEntry.getKey());
-			mRapid.sendMessage(subscriptionMsg);
+			mConnection.subscribe(subscriptionEntry.getKey(), subscription);
 		}
 	}
 
 
 	private void onSubscriptionUnsubscribed(Subscription<T> subscription) {
 		mSubscriptions.remove(subscription);
-		mRapid.onUnsubscribe(subscription);
+		mConnection.onUnsubscribe();
 	}
 
 
 	private String toJson(RapidDocument<T> document) {
 		try {
-			return mRapid.getJsonConverter().toJson(document);
+			return mJsonConverter.toJson(document);
 		} catch(IOException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -161,7 +156,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private RapidDocument<T> parseDocument(String document) {
 		try {
 			JSONObject jsonObject = new JSONObject(document);
-			return RapidDocument.fromJsonObject(jsonObject, mRapid.getJsonConverter(), mType);
+			return RapidDocument.fromJsonObject(jsonObject, mJsonConverter, mType);
 		} catch(IOException | JSONException e) {
 			throw new IllegalArgumentException(e);
 		}
