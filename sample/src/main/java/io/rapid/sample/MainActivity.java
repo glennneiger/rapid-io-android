@@ -17,7 +17,7 @@ import io.rapid.Sorting;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CarItemViewModel.CarItemHandler {
 
 	public static final String COLLECTIONS_CARS = "cars_2";
 	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
 				.orderBy("sentDate", Sorting.DESC)
 				.orderBy("urgency", Sorting.ASC)
 				.subscribe((carCollection) -> {
-					List<Car> cars = new ArrayList<>();
+					List<CarItemViewModel> cars = new ArrayList<>();
 					for(RapidDocument<Car> carRapidDocument : carCollection) {
-						cars.add(carRapidDocument.getBody());
+						cars.add(new CarItemViewModel(carRapidDocument.getId(), carRapidDocument.getBody(), MainActivity.this));
 					}
 					mViewModel.items.update(cars);
 				});
@@ -82,5 +82,11 @@ public class MainActivity extends AppCompatActivity {
 					log("Mutation error");
 					error.printStackTrace();
 				});
+	}
+
+
+	@Override
+	public void onDelete(String carId, Car car) {
+		Rapid.getInstance().collection(COLLECTIONS_CARS, Car.class).document(carId).delete().onSuccess(() -> Log.d("CARS", "Deleted"));
 	}
 }

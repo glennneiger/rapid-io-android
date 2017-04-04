@@ -3,6 +3,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<data>
+		<import type="me.tatarka.bindingcollectionadapter2.LayoutManagers" />
 		<variable
 			name="viewModel" type="io.rapid.sample.MainViewModel" />
 	</data>
@@ -15,7 +16,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
 			android:layout_weight="1"
-			app:layoutManager="LinearLayoutManager"
+			android:padding="4dp"
+			android:clipToPadding="false"
+			app:layoutManager="@{LayoutManagers.grid(3)}"
 			app:itemBinding="@{viewModel.itemBinding}"
 			app:items="@{viewModel.items}" />
 
