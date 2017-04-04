@@ -61,12 +61,12 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	@Override
 	public void onMessage(Message message) {
-		if(message.getMessageType() == Message.MessageType.ACK) {
+		if(message.getMessageType() == MessageType.ACK) {
 			Message.Ack ackMessage = ((Message.Ack) message);
 			RapidFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
 			if(messageFuture != null)
 				messageFuture.invokeSuccess();
-		} else if(message.getMessageType() == Message.MessageType.ERR) {
+		} else if(message.getMessageType() == MessageType.ERR) {
 			switch(((Message.Err) message).getErrorType()) {
 				case CONNECTION_TERMINATED:
 					mOriginalThreadHandler.post(() -> {
@@ -76,10 +76,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					});
 					break;
 			}
-		} else if(message.getMessageType() == Message.MessageType.VAL) {
+		} else if(message.getMessageType() == MessageType.VAL) {
 			Message.Val valMessage = ((Message.Val) message);
 			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
-		} else if(message.getMessageType() == Message.MessageType.UPD) {
+		} else if(message.getMessageType() == MessageType.UPD) {
 			Message.Upd updMessage = ((Message.Upd) message);
 			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
 		}

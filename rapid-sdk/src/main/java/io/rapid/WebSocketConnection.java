@@ -132,7 +132,7 @@ class WebSocketConnection extends WebSocketClient {
 			try {
 				Message parsedMessage = MessageParser.parse(messageJson);
 
-				if(parsedMessage.getMessageType() == Message.MessageType.BATCH) {
+				if(parsedMessage.getMessageType() == MessageType.BATCH) {
 					for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
 						handleNewMessage(message);
 					}
@@ -189,7 +189,7 @@ class WebSocketConnection extends WebSocketClient {
 		if(getConnectionState() == ConnectionState.CONNECTED) {
 			try {
 				message.setSentTimestamp(new Date().getTime());
-				if(message.getMessageType() != Message.MessageType.ACK) mSentMessageList.add(message);
+				if(message.getMessageType() != MessageType.ACK) mSentMessageList.add(message);
 				String json = message.toJson().toString();
 				Logcat.d(json);
 				send(json);
@@ -224,7 +224,7 @@ class WebSocketConnection extends WebSocketClient {
 
 
 	private void sendAckIfNeeded(Message parsedMessage) {
-		if(parsedMessage.getMessageType() == Message.MessageType.VAL || parsedMessage.getMessageType() == Message.MessageType.UPD) {
+		if(parsedMessage.getMessageType() == MessageType.VAL || parsedMessage.getMessageType() == MessageType.UPD) {
 			sendMessage(new Message.Ack(parsedMessage.getEventId()));
 		}
 	}
@@ -233,10 +233,10 @@ class WebSocketConnection extends WebSocketClient {
 	private void handleNewMessage(Message parsedMessage) {
 		sendAckIfNeeded(parsedMessage);
 
-		if(parsedMessage.getMessageType() == Message.MessageType.ERR) {
+		if(parsedMessage.getMessageType() == MessageType.ERR) {
 			handleErrorMessage((Message.Err)parsedMessage);
 		}
-		else if(parsedMessage.getMessageType() == Message.MessageType.ACK) {
+		else if(parsedMessage.getMessageType() == MessageType.ACK) {
 			handleAckMessage((Message.Ack) parsedMessage);
 		}
 

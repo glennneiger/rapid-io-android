@@ -19,7 +19,7 @@ public class MessageJsonTest extends BaseTest {
 
 		Message.Con conMsg = (Message.Con) msg;
 		assertEquals(conMsg.getConnectionId(), "connectionId");
-		assertEquals(conMsg.getMessageType(), Message.MessageType.CON);
+		assertEquals(conMsg.getMessageType(), MessageType.CON);
 		assertEquals(conMsg.getEventId(),"eventId");
 	}
 
@@ -37,7 +37,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Dis);
 
 		Message.Dis disMsg = (Message.Dis) msg;
-		assertEquals(disMsg.getMessageType(), Message.MessageType.DIS);
+		assertEquals(disMsg.getMessageType(), MessageType.DIS);
 		assertEquals(disMsg.getEventId(),"eventId");
 	}
 
@@ -55,7 +55,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Ack);
 
 		Message.Ack ackMsg = (Message.Ack) msg;
-		assertEquals(ackMsg.getMessageType(), Message.MessageType.ACK);
+		assertEquals(ackMsg.getMessageType(), MessageType.ACK);
 		assertEquals(ackMsg.getEventId(),"eventId");
 	}
 
@@ -73,7 +73,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Nop);
 
 		Message.Nop hbMsg = (Message.Nop) msg;
-		assertEquals(hbMsg.getMessageType(), Message.MessageType.NOP);
+		assertEquals(hbMsg.getMessageType(), MessageType.NOP);
 		assertEquals(hbMsg.getEventId(),"eventId");
 	}
 
@@ -91,7 +91,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Mut);
 
 		Message.Mut mutMsg = (Message.Mut) msg;
-		assertEquals(mutMsg.getMessageType(), Message.MessageType.MUT);
+		assertEquals(mutMsg.getMessageType(), MessageType.MUT);
 		assertEquals(mutMsg.getEventId(),"eventId");
 		assertEquals(mutMsg.getCollectionId(),"collection");
 		assertEquals(mutMsg.getDocument(),"{}");
@@ -111,7 +111,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Mer);
 
 		Message.Mer merMsg = (Message.Mer) msg;
-		assertEquals(merMsg.getMessageType(), Message.MessageType.MER);
+		assertEquals(merMsg.getMessageType(), MessageType.MER);
 		assertEquals(merMsg.getEventId(),"eventId");
 		assertEquals(merMsg.getCollectionId(),"collection");
 		assertEquals(merMsg.getDocument(),"{}");
@@ -133,7 +133,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Sub);
 
 		Message.Sub subMsg = (Message.Sub) msg;
-		assertEquals(subMsg.getMessageType(), Message.MessageType.SUB);
+		assertEquals(subMsg.getMessageType(), MessageType.SUB);
 		assertEquals(subMsg.getEventId(),"eventId");
 		assertEquals(subMsg.getCollectionId(),"collection");
 		assertEquals(subMsg.getSubscriptionId(),"subscriptionId");
@@ -171,7 +171,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Uns);
 
 		Message.Uns unsMsg = (Message.Uns) msg;
-		assertEquals(unsMsg.getMessageType(), Message.MessageType.UNS);
+		assertEquals(unsMsg.getMessageType(), MessageType.UNS);
 		assertEquals(unsMsg.getEventId(),"eventId");
 		assertEquals(unsMsg.getSubscriptionId(),"subscriptionId");
 	}
@@ -191,7 +191,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Val);
 
 		Message.Val valMsg = (Message.Val) msg;
-		assertEquals(valMsg.getMessageType(), Message.MessageType.VAL);
+		assertEquals(valMsg.getMessageType(), MessageType.VAL);
 		assertEquals(valMsg.getEventId(),"eventId");
 		assertEquals(valMsg.getSubscriptionId(),"subscriptionId");
 		assertEquals(valMsg.getCollectionId(),"collection");
@@ -205,7 +205,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Upd);
 
 		Message.Upd valMsg = (Message.Upd) msg;
-		assertEquals(valMsg.getMessageType(), Message.MessageType.UPD);
+		assertEquals(valMsg.getMessageType(), MessageType.UPD);
 		assertEquals(valMsg.getEventId(),"eventId");
 		assertEquals(valMsg.getSubscriptionId(),"subscriptionId");
 		assertEquals(valMsg.getCollectionId(),"collection");
@@ -219,12 +219,12 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Batch);
 
 		Message.Batch batchMsg = (Message.Batch) msg;
-		assertEquals(batchMsg.getMessageType(), Message.MessageType.BATCH);
+		assertEquals(batchMsg.getMessageType(), MessageType.BATCH);
 		Message.Ack ackMsg = (Message.Ack) batchMsg.getMessageList().get(0);
-		assertEquals(ackMsg.getMessageType(), Message.MessageType.ACK);
+		assertEquals(ackMsg.getMessageType(), MessageType.ACK);
 		assertEquals(ackMsg.getEventId(),"eventId");
 		Message.Nop hbMsg = (Message.Nop) batchMsg.getMessageList().get(1);
-		assertEquals(hbMsg.getMessageType(), Message.MessageType.NOP);
+		assertEquals(hbMsg.getMessageType(), MessageType.NOP);
 		assertEquals(hbMsg.getEventId(),"eventId");
 	}
 
@@ -245,7 +245,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Err);
 
 		Message.Err errMsg = (Message.Err) msg;
-		assertEquals(errMsg.getMessageType(), Message.MessageType.ERR);
+		assertEquals(errMsg.getMessageType(), MessageType.ERR);
 		assertEquals(errMsg.getEventId(),"eventId");
 		assertEquals(errMsg.getErrorType(), Message.Err.ErrorType.CONNECTION_TERMINATED);
 		assertEquals(errMsg.getErrorMessage(), "Something went wrong");
@@ -266,7 +266,7 @@ public class MessageJsonTest extends BaseTest {
 		assertTrue(msg instanceof Message.Unknown);
 
 		Message.Unknown unknownMsg = (Message.Unknown) msg;
-		assertEquals(unknownMsg.getMessageType(), Message.MessageType.UNKNOWN);
+		assertEquals(unknownMsg.getMessageType(), MessageType.UNKNOWN);
 	}
 
 }

@@ -9,7 +9,7 @@ class MessageParser {
 		JSONObject json = new JSONObject(message);
 		String messageType = json.keys().hasNext() ? json.keys().next() : null;
 
-		switch(Message.MessageType.get(messageType)) {
+		switch(MessageType.get(messageType)) {
 			case ACK:
 				return new Message.Ack(json);
 			case ERR:
