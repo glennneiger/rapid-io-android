@@ -71,6 +71,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void subscribe(RapidCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
+		subscription.setSubscriptionId(subscriptionId);
 		mConnection.subscribe(subscriptionId, subscription);
 		mSubscriptions.put(subscriptionId, subscription);
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
@@ -80,6 +81,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void subscribeDocument(RapidDocumentSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
+		subscription.setSubscriptionId(subscriptionId);
 		mConnection.subscribe(subscriptionId, subscription);
 		mSubscriptions.put(subscriptionId, subscription);
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
@@ -125,7 +127,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	private void onSubscriptionUnsubscribed(Subscription<T> subscription) {
 		mSubscriptions.remove(subscription);
-		mConnection.onUnsubscribe();
+		mConnection.onUnsubscribe(subscription);
 	}
 
 

@@ -33,7 +33,7 @@ abstract class RapidConnection {
 	abstract void subscribe(String subscriptionId, Subscription subscription);
 
 
-	abstract void onUnsubscribe();
+	abstract void onUnsubscribe(Subscription subscription);
 
 
 	public abstract RapidFuture mutate(String collectionName, String documentJson);

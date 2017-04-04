@@ -8,6 +8,7 @@ abstract class Subscription<T> {
 	final Handler mUiThreadHandler;
 	final String mCollectionName;
 	OnUnsubscribeCallback mOnUnsubscribeCallback;
+	private String mSubscriptionId;
 	private boolean mSubscribed = true;
 
 
@@ -41,6 +42,16 @@ abstract class Subscription<T> {
 		mSubscribed = false;
 		if(mOnUnsubscribeCallback != null)
 			mOnUnsubscribeCallback.onUnsubscribe();
+	}
+
+
+	public String getSubscriptionId() {
+		return mSubscriptionId;
+	}
+
+
+	public void setSubscriptionId(String subscriptionId) {
+		mSubscriptionId = subscriptionId;
 	}
 
 
