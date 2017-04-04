@@ -28,16 +28,25 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	@Override
 	void onDocumentUpdated(RapidDocument<T> document) {
-		boolean modified = false;
-		for(int i = 0; i < mDocuments.size(); i++) {
-			if(mDocuments.get(i).getId().equals(document.getId())) {
-				mDocuments.set(i, document);
-				modified = true;
-				break;
+		if (document.getBody()==null){
+			for(RapidDocument<T> doc : mDocuments) {
+				if (doc.getId().equals(document.getId())){
+					mDocuments.remove(doc);
+					break;
+				}
 			}
-		}
-		if(!modified) {
-			mDocuments.add(document);
+		} else {
+			boolean modified = false;
+			for(int i = 0; i < mDocuments.size(); i++) {
+				if(mDocuments.get(i).getId().equals(document.getId())) {
+					mDocuments.set(i, document);
+					modified = true;
+					break;
+				}
+			}
+			if(!modified) {
+				mDocuments.add(document);
+			}
 		}
 		invokeChange();
 	}
