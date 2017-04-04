@@ -35,7 +35,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidFuture<T> mutate(String id, T value) {
+	public RapidFuture mutate(String id, T value) {
 
 		// TODO
 		for(Field f : mType.getDeclaredFields())
@@ -53,12 +53,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			}
 		}
 
-		RapidFuture<T> future = new RapidFuture<>();
-
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
-		mConnection.mutate(mCollectionName, toJson(doc)).onSuccess(future::invokeSuccess);
-
-		return future;
+		return mConnection.mutate(mCollectionName, toJson(doc));
 	}
 
 

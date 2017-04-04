@@ -29,12 +29,12 @@ public class RapidDocumentReference<T> {
 	}
 
 
-	public RapidFuture<T> mutate(T item) {
+	public RapidFuture mutate(T item) {
 		return mImpl.mutate(mId, item);
 	}
 
 
-	public RapidFuture<T> delete() {
+	public RapidFuture delete() {
 		return mImpl.mutate(mId, null);
 	}
 

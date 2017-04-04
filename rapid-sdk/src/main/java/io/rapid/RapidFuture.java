@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-public class RapidFuture<T> {
+public class RapidFuture {
 	private SuccessCallback mSuccessCallback;
 	private boolean mSuccess;
 
@@ -21,13 +21,13 @@ public class RapidFuture<T> {
 	}
 
 
-	public RapidFuture<T> onSuccess(SuccessCallback successCallback) {
+	public RapidFuture onSuccess(SuccessCallback successCallback) {
 		mSuccessCallback = successCallback;
 		return this;
 	}
 
 
-	public RapidFuture<T> onError(ErrorCallback error) {
+	public RapidFuture onError(ErrorCallback error) {
 		return this;
 	}
 

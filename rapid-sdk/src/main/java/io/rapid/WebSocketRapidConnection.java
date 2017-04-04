@@ -21,7 +21,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private final Context mContext;
 	private final Handler mOriginalThreadHandler;
 	private WebSocketConnection mWebSocketConnection;
-	private Map<String, MessageFuture> mPendingMessages = new HashMap<>();
+	private Map<String, RapidFuture> mPendingMessages = new HashMap<>();
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 	private boolean mInternetConnected = true;
 	private String mConnectionId;
@@ -60,14 +60,14 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onMessage(MessageBase message) {
-		if(message.getMessageType() == MessageBase.MessageType.ACK) {
-			MessageAck ackMessage = ((MessageAck) message);
-			MessageFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
+	public void onMessage(Message message) {
+		if(message.getMessageType() == Message.MessageType.ACK) {
+			Message.Ack ackMessage = ((Message.Ack) message);
+			RapidFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
 			if(messageFuture != null)
 				messageFuture.invokeSuccess();
-		} else if(message.getMessageType() == MessageBase.MessageType.ERR) {
-			switch(((MessageErr) message).getErrorType()) {
+		} else if(message.getMessageType() == Message.MessageType.ERR) {
+			switch(((Message.Err) message).getErrorType()) {
 				case CONNECTION_TERMINATED:
 					mOriginalThreadHandler.post(() -> {
 						disconnectFromServer(false);
@@ -76,11 +76,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					});
 					break;
 			}
-		} else if(message.getMessageType() == MessageBase.MessageType.VAL) {
-			MessageVal valMessage = ((MessageVal) message);
+		} else if(message.getMessageType() == Message.MessageType.VAL) {
+			Message.Val valMessage = ((Message.Val) message);
 			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
-		} else if(message.getMessageType() == MessageBase.MessageType.UPD) {
-			MessageUpd updMessage = ((MessageUpd) message);
+		} else if(message.getMessageType() == Message.MessageType.UPD) {
+			Message.Upd updMessage = ((Message.Upd) message);
 			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
 		}
 	}
@@ -135,7 +135,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	@Override
 	void subscribe(String subscriptionId, Subscription subscription) {
-		MessageSub messageSub = new MessageSub(subscription.getCollectionName(), subscriptionId);
+		Message.Sub messageSub = new Message.Sub(subscription.getCollectionName(), subscriptionId);
 		messageSub.setFilter(subscription.getFilter());
 		messageSub.setLimit(subscription.getLimit());
 		messageSub.setOrder(subscription.getOrder());
@@ -162,13 +162,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public MessageFuture mutate(String collectionName, String documentJson) {
-		return sendMessage(new MessageMut(collectionName, documentJson));
+	public RapidFuture mutate(String collectionName, String documentJson) {
+		return sendMessage(new Message.Mut(collectionName, documentJson));
 	}
 
 
-	private MessageFuture sendMessage(MessageBase message) {
-		MessageFuture future = new MessageFuture();
+	private RapidFuture sendMessage(Message message) {
+		RapidFuture future = new RapidFuture();
 		mPendingMessages.put(message.getEventId(), future);
 		mWebSocketConnection.sendMessage(message);
 		return future;
