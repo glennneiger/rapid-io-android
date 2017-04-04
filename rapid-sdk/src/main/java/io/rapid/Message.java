@@ -14,9 +14,6 @@ abstract class Message {
 	private MessageType mMessageType;
 	private String mEventId;
 
-	private Long mSentTimestamp;
-
-
 	public Message(MessageType messageType, JSONObject json) throws JSONException {
 		mMessageType = messageType;
 		fromJson(json);
@@ -59,16 +56,6 @@ abstract class Message {
 
 	public String getEventId() {
 		return mEventId;
-	}
-
-
-	public Long getSentTimestamp() {
-		return mSentTimestamp;
-	}
-
-
-	public void setSentTimestamp(Long sentTimestamp) {
-		mSentTimestamp = sentTimestamp;
 	}
 
 

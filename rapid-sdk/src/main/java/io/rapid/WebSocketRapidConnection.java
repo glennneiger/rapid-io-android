@@ -11,9 +11,7 @@ import android.os.Handler;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 class WebSocketRapidConnection extends RapidConnection implements WebSocketConnection.WebSocketConnectionListener {
@@ -21,7 +19,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private final Context mContext;
 	private final Handler mOriginalThreadHandler;
 	private WebSocketConnection mWebSocketConnection;
-	private Map<String, RapidFuture> mPendingMessages = new HashMap<>();
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 	private boolean mInternetConnected = true;
 	private String mConnectionId;
@@ -61,12 +58,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	@Override
 	public void onMessage(Message message) {
-		if(message.getMessageType() == MessageType.ACK) {
-			Message.Ack ackMessage = ((Message.Ack) message);
-			RapidFuture messageFuture = mPendingMessages.remove(ackMessage.getEventId());
-			if(messageFuture != null)
-				messageFuture.invokeSuccess();
-		} else if(message.getMessageType() == MessageType.ERR) {
+		if(message.getMessageType() == MessageType.ERR) {
 			switch(((Message.Err) message).getErrorType()) {
 				case CONNECTION_TERMINATED:
 					mOriginalThreadHandler.post(() -> {
@@ -170,10 +162,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private RapidFuture sendMessage(Message message) {
-		RapidFuture future = new RapidFuture();
-		mPendingMessages.put(message.getEventId(), future);
-		mWebSocketConnection.sendMessage(message);
-		return future;
+		return mWebSocketConnection.sendMessage(message);
 	}
 
 
