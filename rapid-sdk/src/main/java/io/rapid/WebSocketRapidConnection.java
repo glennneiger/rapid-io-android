@@ -141,7 +141,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		messageSub.setOrder(subscription.getOrder());
 		messageSub.setSkip(subscription.getSkip());
 
-
 		if(mInternetConnected && (mWebSocketConnection == null || mWebSocketConnection.getConnectionState() == ConnectionState.CLOSED)) {
 			createNewWebSocketConnection();
 		}
@@ -153,11 +152,14 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onUnsubscribe() {
+	public void onUnsubscribe(Subscription subscription) {
+		Message.Uns messageUns = new Message.Uns(subscription.getSubscriptionId());
 		mSubscriptionCount--;
-		if(mSubscriptionCount == 0) {
-			disconnectFromServer(true);
-		}
+		sendMessage(messageUns).onCompleted(() -> {
+			if(mSubscriptionCount == 0) {
+				disconnectFromServer(true);
+			}
+		});
 	}
 
 
