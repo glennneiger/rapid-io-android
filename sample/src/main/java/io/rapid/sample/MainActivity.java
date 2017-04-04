@@ -6,13 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionSubscription;
-import io.rapid.RapidDocument;
 import io.rapid.Sorting;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
@@ -50,13 +47,8 @@ public class MainActivity extends AppCompatActivity implements CarItemViewModel.
 				.endOr()
 				.orderBy("sentDate", Sorting.DESC)
 				.orderBy("urgency", Sorting.ASC)
-				.subscribe((carCollection) -> {
-					List<CarItemViewModel> cars = new ArrayList<>();
-					for(RapidDocument<Car> carRapidDocument : carCollection) {
-						cars.add(new CarItemViewModel(carRapidDocument.getId(), carRapidDocument.getBody(), MainActivity.this));
-					}
-					mViewModel.items.update(cars);
-				});
+				.map(document -> new CarItemViewModel(document.getId(), document.getBody(), MainActivity.this))
+				.subscribe(items -> mViewModel.items.update(items));
 	}
 
 

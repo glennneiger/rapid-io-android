@@ -242,6 +242,11 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
+		return new RapidCollectionMapReference<>(this, mapFunction);
+	}
+
+
 	// Operations
 
 
@@ -263,6 +268,16 @@ public class RapidCollectionReference<T> {
 	// Private
 
 
+	CollectionConnection<T> getConnection() {
+		return mConnection;
+	}
+
+
+	RapidCollectionSubscription<T> getSubscription() {
+		return mSubscription;
+	}
+
+
 	boolean isSubscribed() {
 		return mConnection.hasActiveSubscription();
 	}
@@ -278,8 +293,10 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	private void initSubscription() {
+	void initSubscription() {
 		mSubscription = new RapidCollectionSubscription<T>(mCollectionName, mUiThreadHandler);
 		mSubscription.getFilterStack().push(new Filter.And());
 	}
+
+
 }
