@@ -27,7 +27,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	synchronized void onDocumentUpdated(RapidDocument<T> document) {
+	synchronized void onDocumentUpdated(String previousSiblingId, RapidDocument<T> document) {
 		if(document.getBody() == null) {
 			int pos = -1;
 			for(int i = 0; i < mDocuments.size(); i++) {
@@ -37,18 +37,28 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 				}
 			}
 			if(pos != -1) mDocuments.remove(pos);
-		} else {
-			boolean modified = false;
-			for(int i = 0; i < mDocuments.size(); i++) {
-				if(mDocuments.get(i).getId().equals(document.getId())) {
-					mDocuments.set(i, document);
-					modified = true;
-					break;
+		} else
+		{
+			int previousSiblingPosition = -1;
+			int documentPosition = -1;
+			for(int i = 0; i < mDocuments.size(); i++)
+			{
+				if(mDocuments.get(i).getId().equals(previousSiblingId))
+				{
+					previousSiblingPosition = i;
+				}
+				else if(mDocuments.get(i).getId().equals(document.getId()))
+				{
+					documentPosition = i;
 				}
 			}
-			if(!modified) {
-				mDocuments.add(document);
+
+			if(documentPosition != -1)
+			{
+				mDocuments.remove(documentPosition);
+
 			}
+			mDocuments.add(previousSiblingPosition + 1, document);
 		}
 		invokeChange();
 	}

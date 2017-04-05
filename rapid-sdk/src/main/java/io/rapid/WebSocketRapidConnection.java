@@ -73,7 +73,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
 		} else if(message.getMessageType() == MessageType.UPD) {
 			Message.Upd updMessage = ((Message.Upd) message);
-			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
+			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getPreviousSiblingId(), updMessage.getDocument());
 		}
 	}
 

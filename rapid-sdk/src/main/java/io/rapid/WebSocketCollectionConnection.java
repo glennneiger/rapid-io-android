@@ -98,9 +98,9 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void onUpdate(String subscriptionId, String document) {
+	public void onUpdate(String subscriptionId, String previousSiblingId, String document) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
-		subscription.onDocumentUpdated(parseDocument(document));
+		subscription.onDocumentUpdated(previousSiblingId, parseDocument(document));
 	}
 
 

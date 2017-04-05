@@ -35,8 +35,8 @@ public class Rapid {
 
 
 			@Override
-			public void onUpdate(String subscriptionId, String collectionId, String documentJson) {
-				mCollectionProvider.findCollectionByName(collectionId).onUpdate(subscriptionId, documentJson);
+			public void onUpdate(String subscriptionId, String collectionId, String previousSiblingId, String documentJson) {
+				mCollectionProvider.findCollectionByName(collectionId).onUpdate(subscriptionId, previousSiblingId, documentJson);
 			}
 
 

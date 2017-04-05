@@ -18,7 +18,7 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	void onDocumentUpdated(RapidDocument<T> document) {
+	void onDocumentUpdated(String previousSiblingId, RapidDocument<T> document) {
 		mDocument = document;
 		invokeChange();
 	}
