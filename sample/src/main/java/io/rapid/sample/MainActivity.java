@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.UUID;
 
@@ -68,7 +69,9 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	@Override
 	public void onDelete(String id, Todo todo) {
-		mTodos.document(id).delete().onSuccess(() -> log("Deleted"));
+		mTodos.document(id).delete()
+				.onSuccess(() -> log("Deleted"))
+				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
 	}
 
 
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 
 	public void addRandomItem(View view) {
-		addTodo(UUID.randomUUID().toString());
+		addTodo(UUID.randomUUID().toString().substring(0, 12));
 	}
 
 
@@ -103,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	private void addTodo(String title) {
 		Todo todo = new Todo(title);
-		mTodos.newDocument().mutate(todo);
+		mTodos.newDocument().mutate(todo)
+				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
 	}
 }
