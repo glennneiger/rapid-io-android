@@ -257,16 +257,16 @@ class WebSocketConnection extends WebSocketClient {
 	}
 
 
-	private void handleAckMessage(Message.Ack ackMessage) {
+	private synchronized void handleAckMessage(Message.Ack ackMessage) {
 		for(int i = 0; i < mSentMessageList.size(); i++) {
 			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getMessage().getEventId())) {
 				if(i == mSentMessageList.size() - 1) {
-					for(MessageFuture messageFuture : mSentMessageList) {
+					for(int j = 0; j < mSentMessageList.size(); j++) {
+						MessageFuture messageFuture = mSentMessageList.get(j);
 						messageFuture.getRapidFuture().invokeSuccess();
 					}
 					mSentMessageList.clear();
-				}
-				else {
+				} else {
 					for(int j = 0; j <= i; j++) {
 						mSentMessageList.get(j).getRapidFuture().invokeSuccess();
 					}
