@@ -29,7 +29,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void onUpdate(String subscriptionId, String document) {
+	public void onUpdate(String subscriptionId, String previousSiblingId, String document) {
 
 	}
 

@@ -203,13 +203,14 @@ public class MessageJsonTest extends BaseTest {
 	@Test
 	public void test_json2modelUpd() throws Exception {
 		Message msg = MessageParser.parse("{\"upd\": {\"evt-id\": \"eventId\", \"sub-id\":\"subscriptionId\", \"col-id\":\"collection\", " +
-				"\"doc\": {}}}");
+				"\"psib-id\":\"previousSiblingId\", \"doc\": {}}}");
 		assertTrue(msg instanceof Message.Upd);
 
 		Message.Upd valMsg = (Message.Upd) msg;
 		assertEquals(valMsg.getMessageType(), MessageType.UPD);
 		assertEquals(valMsg.getEventId(),"eventId");
 		assertEquals(valMsg.getSubscriptionId(),"subscriptionId");
+		assertEquals(valMsg.getPreviousSiblingId(),"previousSiblingId");
 		assertEquals(valMsg.getCollectionId(),"collection");
 	}
 
