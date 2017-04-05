@@ -18,6 +18,7 @@ import static io.rapid.ConnectionState.CLOSED;
 import static io.rapid.ConnectionState.CONNECTED;
 import static io.rapid.ConnectionState.CONNECTING;
 import static io.rapid.ConnectionState.DISCONNECTED;
+import static io.rapid.ConnectionState.OFFLINE;
 
 
 /**
@@ -151,11 +152,12 @@ class WebSocketConnection extends WebSocketClient {
 	public void onClose(int code, String reason, boolean remote) {
 		Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
 
-		changeConnectionState(CLOSED);
+		CloseReasonEnum reasonEnum = CloseReasonEnum.get(code);
+		changeConnectionState(reasonEnum == CloseReasonEnum.INTERNET_CONNECTION_LOST || reasonEnum == CloseReasonEnum.NO_INTERNET_CONNECTION ?
+				OFFLINE : CLOSED);
 		stopHB();
 		stopMessageTimeout();
 
-		CloseReasonEnum reasonEnum = CloseReasonEnum.get(code);
 		if(mListener != null) mListener.onClose(reasonEnum);
 	}
 
