@@ -288,8 +288,8 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	void onUpdate(String subscriptionId, String documents) {
-		mConnection.onUpdate(subscriptionId, documents);
+	void onUpdate(String subscriptionId, String previousSiblingId, String documents) {
+		mConnection.onUpdate(subscriptionId, previousSiblingId, documents);
 	}
 
 

@@ -8,7 +8,7 @@ abstract class RapidConnection {
 
 	interface Callback {
 		void onValue(String subscriptionId, String collectionId, String documentsJson);
-		void onUpdate(String subscriptionId, String collectionId, String documentJson);
+		void onUpdate(String subscriptionId, String collectionId, String previousSiblingId, String documentJson);
 		void onReconnected();
 	}
 
