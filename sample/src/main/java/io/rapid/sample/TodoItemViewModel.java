@@ -31,8 +31,10 @@ public class TodoItemViewModel {
 
 
 	public void onCheckedChanged(boolean checked) {
-		mTodo.setChecked(checked);
-		mHandler.onChange(mId, mTodo);
+		if(mTodo.isChecked() != checked) {
+			mTodo.setChecked(checked);
+			mHandler.onChange(mId, mTodo);
+		}
 	}
 
 
