@@ -2,6 +2,9 @@ package io.rapid;
 
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.Handler;
 
 import com.google.gson.Gson;
@@ -58,7 +61,7 @@ public class Rapid {
 
 	public static Rapid getInstance() {
 		if(sInstances.isEmpty())
-			throw new IllegalStateException("Rapid SDK not initialized. Please call Rapid.initialize(apiKey) first.");
+			throw new IllegalStateException("Rapid SDK not initialized. Please call Rapid.initialize(apiKey) first or add API key to AndroidManifest.xml.");
 		else if(sInstances.size() > 1) {
 			throw new IllegalStateException("Multiple Rapid instances initialized. Please use Rapid.getInstance(apiKey) to select the one you need.");
 		} else {
@@ -68,6 +71,7 @@ public class Rapid {
 
 
 	public static void initialize(String apiKey) {
+		Logcat.d("Initializing Rapid.io with API key: %s", apiKey);
 		if(!sInstances.containsKey(apiKey))
 			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey));
 	}
@@ -115,5 +119,20 @@ public class Rapid {
 
 	static void injectContext(Context context) {
 		sApplicationContext = context.getApplicationContext();
+
+		// try to auto-init from AndroidManifest metadata
+		try {
+			ApplicationInfo app = sApplicationContext.getPackageManager().getApplicationInfo(sApplicationContext.getPackageName(), PackageManager.GET_META_DATA);
+			Bundle metaData = app.metaData;
+			if(metaData != null) {
+				String apiKey = metaData.getString(Config.API_KEY_METADATA);
+				if(apiKey != null) {
+					initialize(apiKey);
+				}
+			}
+
+		} catch(PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 }

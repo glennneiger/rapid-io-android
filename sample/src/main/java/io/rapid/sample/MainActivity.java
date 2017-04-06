@@ -21,7 +21,6 @@ import io.rapid.sample.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
-	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
@@ -39,9 +38,6 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		mViewModel = new MainViewModel();
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 		mBinding.setViewModel(mViewModel);
-
-		Rapid.initialize(RAPID_API_KEY);
-
 		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
 
 		mTodos = Rapid.getInstance().collection("todos_xyz", Todo.class);

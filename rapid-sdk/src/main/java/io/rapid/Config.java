@@ -14,4 +14,5 @@ class Config {
 	public static final String ID_IDENTIFIER = "$id";
 	public static final int MESSAGE_TIMEOUT = 30 * 1000;
 	public static final long HB_PERIOD = 10 * DateUtils.SECOND_IN_MILLIS;
+	public static final String API_KEY_METADATA = "io.rapid.apikey";
 }
