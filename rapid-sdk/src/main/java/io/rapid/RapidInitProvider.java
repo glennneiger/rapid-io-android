@@ -15,7 +15,7 @@ public class RapidInitProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		Context context = getContext();
-		Rapid.autoInitialize(context);
+		Rapid.injectContext(context);
 		return false;
 	}
 

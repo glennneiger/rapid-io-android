@@ -113,7 +113,7 @@ public class Rapid {
 	}
 
 
-	static void autoInitialize(Context context) {
+	static void injectContext(Context context) {
 		sApplicationContext = context.getApplicationContext();
 	}
 }
