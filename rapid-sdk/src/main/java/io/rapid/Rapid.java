@@ -1,7 +1,6 @@
 package io.rapid;
 
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 
@@ -16,6 +15,7 @@ import io.rapid.converter.RapidJsonConverter;
 
 public class Rapid {
 	private static Map<String, Rapid> sInstances = new HashMap<>();
+	private static Context sApplicationContext;
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
 	private Handler mHandler;
@@ -51,7 +51,7 @@ public class Rapid {
 
 	public static Rapid getInstance(String apiKey) {
 		if(!sInstances.containsKey(apiKey))
-			throw new IllegalStateException("Rapid SDK not initialized. Please call Rapid.initialize(apiKey) first.");
+			initialize(apiKey);
 		return sInstances.get(apiKey);
 	}
 
@@ -67,9 +67,9 @@ public class Rapid {
 	}
 
 
-	public static void initialize(Application context, String apiKey) {
+	public static void initialize(String apiKey) {
 		if(!sInstances.containsKey(apiKey))
-			sInstances.put(apiKey, new Rapid(context, apiKey));
+			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey));
 	}
 
 
@@ -110,5 +110,10 @@ public class Rapid {
 
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
+	}
+
+
+	static void autoInitialize(Context context) {
+		sApplicationContext = context.getApplicationContext();
 	}
 }
