@@ -1,7 +1,11 @@
 package io.rapid.sample;
 
 
-public class Todo {
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
+
+
+public class Todo extends BaseObservable {
 	private String mTitle;
 	private boolean mChecked;
 
@@ -26,6 +30,7 @@ public class Todo {
 	}
 
 
+	@Bindable
 	public boolean isChecked() {
 		return mChecked;
 	}
@@ -33,5 +38,6 @@ public class Todo {
 
 	public void setChecked(boolean checked) {
 		mChecked = checked;
+		notifyPropertyChanged(BR.checked);
 	}
 }

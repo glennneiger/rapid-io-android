@@ -1,6 +1,11 @@
 package io.rapid.sample;
 
 
+import android.databinding.BindingAdapter;
+import android.graphics.Paint;
+import android.widget.TextView;
+
+
 public class TodoItemViewModel {
 	private final String mId;
 	private Todo mTodo;
@@ -17,6 +22,15 @@ public class TodoItemViewModel {
 		mId = id;
 		mTodo = todo;
 		mHandler = handler;
+	}
+
+
+	@BindingAdapter("strikethrough")
+	public static void setStrikeThrough(TextView textView, boolean strikethrough) {
+		if(strikethrough)
+			textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+		else
+			textView.setPaintFlags(textView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 	}
 
 

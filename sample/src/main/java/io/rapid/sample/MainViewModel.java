@@ -16,7 +16,7 @@ public class MainViewModel {
 
 		@Override
 		public boolean areContentsTheSame(TodoItemViewModel oldItem, TodoItemViewModel newItem) {
-			return false;
+			return oldItem.getTodo().equals(newItem.getTodo());
 		}
 	});
 }

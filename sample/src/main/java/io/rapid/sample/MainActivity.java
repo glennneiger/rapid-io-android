@@ -2,12 +2,10 @@ package io.rapid.sample;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.UUID;
@@ -38,6 +36,16 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		mViewModel = new MainViewModel();
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 		mBinding.setViewModel(mViewModel);
+		mBinding.newTodoTitle.setOnEditorActionListener((v, actionId, event) -> {
+			if(actionId == EditorInfo.IME_ACTION_DONE) {
+				String text = mBinding.newTodoTitle.getText().toString();
+				if(!text.isEmpty())
+					addTodo(text);
+				mBinding.newTodoTitle.setText("");
+				return true;
+			}
+			return false;
+		});
 		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
 
 		mTodos = Rapid.getInstance().collection("todos_xyz", Todo.class);
@@ -79,24 +87,6 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	public void addRandomItem(View view) {
 		addTodo(UUID.randomUUID().toString().substring(0, 12));
-	}
-
-
-	public void addItem(View view) {
-		final EditText input = new EditText(this);
-		input.setHint(R.string.add_hint);
-		input.setInputType(EditorInfo.TYPE_TEXT_FLAG_CAP_WORDS);
-
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.add_title)
-				.setView(input)
-				.setPositiveButton(R.string.add, (dialog, whichButton) -> {
-					String title = input.getText().toString();
-					addTodo(title);
-				})
-				.setNegativeButton(R.string.cancel, (dialog, whichButton) -> {
-				})
-				.show();
 	}
 
 
