@@ -59,7 +59,10 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 				.orderBy("sentDate", Sorting.DESC)
 				.orderBy("urgency", Sorting.ASC)
 				.map(document -> new TodoItemViewModel(document.getId(), document.getBody(), MainActivity.this))
-				.subscribe(items -> mViewModel.items.update(items));
+				.subscribeWithListUpdates((items, listUpdate) -> {
+					log(listUpdate.toString());
+					mViewModel.items.update(items);
+				});
 	}
 
 
