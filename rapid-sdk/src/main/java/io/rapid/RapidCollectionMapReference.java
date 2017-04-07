@@ -21,8 +21,13 @@ public class RapidCollectionMapReference<T, S> {
 	}
 
 
-	public interface Callback<T> {
+	public interface MapCollectionCallback<T> {
 		void onValueChanged(List<T> items);
+	}
+
+
+	public interface MapCollectionUpdatesCallback<T> {
+		void onValueChanged(List<T> items, ListUpdate listUpdate);
 	}
 
 
@@ -32,14 +37,19 @@ public class RapidCollectionMapReference<T, S> {
 	}
 
 
-	public RapidCollectionSubscription subscribe(Callback<S> callback) {
+	public RapidCollectionSubscription subscribe(MapCollectionCallback<S> callback) {
+		return subscribeWithListUpdates((items, listUpdate) -> callback.onValueChanged(items));
+	}
+
+
+	public RapidCollectionSubscription subscribeWithListUpdates(MapCollectionUpdatesCallback<S> callback) {
 		RapidCollectionSubscription<T> subscription = mCollectionReference.getSubscription();
-		subscription.setCallback(rapidDocuments -> {
+		subscription.setCallback((rapidDocuments, listUpdate) -> {
 			List<S> result = new ArrayList<>();
 			for(RapidDocument<T> rapidDocument : rapidDocuments) {
 				result.add(mMapFunction.map(rapidDocument));
 			}
-			callback.onValueChanged(result);
+			callback.onValueChanged(result, listUpdate);
 		});
 		mCollectionReference.getConnection().subscribe(subscription);
 

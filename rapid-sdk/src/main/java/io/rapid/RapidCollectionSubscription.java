@@ -18,8 +18,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	private int mSkip = 0;
 	private EntityOrder mOrder;
 
-	private RapidCollectionCallback<T> mCallback;
-
+	private RapidCollectionUpdatesCallback<T> mCallback;
 
 	RapidCollectionSubscription(String collectionName, Handler uiThreadHandler) {
 		super(collectionName, uiThreadHandler);
@@ -28,6 +27,9 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	@Override
 	synchronized void onDocumentUpdated(String previousSiblingId, RapidDocument<T> document) {
+
+		ListUpdate listUpdate = null;
+
 		if(document.getBody() == null) {
 			int pos = -1;
 			for(int i = 0; i < mDocuments.size(); i++) {
@@ -36,31 +38,30 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 					break;
 				}
 			}
-			if(pos != -1) mDocuments.remove(pos);
-		} else
-		{
+			if(pos != -1) {
+				mDocuments.remove(pos);
+				listUpdate = new ListUpdate(ListUpdate.Type.REMOVED, pos, ListUpdate.NO_POSITION);
+			}
+		} else {
 			int previousSiblingPosition = -1;
 			int documentPosition = -1;
-			for(int i = 0; i < mDocuments.size(); i++)
-			{
-				if(mDocuments.get(i).getId().equals(previousSiblingId))
-				{
+			for(int i = 0; i < mDocuments.size(); i++) {
+				if(mDocuments.get(i).getId().equals(previousSiblingId)) {
 					previousSiblingPosition = i;
-				}
-				else if(mDocuments.get(i).getId().equals(document.getId()))
-				{
+				} else if(mDocuments.get(i).getId().equals(document.getId())) {
 					documentPosition = i;
 				}
 			}
 
-			if(documentPosition != -1)
-			{
+			if(documentPosition != -1) {
 				mDocuments.remove(documentPosition);
-
+				listUpdate = new ListUpdate(documentPosition == previousSiblingPosition + 1 ? ListUpdate.Type.UPDATED : ListUpdate.Type.MOVED, documentPosition, previousSiblingPosition + 1);
+			} else {
+				listUpdate = new ListUpdate(ListUpdate.Type.ADDED, ListUpdate.NO_POSITION, previousSiblingPosition + 1);
 			}
 			mDocuments.add(previousSiblingPosition + 1, document);
 		}
-		invokeChange();
+		invokeChange(listUpdate);
 	}
 
 
@@ -109,11 +110,11 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	synchronized void setDocuments(List<RapidDocument<T>> rapidDocuments) {
 		mDocuments = rapidDocuments;
-		invokeChange();
+		invokeChange(new ListUpdate(ListUpdate.Type.NEW_LIST, ListUpdate.NO_POSITION, ListUpdate.NO_POSITION));
 	}
 
 
-	void setCallback(RapidCollectionCallback<T> callback) {
+	void setCallback(RapidCollectionUpdatesCallback<T> callback) {
 		mCallback = callback;
 	}
 
@@ -128,10 +129,10 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	private synchronized void invokeChange() {
+	private synchronized void invokeChange(ListUpdate listUpdate) {
 		mUiThreadHandler.post(() -> {
 			synchronized(mCallback){
-				mCallback.onValueChanged(mDocuments);
+				mCallback.onValueChanged(mDocuments, listUpdate);
 			}
 		});
 	}
