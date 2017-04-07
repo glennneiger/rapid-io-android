@@ -15,5 +15,6 @@ class Config {
 	public static final long CONNECTION_TIMEOUT = 30 * DateUtils.SECOND_IN_MILLIS;
 	public static final long MESSAGE_TIMEOUT = 30 * DateUtils.SECOND_IN_MILLIS;
 	public static final long HB_PERIOD = 10 * DateUtils.SECOND_IN_MILLIS;
+	public static final int CHECKER_HANDLER_PERIOD = 10 * 1000;
 	public static final String API_KEY_METADATA = "io.rapid.apikey";
 }
