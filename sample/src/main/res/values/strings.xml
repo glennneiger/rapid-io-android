@@ -6,4 +6,6 @@
 	<string name="add_hint">What to do?</string>
 	<string name="add_random">Add Random</string>
 	<string name="error_network">Network error</string>
+	<string name="disconnected">Disconnected</string>
+	<string name="connecting">Connecting</string>
 </resources>

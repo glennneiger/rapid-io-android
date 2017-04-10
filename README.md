@@ -29,6 +29,15 @@ compile 'io.rapid:rapidsdk:0.0.0'
 
 ## Usage
 
+### Initialization
+```java
+Rapid.initialize("<API_KEY>");
+```
+or add this to your AndroidManifest.xml file
+```xml
+<meta-data android:name="io.rapid.apikey" android:value="<API_KEY>" />
+```
+
 ## Changelog
 
 ## Credits

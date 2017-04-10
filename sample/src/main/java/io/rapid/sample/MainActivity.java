@@ -46,7 +46,11 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			}
 			return false;
 		});
-		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
+
+		Rapid.getInstance().addConnectionStateListener(state -> {
+			mViewModel.connectionState.set(state);
+			log(state.toString());
+		});
 
 		mTodos = Rapid.getInstance().collection("todos_xyz", Todo.class);
 
