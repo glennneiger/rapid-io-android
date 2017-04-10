@@ -39,7 +39,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 		// TODO
 
-		if(Index.Cache.getInstance().get(mType.getName()) == null)
+		if(IndexCache.getInstance().get(mType.getName()) == null)
 		{
 			List<String> indexList = new ArrayList<>();
 			for(Field f : mType.getDeclaredFields())
@@ -58,7 +58,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					Logcat.d(indexList.get(indexList.size()-1));
 				}
 			}
-			Index.Cache.getInstance().put(mType.getName(), indexList);
+			IndexCache.getInstance().put(mType.getName(), indexList);
 		}
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);

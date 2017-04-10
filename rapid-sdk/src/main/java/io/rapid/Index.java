@@ -19,25 +19,4 @@ public @interface Index {
 	String value() default "";
 
 
-	class Cache {
-		private static Cache sInstance;
-		Map<String, List<String>> mCache = new HashMap<>();
-
-
-		public static Cache getInstance() {
-			if(sInstance == null)
-				sInstance = new Cache();
-			return sInstance;
-		}
-
-
-		public void put(String className, List<String> indexList) {
-			mCache.put(className, indexList);
-		}
-
-
-		public List<String> get(String className) {
-			return mCache.get(className);
-		}
-	}
 }
