@@ -3,7 +3,7 @@ package io.rapid;
 
 public class RapidFuture {
 	private SuccessCallback mSuccessCallback;
-	private ErrorCallback mErrorCallback;
+	private RapidCallback.Error mErrorCallback;
 	private CompleteCallback mCompletedCallback;
 	private boolean mSuccess;
 	private boolean mCompleted;
@@ -35,7 +35,7 @@ public class RapidFuture {
 	}
 
 
-	public RapidFuture onError(ErrorCallback errorCallback) {
+	public RapidFuture onError(RapidCallback.Error errorCallback) {
 		mErrorCallback = errorCallback;
 		mCompleted = true;
 		return this;

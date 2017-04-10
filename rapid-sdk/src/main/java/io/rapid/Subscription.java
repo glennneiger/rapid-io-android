@@ -60,7 +60,7 @@ abstract class Subscription<T> {
 	}
 
 
-	public Subscription onError(ErrorCallback callback) {
+	public Subscription onError(RapidCallback.Error callback) {
 		return this;
 	}
 

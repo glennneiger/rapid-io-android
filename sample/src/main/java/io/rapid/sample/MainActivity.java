@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		super.onCreate(savedInstanceState);
 		mViewModel = new MainViewModel();
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+		setSupportActionBar(mBinding.toolbar);
 		mBinding.setViewModel(mViewModel);
 		mBinding.newTodoTitle.setOnEditorActionListener((v, actionId, event) -> {
 			if(actionId == EditorInfo.IME_ACTION_DONE) {
@@ -46,7 +47,11 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			}
 			return false;
 		});
-		Rapid.getInstance().addConnectionStateListener(state -> log(state.toString()));
+
+		Rapid.getInstance().addConnectionStateListener(state -> {
+			mViewModel.connectionState.set(state);
+			log(state.toString());
+		});
 
 		mTodos = Rapid.getInstance().collection("todos_xyz", Todo.class);
 

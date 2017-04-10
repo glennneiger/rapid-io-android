@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 
-public class RapidInitProvider extends ContentProvider {
+class RapidInitProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		Context context = getContext();

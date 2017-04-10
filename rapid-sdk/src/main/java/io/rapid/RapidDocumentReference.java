@@ -39,7 +39,7 @@ public class RapidDocumentReference<T> {
 	}
 
 
-	public void subscribe(RapidDocumentCallback<T> callback) {
+	public void subscribe(RapidCallback.Document<T> callback) {
 		mSubscription.setCallback(callback);
 		mImpl.subscribeDocument(mSubscription);
 	}

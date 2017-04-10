@@ -232,12 +232,12 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	public RapidCollectionSubscription subscribe(RapidCollectionCallback<T> callback) {
+	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback) {
 		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 	}
 
 
-	public RapidCollectionSubscription subscribeWithListUpdates(RapidCollectionUpdatesCallback<T> callback) {
+	public RapidCollectionSubscription subscribeWithListUpdates(RapidCallback.CollectionUpdates<T> callback) {
 		mSubscription.setCallback(callback);
 		mConnection.subscribe(mSubscription);
 
