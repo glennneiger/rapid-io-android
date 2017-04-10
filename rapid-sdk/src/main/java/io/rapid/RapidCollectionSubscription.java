@@ -18,7 +18,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	private int mSkip = 0;
 	private EntityOrder mOrder;
 
-	private RapidCollectionUpdatesCallback<T> mCallback;
+	private RapidCallback.CollectionUpdates<T> mCallback;
 
 	RapidCollectionSubscription(String collectionName, Handler uiThreadHandler) {
 		super(collectionName, uiThreadHandler);
@@ -114,7 +114,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	void setCallback(RapidCollectionUpdatesCallback<T> callback) {
+	void setCallback(RapidCallback.CollectionUpdates<T> callback) {
 		mCallback = callback;
 	}
 

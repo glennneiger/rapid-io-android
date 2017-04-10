@@ -21,11 +21,6 @@ public class RapidCollectionMapReference<T, S> {
 	}
 
 
-	public interface MapCollectionCallback<T> {
-		void onValueChanged(List<T> items);
-	}
-
-
 	public interface MapCollectionUpdatesCallback<T> {
 		void onValueChanged(List<T> items, ListUpdate listUpdate);
 	}
@@ -37,7 +32,7 @@ public class RapidCollectionMapReference<T, S> {
 	}
 
 
-	public RapidCollectionSubscription subscribe(MapCollectionCallback<S> callback) {
+	public RapidCollectionSubscription subscribe(RapidCallback.CollectionMapped<S> callback) {
 		return subscribeWithListUpdates((items, listUpdate) -> callback.onValueChanged(items));
 	}
 

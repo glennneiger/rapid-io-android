@@ -6,7 +6,7 @@ import android.os.Handler;
 
 public class RapidDocumentSubscription<T> extends Subscription<T> {
 
-	private RapidDocumentCallback<T> mCallback;
+	private RapidCallback.Document<T> mCallback;
 	private String mId;
 	private RapidDocument<T> mDocument;
 
@@ -59,7 +59,7 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 	}
 
 
-	void setCallback(RapidDocumentCallback<T> callback) {
+	void setCallback(RapidCallback.Document<T> callback) {
 		mCallback = callback;
 	}
 
