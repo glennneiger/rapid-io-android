@@ -35,6 +35,18 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
+	public void onError(String subscriptionId, RapidError error) {
+		
+	}
+
+
+	@Override
+	public void onTimedOut() {
+
+	}
+
+
+	@Override
 	public boolean hasActiveSubscription() {
 		return false;
 	}
