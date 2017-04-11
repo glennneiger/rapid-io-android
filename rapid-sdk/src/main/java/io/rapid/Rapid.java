@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Base64;
 
 import com.google.gson.Gson;
 
@@ -30,7 +31,8 @@ public class Rapid {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
 		mHandler = new Handler();
-		mRapidConnection = new WebSocketRapidConnection(context, mHandler, new RapidConnection.Callback() {
+		String url = "ws://" + new String(Base64.decode(mApiKey, Base64.DEFAULT));
+		mRapidConnection = new WebSocketRapidConnection(context, url, new RapidConnection.Callback() {
 			@Override
 			public void onValue(String subscriptionId, String collectionId, String documentsJson) {
 				mCollectionProvider.findCollectionByName(collectionId).onValue(subscriptionId, documentsJson);
@@ -61,7 +63,7 @@ public class Rapid {
 			public void onReconnected() {
 				mCollectionProvider.resubscribeAll();
 			}
-		});
+		}, mHandler);
 		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mHandler);
 	}
 

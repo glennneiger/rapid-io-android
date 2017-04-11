@@ -24,6 +24,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private final Context mContext;
 	private final Handler mOriginalThreadHandler;
+	private final String mUrl;
 	private WebSocketConnection mWebSocketConnection;
 	private boolean mInternetConnected = true;
 	private long mInternetLossTimestamp = -1;
@@ -59,9 +60,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	};
 
 
-	public WebSocketRapidConnection(Context context, Handler originalThreadHandler, Callback rapidConnectionCallback) {
+	public WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler) {
 		super(rapidConnectionCallback);
 		mContext = context;
+		mUrl = url;
 		mOriginalThreadHandler = originalThreadHandler;
 	}
 
@@ -231,7 +233,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private void createNewWebSocketConnection() {
 		if(mSubscriptionCount > 0) {
-			mWebSocketConnection = new WebSocketConnection(URI.create(Config.URI), this);
+			mWebSocketConnection = new WebSocketConnection(URI.create(mUrl), this);
 			mWebSocketConnection.connectToServer();
 		}
 	}
