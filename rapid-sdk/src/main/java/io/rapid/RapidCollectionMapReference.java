@@ -47,6 +47,7 @@ public class RapidCollectionMapReference<T, S> {
 			callback.onValueChanged(result, listUpdate);
 		});
 		mCollectionReference.getConnection().subscribe(subscription);
+		mCollectionReference.initSubscription();
 
 		return subscription;
 	}
