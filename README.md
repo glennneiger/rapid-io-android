@@ -38,6 +38,9 @@ or add this to your AndroidManifest.xml file
 <meta-data android:name="io.rapid.apikey" android:value="<API_KEY>" />
 ```
 
+### API Reference
+[JavaDoc](https://rapid-sdk.github.io/android/)
+
 ## Changelog
 
 ## Credits
