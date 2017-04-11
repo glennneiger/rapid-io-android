@@ -4,6 +4,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		setSupportActionBar(mBinding.toolbar);
 		mBinding.setViewModel(mViewModel);
 		mBinding.newTodoTitle.setOnEditorActionListener((v, actionId, event) -> {
-			if(actionId == EditorInfo.IME_ACTION_DONE) {
+			if(actionId == EditorInfo.IME_ACTION_DONE || event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 				String text = mBinding.newTodoTitle.getText().toString();
 				if(!text.isEmpty())
 					addTodo(text);

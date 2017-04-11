@@ -1,26 +1,26 @@
 package io.rapid;
 
 
-import me.nimavat.shortid.ShortId;
+import java.util.UUID;
 
 
 class IdProvider {
 	public static String getNewEventId() {
-		return ShortId.generate();
+		return UUID.randomUUID().toString();
 	}
 
 
 	public static String getNewSubscriptionId() {
-		return ShortId.generate();
+		return UUID.randomUUID().toString();
 	}
 
 
 	static String getNewDocumentId() {
-		return ShortId.generate();
+		return UUID.randomUUID().toString();
 	}
 
 
 	static String getConnectionId() {
-		return ShortId.generate();
+		return UUID.randomUUID().toString();
 	}
 }

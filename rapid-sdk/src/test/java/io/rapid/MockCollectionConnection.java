@@ -36,7 +36,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onError(String subscriptionId, RapidError error) {
-		
+
 	}
 
 
