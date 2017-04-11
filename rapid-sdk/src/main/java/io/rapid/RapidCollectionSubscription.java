@@ -72,6 +72,14 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
+	public RapidCollectionSubscription onError(RapidCallback.Error callback)
+	{
+		mErrorCallback = callback;
+		return this;
+	}
+
+
+	@Override
 	int getSkip() {
 		return mSkip;
 	}

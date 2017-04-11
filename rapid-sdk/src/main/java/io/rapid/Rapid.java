@@ -44,6 +44,20 @@ public class Rapid {
 
 
 			@Override
+			public void onError(String subscriptionId, String collectionId, RapidError error)
+			{
+				mCollectionProvider.findCollectionByName(collectionId).onError(subscriptionId, error);
+			}
+
+
+			@Override
+			public void onTimedOut()
+			{
+				mCollectionProvider.timedOutAll();
+			}
+
+
+			@Override
 			public void onReconnected() {
 				mCollectionProvider.resubscribeAll();
 			}

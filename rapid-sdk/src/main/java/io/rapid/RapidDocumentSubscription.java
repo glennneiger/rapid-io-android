@@ -48,6 +48,14 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 	}
 
 
+	@Override
+	public RapidDocumentSubscription onError(RapidCallback.Error callback)
+	{
+		mErrorCallback = callback;
+		return this;
+	}
+
+
 	public String getId() {
 		return mId;
 	}

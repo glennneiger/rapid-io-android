@@ -47,4 +47,13 @@ class CollectionProvider {
 			}
 		}
 	}
+
+
+	void timedOutAll() {
+		for(RapidCollectionReference rapidCollectionReference : getCollections().values()) {
+			if(rapidCollectionReference.isSubscribed()) {
+				rapidCollectionReference.onTimedOut();
+			}
+		}
+	}
 }

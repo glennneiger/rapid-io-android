@@ -11,7 +11,6 @@ import android.os.Handler;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static io.rapid.Config.CHECKER_HANDLER_PERIOD;
@@ -121,7 +120,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			registerInternetConnectionBroadcast();
 		}
 		changeConnectionState(CLOSED);
-		startCheckHandler();
+
+		if(reason != CloseReasonEnum.CLOSED_MANUALLY) startCheckHandler();
 	}
 
 
@@ -159,7 +159,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	@Override
 	void subscribe(String subscriptionId, Subscription subscription) {
-		Logcat.d(subscription.getSubscriptionId());
 		Message.Sub messageSub = new Message.Sub(subscription.getCollectionName(), subscriptionId);
 		messageSub.setFilter(subscription.getFilter());
 		messageSub.setLimit(subscription.getLimit());
@@ -170,7 +169,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(mInternetConnected && (mWebSocketConnection == null || getConnectionState() == CLOSED)) {
 			createNewWebSocketConnection();
 		}
-		sendMessage(messageSub);
+		RapidFuture future = sendMessage(messageSub);
+		future.onError(error -> mCallback.onError(subscriptionId, subscription.getCollectionName(), error));
 	}
 
 
@@ -192,6 +192,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		sendMessage(messageUns).onCompleted(() -> {
 			if(mSubscriptionCount == 0) {
 				disconnectFromServer(true);
+				stopCheckHandler();
 			}
 		});
 	}
@@ -319,6 +320,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(System.currentTimeMillis() - mLastCommunicationTimestamp >= HB_PERIOD)
 			sendHB();
 
+		checkConnectionTimeout();
 		checkMessageTimeout();
 	}
 
@@ -332,22 +334,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		Logcat.d("Pending list: " + mPendingMessageList.size());
 		Logcat.d("Sent list: " + mSentMessageList.size());
 
-		long now = new Date().getTime();
+		long now = System.currentTimeMillis();
 
-		if(!mInternetConnected && now - mInternetLossTimestamp > Config.CONNECTION_TIMEOUT) {
-			for(MessageFuture mf : mSentMessageList) {
-				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
-			}
-			for(MessageFuture mf : mPendingMessageList) {
-				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
-			}
-			mSentMessageList.clear();
-			mPendingMessageList.clear();
-			mConnectionId = null;
-			mSubscriptionCount = 0;
-			stopCheckHandler();
-		}
-
+		// message timeout
 		for(int i = mSentMessageList.size() - 1; i >= 0; i--)
 		{
 			if(now - mSentMessageList.get(0).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
@@ -367,6 +356,27 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				future.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
 			}
+		}
+	}
+
+
+	private void checkConnectionTimeout() {
+		long now = System.currentTimeMillis();
+
+		// connection timeout
+		if(!mInternetConnected && now - mInternetLossTimestamp > Config.CONNECTION_TIMEOUT) {
+			for(MessageFuture mf : mSentMessageList) {
+				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
+			}
+			for(MessageFuture mf : mPendingMessageList) {
+				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
+			}
+			mSentMessageList.clear();
+			mPendingMessageList.clear();
+			mConnectionId = null;
+			mSubscriptionCount = 0;
+			stopCheckHandler();
+			mCallback.onTimedOut();
 		}
 	}
 }

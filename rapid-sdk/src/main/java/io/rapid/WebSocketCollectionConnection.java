@@ -105,6 +105,23 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
+	public void onError(String subscriptionId, RapidError error)
+	{
+		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
+		subscription.invokeError(error);
+	}
+
+
+	@Override
+	public void onTimedOut()
+	{
+		for(Subscription<T> subscription : mSubscriptions.values()) {
+			subscription.invokeError(new RapidError(RapidError.TIMEOUT));
+		}
+	}
+
+
+	@Override
 	public boolean hasActiveSubscription() {
 		for(Subscription<T> subscription : mSubscriptions.values()) {
 			if(subscription.isSubscribed())

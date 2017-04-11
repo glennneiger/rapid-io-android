@@ -7,6 +7,8 @@ interface CollectionConnection<T> {
 	void subscribeDocument(RapidDocumentSubscription<T> subscription);
 	void onValue(String subscriptionId, String documents);
 	void onUpdate(String subscriptionId, String previousSiblingId, String document);
+	void onError(String subscriptionId, RapidError error);
+	void onTimedOut();
 	boolean hasActiveSubscription();
 	void resubscribe();
 }

@@ -37,7 +37,6 @@ public class RapidFuture {
 
 	public RapidFuture onError(RapidCallback.Error errorCallback) {
 		mErrorCallback = errorCallback;
-		mCompleted = true;
 		return this;
 	}
 

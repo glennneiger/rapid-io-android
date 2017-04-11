@@ -298,6 +298,16 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	void onError(String subscriptionId, RapidError error) {
+		mConnection.onError(subscriptionId, error);
+	}
+
+
+	void onTimedOut() {
+		mConnection.onTimedOut();
+	}
+
+
 	void initSubscription() {
 		mSubscription = new RapidCollectionSubscription<T>(mCollectionName, mUiThreadHandler);
 		mSubscription.getFilterStack().push(new Filter.And());

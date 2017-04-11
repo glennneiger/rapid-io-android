@@ -67,7 +67,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 				.subscribeWithListUpdates((items, listUpdate) -> {
 					log(listUpdate.toString());
 					mViewModel.items.update(items);
-				});
+				})
+				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
 	}
 
 

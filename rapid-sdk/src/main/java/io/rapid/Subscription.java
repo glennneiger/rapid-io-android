@@ -9,7 +9,8 @@ abstract class Subscription<T> {
 	final String mCollectionName;
 	OnUnsubscribeCallback mOnUnsubscribeCallback;
 	private String mSubscriptionId;
-	private boolean mSubscribed = true;
+	boolean mSubscribed = true;
+	RapidCallback.Error mErrorCallback;
 
 
 	interface OnUnsubscribeCallback {
@@ -38,10 +39,15 @@ abstract class Subscription<T> {
 	abstract EntityOrder getOrder();
 
 
+	public abstract Subscription onError(RapidCallback.Error callback);
+
+
 	public void unsubscribe() {
-		mSubscribed = false;
-		if(mOnUnsubscribeCallback != null)
-			mOnUnsubscribeCallback.onUnsubscribe();
+		if(mSubscribed) {
+			mSubscribed = false;
+			if(mOnUnsubscribeCallback != null)
+				mOnUnsubscribeCallback.onUnsubscribe();
+		}
 	}
 
 
@@ -60,12 +66,21 @@ abstract class Subscription<T> {
 	}
 
 
-	public Subscription onError(RapidCallback.Error callback) {
-		return this;
+	public String getCollectionName() {
+		return mCollectionName;
 	}
 
 
-	public String getCollectionName() {
-		return mCollectionName;
+	synchronized void invokeError(RapidError error) {
+		if(mErrorCallback != null && mSubscribed)
+		{
+			mSubscribed = false;
+
+			mUiThreadHandler.post(() -> {
+				synchronized(mErrorCallback){
+					mErrorCallback.onError(error);
+				}
+			});
+		}
 	}
 }
