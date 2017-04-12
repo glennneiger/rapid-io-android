@@ -173,39 +173,40 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 		// try to update cache
 		try {
-			JSONObject updatedDoc = new JSONObject(document);
-			String updatedDocId = updatedDoc.getString(RapidDocument.KEY_ID);
-			String updatedDocBody = updatedDoc.getString(RapidDocument.KEY_BODY);
-
 			String jsonDocs = mSubscriptionCache.get(subscription);
-			ModifiableJSONArray currentItems = new ModifiableJSONArray(jsonDocs);
+			if(jsonDocs != null) {
+				JSONObject updatedDoc = new JSONObject(document);
+				String updatedDocId = updatedDoc.getString(RapidDocument.KEY_ID);
 
-			if(updatedDocBody == null) {
-				for(int i = 0; i < currentItems.length(); i++) {
-					String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
-					if(docId.equals(updatedDocId)) {
-						currentItems = ModifiableJSONArray.removeItem(currentItems, i);
-						break;
+				ModifiableJSONArray currentItems = new ModifiableJSONArray(jsonDocs);
+
+				if(!updatedDoc.has(RapidDocument.KEY_BODY)) {
+					for(int i = 0; i < currentItems.length(); i++) {
+						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
+						if(docId.equals(updatedDocId)) {
+							currentItems = ModifiableJSONArray.removeItem(currentItems, i);
+							break;
+						}
 					}
-				}
-			} else {
-				int previousSiblingPosition = -1;
-				int documentPosition = -1;
-				for(int i = 0; i < currentItems.length(); i++) {
-					String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
-					if(docId.equals(previousSiblingId)) {
-						previousSiblingPosition = i;
-					} else if(docId.equals(updatedDocId)) {
-						documentPosition = i;
+				} else {
+					int previousSiblingPosition = -1;
+					int documentPosition = -1;
+					for(int i = 0; i < currentItems.length(); i++) {
+						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
+						if(docId.equals(previousSiblingId)) {
+							previousSiblingPosition = i;
+						} else if(docId.equals(updatedDocId)) {
+							documentPosition = i;
+						}
 					}
+					if(documentPosition != -1) {
+						currentItems = ModifiableJSONArray.removeItem(currentItems, documentPosition);
+					}
+					currentItems.add(previousSiblingPosition + 1, updatedDoc);
 				}
-				if(documentPosition != -1) {
-					currentItems = ModifiableJSONArray.removeItem(currentItems, documentPosition);
-				}
-				currentItems.add(previousSiblingPosition + 1, updatedDoc);
+
+				mSubscriptionCache.put(subscription, currentItems.toString());
 			}
-
-			mSubscriptionCache.put(subscription, currentItems.toString());
 
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
 			Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
