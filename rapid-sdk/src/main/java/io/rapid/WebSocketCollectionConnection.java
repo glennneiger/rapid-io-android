@@ -90,6 +90,15 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		mConnection.subscribe(subscriptionId, subscription);
 		mSubscriptions.put(subscriptionId, subscription);
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
+
+		// try to read from cache
+		try {
+			String jsonDoc = mSubscriptionCache.get(subscription);
+			if(jsonDoc != null)
+				onValue(subscriptionId, jsonDoc, true);
+		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -100,14 +109,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(documents).get(0));
 		} else if(subscription instanceof RapidCollectionSubscription) {
 			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents), fromCache);
+		}
 
-			// try to put value to cache
-			if(!fromCache) {
-				try {
-					mSubscriptionCache.put(((RapidCollectionSubscription) subscription), documents);
-				} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-					e.printStackTrace();
-				}
+		// try to put value to cache
+		if(!fromCache) {
+			try {
+				mSubscriptionCache.put(subscription, documents);
+			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -126,7 +135,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				String updatedDocId = updatedDoc.getString(RapidDocument.KEY_ID);
 				String updatedDocBody = updatedDoc.getString(RapidDocument.KEY_BODY);
 
-				String jsonDocs = mSubscriptionCache.get(((RapidCollectionSubscription) subscription));
+				String jsonDocs = mSubscriptionCache.get(subscription);
 				ModifiableJSONArray currentItems = new ModifiableJSONArray(jsonDocs);
 
 				if(updatedDocBody == null) {
@@ -142,7 +151,6 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					int documentPosition = -1;
 					for(int i = 0; i < currentItems.length(); i++) {
 						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
-						String body = currentItems.getJSONObject(i).getString(RapidDocument.KEY_BODY);
 						if(docId.equals(previousSiblingId)) {
 							previousSiblingPosition = i;
 						} else if(docId.equals(updatedDocId)) {
@@ -155,14 +163,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					currentItems.add(previousSiblingPosition + 1, updatedDoc);
 				}
 
-				mSubscriptionCache.put(((RapidCollectionSubscription) subscription), currentItems.toString());
+				mSubscriptionCache.put(subscription, currentItems.toString());
 
 			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
 				Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
 				e.printStackTrace();
 				// unable to update data in cache - cache inconsistent -> clear it
 				try {
-					mSubscriptionCache.remove(((RapidCollectionSubscription) subscription));
+					mSubscriptionCache.remove(subscription);
 				} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
 					e1.printStackTrace();
 				}

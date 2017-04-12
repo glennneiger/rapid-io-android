@@ -25,7 +25,7 @@ public class SubscriptionCache {
 	}
 
 
-	public static String getSubscriptionFingerprint(RapidCollectionSubscription subscription) throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
+	public static String getSubscriptionFingerprint(Subscription subscription) throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
 		StringBuilder subscriptionString = new StringBuilder();
 		subscriptionString.append(subscription.getCollectionName());
 		subscriptionString.append("#");
@@ -43,7 +43,7 @@ public class SubscriptionCache {
 	}
 
 
-	public String get(RapidCollectionSubscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+	public String get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		String fingerprint = getSubscriptionFingerprint(subscription);
 		DiskLruCache.Snapshot record = mCache.get(fingerprint);
 		if(record != null) {
@@ -56,7 +56,7 @@ public class SubscriptionCache {
 	}
 
 
-	public void put(RapidCollectionSubscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
+	public void put(Subscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
 		String fingerprint = getSubscriptionFingerprint(subscription);
 		DiskLruCache.Editor editor = mCache.edit(fingerprint);
 		editor.set(DEFAULT_INDEX, jsonValue);
@@ -70,7 +70,7 @@ public class SubscriptionCache {
 	}
 
 
-	public void remove(RapidCollectionSubscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	public void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		String fingerprint = getSubscriptionFingerprint(subscription);
 		mCache.remove(fingerprint);
 		Logcat.d("Removing from subscription cache. key=%s", fingerprint);
