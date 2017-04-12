@@ -131,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			mToggleMenu.setTitle(R.string.unsubscribe);
 			mToggleMenu.setIcon(icon);
 		}
-
 		mSubscription = mTodos
 				.equalTo("receiver", "carl01")
 				.beginOr()

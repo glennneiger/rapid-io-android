@@ -71,8 +71,17 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 		// send subscribe message only if there is no other subscription with same filter
 		try {
-			if(getSubscriptionsWithFingerprint(subscription.getFingerprint()).isEmpty())
+			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+			if(identicalSubscriptions.isEmpty())
 				mConnection.subscribe(subscriptionId, subscription);
+			else {
+				// update the subscription with already existing data
+				if(subscription instanceof RapidCollectionSubscription) {
+					((RapidCollectionSubscription) subscription).setDocuments(((RapidCollectionSubscription) identicalSubscriptions.get(0)).getDocuments(), true);
+				} else if(subscription instanceof RapidDocumentSubscription) {
+					((RapidDocumentSubscription) subscription).setDocument(((RapidDocumentSubscription) identicalSubscriptions.get(0)).getDocument());
+				}
+			}
 		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			mConnection.subscribe(subscriptionId, subscription);
