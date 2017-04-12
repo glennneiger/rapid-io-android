@@ -68,7 +68,7 @@ public class Rapid {
 
 		SubscriptionCache subscriptionCache;
 		try {
-			subscriptionCache = new SubscriptionCache(context, mApiKey, Config.CACHE_SIZE_MB);
+			subscriptionCache = new SubscriptionCache(context, mApiKey, Config.CACHE_DEFAULT_SIZE_MB);
 		} catch(IOException e) {
 			e.printStackTrace();
 			throw new IllegalStateException("Subscription cache could not be initialized");
@@ -160,5 +160,15 @@ public class Rapid {
 
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
+	}
+
+
+	public void setCachingEnabled(boolean cachingEnabled) {
+		mCollectionProvider.getSubscriptionCache().setEnabled(cachingEnabled);
+	}
+
+
+	public void setCacheSize(int cacheSizeInMb) {
+		mCollectionProvider.getSubscriptionCache().setMaxSize(cacheSizeInMb);
 	}
 }

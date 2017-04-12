@@ -12,10 +12,11 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 
-public class SubscriptionCache {
+class SubscriptionCache {
 
 	private static final int DEFAULT_INDEX = 0;
 	private DiskLruCache mCache;
+	private boolean mEnabled;
 
 
 	public SubscriptionCache(Context context, String apiKey, int maxSizeInMb) throws IOException {
@@ -24,9 +25,14 @@ public class SubscriptionCache {
 	}
 
 
+	public void setMaxSize(int maxSizeInMb) {
+		mCache.setMaxSize(maxSizeInMb * 1_000_000);
+	}
 
 
 	public String get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+		if(!mEnabled)
+			return null;
 		String fingerprint = subscription.getFingerprint();
 		DiskLruCache.Snapshot record = mCache.get(fingerprint);
 		if(record != null) {
@@ -40,6 +46,8 @@ public class SubscriptionCache {
 
 
 	public void put(Subscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
+		if(!mEnabled)
+			return;
 		String fingerprint = subscription.getFingerprint();
 		DiskLruCache.Editor editor = mCache.edit(fingerprint);
 		editor.set(DEFAULT_INDEX, jsonValue);
@@ -54,8 +62,15 @@ public class SubscriptionCache {
 
 
 	public void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+		if(!mEnabled)
+			return;
 		String fingerprint = subscription.getFingerprint();
 		mCache.remove(fingerprint);
 		Logcat.d("Removing from subscription cache. key=%s", fingerprint);
+	}
+
+
+	public void setEnabled(boolean cachingEnabled) {
+		mEnabled = cachingEnabled;
 	}
 }

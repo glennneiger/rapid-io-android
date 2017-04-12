@@ -25,6 +25,11 @@ class CollectionProvider {
 	}
 
 
+	public SubscriptionCache getSubscriptionCache() {
+		return mSubscriptionCache;
+	}
+
+
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollections.containsKey(collectionName))
 			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionCache), collectionName, mOriginalThreadHandler));
