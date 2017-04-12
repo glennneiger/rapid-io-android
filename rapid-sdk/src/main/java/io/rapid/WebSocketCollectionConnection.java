@@ -245,7 +245,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	private void onSubscriptionUnsubscribed(Subscription<T> subscription) {
-		mSubscriptions.remove(subscription);
+		mSubscriptions.remove(subscription.getSubscriptionId());
 		mConnection.onUnsubscribe(subscription);
 	}
 
