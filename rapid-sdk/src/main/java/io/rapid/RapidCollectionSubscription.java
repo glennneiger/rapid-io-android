@@ -87,6 +87,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	void setSkip(int skip) {
 		mSkip = skip;
+		invalidateFingerprintCache();
 	}
 
 
@@ -98,6 +99,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	void setLimit(int limit) {
 		mLimit = limit;
+		invalidateFingerprintCache();
 	}
 
 
@@ -113,6 +115,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	void orderBy(String property, Sorting sorting) {
 		if(mOrder == null) mOrder = new EntityOrder();
 		mOrder.putOrder(property, sorting);
+		invalidateFingerprintCache();
 	}
 
 
@@ -128,12 +131,8 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	Stack<Filter.Group> getFilterStack() {
+		invalidateFingerprintCache();
 		return mFilterStack;
-	}
-
-
-	void setOnUnsubscribeCallback(OnUnsubscribeCallback callback) {
-		mOnUnsubscribeCallback = callback;
 	}
 
 

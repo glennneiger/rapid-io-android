@@ -41,6 +41,6 @@ public class RapidDocumentReference<T> {
 
 	public void subscribe(RapidCallback.Document<T> callback) {
 		mSubscription.setCallback(callback);
-		mImpl.subscribeDocument(mSubscription);
+		mImpl.subscribe(mSubscription);
 	}
 }

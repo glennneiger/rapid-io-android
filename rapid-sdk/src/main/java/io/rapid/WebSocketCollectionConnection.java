@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -42,7 +43,6 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public RapidFuture mutate(String id, T value) {
 
 		// TODO
-
 		if(IndexCache.getInstance().get(mType.getName()) == null) {
 			List<String> indexList = new ArrayList<>();
 			for(Field f : mType.getDeclaredFields()) {
@@ -65,12 +65,24 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void subscribe(RapidCollectionSubscription<T> subscription) {
+	public void subscribe(Subscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);
-		mConnection.subscribe(subscriptionId, subscription);
+
+		// send subscribe message only if there is no other subscription with same filter
+		try {
+			if(getSubscriptionsWithFingerprint(subscription.getFingerprint()).isEmpty())
+				mConnection.subscribe(subscriptionId, subscription);
+		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			mConnection.subscribe(subscriptionId, subscription);
+		}
+
 		mSubscriptions.put(subscriptionId, subscription);
-		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
+		if(subscription instanceof RapidCollectionSubscription)
+			((RapidCollectionSubscription) subscription).setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
+		else if(subscription instanceof RapidDocumentSubscription)
+			((RapidDocumentSubscription) subscription).setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 
 		// try to read from cache
 		try {
@@ -84,31 +96,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void subscribeDocument(RapidDocumentSubscription<T> subscription) {
-		String subscriptionId = IdProvider.getNewSubscriptionId();
-		subscription.setSubscriptionId(subscriptionId);
-		mConnection.subscribe(subscriptionId, subscription);
-		mSubscriptions.put(subscriptionId, subscription);
-		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
-
-		// try to read from cache
-		try {
-			String jsonDoc = mSubscriptionCache.get(subscription);
-			if(jsonDoc != null)
-				onValue(subscriptionId, jsonDoc, true);
-		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	@Override
 	public void onValue(String subscriptionId, String documents, boolean fromCache) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
-		if(subscription instanceof RapidDocumentSubscription) {
-			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(documents).get(0));
-		} else if(subscription instanceof RapidCollectionSubscription) {
-			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents), fromCache);
+		try {
+			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+			for(Subscription s : identicalSubscriptions) {
+				applyValueToSubscription(s, documents, fromCache);
+			}
+		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			applyValueToSubscription(subscription, documents, fromCache);
 		}
 
 		// try to put value to cache
@@ -125,56 +122,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public synchronized void onUpdate(String subscriptionId, String previousSiblingId, String document) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
-		subscription.onDocumentUpdated(previousSiblingId, parseDocument(document));
-
-		// try to update cache
-		if(subscription instanceof RapidCollectionSubscription) {
-			try {
-
-				JSONObject updatedDoc = new JSONObject(document);
-				String updatedDocId = updatedDoc.getString(RapidDocument.KEY_ID);
-				String updatedDocBody = updatedDoc.getString(RapidDocument.KEY_BODY);
-
-				String jsonDocs = mSubscriptionCache.get(subscription);
-				ModifiableJSONArray currentItems = new ModifiableJSONArray(jsonDocs);
-
-				if(updatedDocBody == null) {
-					for(int i = 0; i < currentItems.length(); i++) {
-						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
-						if(docId.equals(updatedDocId)) {
-							currentItems = ModifiableJSONArray.removeItem(currentItems, i);
-							break;
-						}
-					}
-				} else {
-					int previousSiblingPosition = -1;
-					int documentPosition = -1;
-					for(int i = 0; i < currentItems.length(); i++) {
-						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
-						if(docId.equals(previousSiblingId)) {
-							previousSiblingPosition = i;
-						} else if(docId.equals(updatedDocId)) {
-							documentPosition = i;
-						}
-					}
-					if(documentPosition != -1) {
-						currentItems = ModifiableJSONArray.removeItem(currentItems, documentPosition);
-					}
-					currentItems.add(previousSiblingPosition + 1, updatedDoc);
-				}
-
-				mSubscriptionCache.put(subscription, currentItems.toString());
-
-			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-				Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
-				e.printStackTrace();
-				// unable to update data in cache - cache inconsistent -> clear it
-				try {
-					mSubscriptionCache.remove(subscription);
-				} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
-					e1.printStackTrace();
-				}
+		try {
+			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+			for(Subscription<T> s : identicalSubscriptions) {
+				applyUpdateToSubscription(previousSiblingId, document, s);
 			}
+		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			applyUpdateToSubscription(previousSiblingId, document, subscription);
 		}
 	}
 
@@ -210,6 +165,81 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			Subscription<T> subscription = subscriptionEntry.getValue();
 			mConnection.subscribe(subscriptionEntry.getKey(), subscription);
 		}
+	}
+
+
+	private void applyUpdateToSubscription(String previousSiblingId, String document, Subscription<T> subscription) {
+		subscription.onDocumentUpdated(previousSiblingId, parseDocument(document));
+
+		// try to update cache
+		try {
+			JSONObject updatedDoc = new JSONObject(document);
+			String updatedDocId = updatedDoc.getString(RapidDocument.KEY_ID);
+			String updatedDocBody = updatedDoc.getString(RapidDocument.KEY_BODY);
+
+			String jsonDocs = mSubscriptionCache.get(subscription);
+			ModifiableJSONArray currentItems = new ModifiableJSONArray(jsonDocs);
+
+			if(updatedDocBody == null) {
+				for(int i = 0; i < currentItems.length(); i++) {
+					String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
+					if(docId.equals(updatedDocId)) {
+						currentItems = ModifiableJSONArray.removeItem(currentItems, i);
+						break;
+					}
+				}
+			} else {
+				int previousSiblingPosition = -1;
+				int documentPosition = -1;
+				for(int i = 0; i < currentItems.length(); i++) {
+					String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
+					if(docId.equals(previousSiblingId)) {
+						previousSiblingPosition = i;
+					} else if(docId.equals(updatedDocId)) {
+						documentPosition = i;
+					}
+				}
+				if(documentPosition != -1) {
+					currentItems = ModifiableJSONArray.removeItem(currentItems, documentPosition);
+				}
+				currentItems.add(previousSiblingPosition + 1, updatedDoc);
+			}
+
+			mSubscriptionCache.put(subscription, currentItems.toString());
+
+		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+			Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
+			e.printStackTrace();
+			// unable to update data in cache - cache inconsistent -> clear it
+			try {
+				mSubscriptionCache.remove(subscription);
+			} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+
+	private void applyValueToSubscription(Subscription subscription, String documents, boolean fromCache) {
+		if(subscription instanceof RapidDocumentSubscription) {
+			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(documents).get(0));
+		} else if(subscription instanceof RapidCollectionSubscription) {
+			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents), fromCache);
+		}
+	}
+
+
+	private List<Subscription<T>> getSubscriptionsWithFingerprint(String fingerprint) {
+		ArrayList<Subscription<T>> list = new ArrayList<>();
+		for(Subscription<T> s : mSubscriptions.values()) {
+			try {
+				if(s.getFingerprint().equals(fingerprint))
+					list.add(s);
+			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
 	}
 
 

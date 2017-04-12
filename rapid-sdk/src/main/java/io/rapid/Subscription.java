@@ -3,14 +3,20 @@ package io.rapid;
 
 import android.os.Handler;
 
+import org.json.JSONException;
+
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+
 
 abstract class Subscription<T> {
 	final Handler mUiThreadHandler;
 	final String mCollectionName;
 	OnUnsubscribeCallback mOnUnsubscribeCallback;
-	private String mSubscriptionId;
 	boolean mSubscribed = true;
 	RapidCallback.Error mErrorCallback;
+	private String mSubscriptionId;
+	private String mFingerprintCache;
 
 
 	interface OnUnsubscribeCallback {
@@ -71,16 +77,46 @@ abstract class Subscription<T> {
 	}
 
 
+	public String getFingerprint() throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
+		if (mFingerprintCache==null) {
+			long startMs = System.currentTimeMillis();
+			StringBuilder subscriptionString = new StringBuilder();
+			subscriptionString.append(getCollectionName());
+			subscriptionString.append("#");
+			subscriptionString.append(getFilter().toJson());
+			subscriptionString.append("#");
+			subscriptionString.append(getLimit());
+			subscriptionString.append("#");
+			subscriptionString.append(getOrder().toJson());
+			subscriptionString.append("#");
+			subscriptionString.append(getSkip());
+			String input = subscriptionString.toString();
+			String hash = Sha1Utility.sha1(input);
+			Logcat.i("Subscription hash calculation: %s : %s; Took %dms", input, hash, System.currentTimeMillis() - startMs);
+			mFingerprintCache = hash;
+		}
+		return mFingerprintCache;
+	}
+
+
 	synchronized void invokeError(RapidError error) {
-		if(mErrorCallback != null && mSubscribed)
-		{
+		if(mErrorCallback != null && mSubscribed) {
 			mSubscribed = false;
 
 			mUiThreadHandler.post(() -> {
-				synchronized(mErrorCallback){
+				synchronized(mErrorCallback) {
 					mErrorCallback.onError(error);
 				}
 			});
 		}
+	}
+
+	protected void invalidateFingerprintCache(){
+		mFingerprintCache = null;
+	}
+
+
+	void setOnUnsubscribeCallback(OnUnsubscribeCallback callback) {
+		mOnUnsubscribeCallback = callback;
 	}
 }
