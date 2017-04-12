@@ -9,28 +9,32 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.rapid.converter.RapidJsonConverter;
+import io.rapid.utility.ModifiableJSONArray;
 
 
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	private final RapidJsonConverter mJsonConverter;
+	private final SubscriptionCache mSubscriptionCache;
 	private String mCollectionName;
 	private RapidConnection mConnection;
 	private Class<T> mType;
 	private Map<String, Subscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type) {
+	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type, SubscriptionCache subscriptionCache) {
 		mCollectionName = collectionName;
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mType = type;
+		mSubscriptionCache = subscriptionCache;
 	}
 
 
@@ -39,23 +43,17 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 		// TODO
 
-		if(IndexCache.getInstance().get(mType.getName()) == null)
-		{
+		if(IndexCache.getInstance().get(mType.getName()) == null) {
 			List<String> indexList = new ArrayList<>();
-			for(Field f : mType.getDeclaredFields())
-			{
-				if(f.isAnnotationPresent(Index.class))
-				{
-					if(f.isAnnotationPresent(SerializedName.class))
-					{
+			for(Field f : mType.getDeclaredFields()) {
+				if(f.isAnnotationPresent(Index.class)) {
+					if(f.isAnnotationPresent(SerializedName.class)) {
 						indexList.add(f.getAnnotation(SerializedName.class).value());
-					}
-					else
-					{
+					} else {
 						String indexName = f.getAnnotation(Index.class).value();
 						indexList.add(indexName.isEmpty() ? f.getName() : indexName);
 					}
-					Logcat.d(indexList.get(indexList.size()-1));
+					Logcat.d(indexList.get(indexList.size() - 1));
 				}
 			}
 			IndexCache.getInstance().put(mType.getName(), indexList);
@@ -73,6 +71,15 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		mConnection.subscribe(subscriptionId, subscription);
 		mSubscriptions.put(subscriptionId, subscription);
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
+
+		// try to read from cache
+		try {
+			String jsonDocs = mSubscriptionCache.get(subscription);
+			if(jsonDocs != null)
+				onValue(subscriptionId, jsonDocs, true);
+		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -87,34 +94,92 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void onValue(String subscriptionId, String documents) {
+	public void onValue(String subscriptionId, String documents, boolean fromCache) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription instanceof RapidDocumentSubscription) {
 			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(documents).get(0));
 		} else if(subscription instanceof RapidCollectionSubscription) {
-			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents));
+			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents), fromCache);
+
+			// try to put value to cache
+			if(!fromCache) {
+				try {
+					mSubscriptionCache.put(((RapidCollectionSubscription) subscription), documents);
+				} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
 
 	@Override
-	public void onUpdate(String subscriptionId, String previousSiblingId, String document) {
+	public synchronized void onUpdate(String subscriptionId, String previousSiblingId, String document) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		subscription.onDocumentUpdated(previousSiblingId, parseDocument(document));
+
+		// try to update cache
+		if(subscription instanceof RapidCollectionSubscription) {
+			try {
+
+				JSONObject updatedDoc = new JSONObject(document);
+				String updatedDocId = updatedDoc.getString(RapidDocument.KEY_ID);
+				String updatedDocBody = updatedDoc.getString(RapidDocument.KEY_BODY);
+
+				String jsonDocs = mSubscriptionCache.get(((RapidCollectionSubscription) subscription));
+				ModifiableJSONArray currentItems = new ModifiableJSONArray(jsonDocs);
+
+				if(updatedDocBody == null) {
+					for(int i = 0; i < currentItems.length(); i++) {
+						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
+						if(docId.equals(updatedDocId)) {
+							currentItems = ModifiableJSONArray.removeItem(currentItems, i);
+							break;
+						}
+					}
+				} else {
+					int previousSiblingPosition = -1;
+					int documentPosition = -1;
+					for(int i = 0; i < currentItems.length(); i++) {
+						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
+						String body = currentItems.getJSONObject(i).getString(RapidDocument.KEY_BODY);
+						if(docId.equals(previousSiblingId)) {
+							previousSiblingPosition = i;
+						} else if(docId.equals(updatedDocId)) {
+							documentPosition = i;
+						}
+					}
+					if(documentPosition != -1) {
+						currentItems = ModifiableJSONArray.removeItem(currentItems, documentPosition);
+					}
+					currentItems.add(previousSiblingPosition + 1, updatedDoc);
+				}
+
+				mSubscriptionCache.put(((RapidCollectionSubscription) subscription), currentItems.toString());
+
+			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+				Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
+				e.printStackTrace();
+				// unable to update data in cache - cache inconsistent -> clear it
+				try {
+					mSubscriptionCache.remove(((RapidCollectionSubscription) subscription));
+				} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 
 
 	@Override
-	public void onError(String subscriptionId, RapidError error)
-	{
+	public void onError(String subscriptionId, RapidError error) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		subscription.invokeError(error);
 	}
 
 
 	@Override
-	public void onTimedOut()
-	{
+	public void onTimedOut() {
 		for(Subscription<T> subscription : mSubscriptions.values()) {
 			subscription.invokeError(new RapidError(RapidError.TIMEOUT));
 		}

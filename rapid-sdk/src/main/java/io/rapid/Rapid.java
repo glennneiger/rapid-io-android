@@ -10,6 +10,7 @@ import android.util.Base64;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +32,9 @@ public class Rapid {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter(new Gson());
 		mHandler = new Handler();
+
 		String url = "ws://" + new String(Base64.decode(mApiKey, Base64.DEFAULT));
+
 		mRapidConnection = new WebSocketRapidConnection(context, url, new RapidConnection.Callback() {
 			@Override
 			public void onValue(String subscriptionId, String collectionId, String documentsJson) {
@@ -46,15 +49,13 @@ public class Rapid {
 
 
 			@Override
-			public void onError(String subscriptionId, String collectionId, RapidError error)
-			{
+			public void onError(String subscriptionId, String collectionId, RapidError error) {
 				mCollectionProvider.findCollectionByName(collectionId).onError(subscriptionId, error);
 			}
 
 
 			@Override
-			public void onTimedOut()
-			{
+			public void onTimedOut() {
 				mCollectionProvider.timedOutAll();
 			}
 
@@ -64,7 +65,16 @@ public class Rapid {
 				mCollectionProvider.resubscribeAll();
 			}
 		}, mHandler);
-		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mHandler);
+
+		SubscriptionCache subscriptionCache;
+		try {
+			subscriptionCache = new SubscriptionCache(context, mApiKey, Config.CACHE_SIZE_MB);
+		} catch(IOException e) {
+			e.printStackTrace();
+			throw new IllegalStateException("Subscription cache could not be initialized");
+		}
+
+		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mHandler, subscriptionCache);
 	}
 
 
@@ -90,6 +100,26 @@ public class Rapid {
 		Logcat.d("Initializing Rapid.io with API key: %s", apiKey);
 		if(!sInstances.containsKey(apiKey))
 			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey));
+	}
+
+
+	static void injectContext(Context context) {
+		sApplicationContext = context.getApplicationContext();
+
+		// try to auto-init from AndroidManifest metadata
+		try {
+			ApplicationInfo app = sApplicationContext.getPackageManager().getApplicationInfo(sApplicationContext.getPackageName(), PackageManager.GET_META_DATA);
+			Bundle metaData = app.metaData;
+			if(metaData != null) {
+				String apiKey = metaData.getString(Config.API_KEY_METADATA);
+				if(apiKey != null) {
+					initialize(apiKey);
+				}
+			}
+
+		} catch(PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -130,25 +160,5 @@ public class Rapid {
 
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
-	}
-
-
-	static void injectContext(Context context) {
-		sApplicationContext = context.getApplicationContext();
-
-		// try to auto-init from AndroidManifest metadata
-		try {
-			ApplicationInfo app = sApplicationContext.getPackageManager().getApplicationInfo(sApplicationContext.getPackageName(), PackageManager.GET_META_DATA);
-			Bundle metaData = app.metaData;
-			if(metaData != null) {
-				String apiKey = metaData.getString(Config.API_KEY_METADATA);
-				if(apiKey != null) {
-					initialize(apiKey);
-				}
-			}
-
-		} catch(PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
-		}
 	}
 }

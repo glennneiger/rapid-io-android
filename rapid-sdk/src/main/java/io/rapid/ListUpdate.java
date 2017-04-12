@@ -12,7 +12,7 @@ public class ListUpdate {
 
 
 	public enum Type {
-		ADDED, MOVED, NEW_LIST, REMOVED, UPDATED
+		ADDED, MOVED, NEW_LIST, REMOVED, NEW_LIST_FROM_CACHE, UPDATED
 	}
 
 
@@ -31,6 +31,8 @@ public class ListUpdate {
 			return String.format("Item moved from position %d to position %d", mOldPosition, mNewPosition);
 		if(mType == Type.NEW_LIST)
 			return "List was refreshed completely";
+		if(mType == Type.NEW_LIST_FROM_CACHE)
+			return "List was refreshed from cache completely";
 		if(mType == Type.REMOVED)
 			return String.format("Item from position %d was removed", mOldPosition);
 		if(mType == Type.UPDATED)
@@ -55,7 +57,7 @@ public class ListUpdate {
 			adapter.notifyItemInserted(mNewPosition);
 		if(mType == Type.MOVED)
 			adapter.notifyItemMoved(mOldPosition, mNewPosition);
-		if(mType == Type.NEW_LIST)
+		if(mType == Type.NEW_LIST || mType == Type.NEW_LIST_FROM_CACHE)
 			adapter.notifyDataSetChanged();
 		if(mType == Type.REMOVED)
 			adapter.notifyItemRemoved(mOldPosition);

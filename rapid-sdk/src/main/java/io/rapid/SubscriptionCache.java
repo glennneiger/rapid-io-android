@@ -19,9 +19,9 @@ public class SubscriptionCache {
 	private DiskLruCache mCache;
 
 
-	public SubscriptionCache(Context context, int maxSizeInMb) throws IOException {
+	public SubscriptionCache(Context context, String apiKey, int maxSizeInMb) throws IOException {
 		// TODO better cache dir
-		mCache = DiskLruCache.open(new File(context.getCacheDir() + "/rapid"), 0, 1, maxSizeInMb * 1_000_000);
+		mCache = DiskLruCache.open(new File(context.getCacheDir() + "/rapid/" + apiKey), 0, 1, maxSizeInMb * 1_000_000);
 	}
 
 
@@ -33,17 +33,26 @@ public class SubscriptionCache {
 		subscriptionString.append("#");
 		subscriptionString.append(subscription.getLimit());
 		subscriptionString.append("#");
-		subscriptionString.append(subscription.getOrder());
+		subscriptionString.append(subscription.getOrder().toJson());
 		subscriptionString.append("#");
 		subscriptionString.append(subscription.getSkip());
-
-		return Sha1Utility.sha1(subscriptionString.toString());
+		String input = subscriptionString.toString();
+		String hash = Sha1Utility.sha1(input);
+		Logcat.i("SHA1: %s : %s", input, hash);
+		return hash;
 	}
 
 
 	public String get(RapidCollectionSubscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		String fingerprint = getSubscriptionFingerprint(subscription);
-		return mCache.get(fingerprint).getString(DEFAULT_INDEX);
+		DiskLruCache.Snapshot record = mCache.get(fingerprint);
+		if(record != null) {
+			String jsonValue = record.getString(DEFAULT_INDEX);
+			Logcat.d("Reading from subscription cache. key=%s; value=%s", fingerprint, jsonValue);
+			return jsonValue;
+		}
+		Logcat.d("Reading from subscription cache. key=%s; value=null", fingerprint);
+		return null;
 	}
 
 
@@ -52,10 +61,18 @@ public class SubscriptionCache {
 		DiskLruCache.Editor editor = mCache.edit(fingerprint);
 		editor.set(DEFAULT_INDEX, jsonValue);
 		editor.commit();
+		Logcat.d("Saving to subscription cache. key=%s; value=%s", fingerprint, jsonValue);
 	}
 
 
 	public void clear() throws IOException {
 		mCache.delete();
+	}
+
+
+	public void remove(RapidCollectionSubscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+		String fingerprint = getSubscriptionFingerprint(subscription);
+		mCache.remove(fingerprint);
+		Logcat.d("Removing from subscription cache. key=%s", fingerprint);
 	}
 }

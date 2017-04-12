@@ -12,20 +12,22 @@ import io.rapid.converter.RapidJsonConverter;
 class CollectionProvider {
 	private final Handler mOriginalThreadHandler;
 	private final RapidJsonConverter mJsonConverter;
+	private final SubscriptionCache mSubscriptionCache;
 	RapidConnection mConnection;
 	private Map<String, RapidCollectionReference> mCollections = new HashMap<>();
 
 
-	public CollectionProvider(RapidConnection connection, RapidJsonConverter jsonConverter, Handler originalThreadHandler) {
+	public CollectionProvider(RapidConnection connection, RapidJsonConverter jsonConverter, Handler originalThreadHandler, SubscriptionCache subscriptionCache) {
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mOriginalThreadHandler = originalThreadHandler;
+		mSubscriptionCache = subscriptionCache;
 	}
 
 
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollections.containsKey(collectionName))
-			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass), collectionName, mOriginalThreadHandler));
+			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionCache), collectionName, mOriginalThreadHandler));
 		return mCollections.get(collectionName);
 	}
 

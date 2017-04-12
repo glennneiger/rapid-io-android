@@ -20,6 +20,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	private RapidCallback.CollectionUpdates<T> mCallback;
 
+
 	RapidCollectionSubscription(String collectionName, Handler uiThreadHandler) {
 		super(collectionName, uiThreadHandler);
 	}
@@ -72,8 +73,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	public RapidCollectionSubscription onError(RapidCallback.Error callback)
-	{
+	public RapidCollectionSubscription onError(RapidCallback.Error callback) {
 		mErrorCallback = callback;
 		return this;
 	}
@@ -116,9 +116,9 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	synchronized void setDocuments(List<RapidDocument<T>> rapidDocuments) {
+	synchronized void setDocuments(List<RapidDocument<T>> rapidDocuments, boolean fromCache) {
 		mDocuments = rapidDocuments;
-		invokeChange(new ListUpdate(ListUpdate.Type.NEW_LIST, ListUpdate.NO_POSITION, ListUpdate.NO_POSITION));
+		invokeChange(new ListUpdate(fromCache ? ListUpdate.Type.NEW_LIST_FROM_CACHE : ListUpdate.Type.NEW_LIST, ListUpdate.NO_POSITION, ListUpdate.NO_POSITION));
 	}
 
 
@@ -139,7 +139,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	private synchronized void invokeChange(ListUpdate listUpdate) {
 		mUiThreadHandler.post(() -> {
-			synchronized(mCallback){
+			synchronized(mCallback) {
 				mCallback.onValueChanged(mDocuments, listUpdate);
 			}
 		});

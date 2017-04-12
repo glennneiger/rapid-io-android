@@ -289,7 +289,7 @@ public class RapidCollectionReference<T> {
 
 
 	void onValue(String subscriptionId, String documents) {
-		mConnection.onValue(subscriptionId, documents);
+		mConnection.onValue(subscriptionId, documents, false);
 	}
 
 
