@@ -16,6 +16,7 @@ abstract class Subscription<T> {
 	boolean mSubscribed = true;
 	RapidCallback.Error mErrorCallback;
 	private String mSubscriptionId;
+	private String mFingerprintCache;
 
 
 	interface OnUnsubscribeCallback {
@@ -77,21 +78,24 @@ abstract class Subscription<T> {
 
 
 	public String getFingerprint() throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
-		long startMs = System.currentTimeMillis();
-		StringBuilder subscriptionString = new StringBuilder();
-		subscriptionString.append(getCollectionName());
-		subscriptionString.append("#");
-		subscriptionString.append(getFilter().toJson());
-		subscriptionString.append("#");
-		subscriptionString.append(getLimit());
-		subscriptionString.append("#");
-		subscriptionString.append(getOrder().toJson());
-		subscriptionString.append("#");
-		subscriptionString.append(getSkip());
-		String input = subscriptionString.toString();
-		String hash = Sha1Utility.sha1(input);
-		Logcat.i("SHA1: %s : %s; Took %dms", input, hash, System.currentTimeMillis() - startMs);
-		return hash;
+		if (mFingerprintCache==null) {
+			long startMs = System.currentTimeMillis();
+			StringBuilder subscriptionString = new StringBuilder();
+			subscriptionString.append(getCollectionName());
+			subscriptionString.append("#");
+			subscriptionString.append(getFilter().toJson());
+			subscriptionString.append("#");
+			subscriptionString.append(getLimit());
+			subscriptionString.append("#");
+			subscriptionString.append(getOrder().toJson());
+			subscriptionString.append("#");
+			subscriptionString.append(getSkip());
+			String input = subscriptionString.toString();
+			String hash = Sha1Utility.sha1(input);
+			Logcat.i("Subscription hash calculation: %s : %s; Took %dms", input, hash, System.currentTimeMillis() - startMs);
+			mFingerprintCache = hash;
+		}
+		return mFingerprintCache;
 	}
 
 
@@ -105,6 +109,10 @@ abstract class Subscription<T> {
 				}
 			});
 		}
+	}
+
+	protected void invalidateFingerprintCache(){
+		mFingerprintCache = null;
 	}
 
 
