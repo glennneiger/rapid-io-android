@@ -17,6 +17,7 @@ import static io.rapid.Config.CHECKER_HANDLER_PERIOD;
 import static io.rapid.Config.HB_PERIOD;
 import static io.rapid.ConnectionState.CLOSED;
 import static io.rapid.ConnectionState.CONNECTED;
+import static io.rapid.ConnectionState.CONNECTING;
 import static io.rapid.ConnectionState.DISCONNECTED;
 
 
@@ -202,6 +203,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	@Override
 	public RapidFuture mutate(String collectionName, String documentJson) {
+		if(mInternetConnected && (mWebSocketConnection == null || getConnectionState() == CLOSED)) {
+			createNewWebSocketConnection();
+		}
 		return sendMessage(new Message.Mut(collectionName, documentJson));
 	}
 
@@ -233,6 +237,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private void createNewWebSocketConnection() {
 		if(mSubscriptionCount > 0) {
+			changeConnectionState(CONNECTING);
 			mWebSocketConnection = new WebSocketConnection(URI.create(mUrl), this);
 			mWebSocketConnection.connectToServer();
 		}
@@ -296,6 +301,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 						messageFuture.getRapidFuture().invokeSuccess();
 					}
 					mSentMessageList.clear();
+					if(mSubscriptionCount == 0) disconnectFromServer(true);
 				} else {
 					for(int j = 0; j <= i; j++) {
 						mSentMessageList.get(j).getRapidFuture().invokeSuccess();

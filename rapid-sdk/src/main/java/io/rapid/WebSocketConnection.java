@@ -87,6 +87,17 @@ class WebSocketConnection extends WebSocketClient {
 	}
 
 
+	@Override
+	public void onClosing(int code, String reason, boolean remote)
+	{
+		super.onClosing(code, reason, remote);
+
+		Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
+		CloseReasonEnum reasonEnum = CloseReasonEnum.get(code);
+		if(mListener != null) mListener.onClose(reasonEnum);
+	}
+
+
 	private void handleNewMessage(Message parsedMessage) {
 		if(mListener != null) mListener.onMessage(parsedMessage);
 	}
