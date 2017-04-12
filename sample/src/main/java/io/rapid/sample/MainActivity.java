@@ -1,10 +1,15 @@
 package io.rapid.sample;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
@@ -24,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
 	private RapidCollectionReference<Todo> mTodos;
+	private MenuItem mToggleMenu;
 
 
 	private static void log(String message) {
@@ -55,6 +61,76 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		});
 
 		mTodos = Rapid.getInstance().collection("todos_xyz", Todo.class);
+		subscribe();
+	}
+
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.menu_main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu)
+	{
+		mToggleMenu = menu.findItem(R.id.menu_toggle_subscription);
+		Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
+		mToggleMenu.setTitle(R.string.unsubscribe);
+		mToggleMenu.setIcon(icon);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		switch(item.getItemId())
+		{
+			case R.id.menu_toggle_subscription:
+				if(mSubscription.isSubscribed()) unsubscribe();
+				else subscribe();
+				return true;
+
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+
+	@Override
+	protected void onDestroy() {
+		Rapid.getInstance().removeAllConnectionStateListeners();
+		unsubscribe();
+		super.onDestroy();
+	}
+
+
+	@Override
+	public void onDelete(String id, Todo todo) {
+		mTodos.document(id).delete()
+				.onSuccess(() -> log("Deleted"))
+				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
+	}
+
+
+	@Override
+	public void onChange(String id, Todo todo) {
+		mTodos.document(id).mutate(todo);
+	}
+
+
+	private void subscribe()
+	{
+		if(mToggleMenu != null)
+		{
+			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
+			mToggleMenu.setTitle(R.string.unsubscribe);
+			mToggleMenu.setIcon(icon);
+		}
 
 		mSubscription = mTodos
 				.equalTo("receiver", "carl01")
@@ -73,25 +149,15 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	@Override
-	protected void onDestroy() {
-		Rapid.getInstance().removeAllConnectionStateListeners();
+	private void unsubscribe()
+	{
+		if(mToggleMenu != null)
+		{
+			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud, null);
+			mToggleMenu.setTitle(R.string.subscribe);
+			mToggleMenu.setIcon(icon);
+		}
 		mSubscription.unsubscribe();
-		super.onDestroy();
-	}
-
-
-	@Override
-	public void onDelete(String id, Todo todo) {
-		mTodos.document(id).delete()
-				.onSuccess(() -> log("Deleted"))
-				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
-	}
-
-
-	@Override
-	public void onChange(String id, Todo todo) {
-		mTodos.document(id).mutate(todo);
 	}
 
 
