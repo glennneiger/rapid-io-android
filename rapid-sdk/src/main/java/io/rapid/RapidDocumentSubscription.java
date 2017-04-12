@@ -72,10 +72,6 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 	}
 
 
-	void setOnUnsubscribeCallback(OnUnsubscribeCallback callback) {
-		mOnUnsubscribeCallback = callback;
-	}
-
 
 	private void invokeChange() {
 		mUiThreadHandler.post(() -> mCallback.onValueChanged(mDocument));

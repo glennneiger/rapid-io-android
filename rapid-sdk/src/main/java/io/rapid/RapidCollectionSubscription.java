@@ -132,11 +132,6 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	void setOnUnsubscribeCallback(OnUnsubscribeCallback callback) {
-		mOnUnsubscribeCallback = callback;
-	}
-
-
 	private synchronized void invokeChange(ListUpdate listUpdate) {
 		mUiThreadHandler.post(() -> {
 			synchronized(mCallback) {

@@ -9,7 +9,6 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 
@@ -25,26 +24,10 @@ public class SubscriptionCache {
 	}
 
 
-	public static String getSubscriptionFingerprint(Subscription subscription) throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
-		StringBuilder subscriptionString = new StringBuilder();
-		subscriptionString.append(subscription.getCollectionName());
-		subscriptionString.append("#");
-		subscriptionString.append(subscription.getFilter().toJson());
-		subscriptionString.append("#");
-		subscriptionString.append(subscription.getLimit());
-		subscriptionString.append("#");
-		subscriptionString.append(subscription.getOrder().toJson());
-		subscriptionString.append("#");
-		subscriptionString.append(subscription.getSkip());
-		String input = subscriptionString.toString();
-		String hash = Sha1Utility.sha1(input);
-		Logcat.i("SHA1: %s : %s", input, hash);
-		return hash;
-	}
 
 
 	public String get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
-		String fingerprint = getSubscriptionFingerprint(subscription);
+		String fingerprint = subscription.getFingerprint();
 		DiskLruCache.Snapshot record = mCache.get(fingerprint);
 		if(record != null) {
 			String jsonValue = record.getString(DEFAULT_INDEX);
@@ -57,7 +40,7 @@ public class SubscriptionCache {
 
 
 	public void put(Subscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
-		String fingerprint = getSubscriptionFingerprint(subscription);
+		String fingerprint = subscription.getFingerprint();
 		DiskLruCache.Editor editor = mCache.edit(fingerprint);
 		editor.set(DEFAULT_INDEX, jsonValue);
 		editor.commit();
@@ -71,7 +54,7 @@ public class SubscriptionCache {
 
 
 	public void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
-		String fingerprint = getSubscriptionFingerprint(subscription);
+		String fingerprint = subscription.getFingerprint();
 		mCache.remove(fingerprint);
 		Logcat.d("Removing from subscription cache. key=%s", fingerprint);
 	}
