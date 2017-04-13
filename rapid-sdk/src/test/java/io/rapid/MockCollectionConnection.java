@@ -11,8 +11,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void subscribe(Subscription<T> subscription)
-	{
+	public void subscribe(Subscription<T> subscription) {
 
 	}
 

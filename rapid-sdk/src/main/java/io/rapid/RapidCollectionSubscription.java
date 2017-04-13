@@ -85,6 +85,11 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
+	public List<RapidDocument<T>> getDocuments() {
+		return mDocuments;
+	}
+
+
 	void setSkip(int skip) {
 		mSkip = skip;
 		invalidateFingerprintCache();

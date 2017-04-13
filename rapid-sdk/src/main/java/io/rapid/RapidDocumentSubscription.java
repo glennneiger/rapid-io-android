@@ -61,6 +61,11 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 	}
 
 
+	public RapidDocument<T> getDocument() {
+		return mDocument;
+	}
+
+
 	void setDocument(RapidDocument<T> rapidDocument) {
 		mDocument = rapidDocument;
 		invokeChange();
