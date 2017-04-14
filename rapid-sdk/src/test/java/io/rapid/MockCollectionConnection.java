@@ -17,7 +17,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void onValue(String subscriptionId, String documents, boolean fromCache) {
+	public void onValue(String subscriptionId, String documents) {
 
 	}
 

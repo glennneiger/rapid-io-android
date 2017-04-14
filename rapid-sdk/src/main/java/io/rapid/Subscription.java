@@ -7,6 +7,7 @@ import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 
 abstract class Subscription<T> {
@@ -45,6 +46,9 @@ abstract class Subscription<T> {
 	abstract EntityOrder getOrder();
 
 
+	abstract List<RapidDocument<T>> getDocuments();
+
+
 	public abstract Subscription onError(RapidCallback.Error callback);
 
 
@@ -78,7 +82,7 @@ abstract class Subscription<T> {
 
 
 	public String getFingerprint() throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
-		if (mFingerprintCache==null) {
+		if(mFingerprintCache == null) {
 			long startMs = System.currentTimeMillis();
 			StringBuilder subscriptionString = new StringBuilder();
 			subscriptionString.append(getCollectionName());
@@ -111,7 +115,8 @@ abstract class Subscription<T> {
 		}
 	}
 
-	protected void invalidateFingerprintCache(){
+
+	protected void invalidateFingerprintCache() {
 		mFingerprintCache = null;
 	}
 

@@ -23,19 +23,21 @@ import io.rapid.utility.ModifiableJSONArray;
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	private final RapidJsonConverter mJsonConverter;
-	private final SubscriptionCache mSubscriptionCache;
+	private final SubscriptionMemoryCache<T> mSubscriptionMemoryCache;
+	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private String mCollectionName;
 	private RapidConnection mConnection;
 	private Class<T> mType;
 	private Map<String, Subscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type, SubscriptionCache subscriptionCache) {
+	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache) {
 		mCollectionName = collectionName;
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mType = type;
-		mSubscriptionCache = subscriptionCache;
+		mSubscriptionMemoryCache = new SubscriptionMemoryCache<>(10);
+		mSubscriptionDiskCache = subscriptionDiskCache;
 	}
 
 
@@ -76,11 +78,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mConnection.subscribe(subscriptionId, subscription);
 			else {
 				// update the subscription with already existing data
-				if(subscription instanceof RapidCollectionSubscription) {
-					((RapidCollectionSubscription) subscription).setDocuments(((RapidCollectionSubscription) identicalSubscriptions.get(0)).getDocuments(), true);
-				} else if(subscription instanceof RapidDocumentSubscription) {
-					((RapidDocumentSubscription) subscription).setDocument(((RapidDocumentSubscription) identicalSubscriptions.get(0)).getDocument());
-				}
+				applyValueToSubscription(subscription, ((RapidCollectionSubscription<T>) identicalSubscriptions.get(0)).getDocuments(), true);
 			}
 		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -93,11 +91,18 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		else if(subscription instanceof RapidDocumentSubscription)
 			((RapidDocumentSubscription) subscription).setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 
+
 		// try to read from cache
 		try {
-			String jsonDocs = mSubscriptionCache.get(subscription);
-			if(jsonDocs != null)
-				onValue(subscriptionId, jsonDocs, true);
+			// first try in-memory cache
+			List<RapidDocument<T>> docs = mSubscriptionMemoryCache.get(subscription);
+			if(docs != null) {
+				applyValueToSubscription(subscription, docs, true);
+			} else { // then try disk cache
+				String jsonDocs = mSubscriptionDiskCache.get(subscription);
+				if(jsonDocs != null)
+					applyValueToSubscription(subscription, jsonDocs, true);
+			}
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -105,25 +110,27 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void onValue(String subscriptionId, String documents, boolean fromCache) {
+	public void onValue(String subscriptionId, String documents) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		try {
 			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
 			for(Subscription s : identicalSubscriptions) {
-				applyValueToSubscription(s, documents, fromCache);
+				applyValueToSubscription(s, documents, false);
 			}
 		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
-			applyValueToSubscription(subscription, documents, fromCache);
+			applyValueToSubscription(subscription, documents, false);
 		}
 
 		// try to put value to cache
-		if(!fromCache) {
-			try {
-				mSubscriptionCache.put(subscription, documents);
-			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-				e.printStackTrace();
-			}
+		try {
+			// in-memory cache
+			mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
+
+			// disk cache
+			mSubscriptionDiskCache.put(subscription, documents);
+		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -182,7 +189,11 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 		// try to update cache
 		try {
-			String jsonDocs = mSubscriptionCache.get(subscription);
+			// in-memory cache
+			mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
+
+			// disk cache
+			String jsonDocs = mSubscriptionDiskCache.get(subscription);
 			if(jsonDocs != null) {
 				JSONObject updatedDoc = new JSONObject(document);
 				String updatedDocId = updatedDoc.getString(RapidDocument.KEY_ID);
@@ -214,7 +225,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					currentItems.add(previousSiblingPosition + 1, updatedDoc);
 				}
 
-				mSubscriptionCache.put(subscription, currentItems.toString());
+				mSubscriptionDiskCache.put(subscription, currentItems.toString());
 			}
 
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
@@ -222,7 +233,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			e.printStackTrace();
 			// unable to update data in cache - cache inconsistent -> clear it
 			try {
-				mSubscriptionCache.remove(subscription);
+				mSubscriptionDiskCache.remove(subscription);
 			} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
 				e1.printStackTrace();
 			}
@@ -235,6 +246,15 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(documents).get(0));
 		} else if(subscription instanceof RapidCollectionSubscription) {
 			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents), fromCache);
+		}
+	}
+
+
+	private void applyValueToSubscription(Subscription subscription, List<RapidDocument<T>> documents, boolean fromCache) {
+		if(subscription instanceof RapidDocumentSubscription) {
+			((RapidDocumentSubscription) subscription).setDocument(documents.get(0));
+		} else if(subscription instanceof RapidCollectionSubscription) {
+			((RapidCollectionSubscription) subscription).setDocuments(documents, fromCache);
 		}
 	}
 

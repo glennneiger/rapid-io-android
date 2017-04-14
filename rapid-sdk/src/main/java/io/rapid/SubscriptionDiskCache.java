@@ -12,14 +12,14 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 
-class SubscriptionCache {
+class SubscriptionDiskCache {
 
 	private static final int DEFAULT_INDEX = 0;
 	private DiskLruCache mCache;
-	private boolean mEnabled;
+	private boolean mEnabled = true;
 
 
-	public SubscriptionCache(Context context, String apiKey, int maxSizeInMb) throws IOException {
+	public SubscriptionDiskCache(Context context, String apiKey, int maxSizeInMb) throws IOException {
 		// TODO better cache dir
 		mCache = DiskLruCache.open(new File(context.getCacheDir() + "/rapid/" + apiKey), 0, 1, maxSizeInMb * 1_000_000);
 	}
@@ -40,7 +40,7 @@ class SubscriptionCache {
 			Logcat.d("Reading from subscription cache. key=%s; value=%s", fingerprint, jsonValue);
 			return jsonValue;
 		}
-		Logcat.d("Reading from subscription cache. key=%s; value=null", fingerprint);
+		Logcat.d("Reading from disk subscription cache. key=%s; value=null", fingerprint);
 		return null;
 	}
 
@@ -52,7 +52,7 @@ class SubscriptionCache {
 		DiskLruCache.Editor editor = mCache.edit(fingerprint);
 		editor.set(DEFAULT_INDEX, jsonValue);
 		editor.commit();
-		Logcat.d("Saving to subscription cache. key=%s; value=%s", fingerprint, jsonValue);
+		Logcat.d("Saving to disk subscription cache. key=%s; value=%s", fingerprint, jsonValue);
 	}
 
 
@@ -66,7 +66,7 @@ class SubscriptionCache {
 			return;
 		String fingerprint = subscription.getFingerprint();
 		mCache.remove(fingerprint);
-		Logcat.d("Removing from subscription cache. key=%s", fingerprint);
+		Logcat.d("Removing from disk subscription cache. key=%s", fingerprint);
 	}
 
 

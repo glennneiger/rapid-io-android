@@ -66,15 +66,15 @@ public class Rapid {
 			}
 		}, mHandler);
 
-		SubscriptionCache subscriptionCache;
+		SubscriptionDiskCache subscriptionDiskCache;
 		try {
-			subscriptionCache = new SubscriptionCache(context, mApiKey, Config.CACHE_DEFAULT_SIZE_MB);
+			subscriptionDiskCache = new SubscriptionDiskCache(context, mApiKey, Config.CACHE_DEFAULT_SIZE_MB);
 		} catch(IOException e) {
 			e.printStackTrace();
 			throw new IllegalStateException("Subscription cache could not be initialized");
 		}
 
-		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mHandler, subscriptionCache);
+		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mHandler, subscriptionDiskCache);
 	}
 
 
@@ -164,11 +164,11 @@ public class Rapid {
 
 
 	public void setCachingEnabled(boolean cachingEnabled) {
-		mCollectionProvider.getSubscriptionCache().setEnabled(cachingEnabled);
+		mCollectionProvider.getSubscriptionDiskCache().setEnabled(cachingEnabled);
 	}
 
 
 	public void setCacheSize(int cacheSizeInMb) {
-		mCollectionProvider.getSubscriptionCache().setMaxSize(cacheSizeInMb);
+		mCollectionProvider.getSubscriptionDiskCache().setMaxSize(cacheSizeInMb);
 	}
 }

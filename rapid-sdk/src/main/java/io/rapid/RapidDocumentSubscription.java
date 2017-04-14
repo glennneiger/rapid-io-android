@@ -3,6 +3,9 @@ package io.rapid;
 
 import android.os.Handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class RapidDocumentSubscription<T> extends Subscription<T> {
 
@@ -49,8 +52,15 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	public RapidDocumentSubscription onError(RapidCallback.Error callback)
-	{
+	List<RapidDocument<T>> getDocuments() {
+		List<RapidDocument<T>> list = new ArrayList<>();
+		list.add(mDocument);
+		return list;
+	}
+
+
+	@Override
+	public RapidDocumentSubscription onError(RapidCallback.Error callback) {
 		mErrorCallback = callback;
 		return this;
 	}
@@ -75,7 +85,6 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 	void setCallback(RapidCallback.Document<T> callback) {
 		mCallback = callback;
 	}
-
 
 
 	private void invokeChange() {

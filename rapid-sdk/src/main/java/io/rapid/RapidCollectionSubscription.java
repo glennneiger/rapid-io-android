@@ -85,7 +85,8 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	public List<RapidDocument<T>> getDocuments() {
+	@Override
+	List<RapidDocument<T>> getDocuments() {
 		return mDocuments;
 	}
 
