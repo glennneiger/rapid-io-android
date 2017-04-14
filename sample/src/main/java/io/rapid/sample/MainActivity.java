@@ -132,13 +132,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			mToggleMenu.setIcon(icon);
 		}
 		mSubscription = mTodos
-				.equalTo("receiver", "carl01")
-				.beginOr()
-				.equalTo("sender", "john123")
-				.greaterOrEqualThan("urgency", 1)
-				.endOr()
-				.orderBy("sentDate", Sorting.DESC)
-				.orderBy("urgency", Sorting.ASC)
+				.orderBy("mChecked")
 				.map(document -> new TodoItemViewModel(document.getId(), document.getBody(), MainActivity.this))
 				.subscribeWithListUpdates((items, listUpdate) -> {
 					log(listUpdate.toString());
