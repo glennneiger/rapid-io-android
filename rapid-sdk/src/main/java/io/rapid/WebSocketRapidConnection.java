@@ -376,6 +376,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
 					messageFuture.getRapidFuture().invokeError(new RapidError(RapidError.INTERNAL_SERVER_ERROR));
+					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					mSentMessageList.remove(position);
 				}
 
@@ -397,13 +398,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			}
 		}
 		if(position != -1) {
-			for(int i = 0; i <= position; i++) {
-				MessageFuture messageFuture = mSentMessageList.get(i);
-				messageFuture.getRapidFuture().invokeSuccess();
-				if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-			}
-
-			mSentMessageList.subList(0, position+1).clear();
+			MessageFuture messageFuture = mSentMessageList.get(position);
+			messageFuture.getRapidFuture().invokeSuccess();
+			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
+			mSentMessageList.remove(position);
 		}
 
 		disconnectWebSocketConnectionIfNeeded();
