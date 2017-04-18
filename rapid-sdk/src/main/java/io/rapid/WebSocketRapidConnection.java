@@ -103,18 +103,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 		if(message.getMessageType() == MessageType.ERR)
 		{
-			switch(((Message.Err) message).getErrorType())
-			{
-				case CONNECTION_TERMINATED:
-					disconnectWebSocketConnection(false);
-					mOriginalThreadHandler.post(() ->
-					{
-						createWebSocketConnectionIfNeeded();
-						mSubscriptionCount = 0;
-						reconnectSubscriptions();
-					});
-					break;
-			}
+			handleErrMessage((Message.Err) message);
 		}
 		else if(message.getMessageType() == MessageType.ACK)
 		{
@@ -359,6 +348,28 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			sendMessage(new Message.Ack(parsedMessage.getEventId()));
 		}
 	}
+
+
+
+
+	private void handleErrMessage(Message.Err message) {
+		switch(message.getErrorType())
+		{
+			case CONNECTION_TERMINATED:
+				disconnectWebSocketConnection(false);
+				mOriginalThreadHandler.post(() ->
+				{
+					createWebSocketConnectionIfNeeded();
+					mSubscriptionCount = 0;
+					reconnectSubscriptions();
+				});
+				break;
+			default:
+
+				break;
+		}
+	}
+
 
 
 	private synchronized void handleAckMessage(Message.Ack ackMessage) {
