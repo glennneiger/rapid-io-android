@@ -154,6 +154,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public void onError(String subscriptionId, RapidError error) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		subscription.invokeError(error);
+		mSubscriptions.remove(subscription.getSubscriptionId());
 	}
 
 
@@ -161,6 +162,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public void onTimedOut() {
 		for(Subscription<T> subscription : mSubscriptions.values()) {
 			subscription.invokeError(new RapidError(RapidError.TIMEOUT));
+			mSubscriptions.remove(subscription.getSubscriptionId());
 		}
 	}
 
