@@ -221,8 +221,15 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					}
 					if(documentPosition != -1) {
 						currentItems = ModifiableJSONArray.removeItem(currentItems, documentPosition);
+
+						if(documentPosition < previousSiblingPosition)
+							currentItems.add(previousSiblingPosition, updatedDoc);
+						else
+							currentItems.add(previousSiblingPosition + 1, updatedDoc);
 					}
-					currentItems.add(previousSiblingPosition + 1, updatedDoc);
+					else {
+						currentItems.add(previousSiblingPosition + 1, updatedDoc);
+					}
 				}
 
 				mSubscriptionDiskCache.put(subscription, currentItems.toString());
