@@ -373,23 +373,24 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void handleAckMessage(Message.Ack ackMessage) {
-		for(int i = 0; i < mSentMessageList.size(); i++) {
+		int size = mSentMessageList.size();
+
+		int position = -1;
+
+		for(int i = 0; i < size; i++) {
 			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getMessage().getEventId())) {
-				if(i == mSentMessageList.size() - 1) {
-					for(int j = 0; j < mSentMessageList.size(); j++) {
-						MessageFuture messageFuture = mSentMessageList.get(j);
-						messageFuture.getRapidFuture().invokeSuccess();
-						if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-					}
-					mSentMessageList.clear();
-				} else {
-					for(int j = 0; j <= i; j++) {
-						mSentMessageList.get(j).getRapidFuture().invokeSuccess();
-						if(mSentMessageList.get(j).getMessage() instanceof Message.Mut) mPendingMutationCount--;
-					}
-					mSentMessageList = mSentMessageList.subList(i + 1, mSentMessageList.size());
-				}
+				position = i;
+				break;
 			}
+		}
+		if(position != -1) {
+			for(int i = 0; i <= position; i++) {
+				MessageFuture messageFuture = mSentMessageList.get(i);
+				messageFuture.getRapidFuture().invokeSuccess();
+				if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
+			}
+
+			mSentMessageList.subList(0, position+1).clear();
 		}
 
 		disconnectWebSocketConnectionIfNeeded();
