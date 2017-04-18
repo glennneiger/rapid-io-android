@@ -13,7 +13,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	private List<RapidDocument<T>> mDocuments = new ArrayList<>();
 
-	private Stack<Filter.Group> mFilterStack = new Stack<>();
+	private Stack<Filter.Group> mFilterStack;
 	private int mLimit = Config.DEFAULT_LIMIT;
 	private int mSkip = 0;
 	private EntityOrder mOrder;
@@ -57,10 +57,17 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 			if(documentPosition != -1) {
 				mDocuments.remove(documentPosition);
 				listUpdate = new ListUpdate(documentPosition == previousSiblingPosition + 1 ? ListUpdate.Type.UPDATED : ListUpdate.Type.MOVED, documentPosition, previousSiblingPosition + 1);
+
+                if(documentPosition < previousSiblingPosition)
+                    mDocuments.add(previousSiblingPosition, document);
+                else
+                    mDocuments.add(previousSiblingPosition + 1, document);
+
 			} else {
 				listUpdate = new ListUpdate(ListUpdate.Type.ADDED, ListUpdate.NO_POSITION, previousSiblingPosition + 1);
+                mDocuments.add(previousSiblingPosition + 1, document);
 			}
-			mDocuments.add(previousSiblingPosition + 1, document);
+
 		}
 		invokeChange(listUpdate);
 	}
@@ -111,6 +118,8 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	@Override
 	Filter getFilter() {
+		if(mFilterStack == null) return null;
+
 		if(getFilterStack().size() != 1) {
 			throw new IllegalArgumentException("Wrong filter structure");
 		}
@@ -137,6 +146,10 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	Stack<Filter.Group> getFilterStack() {
+		if(mFilterStack == null) {
+			mFilterStack = new Stack<>();
+			mFilterStack.push(new Filter.And());
+		}
 		invalidateFingerprintCache();
 		return mFilterStack;
 	}

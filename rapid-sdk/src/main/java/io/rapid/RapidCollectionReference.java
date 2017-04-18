@@ -197,6 +197,9 @@ public class RapidCollectionReference<T> {
 	}
 
 
+    // Order
+
+
 	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
 		mSubscription.orderBy(property, sorting);
 
@@ -204,12 +207,19 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	// Order
-
-
 	public RapidCollectionReference<T> orderBy(String property) {
 		return orderBy(property, Sorting.ASC);
 	}
+
+
+    public RapidCollectionReference<T> orderByDocumentId() {
+        return orderBy(Config.ID_IDENTIFIER, Sorting.ASC);
+    }
+
+
+    public RapidCollectionReference<T> orderByDocumentId(Sorting sorting) {
+        return orderBy(Config.ID_IDENTIFIER, sorting);
+    }
 
 
 	public RapidCollectionReference<T> limit(int limit) {
@@ -310,7 +320,6 @@ public class RapidCollectionReference<T> {
 
 	void initSubscription() {
 		mSubscription = new RapidCollectionSubscription<T>(mCollectionName, mUiThreadHandler);
-		mSubscription.getFilterStack().push(new Filter.And());
 	}
 
 

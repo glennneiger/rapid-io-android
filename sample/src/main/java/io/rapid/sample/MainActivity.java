@@ -17,8 +17,10 @@ import android.widget.Toast;
 import java.util.UUID;
 
 import io.rapid.Rapid;
+import io.rapid.RapidCallback;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
+import io.rapid.RapidDocument;
 import io.rapid.Sorting;
 import io.rapid.sample.databinding.ActivityMainBinding;
 

@@ -87,11 +87,11 @@ abstract class Subscription<T> {
 			StringBuilder subscriptionString = new StringBuilder();
 			subscriptionString.append(getCollectionName());
 			subscriptionString.append("#");
-			subscriptionString.append(getFilter().toJson());
+			if(getFilter() !=  null) subscriptionString.append(getFilter().toJson());
 			subscriptionString.append("#");
 			subscriptionString.append(getLimit());
 			subscriptionString.append("#");
-			subscriptionString.append(getOrder().toJson());
+			if(getOrder() != null) subscriptionString.append(getOrder().toJson());
 			subscriptionString.append("#");
 			subscriptionString.append(getSkip());
 			String input = subscriptionString.toString();

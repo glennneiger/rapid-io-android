@@ -20,7 +20,7 @@ public class RapidDocumentReference<T> {
 		mId = documentId;
 		mImpl = impl;
 		mUiThreadHandler = uiThreadHandler;
-		mSubscription = new RapidDocumentSubscription<T>(collectionName, documentId, mUiThreadHandler);
+		mSubscription = new RapidDocumentSubscription<T>(documentId, collectionName, mUiThreadHandler);
 	}
 
 

@@ -417,7 +417,7 @@ abstract class Message {
 			body.put(ATTR_COL_ID, mCollectionId);
 			body.put(ATTR_LIMIT, mLimit);
 			body.put(ATTR_SKIP, mSkip);
-			body.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
+			if(mFilter != null) body.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
 			if(mOrder != null && !mOrder.getOrderList().isEmpty()) body.put(ATTR_ORDER, mOrder.toJson());
 			return body;
 		}
