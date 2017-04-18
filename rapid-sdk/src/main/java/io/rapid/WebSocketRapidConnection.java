@@ -28,6 +28,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private final String mUrl;
 	private WebSocketConnection mWebSocketConnection;
 	private boolean mInternetConnected = true;
+	private boolean mInternetConnectionBroadcast = false;
 	private long mInternetLossTimestamp = -1;
 	private ConnectionState mConnectionState = DISCONNECTED;
 	private String mConnectionId;
@@ -36,6 +37,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private int mPendingMutationCount = 0;
 	private List<MessageFuture> mPendingMessageList = new ArrayList<>();
 	private List<MessageFuture> mSentMessageList = new ArrayList<>();
+	private boolean mCheckRunning = false;
 	private Handler mCheckHandler = new Handler();
 	private Runnable mCheckRunnable = () ->
 	{
@@ -58,9 +60,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				Logcat.d("Internet connected: " + hasInternetConnection);
 				if(hasInternetConnection)
 				{
+					mInternetConnected = true;
 					unregisterInternetConnectionBroadcast();
 					createWebSocketConnectionIfNeeded();
-					mInternetConnected = true;
 				}
 			}
 		}
@@ -208,19 +210,24 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public void onUnsubscribe(Subscription subscription)
 	{
+		boolean sentUnsubscribe = true;
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
 		{
 			if(mPendingMessageList.get(i).getMessage() instanceof Message.Sub && ((Message.Sub) mPendingMessageList.get(i).getMessage())
 					.getSubscriptionId().equals(subscription.getSubscriptionId()))
 			{
 				mPendingMessageList.remove(i);
+				sentUnsubscribe = false;
 				break;
 			}
 		}
 
-		Message.Uns messageUns = new Message.Uns(subscription.getSubscriptionId());
 		mSubscriptionCount--;
-		sendMessage(messageUns).onCompleted(this::disconnectWebSocketConnectionIfNeeded);
+
+		if(sentUnsubscribe) {
+			Message.Uns messageUns = new Message.Uns(subscription.getSubscriptionId());
+			sendMessage(messageUns).onCompleted(this::disconnectWebSocketConnectionIfNeeded);
+		}
 	}
 
 
@@ -235,11 +242,23 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private void createWebSocketConnectionIfNeeded()
 	{
-		if(mInternetConnected && mWebSocketConnection == null && (mPendingMutationCount > 0 || mSubscriptionCount > 0))
+		if(mWebSocketConnection == null && (mPendingMutationCount > 0 || mSubscriptionCount > 0))
 		{
-			changeConnectionState(CONNECTING);
-			mWebSocketConnection = new WebSocketConnection(URI.create(mUrl), this);
-			mWebSocketConnection.connectToServer();
+			if(mInternetConnected)
+			{
+				changeConnectionState(CONNECTING);
+				mWebSocketConnection = new WebSocketConnection(URI.create(mUrl), this);
+				mWebSocketConnection.connectToServer();
+			}
+			else
+			{
+				mInternetLossTimestamp = System.currentTimeMillis();
+				registerInternetConnectionBroadcast();
+				if(!mCheckRunning)
+				{
+					startCheckHandler();
+				}
+			}
 		}
 	}
 
@@ -267,14 +286,21 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private void registerInternetConnectionBroadcast()
 	{
-		if(mContext != null)
+		if(mContext != null && !mInternetConnectionBroadcast)
+		{
+			mInternetConnectionBroadcast = true;
 			mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+		}
 	}
 
 
 	private void unregisterInternetConnectionBroadcast()
 	{
-		if(mContext != null) mContext.unregisterReceiver(mInternetConnectionBroadcastReceiver);
+		if(mContext != null && mInternetConnectionBroadcast)
+		{
+			mInternetConnectionBroadcast = false;
+			mContext.unregisterReceiver(mInternetConnectionBroadcastReceiver);
+		}
 	}
 
 
@@ -288,7 +314,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(mConnectionState == CONNECTED) {
 			sendMessage(new MessageFuture(message, future));
 		} else {
-			mPendingMessageList.add(new MessageFuture(message, future));
+			if(!(message instanceof Message.Nop)) mPendingMessageList.add(new MessageFuture(message, future));
 		}
 		return future;
 	}
@@ -362,11 +388,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private void startCheckHandler() {
 		stopCheckHandler();
+		mCheckRunning = true;
 		mCheckHandler.postDelayed(mCheckRunnable, CHECKER_HANDLER_PERIOD);
 	}
 
 
 	private void stopCheckHandler() {
+		mCheckRunning = false;
 		mCheckHandler.removeCallbacks(mCheckRunnable);
 	}
 
@@ -386,8 +414,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void checkMessageTimeout() {
-		Logcat.d("Pending list: " + mPendingMessageList.size());
-		Logcat.d("Sent list: " + mSentMessageList.size());
+		Logcat.d("Pending list: " + mPendingMessageList.size() + "; Sent list: " + mSentMessageList.size() + "; Subscription count: " + mSubscriptionCount + "; Pending mutation count: " + mPendingMutationCount);
 
 		long now = System.currentTimeMillis();
 
@@ -430,6 +457,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mSubscriptionCount = 0;
 			mPendingMutationCount = 0;
 			stopCheckHandler();
+			unregisterInternetConnectionBroadcast();
 			mCallback.onTimedOut();
 		}
 	}
