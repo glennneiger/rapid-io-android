@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import android.os.Handler;
+
+
 public class RapidFuture {
 	private SuccessCallback mSuccessCallback;
 	private RapidCallback.Error mErrorCallback;
@@ -47,22 +50,22 @@ public class RapidFuture {
 	}
 
 
-	void invokeError(RapidError error) {
+	void invokeError(Handler handler, RapidError error) {
 		mSuccess = false;
 		mCompleted = true;
 		if(mErrorCallback != null)
-			mErrorCallback.onError(error);
+			handler.post(() -> mErrorCallback.onError(error));
 		if(mCompletedCallback != null)
-			mCompletedCallback.onComplete();
+			handler.post(() -> mCompletedCallback.onComplete());
 	}
 
 
-	void invokeSuccess() {
+	void invokeSuccess(Handler handler) {
 		mSuccess = true;
 		mCompleted = true;
 		if(mSuccessCallback != null)
-			mSuccessCallback.onSuccess();
+			handler.post(() -> mSuccessCallback.onSuccess());
 		if(mCompletedCallback != null)
-			mCompletedCallback.onComplete();
+			handler.post(() -> mCompletedCallback.onComplete());
 	}
 }

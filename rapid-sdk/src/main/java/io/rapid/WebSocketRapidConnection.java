@@ -376,7 +376,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
-					messageFuture.getRapidFuture().invokeError(new RapidError(RapidError.INTERNAL_SERVER_ERROR));
+					messageFuture.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(RapidError.INTERNAL_SERVER_ERROR));
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					mSentMessageList.remove(position);
 				}
@@ -400,7 +400,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 		if(position != -1) {
 			MessageFuture messageFuture = mSentMessageList.get(position);
-			messageFuture.getRapidFuture().invokeSuccess();
+			messageFuture.getRapidFuture().invokeSuccess(mOriginalThreadHandler);
 			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 			mSentMessageList.remove(position);
 		}
@@ -448,7 +448,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				MessageFuture future = mSentMessageList.remove(0);
 				if(future.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 				if(future.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-				future.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
+				future.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(RapidError.TIMEOUT));
 			}
 		}
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
@@ -457,7 +457,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				MessageFuture future = mPendingMessageList.remove(0);
 				if(future.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 				if(future.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-				future.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
+				future.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(RapidError.TIMEOUT));
 			}
 		}
 	}
@@ -469,10 +469,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		// connection timeout
 		if(!mInternetConnected && now - mInternetLossTimestamp > Config.CONNECTION_TIMEOUT) {
 			for(MessageFuture mf : mSentMessageList) {
-				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
+				mf.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(RapidError.TIMEOUT));
 			}
 			for(MessageFuture mf : mPendingMessageList) {
-				mf.getRapidFuture().invokeError(new RapidError(RapidError.TIMEOUT));
+				mf.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(RapidError.TIMEOUT));
 			}
 			mSentMessageList.clear();
 			mPendingMessageList.clear();
