@@ -222,11 +222,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public RapidFuture mutate(String collectionName, Resolver.String documentJson)
+	public RapidFuture mutate(String collectionName, FutureResolver<String> documentJsonResolver)
 	{
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
-		return sendMessage(() -> new Message.Mut(collectionName, documentJson.getString()));
+		return sendMessage(() -> new Message.Mut(collectionName, documentJsonResolver.resolve()));
 	}
 
 
@@ -300,7 +300,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private RapidFuture sendMessage(Resolver.Message message) {
+	private RapidFuture sendMessage(FutureResolver<Message> message) {
 		RapidFuture future = new RapidFuture();
 
 		// send message in background
@@ -308,9 +308,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			@Override
 			protected Void doInBackground(Void... params) {
 				if(mConnectionState == CONNECTED) {
-					sendMessage(new MessageFuture(message.getMessage(), future));
+					sendMessage(new MessageFuture(message.resolve(), future));
 				} else {
-					if(!(message instanceof Message.Nop)) mPendingMessageList.add(new MessageFuture(message.getMessage(), future));
+					if(!(message instanceof Message.Nop)) mPendingMessageList.add(new MessageFuture(message.resolve(), future));
 				}
 				return null;
 			}

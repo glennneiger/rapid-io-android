@@ -38,7 +38,7 @@ abstract class RapidConnection {
 	abstract void onUnsubscribe(Subscription subscription);
 
 
-	public abstract RapidFuture mutate(String collectionName, Resolver.String documentJson);
+	public abstract RapidFuture mutate(String collectionName, FutureResolver<String> documentJson);
 
 
 	Callback getCallback() {
