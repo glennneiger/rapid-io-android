@@ -62,7 +62,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		}
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
-		return mConnection.mutate(mCollectionName, toJson(doc));
+		return mConnection.mutate(mCollectionName, () -> toJson(doc));
 	}
 
 

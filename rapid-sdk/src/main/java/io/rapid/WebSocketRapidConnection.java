@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Handler;
 
 import java.net.URI;
@@ -191,7 +192,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
-		RapidFuture future = sendMessage(messageSub);
+		RapidFuture future = sendMessage(() -> messageSub);
 		future.onError(error -> mCallback.onError(subscriptionId, subscription.getCollectionName(), error));
 	}
 
@@ -215,17 +216,17 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 		if(sentUnsubscribe) {
 			Message.Uns messageUns = new Message.Uns(subscription.getSubscriptionId());
-			sendMessage(messageUns).onCompleted(this::disconnectWebSocketConnectionIfNeeded);
+			sendMessage(() -> messageUns).onCompleted(this::disconnectWebSocketConnectionIfNeeded);
 		}
 	}
 
 
 	@Override
-	public RapidFuture mutate(String collectionName, String documentJson)
+	public RapidFuture mutate(String collectionName, Resolver.String documentJson)
 	{
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
-		return sendMessage(new Message.Mut(collectionName, documentJson));
+		return sendMessage(() -> new Message.Mut(collectionName, documentJson.getString()));
 	}
 
 
@@ -299,13 +300,21 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private RapidFuture sendMessage(Message message) {
+	private RapidFuture sendMessage(Resolver.Message message) {
 		RapidFuture future = new RapidFuture();
-		if(mConnectionState == CONNECTED) {
-			sendMessage(new MessageFuture(message, future));
-		} else {
-			if(!(message instanceof Message.Nop)) mPendingMessageList.add(new MessageFuture(message, future));
-		}
+
+		// send message in background
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				if(mConnectionState == CONNECTED) {
+					sendMessage(new MessageFuture(message.getMessage(), future));
+				} else {
+					if(!(message instanceof Message.Nop)) mPendingMessageList.add(new MessageFuture(message.getMessage(), future));
+				}
+				return null;
+			}
+		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		return future;
 	}
 
@@ -340,13 +349,14 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mConnectionId = IdProvider.getConnectionId();
 			reconnect = false;
 		}
-		sendMessage(new Message.Con(mConnectionId, reconnect));
+		boolean finalReconnect = reconnect;
+		sendMessage(() -> new Message.Con(mConnectionId, finalReconnect));
 	}
 
 
 	private void sendAckIfNeeded(Message parsedMessage) {
 		if(parsedMessage.getMessageType() == MessageType.VAL || parsedMessage.getMessageType() == MessageType.UPD) {
-			sendMessage(new Message.Ack(parsedMessage.getEventId()));
+			sendMessage(() -> new Message.Ack(parsedMessage.getEventId()));
 		}
 	}
 
@@ -432,7 +442,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void sendHB() {
-		sendMessage(new Message.Nop());
+		sendMessage(() -> new Message.Nop());
 	}
 
 
