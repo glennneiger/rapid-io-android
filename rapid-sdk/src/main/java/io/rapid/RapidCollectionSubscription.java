@@ -149,6 +149,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 		if(mFilterStack == null) {
 			mFilterStack = new Stack<>();
 			mFilterStack.push(new Filter.And());
+//			mFilterStack.push(new Filter.Single());
 		}
 		invalidateFingerprintCache();
 		return mFilterStack;

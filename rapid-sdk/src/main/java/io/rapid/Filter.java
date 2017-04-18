@@ -45,6 +45,26 @@ interface Filter {
 	}
 
 
+	class Single extends Group {
+
+		public Single(Filter... filters) {
+			super(filters);
+		}
+
+
+		@Override
+		protected String getKeyword() {
+			return null;
+		}
+
+
+		@Override
+		public String toJson() throws JSONException {
+			return filters.get(filters.size() - 1).toJson();
+		}
+	}
+
+
 	class And extends Group {
 
 		public And(Filter... filters) {
