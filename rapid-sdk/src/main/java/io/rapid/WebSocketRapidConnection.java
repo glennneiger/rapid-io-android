@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Handler;
 
 import java.net.URI;
@@ -304,17 +303,17 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		RapidFuture future = new RapidFuture();
 
 		// send message in background
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... params) {
+//		new AsyncTask<Void, Void, Void>() {
+//			@Override
+//			protected Void doInBackground(Void... params) {
 				if(mConnectionState == CONNECTED) {
 					sendMessage(new MessageFuture(message.resolve(), future));
 				} else {
 					if(!(message instanceof Message.Nop)) mPendingMessageList.add(new MessageFuture(message.resolve(), future));
 				}
-				return null;
-			}
-		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//				return null;
+//			}
+//		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		return future;
 	}
 
