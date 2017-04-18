@@ -352,7 +352,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 
-	private void handleErrMessage(Message.Err message) {
+	private synchronized void handleErrMessage(Message.Err message) {
 		switch(message.getErrorType())
 		{
 			case CONNECTION_TERMINATED:
@@ -365,6 +365,19 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				});
 				break;
 			default:
+				int size = mSentMessageList.size();
+				int position = -1;
+				for(int i = 0; i < size; i++) {
+					if(message.getEventId().equals(mSentMessageList.get(i).getMessage().getEventId())) {
+						position = i;
+						break;
+					}
+				}
+				if(position != -1) {
+					MessageFuture messageFuture = mSentMessageList.get(position);
+					messageFuture.getRapidFuture().invokeError(new RapidError(RapidError.INTERNAL_SERVER_ERROR));
+					mSentMessageList.remove(position);
+				}
 
 				break;
 		}
