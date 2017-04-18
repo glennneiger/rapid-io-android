@@ -256,6 +256,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	{
 		if(mSubscriptionCount == 0 && mPendingMutationCount == 0)
 		{
+			Logcat.d("Pending list: " + mPendingMessageList.size() + "; Sent list: " + mSentMessageList.size() + "; Subscription count: " + mSubscriptionCount + "; Pending mutation count: " + mPendingMutationCount);
 			disconnectWebSocketConnection(true);
 		}
 	}
