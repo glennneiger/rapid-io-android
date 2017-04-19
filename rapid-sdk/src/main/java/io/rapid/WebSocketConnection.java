@@ -103,19 +103,18 @@ class WebSocketConnection extends WebSocketClient {
 	}
 
 
-	void sendMessage(Message message) {
-		try {
-			String json = message.toJson().toString();
-			Logcat.d(json);
-			send(json);
-		} catch(JSONException e) {
-			e.printStackTrace();
-		}
+	void sendMessage(String message) {
+		Logcat.d(message);
+		send(message);
 	}
 
 
 	void disconnectFromServer(boolean sendDisconnectMessage) {
-		if(sendDisconnectMessage) sendMessage(new Message.Dis());
+		if(sendDisconnectMessage) try {
+			sendMessage(new Message.Dis().toJson().toString());
+		} catch(JSONException e) {
+			e.printStackTrace();
+		}
 		close();
 	}
 

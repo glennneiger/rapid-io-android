@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Handler;
+
+import org.json.JSONException;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -303,17 +306,24 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		RapidFuture future = new RapidFuture();
 
 		// send message in background
-//		new AsyncTask<Void, Void, Void>() {
-//			@Override
-//			protected Void doInBackground(Void... params) {
-				if(mConnectionState == CONNECTED) {
-					sendMessage(new MessageFuture(message.resolve(), future));
-				} else {
-					if(!(message instanceof Message.Nop)) mPendingMessageList.add(new MessageFuture(message.resolve(), future));
+		new AsyncTask<Void, Void, MessageFuture>() {
+			@Override
+			protected MessageFuture doInBackground(Void... params) {
+				Message m = message.resolve();
+				try {
+					MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
+					if(mConnectionState == CONNECTED) {
+						sendMessage(messageFuture);
+					} else {
+						if(!(messageFuture.getMessage() instanceof Message.Nop)) mPendingMessageList.add(messageFuture);
+					}
+				} catch(JSONException e) {
+					e.printStackTrace();
+					return null;
 				}
-//				return null;
-//			}
-//		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				return null;
+			}
+		}.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
 		return future;
 	}
 
@@ -321,7 +331,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private void sendMessage(MessageFuture msg) {
 		if(msg.getMessage().getMessageType() != MessageType.ACK && msg.getMessage().getMessageType() != MessageType.NOP)
 			mSentMessageList.add(msg);
-		mWebSocketConnection.sendMessage(msg.getMessage());
+		mWebSocketConnection.sendMessage(msg.getMessageJson());
 		mLastCommunicationTimestamp = System.currentTimeMillis();
 	}
 
