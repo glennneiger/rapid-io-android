@@ -12,7 +12,6 @@ import android.os.Handler;
 
 import org.json.JSONException;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -239,7 +238,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			if(mInternetConnected)
 			{
 				changeConnectionState(CONNECTING);
-				mWebSocketConnection = new WebSocketConnection(URI.create(mUrl), this);
+				mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
 				mWebSocketConnection.connectToServer();
 			}
 			else
@@ -359,7 +358,18 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			reconnect = false;
 		}
 		boolean finalReconnect = reconnect;
-		sendMessage(() -> new Message.Con(mConnectionId, finalReconnect));
+
+		try
+		{
+			Message.Con m = new Message.Con(mConnectionId, finalReconnect);
+			RapidFuture future = new RapidFuture();
+			MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
+			sendMessage(messageFuture);
+		}
+		catch(JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 
