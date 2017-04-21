@@ -1,10 +1,12 @@
 package me.nimavat.shortid;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 class Alphabet {
 	private static final String ORIGINAL = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-";
@@ -37,11 +39,11 @@ class Alphabet {
 		}
 
 		List<String> characters = Arrays.asList(_alphabet_.split(""));
-		List duplicates = Arrays.asList(_alphabet_.split("")).stream().filter((String c) -> Collections.frequency(characters, c) > 1).collect(Collectors.toList());
+		List duplicates = Stream.of(Arrays.asList(_alphabet_.split(""))).filter((String c) -> Collections.frequency(characters, c) > 1).collect(Collectors.toList());
 
 
 		if (duplicates.size() > 0) {
-			throw new RuntimeException("Custom alphabet for shortid must be " + ORIGINAL.length() + " unique characters. These characters were not unique: " + duplicates.stream().collect(Collectors.joining(", ")));
+			throw new RuntimeException("Custom alphabet for shortid must be " + ORIGINAL.length() + " unique characters. These characters were not unique: " + Stream.of(duplicates).collect(Collectors.joining(", ")));
 		}
 
 		alphabet = _alphabet_;
@@ -68,7 +70,7 @@ class Alphabet {
 
 		List<String> sourceArray = Arrays.asList(alphabet.split(""));
 		Collections.shuffle(sourceArray, random);
-		return sourceArray.stream().collect(Collectors.joining(""));
+		return Stream.of(sourceArray).collect(Collectors.joining(""));
 	}
 
 	static String getShuffled() {
