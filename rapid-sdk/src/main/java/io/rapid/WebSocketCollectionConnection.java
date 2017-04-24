@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.rapid.converter.RapidJsonConverter;
+import io.rapid.utility.BackgroundExecutor;
 import io.rapid.utility.ModifiableJSONArray;
 
 
@@ -99,9 +100,17 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			if(docs != null) {
 				applyValueToSubscription(subscription, docs, true);
 			} else { // then try disk cache
-				String jsonDocs = mSubscriptionDiskCache.get(subscription);
-				if(jsonDocs != null)
-					applyValueToSubscription(subscription, jsonDocs, true);
+				BackgroundExecutor.fetchInBackground(() -> {
+					try {
+						return mSubscriptionDiskCache.get(subscription);
+					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+						e.printStackTrace();
+					}
+					return null;
+				}, jsonDocs -> {
+					if(jsonDocs != null)
+						applyValueToSubscription(subscription, jsonDocs, true);
+				});
 			}
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -128,7 +137,13 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
 
 			// disk cache
-			mSubscriptionDiskCache.put(subscription, documents);
+			BackgroundExecutor.doInBackground(() -> {
+				try {
+					mSubscriptionDiskCache.put(subscription, documents);
+				} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+			});
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -228,13 +243,26 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 							currentItems.add(previousSiblingPosition, updatedDoc);
 						else
 							currentItems.add(previousSiblingPosition + 1, updatedDoc);
-					}
-					else {
+					} else {
 						currentItems.add(previousSiblingPosition + 1, updatedDoc);
 					}
 				}
+				ModifiableJSONArray finalCurrentItems = currentItems;
 
-				mSubscriptionDiskCache.put(subscription, currentItems.toString());
+				// update disk cache
+				BackgroundExecutor.doInBackground(() -> {
+					try {
+						mSubscriptionDiskCache.put(subscription, finalCurrentItems.toString());
+					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+						e.printStackTrace();
+						// unable to update data in cache - cache inconsistent -> clear it
+						try {
+							mSubscriptionDiskCache.remove(subscription);
+						} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
+							e1.printStackTrace();
+						}
+					}
+				});
 			}
 
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
@@ -242,7 +270,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			e.printStackTrace();
 			// unable to update data in cache - cache inconsistent -> clear it
 			try {
-				mSubscriptionDiskCache.remove(subscription);
+				mSubscriptionMemoryCache.remove(subscription);
 			} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
 				e1.printStackTrace();
 			}

@@ -238,7 +238,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			if(mInternetConnected)
 			{
 				changeConnectionState(CONNECTING);
-				mWebSocketConnection = new WebSocketConnectionLib(mUrl, this);
+				mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
 				mWebSocketConnection.connectToServer();
 			}
 			else

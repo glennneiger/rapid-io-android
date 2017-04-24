@@ -3,6 +3,7 @@ package io.rapid.sample;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -39,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		enableStrictMode();
+
 		mViewModel = new MainViewModel();
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 		setSupportActionBar(mBinding.toolbar);
@@ -65,8 +69,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.menu_main, menu);
 		return super.onCreateOptionsMenu(menu);
@@ -74,8 +77,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu)
-	{
+	public boolean onPrepareOptionsMenu(Menu menu) {
 		mToggleMenu = menu.findItem(R.id.menu_toggle_subscription);
 		Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
 		mToggleMenu.setTitle(R.string.unsubscribe);
@@ -85,10 +87,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
-	{
-		switch(item.getItemId())
-		{
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
 			case R.id.menu_toggle_subscription:
 				if(mSubscription.isSubscribed()) unsubscribe();
 				else subscribe();
@@ -122,10 +122,27 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	private void subscribe()
-	{
-		if(mToggleMenu != null)
-		{
+	public void addRandomItem(View view) {
+		addTodo(UUID.randomUUID().toString().substring(0, 12));
+	}
+
+
+	private void enableStrictMode() {
+		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+				.detectAll()
+				.penaltyLog()
+				.penaltyDeath()
+				.build());
+		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+				.detectAll()
+				.penaltyLog()
+				.penaltyDeath()
+				.build());
+	}
+
+
+	private void subscribe() {
+		if(mToggleMenu != null) {
 			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
 			mToggleMenu.setTitle(R.string.unsubscribe);
 			mToggleMenu.setIcon(icon);
@@ -141,20 +158,13 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	private void unsubscribe()
-	{
-		if(mToggleMenu != null)
-		{
+	private void unsubscribe() {
+		if(mToggleMenu != null) {
 			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud, null);
 			mToggleMenu.setTitle(R.string.subscribe);
 			mToggleMenu.setIcon(icon);
 		}
 		mSubscription.unsubscribe();
-	}
-
-
-	public void addRandomItem(View view) {
-		addTodo(UUID.randomUUID().toString().substring(0, 12));
 	}
 
 

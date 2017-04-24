@@ -5,80 +5,80 @@ import com.koushikdutta.async.http.WebSocket;
 
 import org.json.JSONException;
 
+import io.rapid.utility.BackgroundExecutor;
+
 
 /**
  * Created by Leos on 19.04.2017.
  */
 
-public class WebSocketConnectionAsync extends WebSocketConnection
-{
+public class WebSocketConnectionAsync extends WebSocketConnection {
 	WebSocket mClient;
 
 
-	public WebSocketConnectionAsync(String serverURI, WebSocketConnectionListener listener)
-	{
+	public WebSocketConnectionAsync(String serverURI, WebSocketConnectionListener listener) {
 		super(serverURI, listener);
 	}
 
 
 	@Override
-	void connectToServer()
-	{
-		AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
-		{
-			if (ex != null) {
-				ex.printStackTrace();
-				if(mListener != null) mListener.onError(ex);
-				return;
-			}
-
-			mClient = webSocket;
-
-
-			webSocket.setStringCallback(messageJson ->
+	void connectToServer() {
+		BackgroundExecutor.doInBackground(() -> {
+			AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
 			{
-				Logcat.d(messageJson);
-				new Thread(() ->
+				if(ex != null) {
+					ex.printStackTrace();
+					if(mListener != null) mListener.onError(ex);
+					return;
+				}
+
+				mClient = webSocket;
+
+
+				webSocket.setStringCallback(messageJson ->
 				{
-					try {
-						Message parsedMessage = MessageParser.parse(messageJson);
+					Logcat.d(messageJson);
+					BackgroundExecutor.doInBackground(() ->
+					{
+						try {
+							Message parsedMessage = MessageParser.parse(messageJson);
 
-						if(parsedMessage.getMessageType() == MessageType.BATCH) {
-							for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
-								handleNewMessage(message);
+							if(parsedMessage.getMessageType() == MessageType.BATCH) {
+								for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
+									handleNewMessage(message);
+								}
+							} else {
+								handleNewMessage(parsedMessage);
 							}
-						} else {
-							handleNewMessage(parsedMessage);
+						} catch(JSONException e) {
+							e.printStackTrace();
 						}
-					} catch(JSONException e) {
-						e.printStackTrace();
-					}
-				}).start();
-			});
+					});
+				});
 
-			webSocket.setClosedCallback(ex1 ->
-			{
-				CloseReasonEnum reasonEnum = CloseReasonEnum.get(1);
-				if(mListener != null) mListener.onClose(reasonEnum);
-			});
+				webSocket.setClosedCallback(ex1 ->
+				{
+					CloseReasonEnum reasonEnum = CloseReasonEnum.get(1);
+					if(mListener != null) mListener.onClose(reasonEnum);
+				});
 
-			if(mListener != null) mListener.onOpen();
+				if(mListener != null) mListener.onOpen();
+			});
 		});
 	}
 
 
 	@Override
-	void sendMessage(String message)
-	{
-		if(mClient != null){
+	void sendMessage(String message) {
+		if(mClient != null) {
 			Logcat.d(message);
 			mClient.send(message);
 		}
 	}
 
+
 	@Override
-	void disconnectFromServer(boolean sendDisconnectMessage)
-	{
+	void disconnectFromServer(boolean sendDisconnectMessage) {
 		super.disconnectFromServer(sendDisconnectMessage);
 		if(mClient != null) mClient.close();
 	}
