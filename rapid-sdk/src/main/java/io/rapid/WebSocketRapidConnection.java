@@ -107,6 +107,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		{
 			handleErrMessage((Message.Err) message);
 		}
+		else if(message.getMessageType() == MessageType.CA)
+		{
+			handleCaMessage((Message.Ca) message);
+		}
 		else if(message.getMessageType() == MessageType.ACK)
 		{
 			handleAckMessage((Message.Ack) message);
@@ -412,6 +416,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 				break;
 		}
+	}
+
+
+	private synchronized void handleCaMessage(Message.Ca message) {
+		getCallback().onCancel(message.getSubscriptionId(), message.getCollectionId());
 	}
 
 
