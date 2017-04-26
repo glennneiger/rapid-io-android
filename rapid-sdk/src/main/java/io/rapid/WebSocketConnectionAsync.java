@@ -38,22 +38,19 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 				webSocket.setStringCallback(messageJson ->
 				{
 					Logcat.d(messageJson);
-					BackgroundExecutor.doInBackground(() ->
-					{
-						try {
-							Message parsedMessage = MessageParser.parse(messageJson);
+					try {
+						Message parsedMessage = MessageParser.parse(messageJson);
 
-							if(parsedMessage.getMessageType() == MessageType.BATCH) {
-								for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
-									handleNewMessage(message);
-								}
-							} else {
-								handleNewMessage(parsedMessage);
+						if(parsedMessage.getMessageType() == MessageType.BATCH) {
+							for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
+								handleNewMessage(message);
 							}
-						} catch(JSONException e) {
-							e.printStackTrace();
+						} else {
+							handleNewMessage(parsedMessage);
 						}
-					});
+					} catch(JSONException e) {
+						e.printStackTrace();
+					}
 				});
 
 				webSocket.setClosedCallback(ex1 ->

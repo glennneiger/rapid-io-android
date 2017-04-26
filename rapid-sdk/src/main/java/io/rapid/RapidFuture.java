@@ -10,6 +10,8 @@ public class RapidFuture {
 	private CompleteCallback mCompletedCallback;
 	private boolean mSuccess;
 	private boolean mCompleted;
+	private RapidError mError;
+	private Handler mHandler;
 
 
 	public interface SuccessCallback {
@@ -19,6 +21,11 @@ public class RapidFuture {
 
 	public interface CompleteCallback {
 		void onComplete();
+	}
+
+
+	public RapidFuture(Handler handler) {
+		mHandler = handler;
 	}
 
 
@@ -33,39 +40,46 @@ public class RapidFuture {
 
 
 	public RapidFuture onSuccess(SuccessCallback successCallback) {
+		if(mSuccess)
+			mHandler.post(() -> mSuccessCallback.onSuccess());
 		mSuccessCallback = successCallback;
 		return this;
 	}
 
 
 	public RapidFuture onError(RapidCallback.Error errorCallback) {
+		if(mError != null)
+			mHandler.post(() -> mErrorCallback.onError(mError));
 		mErrorCallback = errorCallback;
 		return this;
 	}
 
 
 	public RapidFuture onCompleted(CompleteCallback callback) {
+		if(mCompleted)
+			mHandler.post(() -> mCompletedCallback.onComplete());
 		mCompletedCallback = callback;
 		return this;
 	}
 
 
-	void invokeError(Handler handler, RapidError error) {
+	void invokeError(RapidError error) {
 		mSuccess = false;
 		mCompleted = true;
+		mError = error;
 		if(mErrorCallback != null)
-			handler.post(() -> mErrorCallback.onError(error));
+			mHandler.post(() -> mErrorCallback.onError(error));
 		if(mCompletedCallback != null)
-			handler.post(() -> mCompletedCallback.onComplete());
+			mHandler.post(() -> mCompletedCallback.onComplete());
 	}
 
 
-	void invokeSuccess(Handler handler) {
+	void invokeSuccess() {
 		mSuccess = true;
 		mCompleted = true;
 		if(mSuccessCallback != null)
-			handler.post(() -> mSuccessCallback.onSuccess());
+			mHandler.post(() -> mSuccessCallback.onSuccess());
 		if(mCompletedCallback != null)
-			handler.post(() -> mCompletedCallback.onComplete());
+			mHandler.post(() -> mCompletedCallback.onComplete());
 	}
 }
