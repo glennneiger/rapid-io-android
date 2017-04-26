@@ -352,7 +352,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private RapidFuture sendMessage(FutureResolver<Message> message) {
-		RapidFuture future = new RapidFuture();
+		RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 
 		// send message in background
 		new AsyncTask<Void, Void, MessageFuture>() {
@@ -415,7 +415,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		try
 		{
 			Message.Con m = new Message.Con(mConnectionId, finalReconnect);
-			RapidFuture future = new RapidFuture();
+			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
 			sendMessage(messageFuture);
 		}
@@ -488,7 +488,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 		if(position != -1) {
 			MessageFuture messageFuture = mSentMessageList.get(position);
-			messageFuture.getRapidFuture().invokeSuccess(mOriginalThreadHandler);
+			messageFuture.getRapidFuture().invokeSuccess();
 			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 			if(messageFuture.getMessage() instanceof Message.Auth) mPendingAuth = false;
 			mSentMessageList.remove(position);
@@ -561,10 +561,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		// connection timeout
 		if(!mInternetConnected && now - mInternetLossTimestamp > Config.CONNECTION_TIMEOUT) {
 			for(MessageFuture mf : mSentMessageList) {
-				mf.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(TIMEOUT));
+				mf.getRapidFuture().invokeError(new RapidError(TIMEOUT));
 			}
 			for(MessageFuture mf : mPendingMessageList) {
-				mf.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(TIMEOUT));
+				mf.getRapidFuture().invokeError(new RapidError(TIMEOUT));
 			}
 			mSentMessageList.clear();
 			mPendingMessageList.clear();
