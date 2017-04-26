@@ -184,8 +184,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mAuthFuture = sendMessage(() -> new Message.Auth(token));
 		}
 		else if(mAuthenticated) {
-			RapidFuture future = new RapidFuture();
-			future.invokeSuccess(mOriginalThreadHandler);
+			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
+			future.invokeSuccess();
 			return future;
 		}
 
@@ -458,7 +458,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
-					messageFuture.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(INTERNAL_SERVER_ERROR));
+					messageFuture.getRapidFuture().invokeError(new RapidError(INTERNAL_SERVER_ERROR));
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					if(messageFuture.getMessage() instanceof Message.Auth) mPendingAuth = false;
 					mSentMessageList.remove(position);
@@ -551,7 +551,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(message.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 		if(message.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 		if(message.getMessage() instanceof Message.Auth) mPendingAuth = false;
-		message.getRapidFuture().invokeError(mOriginalThreadHandler, new RapidError(TIMEOUT));
+		message.getRapidFuture().invokeError(new RapidError(TIMEOUT));
 	}
 
 
