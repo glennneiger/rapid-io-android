@@ -103,7 +103,9 @@ abstract class Message {
 
 
 		enum ErrorType {
-			INTERNAL_ERROR("internal-error"), PERMISSION_DENIED("permission-denied"), CONNECTION_TERMINATED("connection-terminated"),
+			INTERNAL_ERROR("internal-error"),
+			PERMISSION_DENIED("permission-denied"),
+			CONNECTION_TERMINATED("connection-terminated"),
 			INVALID_AUTH_TOKEN("invalid-auth-token");
 
 

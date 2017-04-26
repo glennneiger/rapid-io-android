@@ -5,36 +5,37 @@ public class RapidError extends Error {
 
 	public enum ErrorType
 	{
-		PERMISSION_DENIED("permission-denied"), TIMEOUT("timeout"), INTERNAL_SERVER_ERROR("internal-server-error"),
-		SUBSCRIPTION_CANCELED("subscription-canceled"), INVALID_AUTH_TOKEN("invalid-auth-token");
+		TIMEOUT("Timeout", "Connection timed out"),
+		SUBSCRIPTION_CANCELED("Subscription canceled", ""),
+		INTERNAL_ERROR("Internal server error", ""),
+		PERMISSION_DENIED("Permission denied", ""),
+		CONNECTION_TERMINATED("Connection terminated", ""),
+		INVALID_AUTH_TOKEN("Invalid Auth Token", "");
 
-		private String mKey;
+		private String mName;
+		private String mMessage;
 
 
-		ErrorType(String key) {
-			mKey = key;
+		ErrorType(String name, String message) {
+			mName = name;
+			mMessage = message;
 		}
 
 
-		public String getKey()
+		public String getName()
 		{
-			return mKey;
+			return mName;
 		}
 
 
-		static ErrorType get(String key) {
-			if(key == null) return INTERNAL_SERVER_ERROR;
-
-			for(ErrorType item : ErrorType.values()) {
-				if(item.getKey().equalsIgnoreCase(key)) {
-					return item;
-				}
-			}
-			return INTERNAL_SERVER_ERROR;
+		public String getMessage()
+		{
+			return mMessage;
 		}
 	}
 
 	private ErrorType mType;
+
 
 
 	public RapidError(ErrorType type) {
@@ -43,7 +44,30 @@ public class RapidError extends Error {
 	}
 
 
-	public ErrorType getType() {
+	public RapidError(Message.Err message)
+	{
+		super("Rapid Error - " + message);
+
+		switch(message.getErrorType())
+		{
+			case CONNECTION_TERMINATED:
+				mType = ErrorType.CONNECTION_TERMINATED;
+				break;
+			case INTERNAL_ERROR:
+				mType = ErrorType.INTERNAL_ERROR;
+				break;
+			case INVALID_AUTH_TOKEN:
+				mType = ErrorType.INVALID_AUTH_TOKEN;
+				break;
+			case PERMISSION_DENIED:
+				mType = ErrorType.INVALID_AUTH_TOKEN;
+				break;
+		}
+	}
+
+
+	public ErrorType getType()
+	{
 		return mType;
 	}
 }

@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 		Rapid.getInstance().authorize(RAPID_TOKEN)
 			.onSuccess(() -> log("Auth success"))
-			.onError(error -> log("Auth fail: " + error.getType().getKey()));
+			.onError(error -> log("Auth fail: " + error.getType().getName()));
 
 		Rapid.getInstance().addConnectionStateListener(state -> {
 			mViewModel.connectionState.set(state);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	public void onDelete(String id, Todo todo) {
 		mTodos.document(id).delete()
 				.onSuccess(() -> log("Deleted"))
-				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
+				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
 	}
 
 
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 					log(listUpdate.toString());
 					mViewModel.items.update(items);
 				})
-				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
+				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
 	}
 
 
@@ -177,6 +177,6 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private void addTodo(String title) {
 		Todo todo = new Todo(title);
 		mTodos.newDocument().mutate(todo)
-				.onError(error -> Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_LONG).show());
+				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
 	}
 }

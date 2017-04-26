@@ -20,7 +20,6 @@ import static io.rapid.Config.HB_PERIOD;
 import static io.rapid.ConnectionState.CONNECTED;
 import static io.rapid.ConnectionState.CONNECTING;
 import static io.rapid.ConnectionState.DISCONNECTED;
-import static io.rapid.RapidError.ErrorType.INTERNAL_SERVER_ERROR;
 import static io.rapid.RapidError.ErrorType.SUBSCRIPTION_CANCELED;
 import static io.rapid.RapidError.ErrorType.TIMEOUT;
 
@@ -433,8 +432,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-
-
 	private synchronized void handleErrMessage(Message.Err message) {
 		switch(message.getErrorType())
 		{
@@ -458,7 +455,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
-					messageFuture.getRapidFuture().invokeError(new RapidError(INTERNAL_SERVER_ERROR));
+					messageFuture.getRapidFuture().invokeError(new RapidError(message));
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					if(messageFuture.getMessage() instanceof Message.Auth) mPendingAuth = false;
 					mSentMessageList.remove(position);
@@ -490,7 +487,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			MessageFuture messageFuture = mSentMessageList.get(position);
 			messageFuture.getRapidFuture().invokeSuccess();
 			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-			if(messageFuture.getMessage() instanceof Message.Auth) mPendingAuth = false;
+			if(messageFuture.getMessage() instanceof Message.Auth)
+			{
+				mPendingAuth = false;
+				mAuthenticated = true;
+			}
 			mSentMessageList.remove(position);
 		}
 
