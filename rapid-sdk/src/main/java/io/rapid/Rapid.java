@@ -55,6 +55,13 @@ public class Rapid {
 
 
 			@Override
+			public void onCancel(String subscriptionId, String collectionId)
+			{
+
+			}
+
+
+			@Override
 			public void onTimedOut() {
 				mCollectionProvider.timedOutAll();
 			}

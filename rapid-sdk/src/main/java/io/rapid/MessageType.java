@@ -2,8 +2,8 @@ package io.rapid;
 
 
 enum MessageType {
-	ACK("ack"), ERR("err"), MUT("mut"), MER("mer"), SUB("sub"), UNS("uns"), VAL("val"),
-	UPD("upd"), CON("con"), REC("rec"), DIS("dis"), NOP("nop"), BATCH("batch"), UNKNOWN("unw");
+	ACK("ack"), ERR("err"), AUTH("auth"), UNAUTH("unauth"), MUT("mut"), MER("mer"), SUB("sub"), UNS("uns"), VAL("val"),
+	UPD("upd"), CON("con"), REC("rec"), DIS("dis"), NOP("nop"), BATCH("batch"), CA("ca"), UNKNOWN("unw");
 
 
 	private String mKey;

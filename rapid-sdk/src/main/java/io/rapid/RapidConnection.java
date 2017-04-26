@@ -10,6 +10,7 @@ abstract class RapidConnection {
 		void onValue(String subscriptionId, String collectionId, String documentsJson);
 		void onUpdate(String subscriptionId, String collectionId, String previousSiblingId, String documentJson);
 		void onError(String subscriptionId, String collectionId, RapidError error);
+		void onCancel(String subscriptionId, String collectionId);
 		void onTimedOut();
 		void onReconnected();
 	}

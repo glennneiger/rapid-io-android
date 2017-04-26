@@ -103,7 +103,8 @@ abstract class Message {
 
 
 		enum ErrorType {
-			INTERNAL_ERROR("internal-error"), PERMISSION_DENIED("permission-denied"), CONNECTION_TERMINATED("connection-terminated");
+			INTERNAL_ERROR("internal-error"), PERMISSION_DENIED("permission-denied"), CONNECTION_TERMINATED("connection-terminated"),
+			INVALID_AUTH_TOKEN("invalid-auth-token");
 
 
 			private String mKey;
@@ -168,6 +169,57 @@ abstract class Message {
 
 		public String getErrorMessage() {
 			return mErrorMessage;
+		}
+	}
+
+
+	static class Auth extends Message {
+		private static final String ATTR_TOKEN = "token";
+
+		private String mToken;
+
+
+		public Auth(JSONObject json) throws JSONException {
+			super(MessageType.AUTH, json);
+		}
+
+
+		public Auth(String token) {
+			super(MessageType.AUTH);
+			mToken = token;
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_TOKEN, mToken);
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mToken = jsonBody.optString(ATTR_TOKEN);
+		}
+
+
+		public String getToken()
+		{
+			return mToken;
+		}
+	}
+
+
+	static class Unauth extends Message {
+		public Unauth() {
+			super(MessageType.UNAUTH, "");
+		}
+
+
+		public Unauth(JSONObject json) throws JSONException {
+			super(MessageType.UNAUTH, json);
 		}
 	}
 
@@ -633,6 +685,55 @@ abstract class Message {
 
 		public String getDocuments() {
 			return mDocuments;
+		}
+	}
+
+
+	static class Ca extends Message {
+		private static final String ATTR_SUB_ID = "sub-id";
+		private static final String ATTR_COL_ID = "col-id";
+
+		private String mSubscriptionId;
+		private String mCollectionId;
+
+
+		public Ca(String collectionId, String subscriptionId) {
+			super(MessageType.CA);
+
+			mCollectionId = collectionId;
+			mSubscriptionId = subscriptionId;
+		}
+
+
+		public Ca(JSONObject json) throws JSONException {
+			super(MessageType.CA, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_SUB_ID, mSubscriptionId);
+			body.put(ATTR_COL_ID, mCollectionId);
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+			mCollectionId = jsonBody.optString(ATTR_COL_ID);
+		}
+
+
+		public String getSubscriptionId() {
+			return mSubscriptionId;
+		}
+
+
+		public String getCollectionId() {
+			return mCollectionId;
 		}
 	}
 }
