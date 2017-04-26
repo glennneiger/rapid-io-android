@@ -20,6 +20,8 @@ import io.rapid.converter.RapidJsonConverter;
 import io.rapid.utility.BackgroundExecutor;
 import io.rapid.utility.ModifiableJSONArray;
 
+import static io.rapid.RapidError.ErrorType.TIMEOUT;
+
 
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
@@ -176,7 +178,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void onTimedOut() {
 		for(Subscription<T> subscription : mSubscriptions.values()) {
-			subscription.invokeError(new RapidError(RapidError.TIMEOUT));
+			subscription.invokeError(new RapidError(TIMEOUT));
 			mSubscriptions.remove(subscription.getSubscriptionId());
 		}
 	}

@@ -55,13 +55,6 @@ public class Rapid {
 
 
 			@Override
-			public void onCancel(String subscriptionId, String collectionId)
-			{
-
-			}
-
-
-			@Override
 			public void onTimedOut() {
 				mCollectionProvider.timedOutAll();
 			}
@@ -132,6 +125,12 @@ public class Rapid {
 
 	public <T> RapidCollectionReference<T> collection(String collectionName, Class<T> itemClass) {
 		return mCollectionProvider.provideCollection(collectionName, itemClass);
+	}
+
+
+	public RapidFuture authorize(String token) {
+
+		return mRapidConnection.authorize(token);
 	}
 
 

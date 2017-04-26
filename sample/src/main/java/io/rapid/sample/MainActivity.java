@@ -25,6 +25,8 @@ import io.rapid.sample.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
+	private final String RAPID_TOKEN =
+			"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbklkIjoidGVzdCIsInJ1bGVzIjp7Im1lc3NhZ2VzIjp7InJlYWQiOnRydWUsIndyaXRlIjp0cnVlfX19.GaFZ4OyLZQdO0yfNX4U5wRttn0Ut8_SjDq1W2LxT5H8";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
@@ -58,12 +60,16 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			return false;
 		});
 
+		Rapid.getInstance().authorize(RAPID_TOKEN)
+			.onSuccess(() -> log("Auth success"))
+			.onError(error -> log("Auth fail: " + error.getType().getKey()));
+
 		Rapid.getInstance().addConnectionStateListener(state -> {
 			mViewModel.connectionState.set(state);
 			log(state.toString());
 		});
 
-		mTodos = Rapid.getInstance().collection("todos_xyz", Todo.class);
+		mTodos = Rapid.getInstance().collection("messages", Todo.class);
 		subscribe();
 	}
 
