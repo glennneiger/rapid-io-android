@@ -11,7 +11,11 @@ android {
 		versionCode 1
 		versionName artifactVersion
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+		def isRelease = project.gradle.startParameter.taskNames.any { it.contains("install")}
+		println "RELEASE: $isRelease"
+		buildConfigField "boolean", "RELEASE", isRelease? "true" : "false"
 	}
+
 	buildTypes {
 		release {
 			minifyEnabled false

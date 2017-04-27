@@ -97,7 +97,7 @@ public class Rapid {
 
 
 	public static void initialize(String apiKey) {
-		Logcat.d("Initializing Rapid.io with API key: %s", apiKey);
+		Logcat.pd("Initializing Rapid.io with API key: %s", apiKey);
 		if(!sInstances.containsKey(apiKey))
 			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey));
 	}

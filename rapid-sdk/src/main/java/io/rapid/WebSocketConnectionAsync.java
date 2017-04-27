@@ -37,7 +37,7 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 
 				webSocket.setStringCallback(messageJson ->
 				{
-					Logcat.d(messageJson);
+					Logcat.pd("<--- %s", messageJson);
 					try {
 						Message parsedMessage = MessageParser.parse(messageJson);
 
@@ -68,7 +68,7 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 	@Override
 	void sendMessage(String message) {
 		if(mClient != null) {
-			Logcat.d(message);
+			Logcat.pd("---> %s", message);
 			mClient.send(message);
 		}
 	}
