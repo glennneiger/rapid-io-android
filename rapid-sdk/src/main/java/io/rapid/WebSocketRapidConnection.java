@@ -52,6 +52,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		startCheckHandler();
 		check();
 	};
+	private Runnable mDisconnectRunnable = () -> {
+		disconnectWebSocketConnection(true);
+	};
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 
 
@@ -278,43 +281,41 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private void createWebSocketConnectionIfNeeded()
-	{
-		if(mWebSocketConnection == null && (mPendingMutationCount > 0 || mSubscriptionCount > 0 || mPendingAuth))
-		{
-			authorizeIfNeeded();
-			if(mInternetConnected)
-			{
-				changeConnectionState(CONNECTING);
-				mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
-				mWebSocketConnection.connectToServer();
-			}
-			else
-			{
-				mInternetLossTimestamp = System.currentTimeMillis();
-				registerInternetConnectionBroadcast();
-				if(!mCheckRunning)
-				{
-					startCheckHandler();
+	private void createWebSocketConnectionIfNeeded() {
+		if(mPendingMutationCount > 0 || mSubscriptionCount > 0 || mPendingAuth) {
+			// cancel scheduled disconnect if any
+			mCheckHandler.removeCallbacks(mDisconnectRunnable);
+			if(mWebSocketConnection == null) {
+				authorizeIfNeeded();
+				if(mInternetConnected) {
+					changeConnectionState(CONNECTING);
+					mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
+					mWebSocketConnection.connectToServer();
+				} else {
+					mInternetLossTimestamp = System.currentTimeMillis();
+					registerInternetConnectionBroadcast();
+					if(!mCheckRunning) {
+						startCheckHandler();
+					}
 				}
 			}
 		}
 	}
 
 
-	private void disconnectWebSocketConnectionIfNeeded()
-	{
-		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mPendingAuth)
-		{
-			Logcat.d("Pending list: " + mPendingMessageList.size() + "; Sent list: " + mSentMessageList.size() + "; Subscription count: " +
-					mSubscriptionCount + "; Pending mutation count: " + mPendingMutationCount + "; Pending auth: " + mPendingAuth);
-			disconnectWebSocketConnection(true);
+	private void disconnectWebSocketConnectionIfNeeded() {
+		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mPendingAuth) {
+			Logcat.d("Scheduling websocket disconnection in %d ms", Config.WEBSOCKET_DISCONNECT_TIMEOUT);
+			mCheckHandler.postDelayed(mDisconnectRunnable, Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 		}
 	}
 
 
 	private void disconnectWebSocketConnection(boolean sendDisconnectMessage)
 	{
+		// cancel scheduled disconnect if any
+		mCheckHandler.removeCallbacks(mDisconnectRunnable);
+
 		if(mWebSocketConnection != null) {
 			changeConnectionState(DISCONNECTED);
 			mWebSocketConnection.disconnectFromServer(sendDisconnectMessage);
