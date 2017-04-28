@@ -10,7 +10,8 @@ public class RapidError extends Error {
 		INTERNAL_ERROR("Internal server error", ""),
 		PERMISSION_DENIED("Permission denied", ""),
 		CONNECTION_TERMINATED("Connection terminated", ""),
-		INVALID_AUTH_TOKEN("Invalid Auth Token", "");
+		INVALID_AUTH_TOKEN("Invalid Auth Token", ""),
+		UNKNOWN_ERROR("Unknown Error", "");
 
 		private String mName;
 		private String mMessage;
@@ -39,31 +40,10 @@ public class RapidError extends Error {
 
 
 	public RapidError(ErrorType type) {
-		super("Rapid Error - " + type);
+		super("Rapid Error: " + type.getName());
 		mType = type;
 	}
 
-
-	public RapidError(Message.Err message)
-	{
-		super("Rapid Error - " + message);
-
-		switch(message.getErrorType())
-		{
-			case CONNECTION_TERMINATED:
-				mType = ErrorType.CONNECTION_TERMINATED;
-				break;
-			case INTERNAL_ERROR:
-				mType = ErrorType.INTERNAL_ERROR;
-				break;
-			case INVALID_AUTH_TOKEN:
-				mType = ErrorType.INVALID_AUTH_TOKEN;
-				break;
-			case PERMISSION_DENIED:
-				mType = ErrorType.INVALID_AUTH_TOKEN;
-				break;
-		}
-	}
 
 
 	public ErrorType getType()

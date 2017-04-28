@@ -26,7 +26,7 @@ import io.rapid.sample.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
 	private final String RAPID_TOKEN =
-			"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbklkIjoidGVzdCIsInJ1bGVzIjp7Im1lc3NhZ2VzIjp7InJlYWQiOnRydWUsIndyaXRlIjp0cnVlfX19.GaFZ4OyLZQdO0yfNX4U5wRttn0Ut8_SjDq1W2LxT5H8";
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbklkIjoidGVzdDIiLCJydWxlcyI6eyJ0b2Rvc18wMSI6eyJyZWFkIjp0cnVlLCJ3cml0ZSI6dHJ1ZX19fQ.0UfGIR7p2bLKfhqP6yZCA5BpCxBlfOshzhIbS_7t2qM";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			log(state.toString());
 		});
 
-		mTodos = Rapid.getInstance().collection("messages", Todo.class);
+		mTodos = Rapid.getInstance().collection("todos_01", Todo.class);
 		subscribe();
 	}
 
@@ -160,7 +160,10 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 					log(listUpdate.toString());
 					mViewModel.items.update(items);
 				})
-				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
+				.onError(error -> {
+					error.printStackTrace();
+					Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show();
+				});
 	}
 
 
