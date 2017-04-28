@@ -6,7 +6,7 @@ import android.os.Handler;
 
 public class RapidFuture {
 	private SuccessCallback mSuccessCallback;
-	private RapidCallback.Error mErrorCallback;
+	private ErrorCallback mErrorCallback;
 	private CompleteCallback mCompletedCallback;
 	private boolean mSuccess;
 	private boolean mCompleted;
@@ -18,13 +18,17 @@ public class RapidFuture {
 		void onSuccess();
 	}
 
+	public interface ErrorCallback {
+		void onError(RapidError error);
+	}
+
 
 	public interface CompleteCallback {
 		void onComplete();
 	}
 
 
-	public RapidFuture(Handler handler) {
+	RapidFuture(Handler handler) {
 		mHandler = handler;
 	}
 
@@ -47,7 +51,7 @@ public class RapidFuture {
 	}
 
 
-	public RapidFuture onError(RapidCallback.Error errorCallback) {
+	public RapidFuture onError(ErrorCallback errorCallback) {
 		if(mError != null)
 			mHandler.post(() -> mErrorCallback.onError(mError));
 		mErrorCallback = errorCallback;
