@@ -30,7 +30,7 @@ class SubscriptionDiskCache {
 	}
 
 
-	public String get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized String get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return null;
 		String fingerprint = subscription.getFingerprint();
@@ -45,7 +45,7 @@ class SubscriptionDiskCache {
 	}
 
 
-	public void put(Subscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized void put(Subscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
@@ -56,12 +56,12 @@ class SubscriptionDiskCache {
 	}
 
 
-	public void clear() throws IOException {
+	public synchronized void clear() throws IOException {
 		mCache.delete();
 	}
 
 
-	public void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	public synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
