@@ -17,7 +17,7 @@ class SubscriptionMemoryCache<T> {
 
 
 	public SubscriptionMemoryCache(int maxEntries) {
-		mCache = new LruCache<>(maxEntries * 1_000_000);
+		mCache = new LruCache<>(maxEntries);
 	}
 
 
