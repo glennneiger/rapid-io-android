@@ -49,7 +49,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun performMutationsOnSingleConnection(n: Int) {
-        val collectionName = "___stress_test_02"
+        val collectionName = "___stress_test_03"
 
         // init log
         log = Log(activity, "txt")
