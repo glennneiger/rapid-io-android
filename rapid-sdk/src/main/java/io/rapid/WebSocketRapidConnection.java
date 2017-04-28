@@ -479,6 +479,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		disconnectWebSocketConnectionIfNeeded();
 	}
 
+
 	private synchronized void handleCaMessage(Message.Ca message) {
 		mSubscriptionCount--;
 		disconnectWebSocketConnectionIfNeeded();
@@ -552,16 +553,24 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		long now = System.currentTimeMillis();
 
 		// message timeout
-		for(int i = mSentMessageList.size() - 1; i >= 0; i--)
+		for(int i = 0; i < mSentMessageList.size(); i++)
 		{
 			if(now - mSentMessageList.get(i).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
-				timeoutMessage(mPendingMessageList.remove(i));
+				timeoutMessage(mSentMessageList.remove(i));
+				i--;
+			}
+			else {
+				break;
 			}
 		}
-		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
+		for(int i = 0; i < mPendingMessageList.size(); i++)
 		{
 			if(now - mPendingMessageList.get(i).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
 				timeoutMessage(mPendingMessageList.remove(i));
+				i--;
+			}
+			else {
+				break;
 			}
 		}
 	}
