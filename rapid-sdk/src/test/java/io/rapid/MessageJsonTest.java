@@ -248,14 +248,14 @@ public class MessageJsonTest extends BaseTest {
 		Message.Err errMsg = (Message.Err) msg;
 		assertEquals(errMsg.getMessageType(), MessageType.ERR);
 		assertEquals(errMsg.getEventId(),"eventId");
-		assertEquals(errMsg.getErrorType(), Message.Err.ErrorType.CONNECTION_TERMINATED);
+		assertEquals(errMsg.getType(), Message.Err.Type.CONNECTION_TERMINATED);
 		assertEquals(errMsg.getErrorMessage(), "Something went wrong");
 	}
 
 
 	@Test
 	public void test_model2jsonErr() throws Exception {
-		Message.Err errMsg = new Message.Err(Message.Err.ErrorType.CONNECTION_TERMINATED, "Something went wrong");
+		Message.Err errMsg = new Message.Err(Message.Err.Type.CONNECTION_TERMINATED, "Something went wrong");
 		JSONAssert.assertEquals(errMsg.toJson().toString(), "{\"err\": {\"evt-id\": \""+errMsg.getEventId()+"\", \"err-type\": \"connection-terminated\", " +
 				"\"err-msg\":\"Something went wrong\"}}", false);
 	}

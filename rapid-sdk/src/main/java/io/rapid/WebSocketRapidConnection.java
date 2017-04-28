@@ -443,7 +443,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void handleErrMessage(Message.Err message) {
-		switch(message.getErrorType())
+		switch(message.getType())
 		{
 			case CONNECTION_TERMINATED:
 				disconnectWebSocketConnection(false);
@@ -465,7 +465,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
-					messageFuture.getRapidFuture().invokeError(new RapidError(message));
+					messageFuture.getRapidFuture().invokeError(new RapidError(RapidError.ErrorType.fromServerError(message)));
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					if(messageFuture.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 					if(messageFuture.getMessage() instanceof Message.Auth) mAuth.authError();
@@ -478,7 +478,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 		disconnectWebSocketConnectionIfNeeded();
 	}
-
 
 	private synchronized void handleCaMessage(Message.Ca message) {
 		mSubscriptionCount--;

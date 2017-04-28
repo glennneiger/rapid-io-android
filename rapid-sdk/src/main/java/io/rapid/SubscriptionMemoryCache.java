@@ -17,7 +17,7 @@ class SubscriptionMemoryCache<T> {
 
 
 	public SubscriptionMemoryCache(int maxEntries) {
-		mCache = new LruCache<>(maxEntries * 1_000_000);
+		mCache = new LruCache<>(maxEntries);
 	}
 
 
@@ -26,7 +26,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public List<RapidDocument<T>> get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized List<RapidDocument<T>> get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return null;
 		String fingerprint = subscription.getFingerprint();
@@ -35,7 +35,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public void put(Subscription subscription, List<RapidDocument<T>> value) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized void put(Subscription subscription, List<RapidDocument<T>> value) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
@@ -44,12 +44,12 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public void clear() throws IOException {
+	public synchronized void clear() throws IOException {
 		mCache.evictAll();
 	}
 
 
-	public void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	public synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();

@@ -39,7 +39,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mType = type;
-		mSubscriptionMemoryCache = new SubscriptionMemoryCache<>(10);
+		mSubscriptionMemoryCache = new SubscriptionMemoryCache<>(Integer.MAX_VALUE);
 		mSubscriptionDiskCache = subscriptionDiskCache;
 	}
 

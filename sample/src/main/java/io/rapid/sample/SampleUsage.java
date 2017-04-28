@@ -8,10 +8,8 @@ import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidDocument;
 import io.rapid.RapidDocumentReference;
+import io.rapid.RapidError;
 import io.rapid.Sorting;
-
-import static io.rapid.RapidError.ErrorType.PERMISSION_DENIED;
-import static io.rapid.RapidError.ErrorType.TIMEOUT;
 
 
 public class SampleUsage {
@@ -48,7 +46,7 @@ public class SampleUsage {
 			String id = firstDoc.getId();
 			Message body = firstDoc.getBody();
 		}).onError(error -> {
-			boolean isPermissionDenied = error.getType().equals(PERMISSION_DENIED);
+			boolean isPermissionDenied = error.getType().equals(RapidError.ErrorType.PERMISSION_DENIED);
 			error.printStackTrace();
 		});
 
@@ -90,8 +88,8 @@ public class SampleUsage {
 					log("Message successfuly written.");
 				})
 				.onError(error -> {
-					boolean isTimeout = error.getType().equals(TIMEOUT);
-					boolean isPermissionDenied = error.getType().equals(PERMISSION_DENIED);
+					boolean isTimeout = error.getType().equals(RapidError.ErrorType.TIMEOUT);
+					boolean isPermissionDenied = error.getType().equals(RapidError.ErrorType.PERMISSION_DENIED);
 					error.printStackTrace();
 				});
 

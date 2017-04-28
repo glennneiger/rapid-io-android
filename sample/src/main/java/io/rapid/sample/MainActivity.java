@@ -25,8 +25,8 @@ import io.rapid.sample.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
-	private final String RAPID_TOKEN =
-			"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbklkIjoidGVzdCIsInJ1bGVzIjp7Im1lc3NhZ2VzIjp7InJlYWQiOnRydWUsIndyaXRlIjp0cnVlfX19.GaFZ4OyLZQdO0yfNX4U5wRttn0Ut8_SjDq1W2LxT5H8";
+	private final String AUTH_TOKEN =
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbklkIjoidGVzdDIiLCJydWxlcyI6eyJ0b2Rvc18wMSI6eyJyZWFkIjp0cnVlLCJ3cml0ZSI6dHJ1ZX19fQ.0UfGIR7p2bLKfhqP6yZCA5BpCxBlfOshzhIbS_7t2qM";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			log(state.toString());
 		});
 
-		mTodos = Rapid.getInstance().collection("messages", Todo.class);
+		mTodos = Rapid.getInstance().collection("todos_01", Todo.class);
 		subscribe();
 	}
 
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	public void onDelete(String id, Todo todo) {
 		mTodos.document(id).delete()
 				.onSuccess(() -> log("Deleted"))
-				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
+				.onError(error -> Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show());
 	}
 
 
@@ -162,9 +162,9 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			mToggleAuthMenu.setIcon(icon);
 		}
 
-		Rapid.getInstance().authorize(RAPID_TOKEN)
+		Rapid.getInstance().authorize(AUTH_TOKEN)
 				.onSuccess(() -> log("Auth success"))
-				.onError(error -> log("Auth fail: " + error.getType().getName()));
+				.onError(error -> log("Auth fail: " + error.getMessage()));
 	}
 
 
@@ -196,7 +196,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 					mViewModel.items.update(items);
 				})
 				.onError(error -> {
-					Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show();
+					error.printStackTrace();
+					Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
 					if(mToggleSubscriptionMenu != null) {
 						Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud, null);
 						mToggleSubscriptionMenu.setTitle(R.string.subscribe);
@@ -219,6 +220,6 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private void addTodo(String title) {
 		Todo todo = new Todo(title);
 		mTodos.newDocument().mutate(todo)
-				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
+				.onError(error -> Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show());
 	}
 }
