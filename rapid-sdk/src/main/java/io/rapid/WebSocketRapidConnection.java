@@ -434,7 +434,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void handleErrMessage(Message.Err message) {
-		switch(message.getErrorType())
+		switch(message.getType())
 		{
 			case CONNECTION_TERMINATED:
 				disconnectWebSocketConnection(false);
@@ -456,7 +456,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
-					messageFuture.getRapidFuture().invokeError(new RapidError(getErrorType(message)));
+					messageFuture.getRapidFuture().invokeError(new RapidError(RapidError.ErrorType.fromServerError(message)));
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					if(messageFuture.getMessage() instanceof Message.Auth) mPendingAuth = false;
 					mSentMessageList.remove(position);
@@ -465,22 +465,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				break;
 		}
 	}
-
-
-	private RapidError.ErrorType getErrorType(Message.Err message) {
-		switch(message.getErrorType()) {
-			case CONNECTION_TERMINATED:
-				return RapidError.ErrorType.CONNECTION_TERMINATED;
-			case INTERNAL_ERROR:
-				return RapidError.ErrorType.INTERNAL_ERROR;
-			case INVALID_AUTH_TOKEN:
-				return RapidError.ErrorType.INVALID_AUTH_TOKEN;
-			case PERMISSION_DENIED:
-				return RapidError.ErrorType.INVALID_AUTH_TOKEN;
-		}
-		return RapidError.ErrorType.UNKNOWN_ERROR;
-	}
-
 
 	private synchronized void handleCaMessage(Message.Ca message) {
 		getCallback().onError(message.getSubscriptionId(), message.getCollectionId(), new RapidError(SUBSCRIPTION_CANCELED));

@@ -25,7 +25,7 @@ import io.rapid.sample.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
-	private final String RAPID_TOKEN =
+	private final String AUTH_TOKEN =
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbklkIjoidGVzdDIiLCJydWxlcyI6eyJ0b2Rvc18wMSI6eyJyZWFkIjp0cnVlLCJ3cml0ZSI6dHJ1ZX19fQ.0UfGIR7p2bLKfhqP6yZCA5BpCxBlfOshzhIbS_7t2qM";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
@@ -60,9 +60,9 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			return false;
 		});
 
-		Rapid.getInstance().authorize(RAPID_TOKEN)
+		Rapid.getInstance().authorize(AUTH_TOKEN)
 			.onSuccess(() -> log("Auth success"))
-			.onError(error -> log("Auth fail: " + error.getType().getName()));
+			.onError(error -> log("Auth fail: " + error.getMessage()));
 
 		Rapid.getInstance().addConnectionStateListener(state -> {
 			mViewModel.connectionState.set(state);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	public void onDelete(String id, Todo todo) {
 		mTodos.document(id).delete()
 				.onSuccess(() -> log("Deleted"))
-				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
+				.onError(error -> Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show());
 	}
 
 
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 				})
 				.onError(error -> {
 					error.printStackTrace();
-					Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
 				});
 	}
 
@@ -180,6 +180,6 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private void addTodo(String title) {
 		Todo todo = new Todo(title);
 		mTodos.newDocument().mutate(todo)
-				.onError(error -> Toast.makeText(MainActivity.this, error.getType().getName(), Toast.LENGTH_LONG).show());
+				.onError(error -> Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show());
 	}
 }
