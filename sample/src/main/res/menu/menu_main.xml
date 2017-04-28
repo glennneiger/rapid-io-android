@@ -8,4 +8,10 @@
 		app:showAsAction="always">
 	</item>
 
+	<item
+		android:id="@+id/menu_toggle_authentication"
+		android:title=""
+		app:showAsAction="always">
+	</item>
+
 </menu>

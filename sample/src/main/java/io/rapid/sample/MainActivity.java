@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
 	private RapidCollectionReference<Todo> mTodos;
-	private MenuItem mToggleMenu;
+	private MenuItem mToggleSubscriptionMenu;
+	private MenuItem mToggleAuthMenu;
 
 
 	private static void log(String message) {
@@ -60,9 +61,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			return false;
 		});
 
-		Rapid.getInstance().authorize(AUTH_TOKEN)
-			.onSuccess(() -> log("Auth success"))
-			.onError(error -> log("Auth fail: " + error.getMessage()));
+		auth();
 
 		Rapid.getInstance().addConnectionStateListener(state -> {
 			mViewModel.connectionState.set(state);
@@ -84,10 +83,14 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		mToggleMenu = menu.findItem(R.id.menu_toggle_subscription);
-		Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
-		mToggleMenu.setTitle(R.string.unsubscribe);
-		mToggleMenu.setIcon(icon);
+		mToggleSubscriptionMenu = menu.findItem(R.id.menu_toggle_subscription);
+		mToggleAuthMenu = menu.findItem(R.id.menu_toggle_authentication);
+		Drawable iconSub = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
+		mToggleSubscriptionMenu.setTitle(R.string.unsubscribe);
+		mToggleSubscriptionMenu.setIcon(iconSub);
+		Drawable iconAuth = VectorDrawableCompat.create(getResources(), R.drawable.ic_unauth, null);
+		mToggleAuthMenu.setTitle(R.string.unauth);
+		mToggleAuthMenu.setIcon(iconAuth);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -98,6 +101,10 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			case R.id.menu_toggle_subscription:
 				if(mSubscription.isSubscribed()) unsubscribe();
 				else subscribe();
+				return true;
+			case R.id.menu_toggle_authentication:
+				if(Rapid.getInstance().isAuthenticated()) unauth();
+				else auth();
 				return true;
 
 			default:
@@ -147,11 +154,39 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
+	private void auth()
+	{
+		if(mToggleAuthMenu != null) {
+			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_unauth, null);
+			mToggleAuthMenu.setTitle(R.string.unauth);
+			mToggleAuthMenu.setIcon(icon);
+		}
+
+		Rapid.getInstance().authorize(AUTH_TOKEN)
+				.onSuccess(() -> log("Auth success"))
+				.onError(error -> log("Auth fail: " + error.getMessage()));
+	}
+
+
+	private void unauth()
+	{
+		if(mToggleAuthMenu != null) {
+			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_auth, null);
+			mToggleAuthMenu.setTitle(R.string.auth);
+			mToggleAuthMenu.setIcon(icon);
+		}
+
+		Rapid.getInstance().unauthorize()
+				.onSuccess(() -> log("Unauth success"))
+				.onError(error -> log("Unauth fail: " + error.getType().getName()));
+	}
+
+
 	private void subscribe() {
-		if(mToggleMenu != null) {
+		if(mToggleSubscriptionMenu != null) {
 			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
-			mToggleMenu.setTitle(R.string.unsubscribe);
-			mToggleMenu.setIcon(icon);
+			mToggleSubscriptionMenu.setTitle(R.string.unsubscribe);
+			mToggleSubscriptionMenu.setIcon(icon);
 		}
 		mSubscription = mTodos
 				.orderBy("mChecked")
@@ -163,15 +198,20 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 				.onError(error -> {
 					error.printStackTrace();
 					Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+					if(mToggleSubscriptionMenu != null) {
+						Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud, null);
+						mToggleSubscriptionMenu.setTitle(R.string.subscribe);
+						mToggleSubscriptionMenu.setIcon(icon);
+					}
 				});
 	}
 
 
 	private void unsubscribe() {
-		if(mToggleMenu != null) {
+		if(mToggleSubscriptionMenu != null) {
 			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud, null);
-			mToggleMenu.setTitle(R.string.subscribe);
-			mToggleMenu.setIcon(icon);
+			mToggleSubscriptionMenu.setTitle(R.string.subscribe);
+			mToggleSubscriptionMenu.setIcon(icon);
 		}
 		mSubscription.unsubscribe();
 	}

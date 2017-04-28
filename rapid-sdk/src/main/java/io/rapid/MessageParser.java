@@ -34,6 +34,8 @@ class MessageParser {
 				return new Message.Dis(json);
 			case NOP:
 				return new Message.Nop(json);
+			case CA:
+				return new Message.Ca(json);
 			case UNKNOWN:
 				return new Message.Unknown();
 			default:

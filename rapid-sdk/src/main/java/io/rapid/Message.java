@@ -216,7 +216,7 @@ abstract class Message {
 
 	static class Unauth extends Message {
 		public Unauth() {
-			super(MessageType.UNAUTH, "");
+			super(MessageType.UNAUTH);
 		}
 
 
