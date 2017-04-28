@@ -20,7 +20,13 @@ abstract class RapidConnection {
 	}
 
 
-	public abstract RapidFuture authorize(String token);
+	abstract RapidFuture authorize(String token);
+
+
+	abstract RapidFuture unauthorize();
+
+
+	abstract boolean isAuthenticated();
 
 
 	abstract void addConnectionStateListener(RapidConnectionStateListener listener);

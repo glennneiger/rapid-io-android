@@ -60,7 +60,7 @@ public class RapidError extends Error {
 				mType = ErrorType.INVALID_AUTH_TOKEN;
 				break;
 			case PERMISSION_DENIED:
-				mType = ErrorType.INVALID_AUTH_TOKEN;
+				mType = ErrorType.PERMISSION_DENIED;
 				break;
 		}
 	}

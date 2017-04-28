@@ -134,6 +134,12 @@ public class Rapid {
 	}
 
 
+	public RapidFuture unauthorize() {
+
+		return mRapidConnection.unauthorize();
+	}
+
+
 	public RapidJsonConverter getJsonConverter() {
 		return mJsonConverter;
 	}
@@ -176,5 +182,11 @@ public class Rapid {
 
 	public void setCacheSize(int cacheSizeInMb) {
 		mCollectionProvider.getSubscriptionDiskCache().setMaxSize(cacheSizeInMb);
+	}
+
+
+	public boolean isAuthenticated()
+	{
+		return mRapidConnection.isAuthenticated();
 	}
 }

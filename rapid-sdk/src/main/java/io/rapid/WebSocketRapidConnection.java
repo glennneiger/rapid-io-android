@@ -41,10 +41,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private int mPendingMutationCount = 0;
 	private List<MessageFuture> mPendingMessageList = new ArrayList<>();
 	private List<MessageFuture> mSentMessageList = new ArrayList<>();
-	private boolean mPendingAuth;
-	private String mAuthToken;
-	private RapidFuture mAuthFuture;
-	private boolean mAuthenticated = false;
+	private AuthHelper mAuth;
 	private boolean mCheckRunning = false;
 	private Handler mCheckHandler = new Handler();
 	private Runnable mCheckRunnable = () ->
@@ -80,12 +77,32 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	};
 
 
+	private AuthHelper.AuthCallback mAuthCallback = new AuthHelper.AuthCallback() {
+		@Override
+		public RapidFuture sendAuthMessage(String token)
+		{
+			createWebSocketConnectionIfNeeded();
+			return sendMessage(() -> new Message.Auth(token));
+		}
+
+
+		@Override
+		public RapidFuture sendUnauthMessage()
+		{
+			createWebSocketConnectionIfNeeded();
+			return sendMessage(Message.Unauth::new);
+		}
+	};
+
+
 	public WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler)
 	{
 		super(rapidConnectionCallback);
 		mContext = context;
 		mUrl = url;
 		mOriginalThreadHandler = originalThreadHandler;
+
+		mAuth = new AuthHelper(mOriginalThreadHandler, mAuthCallback);
 	}
 
 
@@ -141,6 +158,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public void onClose(CloseReasonEnum reason)
 	{
+		mAuth.onClose();
+
 		if(reason != CloseReasonEnum.CLOSED_MANUALLY)
 		{
 			changeConnectionState(DISCONNECTED);
@@ -171,27 +190,21 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public RapidFuture authorize(String token)
 	{
-		if(token == null || !token.equals(mAuthToken))
-		{
-			mAuthToken = token;
-			mPendingAuth = true;
-			mAuthenticated = false;
-			createWebSocketConnectionIfNeeded();
-			mAuthFuture = sendMessage(() -> new Message.Auth(token));
-		}
-		else if(!mAuthenticated && !mPendingAuth)
-		{
-			mAuthenticated = false;
-			createWebSocketConnectionIfNeeded();
-			mAuthFuture = sendMessage(() -> new Message.Auth(token));
-		}
-		else if(mAuthenticated) {
-			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
-			future.invokeSuccess();
-			return future;
-		}
+		return mAuth.authorize(token);
+	}
 
-		return mAuthFuture;
+
+	@Override
+	public RapidFuture unauthorize()
+	{
+		return mAuth.unauthorize(mConnectionState);
+	}
+
+
+	@Override
+	boolean isAuthenticated()
+	{
+		return mAuth.isAuthenticated();
 	}
 
 
@@ -272,21 +285,17 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private void authorizeIfNeeded()
-	{
-		if(mAuthToken != null && !mPendingAuth)
-		{
-			sendMessage(() -> new Message.Auth(mAuthToken));
-		}
-	}
-
-
 	private void createWebSocketConnectionIfNeeded() {
-		if(mPendingMutationCount > 0 || mSubscriptionCount > 0 || mPendingAuth) {
+		if(mPendingMutationCount > 0 || mSubscriptionCount > 0 || mAuth.isAuthPending() || mAuth.isUnauthPending()) {
 			// cancel scheduled disconnect if any
 			mCheckHandler.removeCallbacks(mDisconnectRunnable);
 			if(mWebSocketConnection == null) {
-				authorizeIfNeeded();
+				if(mAuth.isAuthRequired())
+				{
+					mAuth.setAuthPending();
+					sendMessage(() -> new Message.Auth(mAuth.getAuthToken()));
+				}
+
 				if(mInternetConnected) {
 					changeConnectionState(CONNECTING);
 					mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
@@ -304,7 +313,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void disconnectWebSocketConnectionIfNeeded() {
-		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mPendingAuth) {
+		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mAuth.isAuthPending()&& !mAuth.isUnauthPending()) {
 			Logcat.d("Scheduling websocket disconnection in %d ms", Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 			mCheckHandler.postDelayed(mDisconnectRunnable, Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 		}
@@ -458,16 +467,22 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					MessageFuture messageFuture = mSentMessageList.get(position);
 					messageFuture.getRapidFuture().invokeError(new RapidError(message));
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-					if(messageFuture.getMessage() instanceof Message.Auth) mPendingAuth = false;
+					if(messageFuture.getMessage() instanceof Message.Sub) mSubscriptionCount--;
+					if(messageFuture.getMessage() instanceof Message.Auth) mAuth.authError();
+					if(messageFuture.getMessage() instanceof Message.Unauth) mAuth.unauthError();
 					mSentMessageList.remove(position);
 				}
 
 				break;
 		}
+
+		disconnectWebSocketConnectionIfNeeded();
 	}
 
 
 	private synchronized void handleCaMessage(Message.Ca message) {
+		mSubscriptionCount--;
+		disconnectWebSocketConnectionIfNeeded();
 		getCallback().onError(message.getSubscriptionId(), message.getCollectionId(), new RapidError(SUBSCRIPTION_CANCELED));
 	}
 
@@ -490,8 +505,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 			if(messageFuture.getMessage() instanceof Message.Auth)
 			{
-				mPendingAuth = false;
-				mAuthenticated = true;
+				mAuth.authSuccess();
+			}
+			if(messageFuture.getMessage() instanceof Message.Unauth)
+			{
+				mAuth.unauthSuccess();
 			}
 			mSentMessageList.remove(position);
 		}
@@ -529,21 +547,22 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private synchronized void checkMessagesTimeout() {
 		Logcat.d("Pending list: " + mPendingMessageList.size() + "; Sent list: " + mSentMessageList.size() + "; Subscription count: " +
-				mSubscriptionCount + "; Pending mutation count: " + mPendingMutationCount + "; Pending auth: " + mPendingAuth);
+				mSubscriptionCount + "; Pending mutation count: " + mPendingMutationCount + "; Pending auth: " + mAuth.isAuthPending() +
+				"; Pending unauth: " + mAuth.isUnauthPending());
 
 		long now = System.currentTimeMillis();
 
 		// message timeout
 		for(int i = mSentMessageList.size() - 1; i >= 0; i--)
 		{
-			if(now - mSentMessageList.get(0).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
-				timeoutMessage(mPendingMessageList.remove(0));
+			if(now - mSentMessageList.get(i).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
+				timeoutMessage(mPendingMessageList.remove(i));
 			}
 		}
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
 		{
-			if(now - mPendingMessageList.get(0).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
-				timeoutMessage(mPendingMessageList.remove(0));
+			if(now - mPendingMessageList.get(i).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
+				timeoutMessage(mPendingMessageList.remove(i));
 			}
 		}
 	}
@@ -552,7 +571,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private void timeoutMessage(MessageFuture message) {
 		if(message.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 		if(message.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-		if(message.getMessage() instanceof Message.Auth) mPendingAuth = false;
+		if(message.getMessage() instanceof Message.Auth) mAuth.authError();
+		if(message.getMessage() instanceof Message.Unauth) mAuth.unauthError();
 		message.getRapidFuture().invokeError(new RapidError(TIMEOUT));
 	}
 
@@ -573,7 +593,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mConnectionId = null;
 			mSubscriptionCount = 0;
 			mPendingMutationCount = 0;
-			mPendingAuth = false;
+			mAuth.authError();
+			mAuth.unauthError();
 			stopCheckHandler();
 			unregisterInternetConnectionBroadcast();
 			mCallback.onTimedOut();
