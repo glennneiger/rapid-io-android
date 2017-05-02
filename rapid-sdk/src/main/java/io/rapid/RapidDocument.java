@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +14,7 @@ import java.util.List;
 import io.rapid.converter.RapidJsonConverter;
 
 
-public class RapidDocument<T> {
+public class RapidDocument<T> implements Comparable<RapidDocument> {
 	public static final String KEY_ID = "id";
 	public static final String KEY_SKEY = "skey";
 	public static final String KEY_CRT = "crt";
@@ -53,6 +55,13 @@ public class RapidDocument<T> {
 
 		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, createdTimestamp,
 				jsonConverter.fromJson(jsonObject.optString(KEY_BODY), documentType));
+	}
+
+
+	@Override
+	public int compareTo(@NonNull RapidDocument o) {
+		// FIXME
+		return 0;
 	}
 
 
