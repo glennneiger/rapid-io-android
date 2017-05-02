@@ -31,7 +31,7 @@ abstract class Subscription<T> {
 	}
 
 
-	abstract void onDocumentUpdated(String previousSiblingId, RapidDocument<T> document);
+	abstract void onDocumentUpdated(RapidDocument<T> document);
 
 
 	abstract int getSkip();

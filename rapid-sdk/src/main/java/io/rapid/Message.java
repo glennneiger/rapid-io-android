@@ -583,12 +583,10 @@ abstract class Message {
 	static class Upd extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
 		private static final String ATTR_COL_ID = "col-id";
-		private static final String ATTR_PSIB_ID = "psib-id";
 		private static final String ATTR_DOC = "doc";
 
 		private String mSubscriptionId;
 		private String mCollectionId;
-		private String mPreviousSiblingId;
 		private String mDocument;
 
 
@@ -602,7 +600,6 @@ abstract class Message {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_SUB_ID, getSubscriptionId());
 			body.put(ATTR_COL_ID, getCollectionId());
-			body.put(ATTR_PSIB_ID, getPreviousSiblingId());
 			body.put(ATTR_DOC, getDocument());
 			return body;
 		}
@@ -614,7 +611,6 @@ abstract class Message {
 
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
-			mPreviousSiblingId = jsonBody.optString(ATTR_PSIB_ID);
 			mDocument = jsonBody.optString(ATTR_DOC);
 		}
 
@@ -631,12 +627,6 @@ abstract class Message {
 
 		public String getDocument() {
 			return mDocument;
-		}
-
-
-		public String getPreviousSiblingId()
-		{
-			return mPreviousSiblingId;
 		}
 	}
 
