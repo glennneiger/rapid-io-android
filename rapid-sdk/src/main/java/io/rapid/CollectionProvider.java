@@ -32,7 +32,7 @@ class CollectionProvider {
 
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollections.containsKey(collectionName))
-			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache), collectionName, mOriginalThreadHandler));
+			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache), collectionName, mOriginalThreadHandler, mJsonConverter));
 		return mCollections.get(collectionName);
 	}
 

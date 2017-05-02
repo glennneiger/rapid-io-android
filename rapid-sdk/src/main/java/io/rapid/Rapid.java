@@ -30,7 +30,7 @@ public class Rapid {
 
 	private Rapid(Context context, String apiKey) {
 		mApiKey = apiKey;
-		mJsonConverter = new RapidGsonConverter(new Gson());
+		mJsonConverter = new RapidGsonConverter();
 		mHandler = new Handler();
 
 		String url = "ws://" + new String(Base64.decode(mApiKey, Base64.DEFAULT));

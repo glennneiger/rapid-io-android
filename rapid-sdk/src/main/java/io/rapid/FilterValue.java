@@ -1,8 +1,15 @@
 package io.rapid;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+
+import io.rapid.converter.RapidJsonConverter;
 
 
 class FilterValue implements Filter {
@@ -17,6 +24,10 @@ class FilterValue implements Filter {
 		String TYPE_GREATER_OR_EQUAL_THAN = "gte";
 		String TYPE_LESS_THAN = "lt";
 		String TYPE_LESS_OR_EQUAL_THAN = "lte";
+		String TYPE_CONTAINS = "cnt";
+		String TYPE_STARTS_WITH = "pref";
+		String TYPE_ENDS_WITH = "suf";
+		String TYPE_ARRAY_CONTAINS = "arr-cnt";
 
 		Object toJson() throws JSONException;
 	}
@@ -129,6 +140,62 @@ class FilterValue implements Filter {
 		@Override
 		public Boolean toJson() throws JSONException {
 			return value;
+		}
+	}
+
+
+	static class DatePropertyValue implements PropertyValue {
+
+		private final RapidJsonConverter jsonConverter;
+		private final String compareType;
+		private Date value;
+
+
+		public DatePropertyValue(String compareType, Date value, RapidJsonConverter jsonConverter) {
+			this.value = value;
+			this.jsonConverter = jsonConverter;
+			this.compareType = compareType;
+		}
+
+
+		@Override
+		public String toJson() throws JSONException {
+			try {
+				if(compareType.equals(TYPE_EQUAL)) {
+					return jsonConverter.toJson(value);
+				} else {
+					JSONObject root = new JSONObject();
+					root.put(compareType, jsonConverter.toJson(value));
+					return root.toString();
+				}
+			} catch(IOException e) {
+				return value.toString();
+			}
+		}
+	}
+
+
+	static class ListPropertyValue<T> implements PropertyValue {
+
+		private final String compareType;
+		private List<T> value;
+
+
+		public ListPropertyValue(String compareType, List<T> value) {
+			this.value = value;
+			this.compareType = compareType;
+		}
+
+
+		@Override
+		public String toJson() throws JSONException {
+			JSONObject root = new JSONObject();
+			JSONArray list = new JSONArray();
+			for(T item : value) {
+				list.put(item);
+			}
+			root.put(compareType, list);
+			return root.toString();
 		}
 	}
 }
