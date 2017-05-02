@@ -28,7 +28,6 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 	@Override
 	synchronized void onDocumentUpdated(String previousSiblingId, RapidDocument<T> document) {
-
 		ListUpdate listUpdate = null;
 
 		if(document.getBody() == null) {

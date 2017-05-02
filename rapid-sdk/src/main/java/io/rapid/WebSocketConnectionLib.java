@@ -2,7 +2,6 @@ package io.rapid;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONException;
 
 import java.net.URI;
 
@@ -36,25 +35,21 @@ class WebSocketConnectionLib extends WebSocketConnection {
 
 
 			@Override
-			public void onMessage(String messageJson)
-			{
+			public void onMessage(String messageJson) {
 				Logcat.d(messageJson);
-				new Thread(() ->
-				{
-					try {
-						Message parsedMessage = MessageParser.parse(messageJson);
+				try {
+					Message parsedMessage = MessageParser.parse(messageJson);
 
-						if(parsedMessage.getMessageType() == MessageType.BATCH) {
-							for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
-								handleNewMessage(message);
-							}
-						} else {
-							handleNewMessage(parsedMessage);
+					if(parsedMessage.getMessageType() == MessageType.BATCH) {
+						for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
+							handleNewMessage(message);
 						}
-					} catch(JSONException e) {
-						e.printStackTrace();
+					} else {
+						handleNewMessage(parsedMessage);
 					}
-				}).start();
+				} catch(Exception e) {
+					throw new Error(e);
+				}
 			}
 
 
