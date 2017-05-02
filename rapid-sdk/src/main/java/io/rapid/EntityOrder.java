@@ -1,5 +1,8 @@
 package io.rapid;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +34,7 @@ class EntityOrder {
 
 
 	public void putOrder(String property, Sorting sorting) {
+		mOrderList = Stream.of(mOrderList).filter(o -> !o.getProperty().equals(property)).collect(Collectors.toList());
 		mOrderList.add(new EntityOrderDetail(property, sorting));
 	}
 

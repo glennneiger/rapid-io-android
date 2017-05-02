@@ -6,7 +6,11 @@ import android.support.annotation.NonNull;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.rapid.base.BaseTest;
+import io.rapid.converter.RapidGsonConverter;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -185,8 +189,20 @@ public class FilterJsonTest extends BaseTest {
 	}
 
 
+	@Test
+	public void test_array_filters() throws Exception {
+		List<String> values = Arrays.asList("a", "b", "c");
+		Subscription sub = getNewCollection()
+				.in("prop", values).subscribe(rapidDocuments -> {});
+
+		String json = "{\"and\":[{\"prop\":{\"arr-cnt\":[\"a\",\"b\",\"c\"]}}]}";
+
+		assertEquals(sub.getFilter().toJson(), json);
+	}
+
+
 	@NonNull
-	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection", new Handler());}
+	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection", new Handler(), new RapidGsonConverter());}
 
 
 }

@@ -3,30 +3,37 @@ package io.rapid;
 
 import android.os.Handler;
 
+import java.util.Date;
+import java.util.List;
+
+import io.rapid.converter.RapidJsonConverter;
+
 
 public class RapidCollectionReference<T> {
 
 	private final String mCollectionName;
 	private final Handler mUiThreadHandler;
+	private final RapidJsonConverter mJsonConverter;
 	private RapidCollectionSubscription<T> mSubscription;
 	private CollectionConnection<T> mConnection;
 
 
-	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, Handler uiThreadHandler) {
+	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, Handler uiThreadHandler, RapidJsonConverter jsonConverter) {
 		mCollectionName = collectionName;
 		mConnection = collectionConnection;
 		mUiThreadHandler = uiThreadHandler;
+		mJsonConverter = jsonConverter;
 		initSubscription();
 	}
+
+
+	// Query methods
 
 
 	public RapidCollectionReference<T> equalTo(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
 	}
-
-
-	// Query methods
 
 
 	public RapidCollectionReference<T> equalTo(String property, int value) {
@@ -47,6 +54,15 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> equalTo(String property, Date value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value, mJsonConverter)));
+		return this;
+	}
+
+
+	//---
+
+
 	public RapidCollectionReference<T> notEqualTo(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
 		return this;
@@ -65,6 +81,21 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> notEqualTo(String property, Date value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value, mJsonConverter)));
+		return this;
+	}
+
+
+	//---
+
+
+	public RapidCollectionReference<T> lessThan(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		return this;
+	}
+
+
 	public RapidCollectionReference<T> lessThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
@@ -73,6 +104,21 @@ public class RapidCollectionReference<T> {
 
 	public RapidCollectionReference<T> lessThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> lessThan(String property, Date value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value, mJsonConverter)));
+		return this;
+	}
+
+
+	//---
+
+
+	public RapidCollectionReference<T> lessOrEqualThan(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
 	}
 
@@ -89,6 +135,21 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> lessOrEqualThan(String property, Date value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value, mJsonConverter)));
+		return this;
+	}
+
+
+	//---
+
+
+	public RapidCollectionReference<T> greaterThan(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
+		return this;
+	}
+
+
 	public RapidCollectionReference<T> greaterThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
@@ -101,6 +162,21 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> greaterThan(String property, Date value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value, mJsonConverter)));
+		return this;
+	}
+
+
+	//---
+
+
+	public RapidCollectionReference<T> greaterOrEqualThan(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		return this;
+	}
+
+
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
@@ -109,6 +185,24 @@ public class RapidCollectionReference<T> {
 
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> greaterOrEqualThan(String property, Date value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value, mJsonConverter)));
+		return this;
+	}
+
+
+	//---
+
+
+	public RapidCollectionReference<T> between(String property, String from, String to) {
+		beginAnd();
+		greaterOrEqualThan(property, from);
+		lessOrEqualThan(property, to);
+		endAnd();
 		return this;
 	}
 
@@ -131,6 +225,18 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public RapidCollectionReference<T> between(String property, Date from, Date to) {
+		beginAnd();
+		greaterOrEqualThan(property, from);
+		lessOrEqualThan(property, to);
+		endAnd();
+		return this;
+	}
+
+
+	//---
+
+
 	public RapidCollectionReference<T> idEqualTo(String id) {
 		equalTo(Config.ID_IDENTIFIER, id);
 		return this;
@@ -143,15 +249,42 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	// String operations
+
+
+	public RapidCollectionReference<T> contains(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_CONTAINS, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> startsWith(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_STARTS_WITH, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<T> endsWith(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_ENDS_WITH, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<?> in(String property, List<?> list) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.ListPropertyValue<>(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, list)));
+		return this;
+	}
+
+
+	// Groups
+
+
 	public RapidCollectionReference<T> beginOr() {
 		Filter.Or or = new Filter.Or();
 		mSubscription.getFilterStack().peek().add(or);
 		mSubscription.getFilterStack().push(or);
 		return this;
 	}
-
-
-	// Groups
 
 
 	public RapidCollectionReference<T> beginAnd() {
@@ -197,7 +330,7 @@ public class RapidCollectionReference<T> {
 	}
 
 
-    // Order
+	// Order
 
 
 	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
@@ -212,14 +345,14 @@ public class RapidCollectionReference<T> {
 	}
 
 
-    public RapidCollectionReference<T> orderByDocumentId() {
-        return orderBy(Config.ID_IDENTIFIER, Sorting.ASC);
-    }
+	public RapidCollectionReference<T> orderByDocumentId() {
+		return orderBy(Config.ID_IDENTIFIER, Sorting.ASC);
+	}
 
 
-    public RapidCollectionReference<T> orderByDocumentId(Sorting sorting) {
-        return orderBy(Config.ID_IDENTIFIER, sorting);
-    }
+	public RapidCollectionReference<T> orderByDocumentId(Sorting sorting) {
+		return orderBy(Config.ID_IDENTIFIER, sorting);
+	}
 
 
 	public RapidCollectionReference<T> limit(int limit) {
@@ -242,6 +375,19 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	// Operations
+
+
+	public RapidDocumentReference<T> newDocument() {
+		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection);
+	}
+
+
+	public RapidDocumentReference<T> document(String documentId) {
+		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection, documentId);
+	}
+
+
 	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback) {
 		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 	}
@@ -259,19 +405,6 @@ public class RapidCollectionReference<T> {
 
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
 		return new RapidCollectionMapReference<>(this, mapFunction);
-	}
-
-
-	// Operations
-
-
-	public RapidDocumentReference<T> newDocument() {
-		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection);
-	}
-
-
-	public RapidDocumentReference<T> document(String documentId) {
-		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection, documentId);
 	}
 
 

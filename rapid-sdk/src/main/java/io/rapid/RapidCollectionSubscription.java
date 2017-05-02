@@ -158,7 +158,22 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 		if(getFilterStack().size() != 1) {
 			throw new IllegalArgumentException("Wrong filter structure");
 		}
-		return mFilterStack.peek();
+		return removeRedundantGroups(mFilterStack.peek());
+	}
+
+
+	private Filter removeRedundantGroups(Filter.Group rootFilter) {
+
+		// remove root redundant and/or
+		// TODO: do this inside Filter tree as well
+		// TODO: remove unnecessary nested ANDs/ORs
+		if(rootFilter.filters.size() == 0) {
+			return null;
+		} else if(rootFilter.filters.size() == 1) {
+			return new Filter.Single(rootFilter.filters.get(0));
+		} else {
+			return rootFilter;
+		}
 	}
 
 
@@ -184,7 +199,6 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 		if(mFilterStack == null) {
 			mFilterStack = new Stack<>();
 			mFilterStack.push(new Filter.And());
-//			mFilterStack.push(new Filter.Single());
 		}
 		invalidateFingerprintCache();
 		return mFilterStack;

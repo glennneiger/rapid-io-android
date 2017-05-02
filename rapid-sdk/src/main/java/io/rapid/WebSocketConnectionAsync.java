@@ -3,8 +3,6 @@ package io.rapid;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
-import org.json.JSONException;
-
 import io.rapid.utility.BackgroundExecutor;
 
 
@@ -48,8 +46,8 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 						} else {
 							handleNewMessage(parsedMessage);
 						}
-					} catch(JSONException e) {
-						e.printStackTrace();
+					} catch(Exception e) {
+						throw new Error(e);
 					}
 				});
 
