@@ -65,7 +65,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		}
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
-		return mConnection.mutate(mCollectionName, () -> toJson(doc));
+		return mConnection.mutate(mCollectionName, () -> doc.toJson(mJsonConverter));
 	}
 
 
@@ -153,16 +153,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public synchronized void onUpdate(String subscriptionId, String previousSiblingId, String document) {
+	public synchronized void onUpdate(String subscriptionId,String document) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		try {
 			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
 			for(Subscription<T> s : identicalSubscriptions) {
-				applyUpdateToSubscription(previousSiblingId, document, s);
+				applyUpdateToSubscription(document, s);
 			}
 		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
-			applyUpdateToSubscription(previousSiblingId, document, subscription);
+			applyUpdateToSubscription(document, subscription);
 		}
 	}
 
@@ -203,8 +203,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyUpdateToSubscription(String previousSiblingId, String document, Subscription<T> subscription) {
-		subscription.onDocumentUpdated(previousSiblingId, parseDocument(document));
+	private void applyUpdateToSubscription(String document, Subscription<T> subscription) {
+		subscription.onDocumentUpdated(parseDocument(document));
 
 		// try to update cache
 		try {
@@ -232,7 +232,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					int documentPosition = -1;
 					for(int i = 0; i < currentItems.length(); i++) {
 						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
-						if(docId.equals(previousSiblingId)) {
+						if(docId.equals("previousSiblingId")) { //TODO
 							previousSiblingPosition = i;
 						} else if(docId.equals(updatedDocId)) {
 							documentPosition = i;
@@ -315,15 +315,6 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private void onSubscriptionUnsubscribed(Subscription<T> subscription) {
 		mSubscriptions.remove(subscription.getSubscriptionId());
 		mConnection.onUnsubscribe(subscription);
-	}
-
-
-	private String toJson(RapidDocument<T> document) {
-		try {
-			return mJsonConverter.toJson(document);
-		} catch(IOException e) {
-			throw new IllegalArgumentException(e);
-		}
 	}
 
 

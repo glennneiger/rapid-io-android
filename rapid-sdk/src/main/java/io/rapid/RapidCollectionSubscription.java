@@ -27,7 +27,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	synchronized void onDocumentUpdated(String previousSiblingId, RapidDocument<T> document) {
+	synchronized void onDocumentUpdated(RapidDocument<T> document) {
 
 		ListUpdate listUpdate = null;
 
@@ -44,32 +44,67 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 				listUpdate = new ListUpdate(ListUpdate.Type.REMOVED, pos, ListUpdate.NO_POSITION);
 			}
 		} else {
-			int previousSiblingPosition = -1;
 			int documentPosition = -1;
 			for(int i = 0; i < mDocuments.size(); i++) {
-				if(mDocuments.get(i).getId().equals(previousSiblingId)) {
-					previousSiblingPosition = i;
-				} else if(mDocuments.get(i).getId().equals(document.getId())) {
+				if(mDocuments.get(i).getId().equals(document.getId())) {
 					documentPosition = i;
 				}
 			}
+			if(documentPosition != -1) mDocuments.remove(documentPosition);
+			int newDocumentPosition = getDocumentPosition(document, 0, mDocuments.size());
 
 			if(documentPosition != -1) {
-				mDocuments.remove(documentPosition);
-				listUpdate = new ListUpdate(documentPosition == previousSiblingPosition + 1 ? ListUpdate.Type.UPDATED : ListUpdate.Type.MOVED, documentPosition, previousSiblingPosition + 1);
-
-                if(documentPosition < previousSiblingPosition)
-                    mDocuments.add(previousSiblingPosition, document);
-                else
-                    mDocuments.add(previousSiblingPosition + 1, document);
-
+				listUpdate = new ListUpdate(documentPosition == newDocumentPosition ? ListUpdate.Type.UPDATED : ListUpdate.Type.MOVED, documentPosition, newDocumentPosition);
+				mDocuments.add(newDocumentPosition, document);
 			} else {
-				listUpdate = new ListUpdate(ListUpdate.Type.ADDED, ListUpdate.NO_POSITION, previousSiblingPosition + 1);
-                mDocuments.add(previousSiblingPosition + 1, document);
+				listUpdate = new ListUpdate(ListUpdate.Type.ADDED, ListUpdate.NO_POSITION, newDocumentPosition);
+                mDocuments.add(newDocumentPosition, document);
 			}
-
 		}
 		invokeChange(listUpdate);
+	}
+
+
+	private int getDocumentPosition(RapidDocument<T> newDocument, int leftIndex, int rightIndex)
+	{
+		if(leftIndex == rightIndex) return leftIndex;
+
+		int middleIndex = leftIndex + (rightIndex-leftIndex) / 2;
+		if(compareDocuments(newDocument, mDocuments.get(middleIndex)) > 0)
+		{
+			return getDocumentPosition(newDocument, middleIndex + 1, rightIndex);
+		}
+		else
+		{
+			return getDocumentPosition(newDocument, leftIndex, Math.max(leftIndex, middleIndex - 1));
+		}
+	}
+
+
+	private int compareDocuments(RapidDocument<T> newDocument, RapidDocument<T> oldDocument)
+	{
+		int depth = 0;
+		while(newDocument.getSorting().get(depth).compareTo(oldDocument.getSorting().get(depth)) == 0)
+		{
+			depth++;
+
+			if(depth == newDocument.getSorting().size())
+			{
+				depth--;
+				break;
+			}
+		}
+
+		Sorting sortingType;
+		if(depth == newDocument.getSorting().size() - 1)
+			sortingType = Sorting.ASC;
+		else
+			sortingType = mOrder.getOrderList().get(depth).getSorting();
+
+		if(sortingType == Sorting.ASC)
+			return newDocument.getSorting().get(depth).compareTo(oldDocument.getSorting().get(depth));
+		else
+			return -newDocument.getSorting().get(depth).compareTo(oldDocument.getSorting().get(depth));
 	}
 
 
