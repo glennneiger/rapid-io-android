@@ -375,6 +375,19 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	// Operations
+
+
+	public RapidDocumentReference<T> newDocument() {
+		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection);
+	}
+
+
+	public RapidDocumentReference<T> document(String documentId) {
+		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection, documentId);
+	}
+
+
 	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback) {
 		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 	}
@@ -392,19 +405,6 @@ public class RapidCollectionReference<T> {
 
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
 		return new RapidCollectionMapReference<>(this, mapFunction);
-	}
-
-
-	// Operations
-
-
-	public RapidDocumentReference<T> newDocument() {
-		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection);
-	}
-
-
-	public RapidDocumentReference<T> document(String documentId) {
-		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection, documentId);
 	}
 
 
