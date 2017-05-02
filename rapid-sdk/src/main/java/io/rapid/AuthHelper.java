@@ -6,10 +6,6 @@ import static io.rapid.ConnectionState.DISCONNECTED;
 import static io.rapid.RapidError.ErrorType.INVALID_AUTH_TOKEN;
 
 
-/**
- * Created by Leos on 28.04.2017.
- */
-
 class AuthHelper
 {
 	private final Handler mOriginalThreadHandler;
@@ -20,7 +16,6 @@ class AuthHelper
 	private boolean mPendingAuth = false;
 	private RapidFuture mAuthFuture;
 	private boolean mPendingUnauth = false;
-	private RapidFuture mUnauthFuture;
 
 
 	interface AuthCallback
@@ -45,6 +40,7 @@ class AuthHelper
 
 	RapidFuture unauthorize(ConnectionState connectionState)
 	{
+		RapidFuture unauthFuture;
 		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED)
 		{
 			mPendingUnauth = false;
@@ -56,9 +52,9 @@ class AuthHelper
 		else
 		{
 			mPendingUnauth = true;
-			mUnauthFuture = mCallback.sendUnauthMessage();
+			unauthFuture = mCallback.sendUnauthMessage();
 		}
-		return mUnauthFuture;
+		return unauthFuture;
 	}
 
 

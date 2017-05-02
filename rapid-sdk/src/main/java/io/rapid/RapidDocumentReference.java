@@ -8,7 +8,6 @@ public class RapidDocumentReference<T> {
 	private final CollectionConnection<T> mImpl;
 	private final String mId;
 	private final RapidDocumentSubscription<T> mSubscription;
-	private final Handler mUiThreadHandler;
 
 
 	public RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl) {
@@ -19,8 +18,8 @@ public class RapidDocumentReference<T> {
 	public RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl, String documentId) {
 		mId = documentId;
 		mImpl = impl;
-		mUiThreadHandler = uiThreadHandler;
-		mSubscription = new RapidDocumentSubscription<T>(documentId, collectionName, mUiThreadHandler);
+		Handler uiThreadHandler1 = uiThreadHandler;
+		mSubscription = new RapidDocumentSubscription<>(documentId, collectionName, uiThreadHandler1);
 	}
 
 

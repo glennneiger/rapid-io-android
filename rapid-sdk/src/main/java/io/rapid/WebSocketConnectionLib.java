@@ -6,10 +6,6 @@ import org.java_websocket.handshake.ServerHandshake;
 import java.net.URI;
 
 
-/**
- * Created by Leos on 15.03.2017.
- */
-
 class WebSocketConnectionLib extends WebSocketConnection {
 
 	WebSocketClient mClient;

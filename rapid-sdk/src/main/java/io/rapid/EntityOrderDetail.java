@@ -1,9 +1,5 @@
 package io.rapid;
 
-/**
- * Created by Leos on 22.03.2017.
- */
-
 class EntityOrderDetail {
 	private String mProperty;
 	private Sorting mSorting;

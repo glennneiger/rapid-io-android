@@ -452,7 +452,7 @@ public class RapidCollectionReference<T> {
 
 
 	void initSubscription() {
-		mSubscription = new RapidCollectionSubscription<T>(mCollectionName, mUiThreadHandler);
+		mSubscription = new RapidCollectionSubscription<>(mCollectionName, mUiThreadHandler);
 	}
 
 

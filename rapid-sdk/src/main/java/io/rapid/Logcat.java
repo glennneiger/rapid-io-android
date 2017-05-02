@@ -3,10 +3,6 @@ package io.rapid;
 import android.util.Log;
 
 
-/**
- * Created by Leos on 16.03.2017.
- */
-
 class Logcat {
 	public static final String TAG = "Rapid.IO";
 

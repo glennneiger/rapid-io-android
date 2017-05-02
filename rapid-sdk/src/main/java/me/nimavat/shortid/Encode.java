@@ -2,9 +2,6 @@ package me.nimavat.shortid;
 
 import java.util.function.Function;
 
-/**
- * Created by sudhir on 03/03/17.
- */
 class Encode {
 
 	static String encode(Function<Integer, Character> lookup, int number) {

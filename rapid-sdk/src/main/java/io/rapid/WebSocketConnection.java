@@ -3,10 +3,6 @@ package io.rapid;
 import org.json.JSONException;
 
 
-/**
- * Created by Leos on 19.04.2017.
- */
-
 abstract class WebSocketConnection
 {
 	String mServerURI;

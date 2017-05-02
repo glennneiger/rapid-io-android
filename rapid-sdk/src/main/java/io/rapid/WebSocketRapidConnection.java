@@ -77,24 +77,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	};
 
 
-	private AuthHelper.AuthCallback mAuthCallback = new AuthHelper.AuthCallback() {
-		@Override
-		public RapidFuture sendAuthMessage(String token)
-		{
-			createWebSocketConnectionIfNeeded();
-			return sendMessage(() -> new Message.Auth(token));
-		}
-
-
-		@Override
-		public RapidFuture sendUnauthMessage()
-		{
-			createWebSocketConnectionIfNeeded();
-			return sendMessage(Message.Unauth::new);
-		}
-	};
-
-
 	public WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler)
 	{
 		super(rapidConnectionCallback);
@@ -102,7 +84,21 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mUrl = url;
 		mOriginalThreadHandler = originalThreadHandler;
 
-		mAuth = new AuthHelper(mOriginalThreadHandler, mAuthCallback);
+		AuthHelper.AuthCallback authCallback = new AuthHelper.AuthCallback() {
+			@Override
+			public RapidFuture sendAuthMessage(String token) {
+				createWebSocketConnectionIfNeeded();
+				return sendMessage(() -> new Message.Auth(token));
+			}
+
+
+			@Override
+			public RapidFuture sendUnauthMessage() {
+				createWebSocketConnectionIfNeeded();
+				return sendMessage(Message.Unauth::new);
+			}
+		};
+		mAuth = new AuthHelper(mOriginalThreadHandler, authCallback);
 	}
 
 

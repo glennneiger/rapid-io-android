@@ -1,6 +1,7 @@
 package io.rapid;
 
 
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 
 
@@ -23,6 +24,7 @@ public class ListUpdate {
 	}
 
 
+	@SuppressLint("DefaultLocale")
 	@Override
 	public String toString() {
 		if(mType == Type.ADDED)

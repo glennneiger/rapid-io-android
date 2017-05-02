@@ -6,10 +6,6 @@ import com.koushikdutta.async.http.WebSocket;
 import io.rapid.utility.BackgroundExecutor;
 
 
-/**
- * Created by Leos on 19.04.2017.
- */
-
 public class WebSocketConnectionAsync extends WebSocketConnection {
 	WebSocket mClient;
 

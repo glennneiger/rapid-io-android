@@ -11,10 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * Created by Leos on 22.03.2017.
- */
-
 class EntityOrder {
 	private List<EntityOrderDetail> mOrderList = new ArrayList<>();
 

@@ -6,9 +6,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Base64;
-
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,7 +20,6 @@ public class Rapid {
 	private static Context sApplicationContext;
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
-	private Handler mHandler;
 	private RapidConnection mRapidConnection;
 	private CollectionProvider mCollectionProvider;
 
@@ -31,11 +27,11 @@ public class Rapid {
 	private Rapid(Context context, String apiKey) {
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter();
-		mHandler = new Handler();
+		Handler handler = new Handler();
 
-		String url = "ws://" + new String(Base64.decode(mApiKey, Base64.DEFAULT));
+		AppMetadata appMetadata = new AppMetadata(apiKey);
 
-		mRapidConnection = new WebSocketRapidConnection(context, url, new RapidConnection.Callback() {
+		mRapidConnection = new WebSocketRapidConnection(context, appMetadata.getUrl(), new RapidConnection.Callback() {
 			@Override
 			public void onValue(String subscriptionId, String collectionId, String documentsJson) {
 				mCollectionProvider.findCollectionByName(collectionId).onValue(subscriptionId, documentsJson);
@@ -64,7 +60,7 @@ public class Rapid {
 			public void onReconnected() {
 				mCollectionProvider.resubscribeAll();
 			}
-		}, mHandler);
+		}, handler);
 
 		SubscriptionDiskCache subscriptionDiskCache;
 		try {
@@ -74,7 +70,7 @@ public class Rapid {
 			throw new IllegalStateException("Subscription cache could not be initialized");
 		}
 
-		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mHandler, subscriptionDiskCache);
+		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, handler, subscriptionDiskCache);
 	}
 
 

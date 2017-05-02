@@ -81,7 +81,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mConnection.subscribe(subscriptionId, subscription);
 			else {
 				// update the subscription with already existing data
-				applyValueToSubscription(subscription, ((RapidCollectionSubscription<T>) identicalSubscriptions.get(0)).getDocuments(), true);
+				applyValueToSubscription(subscription, identicalSubscriptions.get(0).getDocuments(), true);
 			}
 		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
