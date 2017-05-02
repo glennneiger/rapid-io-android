@@ -210,7 +210,6 @@ public class MessageJsonTest extends BaseTest {
 		assertEquals(valMsg.getMessageType(), MessageType.UPD);
 		assertEquals(valMsg.getEventId(),"eventId");
 		assertEquals(valMsg.getSubscriptionId(),"subscriptionId");
-		assertEquals(valMsg.getPreviousSiblingId(),"previousSiblingId");
 		assertEquals(valMsg.getCollectionId(),"collection");
 	}
 
