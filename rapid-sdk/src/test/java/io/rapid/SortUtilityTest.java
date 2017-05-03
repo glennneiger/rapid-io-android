@@ -16,25 +16,153 @@ import static org.junit.Assert.assertEquals;
 public class SortUtilityTest extends BaseTest {
 	@Test
 	public void test_insertToSortedList_1() throws Exception {
+		EntityOrder order = new EntityOrder();
+		order.putOrder("a", Sorting.ASC);
+		order.putOrder("b", Sorting.DESC);
+		order.putOrder("c", Sorting.DESC);
+
 		List<RapidDocument> list = new ArrayList<>(Arrays.asList(
-				createDoc(new SortingPair("aaaa", Sorting.ASC)),
-				createDoc(new SortingPair("aabb", Sorting.ASC)),
-				createDoc(new SortingPair("aabc", Sorting.ASC)),
-				createDoc(new SortingPair("aabd", Sorting.ASC)),
-				createDoc(new SortingPair("aaca", Sorting.ASC)),
-				createDoc(new SortingPair("aadd", Sorting.ASC))
+				createDoc(order, "aaaa", "9", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "bbbb")
 		));
 
-		RapidDocument doc = createDoc(new SortingPair("aaba", Sorting.ASC));
+		RapidDocument doc = createDoc(order, "aaaa", "3", "bbbb");
 
-		SortUtility.insertToSortedList(list, doc);
+		int pos = SortUtility.getInsertPosition(list, doc);
 
-		assertEquals(list.indexOf(doc), 1);
+		assertEquals(6, pos);
 	}
 
 
-	private RapidDocument createDoc(SortingPair... sortingKey) {
-		return new RapidDocument(UUID.randomUUID().toString(), Arrays.asList(sortingKey), 0, null);
+	@Test
+	public void test_insertToSortedList_2() throws Exception {
+		EntityOrder order = new EntityOrder();
+		order.putOrder("a", Sorting.ASC);
+		order.putOrder("b", Sorting.DESC);
+		order.putOrder("c", Sorting.DESC);
+
+		List<RapidDocument> list = new ArrayList<>(Arrays.asList(
+				createDoc(order, "aaaa", "9", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "bbbb")
+		));
+
+		RapidDocument doc = createDoc(order, "aaaa", "3", "cccc");
+
+		int pos = SortUtility.getInsertPosition(list, doc);
+
+		assertEquals(5, pos);
+	}
+
+
+	@Test
+	public void test_insertToSortedList_3() throws Exception {
+		EntityOrder order = new EntityOrder();
+		order.putOrder("a", Sorting.ASC);
+		order.putOrder("b", Sorting.DESC);
+		order.putOrder("c", Sorting.DESC);
+
+		List<RapidDocument> list = new ArrayList<>(Arrays.asList(
+				createDoc(order, "aaaa", "9", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "bbbb")
+		));
+
+		RapidDocument doc = createDoc(order, "aaaa", "3", "zzzz");
+
+		int pos = SortUtility.getInsertPosition(list, doc);
+
+		assertEquals(3, pos);
+	}
+
+
+	@Test
+	public void test_insertToSortedList_4() throws Exception {
+		EntityOrder order = new EntityOrder();
+		order.putOrder("a", Sorting.ASC);
+		order.putOrder("b", Sorting.DESC);
+		order.putOrder("c", Sorting.DESC);
+
+		List<RapidDocument> list = new ArrayList<>(Arrays.asList(
+				createDoc(order, "aaaa", "09", "zzzz"),
+				createDoc(order, "aaaa", "05", "zzzz"),
+				createDoc(order, "aaaa", "05", "zzzz"),
+				createDoc(order, "aaaa", "03", "vvvv"),
+				createDoc(order, "aaaa", "03", "vvvv"),
+				createDoc(order, "aaaa", "03", "bbbb")
+		));
+
+		RapidDocument doc = createDoc(order, "aaaa", "10", "zzzz");
+
+		int pos = SortUtility.getInsertPosition(list, doc);
+
+		assertEquals(0, pos);
+	}
+
+
+	@Test
+	public void test_insertToSortedList_5() throws Exception {
+		EntityOrder order = new EntityOrder();
+		order.putOrder("a", Sorting.ASC);
+		order.putOrder("b", Sorting.DESC);
+		order.putOrder("c", Sorting.DESC);
+
+		List<RapidDocument> list = new ArrayList<>(Arrays.asList(
+				createDoc(order, "aaaa", "9", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "bbbb")
+		));
+
+		RapidDocument doc = createDoc(order, "aaaa", "1", "zzzz");
+
+		int pos = SortUtility.getInsertPosition(list, doc);
+
+		assertEquals(6, pos);
+	}
+
+
+	@Test
+	public void test_insertToSortedList_6() throws Exception {
+		EntityOrder order = new EntityOrder();
+		order.putOrder("a", Sorting.ASC);
+		order.putOrder("b", Sorting.DESC);
+		order.putOrder("c", Sorting.DESC);
+
+		List<RapidDocument> list = new ArrayList<>(Arrays.asList(
+				createDoc(order, "aaaa", "9", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "5", "zzzz"),
+				createDoc(order, "aaaa", "3", "vvvv"),
+				createDoc(order, "aaaa", "3", "mmmm"),
+				createDoc(order, "aaaa", "3", "bbbb")
+		));
+
+		RapidDocument doc = createDoc(order, "aaaa", "3", "llll");
+
+		int pos = SortUtility.getInsertPosition(list, doc);
+
+		assertEquals(5, pos);
+	}
+
+
+	private RapidDocument createDoc(EntityOrder order, String... sortingKey) {
+		RapidDocument doc = new RapidDocument(UUID.randomUUID().toString(), new ArrayList<>(Arrays.asList(sortingKey)),
+				System.nanoTime(), null);
+		doc.setOrder(order);
+		return doc;
 	}
 
 
