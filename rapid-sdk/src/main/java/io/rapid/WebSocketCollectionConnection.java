@@ -28,19 +28,21 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private final RapidJsonConverter mJsonConverter;
 	private final SubscriptionMemoryCache<T> mSubscriptionMemoryCache;
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
+	private final RapidLogger mLogger;
 	private String mCollectionName;
 	private RapidConnection mConnection;
 	private Class<T> mType;
 	private Map<String, Subscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache) {
+	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger) {
 		mCollectionName = collectionName;
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mType = type;
 		mSubscriptionMemoryCache = new SubscriptionMemoryCache<>(Integer.MAX_VALUE);
 		mSubscriptionDiskCache = subscriptionDiskCache;
+		mLogger = logger;
 	}
 
 
@@ -65,7 +67,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		}
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
-		return mConnection.mutate(mCollectionName, () -> doc.toJson(mJsonConverter));
+
+
+		return mConnection.mutate(mCollectionName, () -> {
+			String documentJson = doc.toJson(mJsonConverter);
+			mLogger.logI("Mutating document in collection '%s'", mCollectionName);
+			mLogger.logJson(documentJson);
+			return documentJson;
+		});
 	}
 
 
@@ -73,6 +82,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public void subscribe(Subscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);
+
+		mLogger.logI("Subscribing to collection '%s'", mCollectionName);
 
 		// send subscribe message only if there is no other subscription with same filter
 		try {
@@ -99,6 +110,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		try {
 			// first try in-memory cache
 			List<RapidDocument<T>> docs = mSubscriptionMemoryCache.get(subscription);
+			mLogger.logI("Value for collection '%s' loaded from in-memory cache", mCollectionName);
 			if(docs != null) {
 				applyValueToSubscription(subscription, docs, true);
 			} else { // then try disk cache
@@ -110,8 +122,12 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					}
 					return null;
 				}, jsonDocs -> {
-					if(jsonDocs != null)
+					if(jsonDocs != null) {
+						mLogger.logI("Value for collection '%s' loaded from disk cache", mCollectionName);
+						mLogger.logJson(jsonDocs);
+
 						applyValueToSubscription(subscription, jsonDocs, true);
+					}
 				});
 			}
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
@@ -122,6 +138,9 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onValue(String subscriptionId, String documents) {
+		mLogger.logI("Collection '%s' value updated", mCollectionName);
+		mLogger.logJson(documents);
+
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		try {
 			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
@@ -153,7 +172,10 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public synchronized void onUpdate(String subscriptionId,String document) {
+	public synchronized void onUpdate(String subscriptionId, String document) {
+		mLogger.logI("Document in collection '%s' updated", mCollectionName);
+		mLogger.logJson(document);
+
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		try {
 			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
@@ -178,7 +200,9 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void onTimedOut() {
 		for(Subscription<T> subscription : mSubscriptions.values()) {
-			subscription.invokeError(new RapidError(TIMEOUT));
+			RapidError error = new RapidError(TIMEOUT);
+			mLogger.logE(error);
+			subscription.invokeError(error);
 			mSubscriptions.remove(subscription.getSubscriptionId());
 		}
 	}
@@ -313,6 +337,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	private void onSubscriptionUnsubscribed(Subscription<T> subscription) {
+		mLogger.logI("Unsubscribing from collection '%s'", mCollectionName);
+
 		mSubscriptions.remove(subscription.getSubscriptionId());
 		mConnection.onUnsubscribe(subscription);
 	}
