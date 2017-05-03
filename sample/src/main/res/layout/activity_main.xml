@@ -21,6 +21,14 @@
 				android:layout_height="wrap_content"
 				app:titleTextColor="@color/primary_darker" />
 		</android.support.design.widget.AppBarLayout>
+
+		<EditText
+			android:id="@+id/search_field"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="8dp"
+			android:hint="@string/search" />
+
 		<android.support.v7.widget.RecyclerView
 			android:id="@+id/list"
 			android:layout_width="match_parent"
