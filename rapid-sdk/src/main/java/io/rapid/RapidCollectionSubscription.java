@@ -29,10 +29,11 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	synchronized void onDocumentUpdated(RapidDocument<T> document) {
+	synchronized int onDocumentUpdated(RapidDocument<T> document) {
 
 		ListUpdate listUpdate = null;
 		document.setOrder(mOrder);
+		int newDocumentPosition = -1;
 
 		if(document.getBody() == null) {
 			int pos = -1;
@@ -55,7 +56,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 			}
 			if(documentPosition != -1) mDocuments.remove(documentPosition);
 //			int newDocumentPosition = getDocumentPosition(document, 0, mDocuments.size());
-			int newDocumentPosition = SortUtility.getInsertPosition(mDocuments, document);
+			newDocumentPosition = SortUtility.getInsertPosition(mDocuments, document);
 
 			if(documentPosition != -1) {
 				listUpdate = new ListUpdate(documentPosition == newDocumentPosition ? ListUpdate.Type.UPDATED : ListUpdate.Type.MOVED, documentPosition, newDocumentPosition);
@@ -66,6 +67,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 			}
 		}
 		invokeChange(listUpdate);
+		return newDocumentPosition;
 	}
 
 
