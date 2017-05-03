@@ -3,6 +3,7 @@ package io.rapid;
 
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +15,7 @@ class RapidLogger {
 	private static final int TYPE_ERROR = 1;
 	private static final int TYPE_WARNING = 2;
 	private static final int TYPE_INFO = 3;
+	private static final int TYPE_VERBOSE = 4;
 
 	private int mLevel;
 
@@ -44,14 +46,18 @@ class RapidLogger {
 
 
 	public void logJson(String json) {
-		logJson(TYPE_INFO, json);
+		logJson(TYPE_VERBOSE, json);
 	}
 
 
 	private void logJson(int type, String json) {
 		if(type > mLevel) return;
 		try {
-			String message = new JSONObject(json).toString(4);
+			String message;
+			if(json.startsWith("["))
+				message = new JSONArray(json).toString(4);
+			else
+				message = new JSONObject(json).toString(4);
 			log(type, message, null);
 		} catch(JSONException e) {
 			e.printStackTrace();
@@ -70,7 +76,7 @@ class RapidLogger {
 			case TYPE_WARNING:
 				Log.w(TAG, formattedMessage, throwable);
 				break;
-			case TYPE_INFO:
+			default:
 				Log.i(TAG, formattedMessage, throwable);
 				break;
 		}

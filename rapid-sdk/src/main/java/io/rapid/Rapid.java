@@ -29,7 +29,7 @@ public class Rapid {
 
 
 	private Rapid(Context context, String apiKey) {
-		setLogLevel(LogLevel.LOG_LEVEL_ALL);
+		setLogLevel(LogLevel.LOG_LEVEL_INFO);
 		mLogger.logI("Initializing Rapid.io SDK with API key: %s", apiKey);
 
 		mApiKey = apiKey;
