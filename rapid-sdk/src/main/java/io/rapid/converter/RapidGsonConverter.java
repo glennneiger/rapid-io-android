@@ -25,7 +25,12 @@ public class RapidGsonConverter implements RapidJsonConverter {
 
 
 	public RapidGsonConverter() {
-		mGson = new GsonBuilder()
+		this(new GsonBuilder());
+	}
+
+
+	public RapidGsonConverter(GsonBuilder gsonBuilder) {
+		mGson = gsonBuilder
 				.registerTypeAdapter(Date.class, new GsonUtcDateAdapter())
 				.create();
 	}
