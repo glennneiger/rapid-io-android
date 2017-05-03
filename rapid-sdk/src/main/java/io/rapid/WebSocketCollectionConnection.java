@@ -142,31 +142,33 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		mLogger.logJson(documents);
 
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
-		try {
-			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
-			for(Subscription s : identicalSubscriptions) {
-				applyValueToSubscription(s, documents, false);
-			}
-		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			applyValueToSubscription(subscription, documents, false);
-		}
-
-		// try to put value to cache
-		try {
-			// in-memory cache
-			mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
-
-			// disk cache
-			BackgroundExecutor.doInBackground(() -> {
-				try {
-					mSubscriptionDiskCache.put(subscription, documents);
-				} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-					e.printStackTrace();
+		if(subscription != null) {
+			try {
+				List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+				for(Subscription s : identicalSubscriptions) {
+					applyValueToSubscription(s, documents, false);
 				}
-			});
-		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+				e.printStackTrace();
+				applyValueToSubscription(subscription, documents, false);
+			}
+
+			// try to put value to cache
+			try {
+				// in-memory cache
+				mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
+
+				// disk cache
+				BackgroundExecutor.doInBackground(() -> {
+					try {
+						mSubscriptionDiskCache.put(subscription, documents);
+					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+						e.printStackTrace();
+					}
+				});
+			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -177,14 +179,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		mLogger.logJson(document);
 
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
-		try {
-			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
-			for(Subscription<T> s : identicalSubscriptions) {
-				applyUpdateToSubscription(document, s);
+		if(subscription != null) {
+			try {
+				List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+				for(Subscription<T> s : identicalSubscriptions) {
+					applyUpdateToSubscription(document, s);
+				}
+			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+				e.printStackTrace();
+				applyUpdateToSubscription(document, subscription);
 			}
-		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			applyUpdateToSubscription(document, subscription);
 		}
 	}
 
