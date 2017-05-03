@@ -14,22 +14,24 @@ import java.util.List;
 import io.rapid.converter.RapidJsonConverter;
 
 
-public class RapidDocument<T> implements Comparable<RapidDocument> {
+public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	public static final String KEY_ID = "id";
 	public static final String KEY_SKEY = "skey";
 	public static final String KEY_CRT = "crt";
 	public static final String KEY_BODY = "body";
 	private String id;
-	private int createdTimestamp;
+	private long createdTimestamp;
 	private List<String> sorting;
+	private EntityOrder order;
 	private T body;
 
 
-	RapidDocument(String id, List<String> sortingKey, int createdTimestamp, T value) {
+	RapidDocument(String id, List<String> sortingKey, long createdTimestamp, T value) {
 		this.id = id;
 		this.sorting = sortingKey;
 		this.createdTimestamp = createdTimestamp;
-		body = value;
+		this.body = value;
+		this.sorting.add(Long.toString(this.createdTimestamp));
 	}
 
 
@@ -49,19 +51,35 @@ public class RapidDocument<T> implements Comparable<RapidDocument> {
 				sortingList.add(sortingJSONArray.optString(i));
 			}
 		}
-
-		int createdTimestamp = jsonObject.optInt(KEY_CRT);
-		sortingList.add(Integer.toString(createdTimestamp));
-
-		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, createdTimestamp,
+		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optLong(KEY_CRT),
 				jsonConverter.fromJson(jsonObject.optString(KEY_BODY), documentType));
 	}
 
 
 	@Override
-	public int compareTo(@NonNull RapidDocument o) {
-		// FIXME
-		return 0;
+	public int compareTo(@NonNull RapidDocument<T> doc) {
+		int depth = 0;
+		while(sorting.get(depth).compareTo(doc.getSorting().get(depth)) == 0)
+		{
+			depth++;
+
+			if(depth == sorting.size())
+			{
+				depth--;
+				break;
+			}
+		}
+
+		Sorting sortingType;
+		if(depth == sorting.size() - 1)
+			sortingType = Sorting.ASC;
+		else
+			sortingType = order.getOrderList().get(depth).getSorting();
+
+		if(sortingType == Sorting.ASC)
+			return sorting.get(depth).compareTo(doc.getSorting().get(depth));
+		else
+			return -sorting.get(depth).compareTo(doc.getSorting().get(depth));
 	}
 
 
@@ -97,7 +115,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument> {
 	}
 
 
-	public int getCreatedTimestamp()
+	public long getCreatedTimestamp()
 	{
 		return createdTimestamp;
 	}
@@ -111,5 +129,17 @@ public class RapidDocument<T> implements Comparable<RapidDocument> {
 	public List<String> getSorting()
 	{
 		return sorting;
+	}
+
+
+	public EntityOrder getOrder()
+	{
+		return order;
+	}
+
+
+	public void setOrder(EntityOrder order)
+	{
+		this.order = order;
 	}
 }
