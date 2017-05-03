@@ -9,6 +9,7 @@ import static io.rapid.RapidError.ErrorType.INVALID_AUTH_TOKEN;
 class AuthHelper
 {
 	private final Handler mOriginalThreadHandler;
+	private final RapidLogger mLogger;
 	private AuthCallback mCallback;
 
 	private String mAuthToken;
@@ -25,10 +26,11 @@ class AuthHelper
 	}
 
 
-	AuthHelper(Handler originalThreadHandler, AuthCallback callback)
+	AuthHelper(Handler originalThreadHandler, AuthCallback callback, RapidLogger logger)
 	{
 		mOriginalThreadHandler = originalThreadHandler;
 		mCallback = callback;
+		mLogger = logger;
 	}
 
 
@@ -40,6 +42,7 @@ class AuthHelper
 
 	RapidFuture unauthorize(ConnectionState connectionState)
 	{
+		mLogger.logI("Unauthorizing");
 		RapidFuture unauthFuture;
 		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED)
 		{
@@ -47,6 +50,7 @@ class AuthHelper
 			mAuthToken = null;
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			future.invokeSuccess();
+			mLogger.logI("Unauthorization successful");
 			return future;
 		}
 		else
@@ -60,10 +64,13 @@ class AuthHelper
 
 	RapidFuture authorize(String token)
 	{
+		mLogger.logI("Authorizing with token '%s'", token);
 		if(token == null)
 		{
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
-			future.invokeError(new RapidError(INVALID_AUTH_TOKEN));
+			RapidError error = new RapidError(INVALID_AUTH_TOKEN);
+			mLogger.logE(error);
+			future.invokeError(error);
 			return future;
 		}
 		else if(!token.equals(mAuthToken) || (!mAuthenticated && !mPendingAuth) )
@@ -74,6 +81,7 @@ class AuthHelper
 		}
 		else if(mAuthenticated)
 		{
+			mLogger.logI("Already authorized with the same token");
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			future.invokeSuccess();
 			return future;
@@ -114,6 +122,7 @@ class AuthHelper
 
 	void authSuccess()
 	{
+		mLogger.logI("Authorization successful");
 		mAuthenticated = true;
 		mPendingAuth = false;
 	}
@@ -127,6 +136,7 @@ class AuthHelper
 
 	void unauthSuccess()
 	{
+		mLogger.logI("Unauthorization successful");
 		mAuthenticated = false;
 		mPendingUnauth = false;
 	}

@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import java.util.UUID;
 
+import io.rapid.LogLevel;
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		super.onCreate(savedInstanceState);
 
 		enableStrictMode();
+		Rapid.getInstance().setLogLevel(LogLevel.LOG_LEVEL_VERBOSE);
 
 		mViewModel = new MainViewModel();
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);

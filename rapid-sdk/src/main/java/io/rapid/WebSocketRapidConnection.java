@@ -30,6 +30,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private final Context mContext;
 	private final Handler mOriginalThreadHandler;
 	private final String mUrl;
+	private final RapidLogger mLogger;
 	private WebSocketConnection mWebSocketConnection;
 	private boolean mInternetConnected = true;
 	private boolean mInternetConnectionBroadcast = false;
@@ -77,12 +78,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	};
 
 
-	public WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler)
+	public WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger)
 	{
 		super(rapidConnectionCallback);
 		mContext = context;
 		mUrl = url;
 		mOriginalThreadHandler = originalThreadHandler;
+		mLogger = logger;
 
 		AuthHelper.AuthCallback authCallback = new AuthHelper.AuthCallback() {
 			@Override
@@ -98,7 +100,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				return sendMessage(Message.Unauth::new);
 			}
 		};
-		mAuth = new AuthHelper(mOriginalThreadHandler, authCallback);
+		mAuth = new AuthHelper(mOriginalThreadHandler, authCallback, mLogger);
 	}
 
 
@@ -158,6 +160,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 		if(reason != CloseReasonEnum.CLOSED_MANUALLY)
 		{
+			mLogger.logE("Connection closed. Reason: %s", reason.name());
 			changeConnectionState(DISCONNECTED);
 			mWebSocketConnection = null;
 			startCheckHandler();
@@ -176,6 +179,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public void onError(Exception ex)
 	{
+		mLogger.logE(ex);
 		changeConnectionState(DISCONNECTED);
 		mWebSocketConnection = null;
 		stopCheckHandler();
@@ -461,7 +465,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
-					messageFuture.getRapidFuture().invokeError(new RapidError(RapidError.ErrorType.fromServerError(message)));
+					RapidError error = new RapidError(RapidError.ErrorType.fromServerError(message));
+					mLogger.logE(error);
+					messageFuture.getRapidFuture().invokeError(error);
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					if(messageFuture.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 					if(messageFuture.getMessage() instanceof Message.Auth) mAuth.authError();
@@ -577,7 +583,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(message.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 		if(message.getMessage() instanceof Message.Auth) mAuth.authError();
 		if(message.getMessage() instanceof Message.Unauth) mAuth.unauthError();
-		message.getRapidFuture().invokeError(new RapidError(TIMEOUT));
+		RapidError error = new RapidError(TIMEOUT);
+		mLogger.logE(error);
+		message.getRapidFuture().invokeError(error);
 	}
 
 
@@ -587,10 +595,14 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		// connection timeout
 		if(!mInternetConnected && now - mInternetLossTimestamp > Config.CONNECTION_TIMEOUT) {
 			for(MessageFuture mf : mSentMessageList) {
-				mf.getRapidFuture().invokeError(new RapidError(TIMEOUT));
+				RapidError error = new RapidError(TIMEOUT);
+				mLogger.logE(error);
+				mf.getRapidFuture().invokeError(error);
 			}
 			for(MessageFuture mf : mPendingMessageList) {
-				mf.getRapidFuture().invokeError(new RapidError(TIMEOUT));
+				RapidError error = new RapidError(TIMEOUT);
+				mLogger.logE(error);
+				mf.getRapidFuture().invokeError(error);
 			}
 			mSentMessageList.clear();
 			mPendingMessageList.clear();

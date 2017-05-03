@@ -3,84 +3,53 @@ package io.rapid;
 import android.util.Log;
 
 
+/**
+ * Use for internal logging only. These logs are not visible when using release version of the SDK.
+ */
 class Logcat {
-	public static final String TAG = "Rapid.IO";
+	public static final String TAG = "Rapid SDK internal";
 
-	private static final boolean SHOW_CODE_LOCATION = !BuildConfig.RELEASE;
+	public static final boolean IS_ENABLED = !BuildConfig.RELEASE;
+	private static final boolean SHOW_CODE_LOCATION = true;
 	private static final boolean SHOW_CODE_LOCATION_THREAD = false;
-	private static final boolean SHOW_CODE_LOCATION_LINE = !BuildConfig.RELEASE;
+	private static final boolean SHOW_CODE_LOCATION_LINE = true;
 
 
 	private Logcat() {}
 
 
 	public static void d(String msg, Object... args) {
-		if(!BuildConfig.RELEASE) Log.d(TAG, getCodeLocation().toString() + formatMessage(msg, args));
-	}
-
-
-	public static void pd(String msg, Object... args) {
-		Log.d(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(IS_ENABLED) Log.d(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void e(String msg, Object... args) {
-		if(!BuildConfig.RELEASE) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args));
-	}
-
-
-	public static void pe(String msg, Object... args) {
-		Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(IS_ENABLED) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void e(Throwable throwable, String msg, Object... args) {
-		if(!BuildConfig.RELEASE) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args), throwable);
-	}
-
-
-	public static void pe(Throwable throwable, String msg, Object... args) {
-		Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args), throwable);
+		if(IS_ENABLED) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args), throwable);
 	}
 
 
 	public static void i(String msg, Object... args) {
-		if(!BuildConfig.RELEASE) Log.i(TAG, getCodeLocation().toString() + formatMessage(msg, args));
-	}
-
-
-	public static void pi(String msg, Object... args) {
-		Log.i(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(IS_ENABLED) Log.i(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void v(String msg, Object... args) {
-		if(!BuildConfig.RELEASE) Log.v(TAG, getCodeLocation().toString() + formatMessage(msg, args));
-	}
-
-
-	public static void pv(String msg, Object... args) {
-		Log.v(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(IS_ENABLED) Log.v(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void w(String msg, Object... args) {
-		if(!BuildConfig.RELEASE) Log.w(TAG, getCodeLocation().toString() + formatMessage(msg, args));
-	}
-
-
-	public static void pw(String msg, Object... args) {
-		Log.w(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(IS_ENABLED) Log.w(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
 	public static void wtf(String msg, Object... args) {
-		if(!BuildConfig.RELEASE) Log.wtf(TAG, getCodeLocation().toString() + formatMessage(msg, args));
-	}
-
-
-	public static void pwtf(String msg, Object... args) {
-		Log.wtf(TAG, getCodeLocation().toString() + formatMessage(msg, args));
+		if(IS_ENABLED) Log.wtf(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 

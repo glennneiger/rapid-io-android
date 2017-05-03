@@ -16,15 +16,22 @@ import io.rapid.converter.RapidJsonConverter;
 
 
 public class Rapid {
+
+
+
 	private static Map<String, Rapid> sInstances = new HashMap<>();
 	private static Context sApplicationContext;
 	private final String mApiKey;
 	private RapidJsonConverter mJsonConverter;
 	private RapidConnection mRapidConnection;
 	private CollectionProvider mCollectionProvider;
+	private RapidLogger mLogger = new RapidLogger();
 
 
 	private Rapid(Context context, String apiKey) {
+		setLogLevel(LogLevel.LOG_LEVEL_INFO);
+		mLogger.logI("Initializing Rapid.io SDK with API key: %s", apiKey);
+
 		mApiKey = apiKey;
 		mJsonConverter = new RapidGsonConverter();
 		Handler handler = new Handler();
@@ -60,7 +67,7 @@ public class Rapid {
 			public void onReconnected() {
 				mCollectionProvider.resubscribeAll();
 			}
-		}, handler);
+		}, handler, mLogger);
 
 		SubscriptionDiskCache subscriptionDiskCache;
 		try {
@@ -70,7 +77,7 @@ public class Rapid {
 			throw new IllegalStateException("Subscription cache could not be initialized");
 		}
 
-		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, handler, subscriptionDiskCache);
+		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, handler, subscriptionDiskCache, mLogger);
 	}
 
 
@@ -93,7 +100,6 @@ public class Rapid {
 
 
 	public static void initialize(String apiKey) {
-		Logcat.pd("Initializing Rapid.io with API key: %s", apiKey);
 		if(!sInstances.containsKey(apiKey))
 			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey));
 	}
@@ -181,8 +187,12 @@ public class Rapid {
 	}
 
 
-	public boolean isAuthenticated()
-	{
+	public void setLogLevel(@LogLevel int level) {
+		mLogger.setLevel(level);
+	}
+
+
+	public boolean isAuthenticated() {
 		return mRapidConnection.isAuthenticated();
 	}
 }
