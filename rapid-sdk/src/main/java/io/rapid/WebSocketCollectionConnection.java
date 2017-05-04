@@ -181,10 +181,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription != null) {
 			try {
+				int documentPosition = -1;
 				List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
 				for(Subscription<T> s : identicalSubscriptions) {
-					applyUpdateToSubscription(document, s);
+					// apply update to subscription and memory cache
+					documentPosition = applyUpdateToSubscription(document, s);
 				}
+
+				// apply update to disk cache
+				applyUpdateToDiskCache(documentPosition, document, subscription);
+
 			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
 				applyUpdateToSubscription(document, subscription);
@@ -231,14 +237,29 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyUpdateToSubscription(String document, Subscription<T> subscription) {
-		subscription.onDocumentUpdated(parseDocument(document));
+	private int applyUpdateToSubscription(String document, Subscription<T> subscription) {
+		int documentPosition = subscription.onDocumentUpdated(parseDocument(document));
 
-		// try to update cache
+		// try to update in-memory cache
 		try {
-			// in-memory cache
-			mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
 
+			mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
+		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+			Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
+			e.printStackTrace();
+			// unable to update data in cache - cache inconsistent -> clear it
+			try {
+				mSubscriptionMemoryCache.remove(subscription);
+			} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
+				e1.printStackTrace();
+			}
+		}
+		return documentPosition;
+	}
+
+
+	private void applyUpdateToDiskCache(int documentPosition, String document, Subscription<T> subscription) {
+		try {
 			// disk cache
 			String jsonDocs = mSubscriptionDiskCache.get(subscription);
 			if(jsonDocs != null) {
@@ -256,26 +277,18 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 						}
 					}
 				} else {
-					int previousSiblingPosition = -1;
-					int documentPosition = -1;
+					int oldDocumentPosition = -1;
 					for(int i = 0; i < currentItems.length(); i++) {
 						String docId = currentItems.getJSONObject(i).getString(RapidDocument.KEY_ID);
-						if(docId.equals("previousSiblingId")) { //TODO
-							previousSiblingPosition = i;
-						} else if(docId.equals(updatedDocId)) {
-							documentPosition = i;
+						if(docId.equals(updatedDocId)) {
+							oldDocumentPosition = i;
+							break;
 						}
 					}
-					if(documentPosition != -1) {
-						currentItems = ModifiableJSONArray.removeItem(currentItems, documentPosition);
-
-						if(documentPosition < previousSiblingPosition)
-							currentItems.add(previousSiblingPosition, updatedDoc);
-						else
-							currentItems.add(previousSiblingPosition + 1, updatedDoc);
-					} else {
-						currentItems.add(previousSiblingPosition + 1, updatedDoc);
+					if(oldDocumentPosition != -1) {
+						currentItems = ModifiableJSONArray.removeItem(currentItems, oldDocumentPosition);
 					}
+					currentItems.add(documentPosition, updatedDoc);
 				}
 				ModifiableJSONArray finalCurrentItems = currentItems;
 
@@ -296,14 +309,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			}
 
 		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-			Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
+			Logcat.d("Unable to update disk subscription cache.");
 			e.printStackTrace();
-			// unable to update data in cache - cache inconsistent -> clear it
-			try {
-				mSubscriptionMemoryCache.remove(subscription);
-			} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
-				e1.printStackTrace();
-			}
 		}
 	}
 
