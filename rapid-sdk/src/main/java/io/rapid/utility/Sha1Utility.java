@@ -1,4 +1,4 @@
-package io.rapid;
+package io.rapid.utility;
 
 
 import java.io.UnsupportedEncodingException;

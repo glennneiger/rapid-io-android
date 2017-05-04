@@ -16,9 +16,6 @@ import io.rapid.converter.RapidJsonConverter;
 
 
 public class Rapid {
-
-
-
 	private static Map<String, Rapid> sInstances = new HashMap<>();
 	private static Context sApplicationContext;
 	private final String mApiKey;
