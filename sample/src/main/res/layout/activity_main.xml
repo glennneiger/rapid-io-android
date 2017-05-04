@@ -21,12 +21,18 @@
 				android:layout_height="wrap_content"
 				app:titleTextColor="@color/primary_darker" />
 		</android.support.design.widget.AppBarLayout>
-
+		<LinearLayout
+			android:layout_width="0px"
+			android:layout_height="0px"
+			android:focusable="true"
+			android:focusableInTouchMode="true" />
 		<EditText
 			android:id="@+id/search_field"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="8dp"
+			android:nextFocusUp="@id/search_field"
+			android:nextFocusLeft="@id/search_field"
 			android:inputType="textCapWords"
 			android:hint="@string/search" />
 
