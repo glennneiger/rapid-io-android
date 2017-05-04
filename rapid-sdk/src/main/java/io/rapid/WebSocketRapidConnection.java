@@ -26,7 +26,6 @@ import static io.rapid.RapidError.ErrorType.TIMEOUT;
 
 class WebSocketRapidConnection extends RapidConnection implements WebSocketConnection.WebSocketConnectionListener
 {
-
 	private final Context mContext;
 	private final Handler mOriginalThreadHandler;
 	private final String mUrl;
@@ -174,9 +173,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(reason != CloseReasonEnum.CLOSED_MANUALLY)
 		{
 			mLogger.logE("Connection closed. Reason: %s", reason.name());
+			if(mConnectionState == CONNECTED) mConnectionLossTimestamp = System.currentTimeMillis();
 			changeConnectionState(DISCONNECTED);
 			mWebSocketConnection = null;
-			mConnectionLossTimestamp = System.currentTimeMillis();
 			if(!mCheckRunning)
 				startCheckHandler();
 
@@ -305,7 +304,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void createWebSocketConnectionIfNeeded() {
-		if(mPendingMutationCount > 0 || mSubscriptionCount > 0 || mAuth.isAuthPending() || mAuth.isDeauthPending()) {
+		if(!mPendingMessageList.isEmpty() || mPendingMutationCount > 0 || mSubscriptionCount > 0 || mAuth.isAuthPending() || mAuth.isDeauthPending()) {
 			// cancel scheduled disconnect if any
 			mCheckHandler.removeCallbacks(mDisconnectRunnable);
 			if(mWebSocketConnection == null) {
@@ -325,7 +324,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void disconnectWebSocketConnectionIfNeeded() {
-		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mAuth.isAuthPending()&& !mAuth.isDeauthPending()) {
+		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mAuth.isAuthPending()&& !mAuth.isDeauthPending()
+				&& mPendingMessageList.isEmpty()) {
 			Logcat.d("Scheduling websocket disconnection in %d ms", Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 			mCheckHandler.postDelayed(mDisconnectRunnable, Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 		}
