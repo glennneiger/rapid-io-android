@@ -2,7 +2,7 @@ package io.rapid;
 
 
 enum MessageType {
-	ACK("ack"), ERR("err"), AUTH("auth"), UNAUTH("unauth"), MUT("mut"), MER("mer"), SUB("sub"), UNS("uns"), VAL("val"),
+	ACK("ack"), ERR("err"), AUTH("auth"), DEAUTH("deauth"), MUT("mut"), MER("mer"), SUB("sub"), UNS("uns"), VAL("val"),
 	UPD("upd"), CON("con"), REC("rec"), DIS("dis"), NOP("nop"), BATCH("batch"), CA("ca"), UNKNOWN("unw");
 
 

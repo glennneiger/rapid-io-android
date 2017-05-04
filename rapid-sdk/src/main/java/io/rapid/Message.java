@@ -214,14 +214,14 @@ abstract class Message {
 	}
 
 
-	static class Unauth extends Message {
-		public Unauth() {
-			super(MessageType.UNAUTH);
+	static class Deauth extends Message {
+		public Deauth() {
+			super(MessageType.DEAUTH);
 		}
 
 
-		public Unauth(JSONObject json) throws JSONException {
-			super(MessageType.UNAUTH, json);
+		public Deauth(JSONObject json) throws JSONException {
+			super(MessageType.DEAUTH, json);
 		}
 	}
 

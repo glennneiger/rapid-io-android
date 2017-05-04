@@ -16,13 +16,13 @@ class AuthHelper
 	private boolean mAuthenticated = false;
 	private boolean mPendingAuth = false;
 	private RapidFuture mAuthFuture;
-	private boolean mPendingUnauth = false;
+	private boolean mPendingDeauth = false;
 
 
 	interface AuthCallback
 	{
 		RapidFuture sendAuthMessage(String token);
-		RapidFuture sendUnauthMessage();
+		RapidFuture sendDeauthMessage();
 	}
 
 
@@ -40,25 +40,25 @@ class AuthHelper
 	}
 
 
-	RapidFuture unauthorize(ConnectionState connectionState)
+	RapidFuture deauthorize(ConnectionState connectionState)
 	{
-		mLogger.logI("Unauthorizing");
-		RapidFuture unauthFuture;
+		mLogger.logI("Deauthorizing");
+		RapidFuture deauthFuture;
 		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED)
 		{
-			mPendingUnauth = false;
+			mPendingDeauth = false;
 			mAuthToken = null;
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			future.invokeSuccess();
-			mLogger.logI("Unauthorization successful");
+			mLogger.logI("Deauthorization successful");
 			return future;
 		}
 		else
 		{
-			mPendingUnauth = true;
-			unauthFuture = mCallback.sendUnauthMessage();
+			mPendingDeauth = true;
+			deauthFuture = mCallback.sendDeauthMessage();
 		}
-		return unauthFuture;
+		return deauthFuture;
 	}
 
 
@@ -104,11 +104,11 @@ class AuthHelper
 
 	boolean isAuthPending()
 	{
-		return mPendingAuth && !mPendingUnauth;
+		return mPendingAuth && !mPendingDeauth;
 	}
 
 
-	boolean isUnauthPending()
+	boolean isDeauthPending()
 	{
 		return mPendingAuth;
 	}
@@ -134,24 +134,24 @@ class AuthHelper
 	}
 
 
-	void unauthSuccess()
+	void deauthSuccess()
 	{
-		mLogger.logI("Unauthorization successful");
+		mLogger.logI("Deauthorization successful");
 		mAuthenticated = false;
-		mPendingUnauth = false;
+		mPendingDeauth = false;
 	}
 
 
-	void unauthError()
+	void deauthError()
 	{
-		mPendingUnauth = false;
+		mPendingDeauth = false;
 	}
 
 
 	void onClose()
 	{
 		mPendingAuth = false;
-		mPendingUnauth = false;
+		mPendingDeauth = false;
 		mAuthenticated = false;
 	}
 }

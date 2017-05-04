@@ -23,7 +23,7 @@ abstract class RapidConnection {
 	abstract RapidFuture authorize(String token);
 
 
-	abstract RapidFuture unauthorize();
+	abstract RapidFuture deauthorize();
 
 
 	abstract boolean isAuthenticated();

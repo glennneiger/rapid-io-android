@@ -95,9 +95,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 			@Override
-			public RapidFuture sendUnauthMessage() {
+			public RapidFuture sendDeauthMessage() {
 				createWebSocketConnectionIfNeeded();
-				return sendMessage(Message.Unauth::new);
+				return sendMessage(Message.Deauth::new);
 			}
 		};
 		mAuth = new AuthHelper(mOriginalThreadHandler, authCallback, mLogger);
@@ -200,9 +200,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public RapidFuture unauthorize()
+	public RapidFuture deauthorize()
 	{
-		return mAuth.unauthorize(mConnectionState);
+		return mAuth.deauthorize(mConnectionState);
 	}
 
 
@@ -291,7 +291,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void createWebSocketConnectionIfNeeded() {
-		if(mPendingMutationCount > 0 || mSubscriptionCount > 0 || mAuth.isAuthPending() || mAuth.isUnauthPending()) {
+		if(mPendingMutationCount > 0 || mSubscriptionCount > 0 || mAuth.isAuthPending() || mAuth.isDeauthPending()) {
 			// cancel scheduled disconnect if any
 			mCheckHandler.removeCallbacks(mDisconnectRunnable);
 			if(mWebSocketConnection == null) {
@@ -318,7 +318,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void disconnectWebSocketConnectionIfNeeded() {
-		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mAuth.isAuthPending()&& !mAuth.isUnauthPending()) {
+		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mAuth.isAuthPending()&& !mAuth.isDeauthPending()) {
 			Logcat.d("Scheduling websocket disconnection in %d ms", Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 			mCheckHandler.postDelayed(mDisconnectRunnable, Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 		}
@@ -476,7 +476,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 					if(messageFuture.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 					if(messageFuture.getMessage() instanceof Message.Auth) mAuth.authError();
-					if(messageFuture.getMessage() instanceof Message.Unauth) mAuth.unauthError();
+					if(messageFuture.getMessage() instanceof Message.Deauth) mAuth.deauthError();
 					mSentMessageList.remove(position);
 				}
 
@@ -514,9 +514,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			{
 				mAuth.authSuccess();
 			}
-			if(messageFuture.getMessage() instanceof Message.Unauth)
+			if(messageFuture.getMessage() instanceof Message.Deauth)
 			{
-				mAuth.unauthSuccess();
+				mAuth.deauthSuccess();
 			}
 			mSentMessageList.remove(position);
 		}
@@ -555,7 +555,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private synchronized void checkMessagesTimeout() {
 		Logcat.d("Pending list: " + mPendingMessageList.size() + "; Sent list: " + mSentMessageList.size() + "; Subscription count: " +
 				mSubscriptionCount + "; Pending mutation count: " + mPendingMutationCount + "; Pending auth: " + mAuth.isAuthPending() +
-				"; Pending unauth: " + mAuth.isUnauthPending());
+				"; Pending deauth: " + mAuth.isDeauthPending());
 
 		long now = System.currentTimeMillis();
 
@@ -587,7 +587,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(message.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 		if(message.getMessage() instanceof Message.Mut) mPendingMutationCount--;
 		if(message.getMessage() instanceof Message.Auth) mAuth.authError();
-		if(message.getMessage() instanceof Message.Unauth) mAuth.unauthError();
+		if(message.getMessage() instanceof Message.Deauth) mAuth.deauthError();
 		RapidError error = new RapidError(TIMEOUT);
 		mLogger.logE(error);
 		message.getRapidFuture().invokeError(error);
@@ -615,7 +615,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mSubscriptionCount = 0;
 			mPendingMutationCount = 0;
 			mAuth.authError();
-			mAuth.unauthError();
+			mAuth.deauthError();
 			stopCheckHandler();
 			unregisterInternetConnectionBroadcast();
 			mCallback.onTimedOut();

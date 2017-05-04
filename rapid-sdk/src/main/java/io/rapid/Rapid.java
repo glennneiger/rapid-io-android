@@ -134,9 +134,9 @@ public class Rapid {
 	}
 
 
-	public RapidFuture unauthorize() {
+	public RapidFuture deauthorize() {
 
-		return mRapidConnection.unauthorize();
+		return mRapidConnection.deauthorize();
 	}
 
 
