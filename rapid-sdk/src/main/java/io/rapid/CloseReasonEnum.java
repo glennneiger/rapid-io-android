@@ -1,28 +1,43 @@
 package io.rapid;
 
-enum CloseReasonEnum {
-		UNKNOWN(Integer.MAX_VALUE), INTERNET_CONNECTION_LOST(1006), NO_INTERNET_CONNECTION(-1), CLOSED_MANUALLY(1000);
+enum CloseReasonEnum
+{
+	UNKNOWN, INTERNET_CONNECTION_LOST, NO_INTERNET_CONNECTION, CLOSED_MANUALLY, CLOSED_FROM_SERVER;
 
-		private int mCode;
 
-
-		CloseReasonEnum(int code) {
-			mCode = code;
+	// for lib connection
+	static CloseReasonEnum get(int code)
+	{
+		switch(code)
+		{
+			case 1006:
+				return INTERNET_CONNECTION_LOST;
+			case -1:
+				return NO_INTERNET_CONNECTION;
+			case 1000:
+				return CLOSED_MANUALLY;
+			default:
+				return UNKNOWN;
 		}
-
-
-		static CloseReasonEnum get(int code) {
-			for(CloseReasonEnum item : CloseReasonEnum.values()) {
-				if(item.getCode() == code) {
-					return item;
-				}
-			}
-			return UNKNOWN;
-		}
-
-
-		public int getCode() {
-			return mCode;
-		}
-
 	}
+
+
+	// for Async connection
+	static CloseReasonEnum get(Exception ex)
+	{
+		if(ex == null)
+		{
+			return CLOSED_FROM_SERVER;
+		}
+		else
+		{
+			switch(ex.getMessage())
+			{
+				case "Software caused connection abort":
+					return INTERNET_CONNECTION_LOST;
+				default:
+					return UNKNOWN;
+			}
+		}
+	}
+}

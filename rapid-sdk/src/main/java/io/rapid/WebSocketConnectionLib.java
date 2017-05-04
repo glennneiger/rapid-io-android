@@ -1,5 +1,7 @@
 package io.rapid;
 
+import android.content.Context;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -18,7 +20,7 @@ class WebSocketConnectionLib extends WebSocketConnection {
 
 
 	@Override
-	void connectToServer()
+	void connectToServer(Context context)
 	{
 		mClient = new WebSocketClient(URI.create(mServerURI))
 		{
@@ -62,7 +64,7 @@ class WebSocketConnectionLib extends WebSocketConnection {
 			public void onError(Exception ex)
 			{
 				ex.printStackTrace();
-				if(mListener != null) mListener.onError(ex);
+//				if(mListener != null) mListener.onError(ex);
 			}
 
 

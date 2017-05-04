@@ -1,5 +1,7 @@
 package io.rapid;
 
+import android.content.Context;
+
 import org.json.JSONException;
 
 
@@ -14,7 +16,7 @@ abstract class WebSocketConnection
 		void onOpen();
 		void onMessage(Message message);
 		void onClose(CloseReasonEnum reason);
-		void onError(Exception ex);
+//		void onError(Exception ex);
 	}
 
 
@@ -25,7 +27,7 @@ abstract class WebSocketConnection
 	}
 
 
-	abstract void connectToServer();
+	abstract void connectToServer(Context context);
 	abstract void sendMessage(String message);
 
 

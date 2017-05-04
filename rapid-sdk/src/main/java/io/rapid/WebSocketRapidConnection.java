@@ -34,7 +34,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private WebSocketConnection mWebSocketConnection;
 	private boolean mInternetConnected = true;
 	private boolean mInternetConnectionBroadcast = false;
-	private long mInternetLossTimestamp = -1;
+	private long mConnectionLossTimestamp = -1;
 	private ConnectionState mConnectionState = DISCONNECTED;
 	private String mConnectionId;
 	private long mLastCommunicationTimestamp = 0;
@@ -157,34 +157,39 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	public void onClose(CloseReasonEnum reason)
 	{
 		mAuth.onClose();
+		if(reason == CloseReasonEnum.CLOSED_FROM_SERVER && mConnectionState == DISCONNECTED)
+		{
+			reason = CloseReasonEnum.CLOSED_MANUALLY;
+		}
 
 		if(reason != CloseReasonEnum.CLOSED_MANUALLY)
 		{
 			mLogger.logE("Connection closed. Reason: %s", reason.name());
 			changeConnectionState(DISCONNECTED);
 			mWebSocketConnection = null;
-			startCheckHandler();
+			mConnectionLossTimestamp = System.currentTimeMillis();
+			if(!mCheckRunning)
+				startCheckHandler();
 		}
 
 		if(reason == CloseReasonEnum.INTERNET_CONNECTION_LOST ||
 				reason == CloseReasonEnum.NO_INTERNET_CONNECTION)
 		{
 			mInternetConnected = false;
-			mInternetLossTimestamp = System.currentTimeMillis();
 			registerInternetConnectionBroadcast();
 		}
 	}
 
 
-	@Override
-	public void onError(Exception ex)
-	{
-		mLogger.logE(ex);
-		changeConnectionState(DISCONNECTED);
-		mWebSocketConnection = null;
-		stopCheckHandler();
-		//TODO invoke error to user
-	}
+//	@Override
+//	public void onError(Exception ex)
+//	{
+//		mLogger.logE(ex);
+//		changeConnectionState(DISCONNECTED);
+//		mWebSocketConnection = null;
+//		stopCheckHandler();
+//		//TODO invoke error to user
+//	}
 
 
 	@Override
@@ -299,9 +304,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				if(mInternetConnected) {
 					changeConnectionState(CONNECTING);
 					mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
-					mWebSocketConnection.connectToServer();
+					mWebSocketConnection.connectToServer(mContext);
 				} else {
-					mInternetLossTimestamp = System.currentTimeMillis();
+					mConnectionLossTimestamp = System.currentTimeMillis();
 					registerInternetConnectionBroadcast();
 					if(!mCheckRunning) {
 						startCheckHandler();
@@ -593,7 +598,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		long now = System.currentTimeMillis();
 
 		// connection timeout
-		if(!mInternetConnected && now - mInternetLossTimestamp > Config.CONNECTION_TIMEOUT) {
+		if(mConnectionState == DISCONNECTED && now - mConnectionLossTimestamp > Config.CONNECTION_TIMEOUT) {
 			for(MessageFuture mf : mSentMessageList) {
 				RapidError error = new RapidError(TIMEOUT);
 				mLogger.logE(error);

@@ -29,7 +29,7 @@ import io.rapid.sample.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
 	private final String AUTH_TOKEN =
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbklkIjoidGVzdDIiLCJydWxlcyI6eyJ0b2Rvc18wMSI6eyJyZWFkIjp0cnVlLCJ3cml0ZSI6dHJ1ZX19fQ.0UfGIR7p2bLKfhqP6yZCA5BpCxBlfOshzhIbS_7t2qM";
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJydWxlcyI6W3siY29sbGVjdGlvbiI6InRvZG9zXzAxIiwicmVhZCI6dHJ1ZSwiY3JlYXRlIjp0cnVlLCJ1cGRhdGUiOnRydWUsImRlbGV0ZSI6dHJ1ZX1dfQ.P0cRnDCfqEP0FM7jg2fGuKZc2devCV1st-Y6uRuceEI";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		super.onCreate(savedInstanceState);
 
 		enableStrictMode();
-		Rapid.getInstance().setLogLevel(LogLevel.LOG_LEVEL_VERBOSE);
+		Rapid.getInstance().setLogLevel(LogLevel.LOG_LEVEL_NONE);
 
 		mViewModel = new MainViewModel();
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
