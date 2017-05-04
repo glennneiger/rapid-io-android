@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import io.rapid.utility.Sha1Utility;
+
 
 abstract class Subscription<T> {
 	final Handler mUiThreadHandler;

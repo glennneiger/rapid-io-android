@@ -41,6 +41,10 @@ or add this to your AndroidManifest.xml file
 ### API Reference
 [JavaDoc](https://rapid-sdk.github.io/android/)
 
+## Build
+`./gradlew install` - deploy to local Maven Repository
+`./gradlew generateReleaseJavadoc` - generates sdk API reference to `/docs` directory
+
 ## Changelog
 
 ## Credits
