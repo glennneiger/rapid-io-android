@@ -34,6 +34,7 @@ public class Rapid {
 		Handler handler = new Handler();
 
 		AppMetadata appMetadata = new AppMetadata(apiKey);
+		Logcat.d("URL: " + appMetadata.getUrl());
 
 		mRapidConnection = new WebSocketRapidConnection(context, appMetadata.getUrl(), new RapidConnection.Callback() {
 			@Override

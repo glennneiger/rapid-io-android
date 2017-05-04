@@ -55,7 +55,6 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 				}
 			}
 			if(documentPosition != -1) mDocuments.remove(documentPosition);
-//			int newDocumentPosition = getDocumentPosition(document, 0, mDocuments.size());
 			newDocumentPosition = SortUtility.getInsertPosition(mDocuments, document);
 
 			if(documentPosition != -1) {

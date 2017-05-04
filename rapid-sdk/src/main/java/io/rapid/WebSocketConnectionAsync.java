@@ -1,9 +1,12 @@
 package io.rapid;
 
+import android.content.Context;
+
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
 import io.rapid.utility.BackgroundExecutor;
+import io.rapid.utility.NetworkUtility;
 
 
 public class WebSocketConnectionAsync extends WebSocketConnection {
@@ -16,19 +19,19 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 
 
 	@Override
-	void connectToServer() {
-		BackgroundExecutor.doInBackground(() -> {
-			AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
+	void connectToServer(Context context) {
+		if(NetworkUtility.isOnline(context))
+		{
+			BackgroundExecutor.doInBackground(() -> AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
 			{
 				if(ex != null) {
 					ex.printStackTrace();
-					if(mListener != null) mListener.onError(ex);
+					CloseReasonEnum reasonEnum = CloseReasonEnum.get(ex);
+					if(mListener != null) mListener.onClose(reasonEnum);
 					return;
 				}
 
 				mClient = webSocket;
-
-
 				webSocket.setStringCallback(messageJson ->
 				{
 					Logcat.d("<--- %s", messageJson);
@@ -49,13 +52,18 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 
 				webSocket.setClosedCallback(ex1 ->
 				{
-					CloseReasonEnum reasonEnum = CloseReasonEnum.get(1);
+					if(ex1 != null) ex1.printStackTrace();
+					CloseReasonEnum reasonEnum = CloseReasonEnum.get(ex1);
 					if(mListener != null) mListener.onClose(reasonEnum);
 				});
 
 				if(mListener != null) mListener.onOpen();
-			});
-		});
+			}));
+		}
+		else
+		{
+			if(mListener != null) mListener.onClose(CloseReasonEnum.NO_INTERNET_CONNECTION);
+		}
 	}
 
 
