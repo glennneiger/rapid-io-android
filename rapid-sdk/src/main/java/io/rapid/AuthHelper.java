@@ -21,8 +21,8 @@ class AuthHelper
 
 	interface AuthCallback
 	{
-		RapidFuture sendAuthMessage(String token);
-		RapidFuture sendDeauthMessage();
+		void sendAuthMessage();
+		void sendDeauthMessage();
 	}
 
 
@@ -43,20 +43,18 @@ class AuthHelper
 	RapidFuture deauthorize(ConnectionState connectionState)
 	{
 		mLogger.logI("Deauthorizing");
-		RapidFuture deauthFuture;
+		RapidFuture deauthFuture = new RapidFuture(mOriginalThreadHandler);
 		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED)
 		{
 			mPendingDeauth = false;
 			mAuthToken = null;
-			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
-			future.invokeSuccess();
+			deauthFuture.invokeSuccess();
 			mLogger.logI("Deauthorization successful");
-			return future;
 		}
 		else
 		{
 			mPendingDeauth = true;
-			deauthFuture = mCallback.sendDeauthMessage();
+			mCallback.sendDeauthMessage();
 		}
 		return deauthFuture;
 	}
@@ -64,20 +62,19 @@ class AuthHelper
 
 	RapidFuture authorize(String token)
 	{
+		mAuthFuture = new RapidFuture(mOriginalThreadHandler);
 		mLogger.logI("Authorizing with token '%s'", token);
 		if(token == null)
 		{
-			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			RapidError error = new RapidError(INVALID_AUTH_TOKEN);
 			mLogger.logE(error);
-			future.invokeError(error);
-			return future;
+			mAuthFuture.invokeError(error);
 		}
 		else if(!token.equals(mAuthToken) || (!mAuthenticated && !mPendingAuth) )
 		{
 			mAuthToken = token;
 			mPendingAuth = true;
-			mAuthFuture = mCallback.sendAuthMessage(mAuthToken);
+			mCallback.sendAuthMessage();
 		}
 		else if(mAuthenticated)
 		{
@@ -110,7 +107,7 @@ class AuthHelper
 
 	boolean isDeauthPending()
 	{
-		return mPendingAuth;
+		return mPendingDeauth;
 	}
 
 
@@ -125,12 +122,16 @@ class AuthHelper
 		mLogger.logI("Authorization successful");
 		mAuthenticated = true;
 		mPendingAuth = false;
+		if(mAuthFuture != null) mAuthFuture.invokeSuccess();
+		mAuthFuture = null;
 	}
 
 
-	void authError()
+	void authError(RapidError err)
 	{
 		mPendingAuth = false;
+		if(mAuthFuture != null) mAuthFuture.invokeError(err);
+		mAuthFuture = null;
 	}
 
 
@@ -150,8 +151,6 @@ class AuthHelper
 
 	void onClose()
 	{
-		mPendingAuth = false;
-		mPendingDeauth = false;
 		mAuthenticated = false;
 	}
 }
