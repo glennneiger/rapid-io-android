@@ -179,7 +179,7 @@ public class SampleUsage {
 
 
 		// Reading collection as a Map<String, Object>
-		Rapid.getInstance().collection("maps", Map.class).subscribe(rapidDocuments -> {
+		Rapid.getInstance().collection("maps").subscribe(rapidDocuments -> {
 			Map<String, Object> map = rapidDocuments.get(0).getBody();
 		});
 

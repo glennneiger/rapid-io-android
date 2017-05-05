@@ -128,6 +128,11 @@ public class Rapid {
 	}
 
 
+	public RapidCollectionReference<Map<String, Object>> collection(String collectionName) {
+		return mCollectionProvider.provideCollection(collectionName);
+	}
+
+
 	public RapidFuture authorize(String token) {
 
 		return mRapidConnection.authorize(token);

@@ -38,6 +38,12 @@ class CollectionProvider {
 		return mCollections.get(collectionName);
 	}
 
+	RapidCollectionReference<Map<String, Object>> provideCollection(String collectionName) {
+		if(!mCollections.containsKey(collectionName))
+			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger), collectionName, mOriginalThreadHandler, mJsonConverter));
+		return mCollections.get(collectionName);
+	}
+
 
 	RapidCollectionReference findCollectionByName(String collectionName) {
 		return mCollections.get(collectionName);
