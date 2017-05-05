@@ -572,9 +572,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void checkMessagesTimeout() {
-		Logcat.d("Pending list: " + mPendingMessageList.size() + "; Sent list: " + mSentMessageList.size() + "; Subscription count: " +
-				mSubscriptionCount + "; Pending mutation count: " + mPendingMutationCount + "; Pending auth: " + mAuth.isAuthPending() +
-				"; Pending deauth: " + mAuth.isDeauthPending());
+		Logcat.d("Messages status: PENDING=" + mPendingMessageList.size() + "; SENT=" + mSentMessageList.size() + "; SUBSCRIPTIONS=" +
+				mSubscriptionCount + "; PENDING MUTATIONS=" + mPendingMutationCount + "; PENDING AUTH=" + mAuth.isAuthPending() +
+				"; PENDING DEAUTH=" + mAuth.isDeauthPending());
 
 		long now = System.currentTimeMillis();
 
