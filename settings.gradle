@@ -1,1 +1,1 @@
-include ':rapid-sdk', ':sample', ':benchmark'
+include ':rapid-sdk', ':sample', ':benchmark', ':rapido'

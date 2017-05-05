@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+	<data>
+		<variable
+			name="viewModel" type="io.rapid.rapido.EditTaskViewModel" />
+	</data>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/spacing_16"
+		android:orientation="vertical">
+		<EditText
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+			android:text="@={viewModel.task.title}"
+			android:inputType="textCapWords"
+			android:imeOptions="actionDone"
+			android:hint="@string/task_hint_title" />
+
+		<EditText
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_16"
+			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+			android:text="@={viewModel.task.description}"
+			android:inputType="textCapWords"
+			android:imeOptions="actionDone"
+			android:hint="@string/task_hint_description" />
+		<android.support.design.widget.FloatingActionButton
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|right"
+			android:layout_marginTop="@dimen/spacing_16"
+			android:src="@drawable/ic_done"
+			android:tint="@color/white"
+			android:onClick="@{() -> viewModel.onTaskUpdated()}"
+			app:backgroundTint="@color/primary"
+			app:fabSize="normal" />
+	</LinearLayout>
+</layout>

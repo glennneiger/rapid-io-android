@@ -1,0 +1,6 @@
+package io.rapid.rapido;
+
+
+public class Config {
+	public static final String RAPID_AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJydWxlcyI6W3siY29sbGVjdGlvbiI6Ii4qIiwicmVhZCI6dHJ1ZSwiY3JlYXRlIjp0cnVlLCJ1cGRhdGUiOnRydWUsImRlbGV0ZSI6dHJ1ZX1dfQ.iioOVJkc20bsi97qRAyuBmX7_D0ij22KCq3hwV4jgHc";
+}

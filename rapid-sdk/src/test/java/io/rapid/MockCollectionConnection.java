@@ -50,4 +50,10 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 	public void resubscribe() {
 
 	}
+
+
+	@Override
+	public void onRemove(String subscriptionId, String document) {
+
+	}
 }

@@ -1,0 +1,19 @@
+<resources>
+	<string name="app_name">RapiDO</string>
+	<string name="add_title">Add Todo</string>
+	<string name="add">Add</string>
+	<string name="cancel">Cancel</string>
+	<string name="task_hint_title">What to do?</string>
+	<string name="add_random">Add Random</string>
+	<string name="error_network">Network error</string>
+	<string name="disconnected">Disconnected</string>
+	<string name="connecting">Connecting</string>
+	<string name="subscribe">Subscribe</string>
+	<string name="unsubscribe">Unsubscribe</string>
+	<string name="auth">Auth</string>
+	<string name="deauth">Deauth</string>
+	<string name="search">Search</string>
+	<string name="filter">Filter</string>
+	<string name="order">Order</string>
+	<string name="task_hint_description">Description</string>
+</resources>
