@@ -114,8 +114,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		Drawable iconSub = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
 		mToggleSubscriptionMenu.setTitle(R.string.unsubscribe);
 		mToggleSubscriptionMenu.setIcon(iconSub);
-		Drawable iconAuth = VectorDrawableCompat.create(getResources(), R.drawable.ic_unauth, null);
-		mToggleAuthMenu.setTitle(R.string.unauth);
+		Drawable iconAuth = VectorDrawableCompat.create(getResources(), R.drawable.ic_deauth, null);
+		mToggleAuthMenu.setTitle(R.string.deauth);
 		mToggleAuthMenu.setIcon(iconAuth);
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 				else subscribe();
 				return true;
 			case R.id.menu_toggle_authentication:
-				if(Rapid.getInstance().isAuthenticated()) unauth();
+				if(Rapid.getInstance().isAuthenticated()) deauth();
 				else auth();
 				return true;
 
@@ -183,8 +183,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private void auth()
 	{
 		if(mToggleAuthMenu != null) {
-			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_unauth, null);
-			mToggleAuthMenu.setTitle(R.string.unauth);
+			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_deauth, null);
+			mToggleAuthMenu.setTitle(R.string.deauth);
 			mToggleAuthMenu.setIcon(icon);
 		}
 
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	private void unauth()
+	private void deauth()
 	{
 		if(mToggleAuthMenu != null) {
 			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_auth, null);
@@ -202,9 +202,9 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			mToggleAuthMenu.setIcon(icon);
 		}
 
-		Rapid.getInstance().unauthorize()
-				.onSuccess(() -> log("Unauth success"))
-				.onError(error -> log("Unauth fail: " + error.getType().getName()));
+		Rapid.getInstance().deauthorize()
+				.onSuccess(() -> log("Deauth success"))
+				.onError(error -> log("Deauth fail: " + error.getType().getName()));
 	}
 
 

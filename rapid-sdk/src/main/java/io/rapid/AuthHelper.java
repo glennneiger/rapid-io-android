@@ -16,13 +16,13 @@ class AuthHelper
 	private boolean mAuthenticated = false;
 	private boolean mPendingAuth = false;
 	private RapidFuture mAuthFuture;
-	private boolean mPendingUnauth = false;
+	private boolean mPendingDeauth = false;
 
 
 	interface AuthCallback
 	{
-		RapidFuture sendAuthMessage(String token);
-		RapidFuture sendUnauthMessage();
+		void sendAuthMessage();
+		void sendDeauthMessage();
 	}
 
 
@@ -40,44 +40,41 @@ class AuthHelper
 	}
 
 
-	RapidFuture unauthorize(ConnectionState connectionState)
+	RapidFuture deauthorize(ConnectionState connectionState)
 	{
-		mLogger.logI("Unauthorizing");
-		RapidFuture unauthFuture;
+		mLogger.logI("Deauthorizing");
+		RapidFuture deauthFuture = new RapidFuture(mOriginalThreadHandler);
 		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED)
 		{
-			mPendingUnauth = false;
+			mPendingDeauth = false;
 			mAuthToken = null;
-			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
-			future.invokeSuccess();
-			mLogger.logI("Unauthorization successful");
-			return future;
+			deauthFuture.invokeSuccess();
+			mLogger.logI("Deauthorization successful");
 		}
 		else
 		{
-			mPendingUnauth = true;
-			unauthFuture = mCallback.sendUnauthMessage();
+			mPendingDeauth = true;
+			mCallback.sendDeauthMessage();
 		}
-		return unauthFuture;
+		return deauthFuture;
 	}
 
 
 	RapidFuture authorize(String token)
 	{
+		mAuthFuture = new RapidFuture(mOriginalThreadHandler);
 		mLogger.logI("Authorizing with token '%s'", token);
 		if(token == null)
 		{
-			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			RapidError error = new RapidError(INVALID_AUTH_TOKEN);
 			mLogger.logE(error);
-			future.invokeError(error);
-			return future;
+			mAuthFuture.invokeError(error);
 		}
 		else if(!token.equals(mAuthToken) || (!mAuthenticated && !mPendingAuth) )
 		{
 			mAuthToken = token;
 			mPendingAuth = true;
-			mAuthFuture = mCallback.sendAuthMessage(mAuthToken);
+			mCallback.sendAuthMessage();
 		}
 		else if(mAuthenticated)
 		{
@@ -104,13 +101,13 @@ class AuthHelper
 
 	boolean isAuthPending()
 	{
-		return mPendingAuth && !mPendingUnauth;
+		return mPendingAuth && !mPendingDeauth;
 	}
 
 
-	boolean isUnauthPending()
+	boolean isDeauthPending()
 	{
-		return mPendingAuth;
+		return mPendingDeauth;
 	}
 
 
@@ -125,33 +122,35 @@ class AuthHelper
 		mLogger.logI("Authorization successful");
 		mAuthenticated = true;
 		mPendingAuth = false;
+		if(mAuthFuture != null) mAuthFuture.invokeSuccess();
+		mAuthFuture = null;
 	}
 
 
-	void authError()
+	void authError(RapidError err)
 	{
 		mPendingAuth = false;
+		if(mAuthFuture != null) mAuthFuture.invokeError(err);
+		mAuthFuture = null;
 	}
 
 
-	void unauthSuccess()
+	void deauthSuccess()
 	{
-		mLogger.logI("Unauthorization successful");
+		mLogger.logI("Deauthorization successful");
 		mAuthenticated = false;
-		mPendingUnauth = false;
+		mPendingDeauth = false;
 	}
 
 
-	void unauthError()
+	void deauthError()
 	{
-		mPendingUnauth = false;
+		mPendingDeauth = false;
 	}
 
 
 	void onClose()
 	{
-		mPendingAuth = false;
-		mPendingUnauth = false;
 		mAuthenticated = false;
 	}
 }
