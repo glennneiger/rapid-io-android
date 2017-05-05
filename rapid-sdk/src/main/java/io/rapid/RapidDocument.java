@@ -126,19 +126,19 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	public List<String> getSorting()
+	List<String> getSorting()
 	{
 		return sorting;
 	}
 
 
-	public EntityOrder getOrder()
+	EntityOrder getOrder()
 	{
 		return order;
 	}
 
 
-	public void setOrder(EntityOrder order)
+	void setOrder(EntityOrder order)
 	{
 		this.order = order;
 	}

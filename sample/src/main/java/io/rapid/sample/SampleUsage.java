@@ -3,6 +3,8 @@ package io.rapid.sample;
 
 import android.util.Log;
 
+import java.util.Map;
+
 import io.rapid.ConnectionState;
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
@@ -18,10 +20,25 @@ public class SampleUsage {
 
 
 	public static void sampleMethod() {
-		// Initialization
-//		Rapid.initialize(RAPID_API_KEY);
 
-		// Connection State
+
+		// Initialization
+		Rapid.initialize(RAPID_API_KEY);
+
+
+		// Get Rapid Instance
+		Rapid rapid = Rapid.getInstance();
+
+
+		// Multiple Instances
+		Rapid.initialize("abc");
+		Rapid.initialize("xyz");
+
+		Rapid rapidAbc = Rapid.getInstance("<abc_api_token>");
+		Rapid rapidXyz = Rapid.getInstance("<xyz_api_token>");
+
+
+		// Get Connection State
 		if(Rapid.getInstance().getConnectionState() == ConnectionState.CONNECTING) {
 			log("Client is connecting.");
 		}
@@ -31,6 +48,10 @@ public class SampleUsage {
 		if(Rapid.getInstance().getConnectionState() == ConnectionState.DISCONNECTED) {
 			log("Client is disconnected.");
 		}
+
+
+		// Add Connection State Listener
+		Rapid.getInstance().addConnectionStateListener(state -> log(state.name()));
 
 
 		// Referencing Collections and Documents
@@ -46,7 +67,7 @@ public class SampleUsage {
 			String id = firstDoc.getId();
 			Message body = firstDoc.getBody();
 		}).onError(error -> {
-			boolean isPermissionDenied = error.getType().equals(RapidError.ErrorType.PERMISSION_DENIED);
+			boolean isPermissionDenied = error.getType() == RapidError.ErrorType.PERMISSION_DENIED;
 			error.printStackTrace();
 		});
 
@@ -88,8 +109,8 @@ public class SampleUsage {
 					log("Message successfuly written.");
 				})
 				.onError(error -> {
-					boolean isTimeout = error.getType().equals(RapidError.ErrorType.TIMEOUT);
-					boolean isPermissionDenied = error.getType().equals(RapidError.ErrorType.PERMISSION_DENIED);
+					boolean isTimeout = error.getType() == RapidError.ErrorType.TIMEOUT;
+					boolean isPermissionDenied = error.getType() == RapidError.ErrorType.PERMISSION_DENIED;
 					error.printStackTrace();
 				});
 
@@ -155,6 +176,12 @@ public class SampleUsage {
 
 		// mutate custom JSON converter
 		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
+
+
+		// Reading collection as a Map<String, Object>
+		Rapid.getInstance().collection("maps", Map.class).subscribe(rapidDocuments -> {
+			Map<String, Object> map = rapidDocuments.get(0).getBody();
+		});
 
 	}
 
