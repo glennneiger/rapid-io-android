@@ -158,6 +158,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			Message.Upd updMessage = ((Message.Upd) message);
 			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
 		}
+		else if(message.getMessageType() == MessageType.RM)
+		{
+			Message.Rm rmMessage = ((Message.Rm) message);
+			mCallback.onUpdate(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), null);
+		}
 	}
 
 
@@ -300,6 +305,15 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
 		return sendMessage(() -> new Message.Mut(collectionName, documentJsonResolver.resolve()));
+	}
+
+
+	@Override
+	public RapidFuture delete(String collectionName, String documentId)
+	{
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		return sendMessage(() -> new Message.Del(collectionName, documentId));
 	}
 
 

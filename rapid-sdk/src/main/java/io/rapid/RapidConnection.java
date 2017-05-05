@@ -50,6 +50,9 @@ abstract class RapidConnection {
 	public abstract RapidFuture mutate(String collectionName, FutureResolver<String> documentJson);
 
 
+	public abstract RapidFuture delete(String collectionName, String documentId);
+
+
 	Callback getCallback() {
 		return mCallback;
 	}

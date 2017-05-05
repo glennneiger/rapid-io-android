@@ -14,6 +14,7 @@ abstract class Message {
 	private MessageType mMessageType;
 	private String mEventId;
 
+
 	public Message(MessageType messageType, JSONObject json) throws JSONException {
 		mMessageType = messageType;
 		fromJson(json);
@@ -207,8 +208,7 @@ abstract class Message {
 		}
 
 
-		public String getToken()
-		{
+		public String getToken() {
 			return mToken;
 		}
 	}
@@ -726,6 +726,105 @@ abstract class Message {
 
 		public String getCollectionId() {
 			return mCollectionId;
+		}
+	}
+
+
+	static class Del extends Message {
+		private static final String ATTR_COL_ID = "col-id";
+		private static final String ATTR_DOC_ID = "doc-id";
+
+		private String mCollectionId;
+		private String mDocumentId;
+
+
+		public Del(JSONObject json) throws JSONException {
+			super(MessageType.DEL, json);
+		}
+
+
+		public Del(String collectionId, String documentId) {
+			super(MessageType.DEL);
+			mCollectionId = collectionId;
+			mDocumentId = documentId;
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_COL_ID, getCollectionId());
+			body.put(ATTR_DOC_ID, getDocumentId());
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mCollectionId = jsonBody.optString(ATTR_COL_ID);
+			mDocumentId = jsonBody.optString(ATTR_DOC_ID);
+		}
+
+
+		public String getCollectionId() {
+			return mCollectionId;
+		}
+
+
+		public String getDocumentId() {
+			return mDocumentId;
+		}
+	}
+
+
+	static class Rm extends Message {
+		private static final String ATTR_SUB_ID = "sub-id";
+		private static final String ATTR_COL_ID = "col-id";
+		private static final String ATTR_DOC_ID = "doc-id";
+
+		private String mSubscriptionId;
+		private String mCollectionId;
+		private String mDocumentId;
+
+
+		Rm(JSONObject json) throws JSONException {
+			super(MessageType.RM, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_SUB_ID, getSubscriptionId());
+			body.put(ATTR_COL_ID, getCollectionId());
+			body.put(ATTR_DOC_ID, getDocumentId());
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+
+			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+			mCollectionId = jsonBody.optString(ATTR_COL_ID);
+			mDocumentId = jsonBody.optString(ATTR_DOC_ID);
+		}
+
+
+		public String getSubscriptionId() {
+			return mSubscriptionId;
+		}
+
+
+		public String getCollectionId() {
+			return mCollectionId;
+		}
+
+
+		public String getDocumentId() {
+			return mDocumentId;
 		}
 	}
 }

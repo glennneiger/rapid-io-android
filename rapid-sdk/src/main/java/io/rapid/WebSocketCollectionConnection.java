@@ -20,8 +20,6 @@ import io.rapid.converter.RapidJsonConverter;
 import io.rapid.utility.BackgroundExecutor;
 import io.rapid.utility.ModifiableJSONArray;
 
-import static io.rapid.RapidError.ErrorType.TIMEOUT;
-
 
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
@@ -68,13 +66,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 		RapidDocument<T> doc = new RapidDocument<>(id, value);
 
-
-		return mConnection.mutate(mCollectionName, () -> {
-			String documentJson = doc.toJson(mJsonConverter);
-			mLogger.logI("Mutating document in collection '%s'", mCollectionName);
-			mLogger.logJson(documentJson);
-			return documentJson;
-		});
+		if(value == null) {
+			return mConnection.delete(mCollectionName, id);
+		} else {
+			return mConnection.mutate(mCollectionName, () -> {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("Mutating document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			});
+		}
 	}
 
 
@@ -213,7 +214,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void onTimedOut() {
 		for(Subscription<T> subscription : mSubscriptions.values()) {
-			RapidError error = new RapidError(TIMEOUT);
+			RapidError error = new RapidError(RapidError.ErrorType.TIMEOUT);
 			mLogger.logE(error);
 			subscription.invokeError(error);
 			mSubscriptions.remove(subscription.getSubscriptionId());
