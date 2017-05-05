@@ -19,13 +19,13 @@ class SubscriptionDiskCache {
 	private boolean mEnabled = true;
 
 
-	public SubscriptionDiskCache(Context context, String apiKey, int maxSizeInMb) throws IOException {
+	SubscriptionDiskCache(Context context, String apiKey, int maxSizeInMb) throws IOException {
 		// TODO better cache dir
 		mCache = DiskLruCache.open(new File(context.getCacheDir() + "/rapid/" + apiKey), 0, 1, maxSizeInMb * 1_000_000);
 	}
 
 
-	public void setMaxSize(int maxSizeInMb) {
+	void setMaxSize(int maxSizeInMb) {
 		mCache.setMaxSize(maxSizeInMb * 1_000_000);
 	}
 
@@ -61,7 +61,7 @@ class SubscriptionDiskCache {
 	}
 
 
-	public synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();

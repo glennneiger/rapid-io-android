@@ -9,12 +9,12 @@ class AppMetadata {
 	private final String mUrl;
 
 
-	public AppMetadata(String apiKey) {
+	AppMetadata(String apiKey) {
 		mUrl = "ws://" + new String(Base64.decode(apiKey, Base64.DEFAULT));
 	}
 
 
-	public String getUrl() {
+	String getUrl() {
 		return mUrl;
 	}
 }

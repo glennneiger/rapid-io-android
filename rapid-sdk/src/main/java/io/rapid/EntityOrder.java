@@ -15,7 +15,7 @@ class EntityOrder {
 	private List<EntityOrderDetail> mOrderList = new ArrayList<>();
 
 
-	public static EntityOrder fromJson(JSONArray array) {
+	static EntityOrder fromJson(JSONArray array) {
 		if(array == null) return null;
 
 		EntityOrder order = new EntityOrder();
@@ -29,13 +29,13 @@ class EntityOrder {
 	}
 
 
-	public void putOrder(String property, Sorting sorting) {
+	void putOrder(String property, Sorting sorting) {
 		mOrderList = Stream.of(mOrderList).filter(o -> !o.getProperty().equals(property)).collect(Collectors.toList());
 		mOrderList.add(new EntityOrderDetail(property, sorting));
 	}
 
 
-	public List<EntityOrderDetail> getOrderList() {
+	List<EntityOrderDetail> getOrderList() {
 		return mOrderList;
 	}
 

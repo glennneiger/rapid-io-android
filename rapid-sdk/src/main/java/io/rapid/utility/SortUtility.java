@@ -6,13 +6,13 @@ import java.util.List;
 
 public class SortUtility {
 
-	public static <T extends Comparable> int getInsertPosition(List<T> list, T item) {
+	public static <T extends Comparable<T>> int getInsertPosition(List<T> list, T item) {
 
 		return getInsertPosition(list, item, 0, list.size() - 1);
 	}
 
 
-	private static <T extends Comparable> int getInsertPosition(List<T> list, T item, int leftIndex, int rightIndex)
+	private static <T extends Comparable<T>> int getInsertPosition(List<T> list, T item, int leftIndex, int rightIndex)
 	{
 		if(leftIndex == rightIndex)
 		{

@@ -33,7 +33,7 @@ class FilterValue implements Filter {
 	}
 
 
-	public FilterValue(String property, PropertyValue value) {
+	FilterValue(String property, PropertyValue value) {
 		this.property = property;
 		this.value = value;
 	}
@@ -58,7 +58,7 @@ class FilterValue implements Filter {
 		private int value;
 
 
-		public IntPropertyValue(String compareType, int value) {
+		IntPropertyValue(String compareType, int value) {
 			this.value = value;
 			this.compareType = compareType;
 		}
@@ -108,7 +108,7 @@ class FilterValue implements Filter {
 		private double value;
 
 
-		public DoublePropertyValue(String compareType, double value) {
+		DoublePropertyValue(String compareType, double value) {
 			this.value = value;
 			this.compareType = compareType;
 		}
@@ -132,7 +132,7 @@ class FilterValue implements Filter {
 		private boolean value;
 
 
-		public BooleanPropertyValue(boolean value) {
+		BooleanPropertyValue(boolean value) {
 			this.value = value;
 		}
 
@@ -151,7 +151,7 @@ class FilterValue implements Filter {
 		private Date value;
 
 
-		public DatePropertyValue(String compareType, Date value, RapidJsonConverter jsonConverter) {
+		DatePropertyValue(String compareType, Date value, RapidJsonConverter jsonConverter) {
 			this.value = value;
 			this.jsonConverter = jsonConverter;
 			this.compareType = compareType;
@@ -181,7 +181,7 @@ class FilterValue implements Filter {
 		private List<T> value;
 
 
-		public ListPropertyValue(String compareType, List<T> value) {
+		ListPropertyValue(String compareType, List<T> value) {
 			this.value = value;
 			this.compareType = compareType;
 		}

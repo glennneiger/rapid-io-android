@@ -64,6 +64,7 @@ android.libraryVariants.all { variant ->
 		exclude '**/R.java'
 		exclude '**/me/nimavat/shortid/**'
 		exclude '**/io/rapid/utility/**'
+		exclude '**/RapidInitProvider.java'
 		failOnError false
 		destinationDir = file("../docs/")
 	}

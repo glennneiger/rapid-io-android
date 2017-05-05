@@ -20,17 +20,17 @@ class RapidLogger {
 	private int mLevel;
 
 
-	public void setLevel(@LogLevel int level) {
+	void setLevel(@LogLevel int level) {
 		mLevel = level;
 	}
 
 
-	public void logE(String message, Object... args) {
+	void logE(String message, Object... args) {
 		log(TYPE_ERROR, message, null, args);
 	}
 
 
-	public void logE(Throwable throwable, Object... args) {
+	void logE(Throwable throwable, Object... args) {
 		log(TYPE_ERROR, "", throwable, args);
 	}
 
@@ -40,12 +40,12 @@ class RapidLogger {
 	}
 
 
-	public void logI(String message, Object... args) {
+	void logI(String message, Object... args) {
 		log(TYPE_INFO, message, null, args);
 	}
 
 
-	public void logJson(String json) {
+	void logJson(String json) {
 		logJson(TYPE_VERBOSE, json);
 	}
 

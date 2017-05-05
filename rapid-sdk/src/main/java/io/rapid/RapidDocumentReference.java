@@ -10,16 +10,15 @@ public class RapidDocumentReference<T> {
 	private final RapidDocumentSubscription<T> mSubscription;
 
 
-	public RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl) {
+	RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl) {
 		this(uiThreadHandler, collectionName, impl, IdProvider.getNewDocumentId());
 	}
 
 
-	public RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl, String documentId) {
+	RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl, String documentId) {
 		mId = documentId;
 		mImpl = impl;
-		Handler uiThreadHandler1 = uiThreadHandler;
-		mSubscription = new RapidDocumentSubscription<>(documentId, collectionName, uiThreadHandler1);
+		mSubscription = new RapidDocumentSubscription<>(documentId, collectionName, uiThreadHandler);
 	}
 
 

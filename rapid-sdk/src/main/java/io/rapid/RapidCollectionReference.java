@@ -9,6 +9,7 @@ import java.util.List;
 import io.rapid.converter.RapidJsonConverter;
 
 
+@SuppressWarnings("WeakerAccess")
 public class RapidCollectionReference<T> {
 
 	private final String mCollectionName;

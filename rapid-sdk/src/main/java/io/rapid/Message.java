@@ -50,12 +50,12 @@ abstract class Message {
 	}
 
 
-	public MessageType getMessageType() {
+	MessageType getMessageType() {
 		return mMessageType;
 	}
 
 
-	public String getEventId() {
+	String getEventId() {
 		return mEventId;
 	}
 
@@ -71,12 +71,12 @@ abstract class Message {
 
 
 	static class Nop extends Message {
-		public Nop() {
+		Nop() {
 			super(MessageType.NOP, "");
 		}
 
 
-		public Nop(JSONObject json) throws JSONException {
+		Nop(JSONObject json) throws JSONException {
 			super(MessageType.NOP, json);
 		}
 	}
@@ -187,7 +187,7 @@ abstract class Message {
 		}
 
 
-		public Auth(String token) {
+		Auth(String token) {
 			super(MessageType.AUTH);
 			mToken = token;
 		}
@@ -234,12 +234,12 @@ abstract class Message {
 		private String mDocument;
 
 
-		public Mut(JSONObject json) throws JSONException {
+		Mut(JSONObject json) throws JSONException {
 			super(MessageType.MUT, json);
 		}
 
 
-		public Mut(String collectionId, String document) {
+		Mut(String collectionId, String document) {
 			super(MessageType.MUT);
 			mCollectionId = collectionId;
 			mDocument = document;
@@ -263,7 +263,7 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 
@@ -280,13 +280,13 @@ abstract class Message {
 		private String mConnectionId;
 
 
-		public Con(String connectionId, boolean reconnect) {
+		Con(String connectionId, boolean reconnect) {
 			super(reconnect ? MessageType.REC : MessageType.CON);
 			mConnectionId = connectionId;
 		}
 
 
-		public Con(JSONObject json) throws JSONException {
+		Con(JSONObject json) throws JSONException {
 			super(MessageType.CON, json);
 		}
 
@@ -306,7 +306,7 @@ abstract class Message {
 		}
 
 
-		public String getConnectionId() {
+		String getConnectionId() {
 			return mConnectionId;
 		}
 	}
@@ -320,12 +320,12 @@ abstract class Message {
 		private String mDocument;
 
 
-		public Mer(JSONObject json) throws JSONException {
+		Mer(JSONObject json) throws JSONException {
 			super(MessageType.MER, json);
 		}
 
 
-		public Mer(String collectionId, String document) {
+		Mer(String collectionId, String document) {
 			super(MessageType.MER);
 			mCollectionId = collectionId;
 			mDocument = document;
@@ -349,7 +349,7 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 
@@ -363,12 +363,12 @@ abstract class Message {
 	static class Dis extends Message {
 
 
-		public Dis() {
+		Dis() {
 			super(MessageType.DIS);
 		}
 
 
-		public Dis(JSONObject json) throws JSONException {
+		Dis(JSONObject json) throws JSONException {
 			super(MessageType.DIS, json);
 		}
 	}
@@ -414,12 +414,12 @@ abstract class Message {
 		}
 
 
-		public List<Message> getMessageList() {
+		List<Message> getMessageList() {
 			return mMessageList;
 		}
 
 
-		public void addMessage(Message message) {
+		void addMessage(Message message) {
 			if(mMessageList == null) {
 				mMessageList = new ArrayList<>();
 			}
@@ -451,7 +451,7 @@ abstract class Message {
 		private Filter mFilter;
 
 
-		public Sub(String collectionId, String subscriptionId) {
+		Sub(String collectionId, String subscriptionId) {
 			super(MessageType.SUB);
 
 			mCollectionId = collectionId;
@@ -459,7 +459,7 @@ abstract class Message {
 		}
 
 
-		public Sub(JSONObject json) throws JSONException {
+		Sub(JSONObject json) throws JSONException {
 			super(MessageType.SUB, json);
 		}
 
@@ -495,27 +495,27 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 
 
-		public int getLimit() {
+		int getLimit() {
 			return mLimit;
 		}
 
 
-		public void setLimit(int limit) {
+		void setLimit(int limit) {
 			mLimit = limit;
 		}
 
 
-		public int getSkip() {
+		int getSkip() {
 			return mSkip;
 		}
 
 
-		public void setSkip(int skip) {
+		void setSkip(int skip) {
 			mSkip = skip;
 		}
 
@@ -547,7 +547,7 @@ abstract class Message {
 		private String mSubscriptionId;
 
 
-		public Uns(String subscriptionId) {
+		Uns(String subscriptionId) {
 			super(MessageType.UNS);
 
 			mSubscriptionId = subscriptionId;
@@ -620,7 +620,7 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 
@@ -670,12 +670,12 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 
 
-		public String getDocuments() {
+		String getDocuments() {
 			return mDocuments;
 		}
 	}
@@ -697,7 +697,7 @@ abstract class Message {
 		}
 
 
-		public Ca(JSONObject json) throws JSONException {
+		Ca(JSONObject json) throws JSONException {
 			super(MessageType.CA, json);
 		}
 
@@ -724,7 +724,7 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 	}
@@ -738,12 +738,12 @@ abstract class Message {
 		private String mDocumentId;
 
 
-		public Del(JSONObject json) throws JSONException {
+		Del(JSONObject json) throws JSONException {
 			super(MessageType.DEL, json);
 		}
 
 
-		public Del(String collectionId, String documentId) {
+		Del(String collectionId, String documentId) {
 			super(MessageType.DEL);
 			mCollectionId = collectionId;
 			mDocumentId = documentId;
@@ -767,12 +767,12 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 
 
-		public String getDocumentId() {
+		String getDocumentId() {
 			return mDocumentId;
 		}
 	}
@@ -818,12 +818,12 @@ abstract class Message {
 		}
 
 
-		public String getCollectionId() {
+		String getCollectionId() {
 			return mCollectionId;
 		}
 
 
-		public String getDocumentId() {
+		String getDocumentId() {
 			return mDocumentId;
 		}
 	}

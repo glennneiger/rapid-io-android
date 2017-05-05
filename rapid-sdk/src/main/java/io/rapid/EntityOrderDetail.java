@@ -5,13 +5,13 @@ class EntityOrderDetail {
 	private Sorting mSorting;
 
 
-	public EntityOrderDetail(String property, Sorting sorting) {
+	EntityOrderDetail(String property, Sorting sorting) {
 		mProperty = property;
 		mSorting = sorting;
 	}
 
 
-	public String getProperty() {
+	String getProperty() {
 		return mProperty;
 	}
 

@@ -5,12 +5,12 @@ import me.nimavat.shortid.ShortId;
 
 
 class IdProvider {
-	public static String getNewEventId() {
+	static String getNewEventId() {
 		return ShortId.generate();
 	}
 
 
-	public static String getNewSubscriptionId() {
+	static String getNewSubscriptionId() {
 		return ShortId.generate();
 	}
 

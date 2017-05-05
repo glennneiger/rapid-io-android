@@ -12,7 +12,7 @@ public enum Sorting {
 	}
 
 
-	public static Sorting fromKey(String key) {
+	static Sorting fromKey(String key) {
 		if(key == null) return ASC;
 
 		for(Sorting item : Sorting.values()) {
@@ -24,7 +24,7 @@ public enum Sorting {
 	}
 
 
-	public String getKey() {
+	String getKey() {
 		return mKey;
 	}
 }

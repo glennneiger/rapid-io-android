@@ -13,10 +13,10 @@ import io.rapid.utility.Sha1Utility;
 
 
 abstract class Subscription<T> {
-	final Handler mUiThreadHandler;
-	final String mCollectionName;
-	OnUnsubscribeCallback mOnUnsubscribeCallback;
-	boolean mSubscribed = true;
+	private final Handler mUiThreadHandler;
+	private final String mCollectionName;
+	private OnUnsubscribeCallback mOnUnsubscribeCallback;
+	private boolean mSubscribed = true;
 	RapidCallback.Error mErrorCallback;
 	private String mSubscriptionId;
 	private String mFingerprintCache;
@@ -83,7 +83,7 @@ abstract class Subscription<T> {
 	}
 
 
-	public String getFingerprint() throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
+	String getFingerprint() throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
 		if(mFingerprintCache == null) {
 			long startMs = System.currentTimeMillis();
 			StringBuilder subscriptionString = new StringBuilder();
@@ -118,7 +118,7 @@ abstract class Subscription<T> {
 	}
 
 
-	protected void invalidateFingerprintCache() {
+	void invalidateFingerprintCache() {
 		mFingerprintCache = null;
 	}
 

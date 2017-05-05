@@ -15,12 +15,12 @@ abstract class WebSocketConnection
 	{
 		void onOpen();
 		void onMessage(Message message);
-		void onClose(CloseReasonEnum reason);
+		void onClose(CloseReason reason);
 //		void onError(Exception ex);
 	}
 
 
-	public WebSocketConnection(String serverURI, WebSocketConnectionListener listener)
+	WebSocketConnection(String serverURI, WebSocketConnectionListener listener)
 	{
 		mServerURI = serverURI;
 		mListener = listener;

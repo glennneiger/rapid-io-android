@@ -15,7 +15,7 @@ abstract class RapidConnection {
 	}
 
 
-	public RapidConnection(Callback callback) {
+	RapidConnection(Callback callback) {
 		mCallback = callback;
 	}
 

@@ -16,7 +16,7 @@ class SubscriptionMemoryCache<T> {
 	private boolean mEnabled = true;
 
 
-	public SubscriptionMemoryCache(int maxEntries) {
+	SubscriptionMemoryCache(int maxEntries) {
 		mCache = new LruCache<>(maxEntries);
 	}
 
@@ -49,7 +49,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();

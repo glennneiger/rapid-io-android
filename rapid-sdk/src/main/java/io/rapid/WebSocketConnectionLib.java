@@ -8,9 +8,10 @@ import org.java_websocket.handshake.ServerHandshake;
 import java.net.URI;
 
 
+@SuppressWarnings("unused")
 class WebSocketConnectionLib extends WebSocketConnection {
 
-	WebSocketClient mClient;
+	private WebSocketClient mClient;
 
 
 	public WebSocketConnectionLib(String serverURI, WebSocketConnectionListener listener)
@@ -55,7 +56,7 @@ class WebSocketConnectionLib extends WebSocketConnection {
 			public void onClose(int code, String reason, boolean remote)
 			{
 				Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
-				CloseReasonEnum reasonEnum = CloseReasonEnum.get(code);
+				CloseReason reasonEnum = CloseReason.get(code);
 				if(mListener != null) mListener.onClose(reasonEnum);
 			}
 
@@ -74,7 +75,7 @@ class WebSocketConnectionLib extends WebSocketConnection {
 				super.onClosing(code, reason, remote);
 
 				Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
-				CloseReasonEnum reasonEnum = CloseReasonEnum.get(code);
+				CloseReason reasonEnum = CloseReason.get(code);
 				if(mListener != null) mListener.onClose(reasonEnum);
 			}
 		};

@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 
 
 public class ListUpdate {
+	@SuppressWarnings("WeakerAccess")
 	public static final int NO_POSITION = -1;
 	private Type mType;
 	private int mOldPosition;
@@ -17,7 +18,7 @@ public class ListUpdate {
 	}
 
 
-	public ListUpdate(Type type, int oldPosition, int newPosition) {
+	ListUpdate(Type type, int oldPosition, int newPosition) {
 		mType = type;
 		mOldPosition = oldPosition;
 		mNewPosition = newPosition;

@@ -1,13 +1,13 @@
 package io.rapid;
 
 class MessageFuture {
-	Message mMessage;
-	RapidFuture mRapidFuture;
-	long mSentTimestamp;
-	String mMessageJson;
+	private Message mMessage;
+	private RapidFuture mRapidFuture;
+	private long mSentTimestamp;
+	private String mMessageJson;
 
 
-	public MessageFuture(Message message, String messageJson, RapidFuture rapidFuture) {
+	MessageFuture(Message message, String messageJson, RapidFuture rapidFuture) {
 		mMessage = message;
 		mMessageJson = messageJson;
 		mRapidFuture = rapidFuture;
@@ -20,17 +20,17 @@ class MessageFuture {
 	}
 
 
-	public RapidFuture getRapidFuture() {
+	RapidFuture getRapidFuture() {
 		return mRapidFuture;
 	}
 
 
-	public long getSentTimestamp() {
+	long getSentTimestamp() {
 		return mSentTimestamp;
 	}
 
 
-	public String getMessageJson() {
+	String getMessageJson() {
 		return mMessageJson;
 	}
 }

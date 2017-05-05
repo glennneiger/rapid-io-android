@@ -21,7 +21,7 @@ import java.util.TimeZone;
 
 
 public class RapidGsonConverter implements RapidJsonConverter {
-	Gson mGson;
+	private Gson mGson;
 
 
 	public RapidGsonConverter() {
@@ -29,6 +29,7 @@ public class RapidGsonConverter implements RapidJsonConverter {
 	}
 
 
+	@SuppressWarnings("WeakerAccess")
 	public RapidGsonConverter(GsonBuilder gsonBuilder) {
 		mGson = gsonBuilder
 				.registerTypeAdapter(Date.class, new GsonUtcDateAdapter())
@@ -48,12 +49,12 @@ public class RapidGsonConverter implements RapidJsonConverter {
 	}
 
 
-	public class GsonUtcDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+	static class GsonUtcDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
 		private final DateFormat dateFormat;
 
 
-		public GsonUtcDateAdapter() {
+		GsonUtcDateAdapter() {
 			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);      //This is the format I need
 			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));                               //This is the key line which converts the date to UTC which cannot be accessed with the default serializer
 		}

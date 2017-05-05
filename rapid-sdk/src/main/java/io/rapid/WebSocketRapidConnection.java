@@ -78,7 +78,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	};
 
 
-	public WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger)
+	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger)
 	{
 		super(rapidConnectionCallback);
 		mContext = context;
@@ -167,15 +167,15 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onClose(CloseReasonEnum reason)
+	public void onClose(CloseReason reason)
 	{
 		mAuth.onClose();
-		if(reason == CloseReasonEnum.CLOSED_FROM_SERVER && mConnectionState == DISCONNECTED)
+		if(reason == CloseReason.CLOSED_FROM_SERVER && mConnectionState == DISCONNECTED)
 		{
-			reason = CloseReasonEnum.CLOSED_MANUALLY;
+			reason = CloseReason.CLOSED_MANUALLY;
 		}
 
-		if(reason != CloseReasonEnum.CLOSED_MANUALLY)
+		if(reason != CloseReason.CLOSED_MANUALLY)
 		{
 			mLogger.logE("Connection closed. Reason: %s", reason.name());
 			if(mConnectionState == CONNECTED) mConnectionLossTimestamp = System.currentTimeMillis();
@@ -184,8 +184,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			if(!mCheckRunning)
 				startCheckHandler();
 
-			if(reason == CloseReasonEnum.INTERNET_CONNECTION_LOST ||
-					reason == CloseReasonEnum.NO_INTERNET_CONNECTION)
+			if(reason == CloseReason.INTERNET_CONNECTION_LOST ||
+					reason == CloseReason.NO_INTERNET_CONNECTION)
 			{
 				mInternetConnected = false;
 				registerInternetConnectionBroadcast();
@@ -567,7 +567,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void sendHB() {
-		sendMessage(() -> new Message.Nop());
+		sendMessage(Message.Nop::new);
 	}
 
 

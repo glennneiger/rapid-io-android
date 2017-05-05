@@ -1,12 +1,12 @@
 package io.rapid;
 
-enum CloseReasonEnum
+enum CloseReason
 {
 	UNKNOWN, INTERNET_CONNECTION_LOST, NO_INTERNET_CONNECTION, CLOSED_MANUALLY, CLOSED_FROM_SERVER;
 
 
 	// for lib connection
-	static CloseReasonEnum get(int code)
+	static CloseReason get(int code)
 	{
 		switch(code)
 		{
@@ -23,7 +23,7 @@ enum CloseReasonEnum
 
 
 	// for Async connection
-	static CloseReasonEnum get(Exception ex)
+	static CloseReason get(Exception ex)
 	{
 		if(ex == null)
 		{

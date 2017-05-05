@@ -18,7 +18,7 @@ interface Filter {
 		List<Filter> filters = new ArrayList<>();
 
 
-		public Group(Filter... filters) {
+		Group(Filter... filters) {
 			this.filters.addAll(Arrays.asList(filters));
 		}
 
@@ -47,7 +47,7 @@ interface Filter {
 
 	class Single extends Group {
 
-		public Single(Filter... filters) {
+		Single(Filter... filters) {
 			super(filters);
 		}
 
@@ -67,7 +67,7 @@ interface Filter {
 
 	class And extends Group {
 
-		public And(Filter... filters) {
+		And(Filter... filters) {
 			super(filters);
 		}
 
@@ -82,7 +82,7 @@ interface Filter {
 
 	class Not extends Group {
 
-		public Not(Filter... filters) {
+		Not(Filter... filters) {
 			super(filters);
 		}
 
@@ -96,7 +96,7 @@ interface Filter {
 
 	class Or extends Group {
 
-		public Or(Filter... filters) {
+		Or(Filter... filters) {
 			super(filters);
 		}
 

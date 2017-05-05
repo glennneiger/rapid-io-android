@@ -15,10 +15,10 @@ import io.rapid.converter.RapidJsonConverter;
 
 
 public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
-	public static final String KEY_ID = "id";
-	public static final String KEY_SKEY = "skey";
-	public static final String KEY_CRT = "crt";
-	public static final String KEY_BODY = "body";
+	static final String KEY_ID = "id";
+	static final String KEY_BODY = "body";
+	private static final String KEY_SKEY = "skey";
+	private static final String KEY_CRT = "crt";
 	private String id;
 	private long createdTimestamp;
 	private List<String> sorting;
@@ -93,11 +93,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 
 			return jsonBody.toString();
 		}
-		catch(IOException e)
-		{
-			throw new IllegalArgumentException(e);
-		}
-		catch(JSONException e)
+		catch(IOException | JSONException e)
 		{
 			throw new IllegalArgumentException(e);
 		}

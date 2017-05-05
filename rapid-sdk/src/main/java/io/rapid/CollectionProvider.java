@@ -14,11 +14,11 @@ class CollectionProvider {
 	private final RapidJsonConverter mJsonConverter;
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mDebugLogger;
-	RapidConnection mConnection;
+	private RapidConnection mConnection;
 	private Map<String, RapidCollectionReference> mCollections = new HashMap<>();
 
 
-	public CollectionProvider(RapidConnection connection, RapidJsonConverter jsonConverter, Handler originalThreadHandler, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
+	CollectionProvider(RapidConnection connection, RapidJsonConverter jsonConverter, Handler originalThreadHandler, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mOriginalThreadHandler = originalThreadHandler;
@@ -27,7 +27,7 @@ class CollectionProvider {
 	}
 
 
-	public SubscriptionDiskCache getSubscriptionDiskCache() {
+	SubscriptionDiskCache getSubscriptionDiskCache() {
 		return mSubscriptionDiskCache;
 	}
 
@@ -37,6 +37,7 @@ class CollectionProvider {
 			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger), collectionName, mOriginalThreadHandler, mJsonConverter));
 		return mCollections.get(collectionName);
 	}
+
 
 	RapidCollectionReference<Map<String, Object>> provideCollection(String collectionName) {
 		if(!mCollections.containsKey(collectionName))
@@ -50,13 +51,8 @@ class CollectionProvider {
 	}
 
 
-	Map<String, RapidCollectionReference> getCollections() {
-		return mCollections;
-	}
-
-
 	void resubscribeAll() {
-		for(RapidCollectionReference rapidCollectionReference : getCollections().values()) {
+		for(RapidCollectionReference rapidCollectionReference : mCollections.values()) {
 			if(rapidCollectionReference.isSubscribed()) {
 				rapidCollectionReference.resubscribe();
 			}
@@ -65,7 +61,7 @@ class CollectionProvider {
 
 
 	void timedOutAll() {
-		for(RapidCollectionReference rapidCollectionReference : getCollections().values()) {
+		for(RapidCollectionReference rapidCollectionReference : mCollections.values()) {
 			if(rapidCollectionReference.isSubscribed()) {
 				rapidCollectionReference.onTimedOut();
 			}

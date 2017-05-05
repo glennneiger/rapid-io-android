@@ -9,11 +9,11 @@ import io.rapid.utility.BackgroundExecutor;
 import io.rapid.utility.NetworkUtility;
 
 
-public class WebSocketConnectionAsync extends WebSocketConnection {
-	WebSocket mClient;
+class WebSocketConnectionAsync extends WebSocketConnection {
+	private WebSocket mClient;
 
 
-	public WebSocketConnectionAsync(String serverURI, WebSocketConnectionListener listener) {
+	WebSocketConnectionAsync(String serverURI, WebSocketConnectionListener listener) {
 		super(serverURI, listener);
 	}
 
@@ -26,7 +26,7 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 			{
 				if(ex != null) {
 					ex.printStackTrace();
-					CloseReasonEnum reasonEnum = CloseReasonEnum.get(ex);
+					CloseReason reasonEnum = CloseReason.get(ex);
 					if(mListener != null) mListener.onClose(reasonEnum);
 					return;
 				}
@@ -53,7 +53,7 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 				webSocket.setClosedCallback(ex1 ->
 				{
 					if(ex1 != null) ex1.printStackTrace();
-					CloseReasonEnum reasonEnum = CloseReasonEnum.get(ex1);
+					CloseReason reasonEnum = CloseReason.get(ex1);
 					if(mListener != null) mListener.onClose(reasonEnum);
 				});
 
@@ -62,7 +62,7 @@ public class WebSocketConnectionAsync extends WebSocketConnection {
 		}
 		else
 		{
-			if(mListener != null) mListener.onClose(CloseReasonEnum.NO_INTERNET_CONNECTION);
+			if(mListener != null) mListener.onClose(CloseReason.NO_INTERNET_CONNECTION);
 		}
 	}
 

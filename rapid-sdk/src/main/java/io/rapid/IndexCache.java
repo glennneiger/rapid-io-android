@@ -8,10 +8,10 @@ import java.util.Map;
 
 class IndexCache {
 	private static IndexCache sInstance;
-	Map<String, List<String>> mCache = new HashMap<>();
+	private Map<String, List<String>> mCache = new HashMap<>();
 
 
-	public static IndexCache getInstance() {
+	static IndexCache getInstance() {
 		if(sInstance == null)
 			sInstance = new IndexCache();
 		return sInstance;

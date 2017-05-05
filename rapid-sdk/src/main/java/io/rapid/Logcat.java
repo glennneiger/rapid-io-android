@@ -7,9 +7,9 @@ import android.util.Log;
  * Use for internal logging only. These logs are not visible when using release version of the SDK.
  */
 class Logcat {
-	public static final String TAG = "Rapid SDK internal";
+	private static final String TAG = "Rapid SDK internal";
 
-	public static final boolean IS_ENABLED = !BuildConfig.RELEASE;
+	private static final boolean IS_ENABLED = !BuildConfig.RELEASE;
 	private static final boolean SHOW_CODE_LOCATION = true;
 	private static final boolean SHOW_CODE_LOCATION_THREAD = false;
 	private static final boolean SHOW_CODE_LOCATION_LINE = true;
