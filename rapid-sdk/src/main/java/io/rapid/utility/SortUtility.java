@@ -14,6 +14,9 @@ public class SortUtility {
 
 	private static <T extends Comparable<T>> int getInsertPosition(List<T> list, T item, int leftIndex, int rightIndex)
 	{
+		if (list.isEmpty())
+			return 0;
+
 		if(leftIndex == rightIndex)
 		{
 			if(item.compareTo(list.get(leftIndex)) > 0)
