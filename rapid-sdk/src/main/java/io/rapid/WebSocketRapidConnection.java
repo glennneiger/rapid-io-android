@@ -161,7 +161,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		else if(message.getMessageType() == MessageType.RM)
 		{
 			Message.Rm rmMessage = ((Message.Rm) message);
-			mCallback.onUpdate(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), null);
+			mCallback.onRemove(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), rmMessage.getDocument());
 		}
 	}
 

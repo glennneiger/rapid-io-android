@@ -10,4 +10,5 @@ interface CollectionConnection<T> {
 	void onTimedOut();
 	boolean hasActiveSubscription();
 	void resubscribe();
+	void onRemove(String subscriptionId, String document);
 }

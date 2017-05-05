@@ -13,7 +13,7 @@ import io.rapid.utility.Sha1Utility;
 
 
 abstract class Subscription<T> {
-	private final Handler mUiThreadHandler;
+	final Handler mUiThreadHandler;
 	private final String mCollectionName;
 	private OnUnsubscribeCallback mOnUnsubscribeCallback;
 	private boolean mSubscribed = true;

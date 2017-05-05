@@ -56,6 +56,12 @@ public class Rapid {
 
 
 			@Override
+			public void onRemove(String subscriptionId, String collectionId, String documentJson) {
+				mCollectionProvider.findCollectionByName(collectionId).onRemove(subscriptionId, documentJson);
+			}
+
+
+			@Override
 			public void onTimedOut() {
 				mCollectionProvider.timedOutAll();
 			}

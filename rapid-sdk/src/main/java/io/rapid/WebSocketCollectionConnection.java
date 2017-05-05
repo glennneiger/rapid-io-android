@@ -201,6 +201,12 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
+	public void onRemove(String subscriptionId, String document) {
+		onUpdate(subscriptionId, document);
+	}
+
+
+	@Override
 	public void onError(String subscriptionId, RapidError error) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription != null)

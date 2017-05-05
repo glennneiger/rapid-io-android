@@ -781,11 +781,11 @@ abstract class Message {
 	static class Rm extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
 		private static final String ATTR_COL_ID = "col-id";
-		private static final String ATTR_DOC_ID = "doc-id";
+		private static final String ATTR_DOC = "doc";
 
 		private String mSubscriptionId;
 		private String mCollectionId;
-		private String mDocumentId;
+		private String mDocument;
 
 
 		Rm(JSONObject json) throws JSONException {
@@ -798,7 +798,7 @@ abstract class Message {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_SUB_ID, getSubscriptionId());
 			body.put(ATTR_COL_ID, getCollectionId());
-			body.put(ATTR_DOC_ID, getDocumentId());
+			body.put(ATTR_DOC, getDocument());
 			return body;
 		}
 
@@ -809,7 +809,7 @@ abstract class Message {
 
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
-			mDocumentId = jsonBody.optString(ATTR_DOC_ID);
+			mDocument = jsonBody.optString(ATTR_DOC);
 		}
 
 
@@ -823,8 +823,8 @@ abstract class Message {
 		}
 
 
-		String getDocumentId() {
-			return mDocumentId;
+		String getDocument() {
+			return mDocument;
 		}
 	}
 }

@@ -409,6 +409,8 @@ public class RapidCollectionReference<T> {
 	}
 
 
+
+
 	void resubscribe() {
 		mConnection.resubscribe();
 	}
@@ -439,6 +441,11 @@ public class RapidCollectionReference<T> {
 
 	void onUpdate(String subscriptionId, String documents) {
 		mConnection.onUpdate(subscriptionId, documents);
+	}
+
+
+	public void onRemove(String subscriptionId, String documentJson) {
+		mConnection.onRemove(subscriptionId, documentJson);
 	}
 
 
