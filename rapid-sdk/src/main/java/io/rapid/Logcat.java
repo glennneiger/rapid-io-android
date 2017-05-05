@@ -11,8 +11,6 @@ class Logcat {
 
 	private static final boolean IS_ENABLED = !BuildConfig.RELEASE;
 	private static final boolean SHOW_CODE_LOCATION = true;
-	private static final boolean SHOW_CODE_LOCATION_THREAD = false;
-	private static final boolean SHOW_CODE_LOCATION_LINE = true;
 
 
 	private Logcat() {}
@@ -99,22 +97,11 @@ class Logcat {
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
 			if(SHOW_CODE_LOCATION) {
-				builder.append('[');
-				if(SHOW_CODE_LOCATION_THREAD) {
-					builder.append(mThread);
-					builder.append('.');
-				}
-				builder.append(mClassName);
-				builder.append('.');
-				builder.append(mMethod);
-				if(SHOW_CODE_LOCATION_LINE) {
 					builder.append('(');
 					builder.append(mFileName);
 					builder.append(':');
 					builder.append(mLineNumber);
-					builder.append(')');
-				}
-				builder.append("] ");
+					builder.append(") ");
 			}
 			return builder.toString();
 		}
