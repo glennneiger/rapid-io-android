@@ -23,16 +23,13 @@ enum CloseReason
 
 
 	// for Async connection
-	static CloseReason get(Exception ex)
-	{
-		if(ex == null)
-		{
+	static CloseReason get(Exception ex) {
+		if(ex == null) {
 			return CLOSED_FROM_SERVER;
-		}
-		else
-		{
-			switch(ex.getMessage())
-			{
+		} else if(ex.getMessage() == null) {
+			return UNKNOWN;
+		} else {
+			switch(ex.getMessage()) {
 				case "Software caused connection abort":
 					return INTERNET_CONNECTION_LOST;
 				default:
