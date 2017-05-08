@@ -1,22 +1,26 @@
-package io.rapid.rapido;
+package io.rapid.rapido.ui.list;
 
 
 import android.databinding.Observable;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
-import android.widget.Toast;
+
+import java.util.Date;
 
 import io.rapid.ConnectionState;
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
 import io.rapid.RapidDocumentReference;
+import io.rapid.rapido.BR;
+import io.rapid.rapido.Config;
+import io.rapid.rapido.R;
 import io.rapid.rapido.model.Task;
 import me.tatarka.bindingcollectionadapter2.ItemBinding;
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
 
-public class MainViewModel implements TaskItemViewModel.TaskItemHandler, EditTaskViewModel.EditTaskHandler {
+public class TaskListViewModel implements TaskItemHandler {
 	public final ObservableField<String> newTaskTitle = new ObservableField<>();
 	public final ObservableField<String> searchQuery = new ObservableField<>();
 	public ObservableBoolean searching = new ObservableBoolean();
@@ -37,37 +41,37 @@ public class MainViewModel implements TaskItemViewModel.TaskItemHandler, EditTas
 
 	private RapidCollectionSubscription mSubscription;
 	private RapidCollectionReference<Task> mTasks;
-	private MainActivity mActivity;
+	private TaskListActivity mActivity;
 
 
 	@Override
-	public void onDelete(String id, Task task) {
+	public void deleteTask(String id) {
 		mTasks.document(id).delete()
-				.onError(error -> showToast(error.getMessage()));
+				.onError(error -> mActivity.showToast(error.getMessage()));
 	}
 
 
 	@Override
-	public void onChange(String id, Task task) {
-		mTasks.document(id).mutate(task);
+	public void onTaskUpdated(String id, Task task) {
+		RapidDocumentReference<Task> doc;
+		if(id != null) {
+			doc = mTasks.document(id);
+		} else {
+			doc = mTasks.newDocument();
+			task.setCreatedAt(new Date());
+		}
+		doc.mutate(task).onError(error -> mActivity.showToast(error.getMessage()));
 	}
 
 
 	@Override
-	public void onEdit(String id, Task task) {
+	public void editTask(String id, Task task) {
 		mActivity.showEditDialog(id, task);
 	}
 
 
-	@Override
-	public void onTaskUpdated(String taskId, Task task) {
-		RapidDocumentReference<Task> doc = taskId != null ? mTasks.document(taskId) : mTasks.newDocument();
-		doc.mutate(task).onError(error -> showToast(error.getMessage()));
-	}
-
-
-	public void initialize(MainActivity mainActivity) {
-		mActivity = mainActivity;
+	public void initialize(TaskListActivity taskListActivity) {
+		mActivity = taskListActivity;
 
 		Rapid.getInstance().authorize(Config.RAPID_AUTH_TOKEN);
 
@@ -97,8 +101,9 @@ public class MainViewModel implements TaskItemViewModel.TaskItemHandler, EditTas
 	}
 
 
-	private void showToast(String message) {
-		Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+	public void deleteTask(int position) {
+		TaskItemViewModel taskToDelete = tasks.get(position);
+		deleteTask(taskToDelete.getId());
 	}
 
 
@@ -120,7 +125,7 @@ public class MainViewModel implements TaskItemViewModel.TaskItemHandler, EditTas
 				.subscribe(items -> tasks.update(items))
 				.onError(error -> {
 					error.printStackTrace();
-					showToast(error.getMessage());
+					mActivity.showToast(error.getMessage());
 				});
 	}
 

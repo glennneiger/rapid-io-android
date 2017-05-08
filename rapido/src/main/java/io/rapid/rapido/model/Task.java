@@ -18,6 +18,7 @@ public class Task extends BaseObservable {
 	private List<String> tags;
 	private boolean done;
 
+
 	public String getTitle() {
 		return title;
 	}

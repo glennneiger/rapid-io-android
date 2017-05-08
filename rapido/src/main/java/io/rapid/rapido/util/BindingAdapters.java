@@ -2,10 +2,12 @@ package io.rapid.rapido.util;
 
 
 import android.databinding.BindingAdapter;
+import android.graphics.Paint;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class BindingAdapters {
@@ -35,5 +37,14 @@ public class BindingAdapters {
 		} else {
 			editText.setOnEditorActionListener(null);
 		}
+	}
+
+
+	@BindingAdapter("strikethrough")
+	public static void setStrikeThrough(TextView textView, boolean strikethrough) {
+		if(strikethrough)
+			textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+		else
+			textView.setPaintFlags(textView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 	}
 }
