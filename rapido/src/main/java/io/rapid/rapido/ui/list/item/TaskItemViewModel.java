@@ -1,41 +1,45 @@
 package io.rapid.rapido.ui.list.item;
 
 
+import io.rapid.RapidDocument;
 import io.rapid.rapido.data.model.Task;
 
 
 public class TaskItemViewModel {
-	private final String mId;
-	private Task mTask;
+	private final RapidDocument<Task> mDocument;
 	private TaskItemHandler mHandler;
 
 
-	public TaskItemViewModel(String id, Task task, TaskItemHandler handler) {
-		mId = id;
-		mTask = task;
+	public TaskItemViewModel(RapidDocument<Task> document, TaskItemHandler handler) {
+		mDocument = document;
 		mHandler = handler;
 	}
 
 
 	public Task getTask() {
-		return mTask;
+		return mDocument.getBody();
 	}
 
 
 	public void edit() {
-		mHandler.editTask(mId, mTask);
+		mHandler.editTask(getId(), getTask());
 	}
 
 
 	public void onCheckedChanged(boolean checked) {
-		if(mTask.isDone() != checked) {
-			mTask.setDone(checked);
-			mHandler.onTaskUpdated(mId, mTask);
+		if(getTask().isDone() != checked) {
+			getTask().setDone(checked);
+			mHandler.onTaskUpdated(getId(), getTask());
 		}
 	}
 
 
 	public String getId() {
-		return mId;
+		return mDocument.getId();
+	}
+
+
+	public RapidDocument<Task> getDocument() {
+		return mDocument;
 	}
 }

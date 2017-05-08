@@ -19,17 +19,20 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	static final String KEY_BODY = "body";
 	private static final String KEY_SKEY = "skey";
 	private static final String KEY_CRT = "crt";
+	private static final String KEY_ETAG = "etag";
 	private String id;
 	private long createdTimestamp;
 	private List<String> sorting;
 	private EntityOrder order;
+	private String etag;
 	private T body;
 
 
-	RapidDocument(String id, List<String> sortingKey, long createdTimestamp, T value) {
+	RapidDocument(String id, List<String> sortingKey, long createdTimestamp, String etag, T value) {
 		this.id = id;
 		this.sorting = sortingKey;
 		this.createdTimestamp = createdTimestamp;
+		this.etag = etag;
 		this.body = value;
 		this.sorting.add(Long.toString(this.createdTimestamp));
 	}
@@ -51,7 +54,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 				sortingList.add(sortingJSONArray.optString(i));
 			}
 		}
-		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optLong(KEY_CRT),
+		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optLong(KEY_CRT), jsonObject.optString(KEY_ETAG),
 				jsonConverter.fromJson(jsonObject.optString(KEY_BODY), documentType));
 	}
 
@@ -104,6 +107,16 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
+	public boolean hasSameContentAs(RapidDocument otherDocument) {
+		if(!this.id.equals(otherDocument.id))
+			return false;
+		else if(this.etag == null || otherDocument.etag == null)
+			return false;
+		else
+			return this.etag.equals(otherDocument.etag);
+	}
+
+
 	@Override
 	public String toString() {
 		return "RapidDocument(" + getId() + ": " + getBody().toString() + ")";
@@ -112,6 +125,11 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 
 	public String getId() {
 		return id;
+	}
+
+
+	public String getEtag() {
+		return etag;
 	}
 
 

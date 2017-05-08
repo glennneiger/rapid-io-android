@@ -25,7 +25,6 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
 
 public class TaskListViewModel implements TaskItemHandler {
-	public final ObservableField<String> newTaskTitle = new ObservableField<>();
 	public final ObservableField<String> searchQuery = new ObservableField<>();
 	public final ObservableField<String> orderProperty = new ObservableField<>();
 	public final ObservableField<Sorting> orderSorting = new ObservableField<>();
@@ -41,7 +40,7 @@ public class TaskListViewModel implements TaskItemHandler {
 
 		@Override
 		public boolean areContentsTheSame(TaskItemViewModel oldItem, TaskItemViewModel newItem) {
-			return true;
+			return oldItem.getDocument().hasSameContentAs(newItem.getDocument());
 		}
 	});
 
@@ -133,7 +132,7 @@ public class TaskListViewModel implements TaskItemHandler {
 		// create subscription
 		mSubscription = mTasksReference
 				.orderBy(orderProperty.get(), orderSorting.get())
-				.map(document -> new TaskItemViewModel(document.getId(), document.getBody(), this))
+				.map(document -> new TaskItemViewModel(document, this))
 				.subscribe(items -> tasks.update(items))
 				.onError(error -> {
 					error.printStackTrace();
