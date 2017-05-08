@@ -71,8 +71,12 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 		}
 
 		Sorting sortingType;
-		if(depth == sorting.size() - 1)
-			sortingType = Sorting.ASC;
+		if(depth == sorting.size() - 1) // last sorting by created_timestamp
+			// TODO: temp fix until DocumentDB supports multiple order
+			// Document DB can sort by one attribute for now. Secondary sort is by 'crt' attribute but the direction is the same
+			// Therefore we need to get sorting type form the first sorting in order list temporarily
+			sortingType = order.getOrderList().isEmpty() ? Sorting.ASC : order.getOrderList().get(0).getSorting();
+//			sortingType = Sorting.ASC;
 		else
 			sortingType = order.getOrderList().get(depth).getSorting();
 
