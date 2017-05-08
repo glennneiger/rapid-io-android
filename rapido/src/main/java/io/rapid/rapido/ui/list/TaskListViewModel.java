@@ -46,13 +46,13 @@ public class TaskListViewModel implements TaskItemHandler {
 	});
 
 	private RapidCollectionSubscription mSubscription;
-	private RapidCollectionReference<Task> mTasks;
+	private RapidCollectionReference<Task> mTasksReference;
 	private TaskListView mView;
 
 
 	@Override
 	public void deleteTask(String id) {
-		mTasks.document(id).delete()
+		mTasksReference.document(id).delete()
 				.onError(error -> mView.showToast(error.getMessage()));
 	}
 
@@ -61,9 +61,9 @@ public class TaskListViewModel implements TaskItemHandler {
 	public void onTaskUpdated(String id, Task task) {
 		RapidDocumentReference<Task> doc;
 		if(id != null) {
-			doc = mTasks.document(id);
+			doc = mTasksReference.document(id);
 		} else {
-			doc = mTasks.newDocument();
+			doc = mTasksReference.newDocument();
 			task.setCreatedAt(new Date());
 		}
 		doc.mutate(task).onError(error -> mView.showToast(error.getMessage()));
@@ -85,7 +85,7 @@ public class TaskListViewModel implements TaskItemHandler {
 
 		Rapid.getInstance().addConnectionStateListener(connectionState::set);
 
-		mTasks = Rapid.getInstance().collection("tasks_android_demo_01", Task.class);
+		mTasksReference = Rapid.getInstance().collection("tasks_android_demo_01", Task.class);
 
 		Observable.OnPropertyChangedCallback queryChangedCallback = new Observable.OnPropertyChangedCallback() {
 			@Override
@@ -124,14 +124,14 @@ public class TaskListViewModel implements TaskItemHandler {
 		// if search query is not empty - add it as a filter
 		String query = searchQuery.get();
 		if(query != null && !query.isEmpty()) {
-			mTasks.beginOr()
+			mTasksReference.beginOr()
 					.contains("title", query)
 					.contains("description", query)
 					.endOr();
 		}
 
 		// create subscription
-		mSubscription = mTasks
+		mSubscription = mTasksReference
 				.orderBy(orderProperty.get(), orderSorting.get())
 				.map(document -> new TaskItemViewModel(document.getId(), document.getBody(), this))
 				.subscribe(items -> tasks.update(items))
