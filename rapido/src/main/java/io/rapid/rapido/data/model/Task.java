@@ -1,4 +1,4 @@
-package io.rapid.rapido.model;
+package io.rapid.rapido.data.model;
 
 
 import android.databinding.BaseObservable;

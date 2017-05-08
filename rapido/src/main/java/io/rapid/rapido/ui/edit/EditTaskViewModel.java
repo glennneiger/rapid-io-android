@@ -4,8 +4,8 @@ package io.rapid.rapido.ui.edit;
 import android.app.Dialog;
 import android.databinding.ObservableField;
 
-import io.rapid.rapido.model.Task;
-import io.rapid.rapido.ui.list.TaskItemHandler;
+import io.rapid.rapido.data.model.Task;
+import io.rapid.rapido.ui.list.item.TaskItemHandler;
 
 
 public class EditTaskViewModel {

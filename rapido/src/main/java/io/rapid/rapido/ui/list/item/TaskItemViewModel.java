@@ -1,7 +1,7 @@
-package io.rapid.rapido.ui.list;
+package io.rapid.rapido.ui.list.item;
 
 
-import io.rapid.rapido.model.Task;
+import io.rapid.rapido.data.model.Task;
 
 
 public class TaskItemViewModel {

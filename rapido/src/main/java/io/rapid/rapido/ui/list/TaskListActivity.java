@@ -19,14 +19,15 @@ import android.widget.Toast;
 import java.util.Arrays;
 
 import io.rapid.rapido.R;
+import io.rapid.rapido.data.SettingsStorage;
+import io.rapid.rapido.data.model.Task;
 import io.rapid.rapido.databinding.ActivityTaskListBinding;
 import io.rapid.rapido.databinding.DialogEditTaskBinding;
 import io.rapid.rapido.databinding.DialogOrderBinding;
-import io.rapid.rapido.model.Task;
 import io.rapid.rapido.ui.edit.EditTaskViewModel;
 
 
-public class TaskListActivity extends AppCompatActivity {
+public class TaskListActivity extends AppCompatActivity implements TaskListView {
 
 
 	private ActivityTaskListBinding mBinding;
@@ -63,16 +64,19 @@ public class TaskListActivity extends AppCompatActivity {
 	}
 
 
+	@Override
 	public void showToast(String message) {
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
 
 
+	@Override
 	public void showAddDialog() {
 		showEditDialog(null, null);
 	}
 
 
+	@Override
 	public void showEditDialog(String taskId, Task task) {
 		BottomSheetDialog dialog = new BottomSheetDialog(this);
 		DialogEditTaskBinding dialogBinding = DialogEditTaskBinding.inflate(LayoutInflater.from(this));
@@ -123,7 +127,7 @@ public class TaskListActivity extends AppCompatActivity {
 		mBinding.setView(this);
 		mBinding.setViewModel(mViewModel);
 
-		mViewModel.initialize(this);
+		mViewModel.initialize(this, new SettingsStorage(this));
 		mViewModel.onViewAttached();
 
 		initItemTouchHelper();

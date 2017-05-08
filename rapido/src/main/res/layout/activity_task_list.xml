@@ -15,7 +15,7 @@
 
 		<variable
 			name="view"
-			type="io.rapid.rapido.ui.list.TaskListActivity"/>
+			type="io.rapid.rapido.ui.list.TaskListView"/>
 	</data>
 
 	<android.support.design.widget.CoordinatorLayout
@@ -49,16 +49,16 @@
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="@dimen/spacing_8"
 					android:layout_marginRight="@dimen/spacing_8"
+					android:drawableLeft="@drawable/ic_search"
+					android:drawablePadding="@dimen/spacing_8"
+					android:drawableTint="@color/white"
 					android:hint="@string/search"
 					android:inputType="textCapWords"
-					android:drawableLeft="@drawable/ic_search"
-					android:drawableTint="@color/white"
-					android:drawablePadding="@dimen/spacing_8"
 					android:nextFocusLeft="@id/search_field"
-					app:theme="@style/ThemeOverlay.Inverse"
 					android:nextFocusUp="@id/search_field"
 					android:text="@={viewModel.searchQuery}"
-					app:show="@{viewModel.searching}"/>
+					app:show="@{viewModel.searching}"
+					app:theme="@style/ThemeOverlay.Inverse"/>
 			</android.support.design.widget.AppBarLayout>
 
 			<!--Focus catcher-->

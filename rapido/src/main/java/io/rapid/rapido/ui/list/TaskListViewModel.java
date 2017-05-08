@@ -16,7 +16,10 @@ import io.rapid.Sorting;
 import io.rapid.rapido.BR;
 import io.rapid.rapido.Config;
 import io.rapid.rapido.R;
-import io.rapid.rapido.model.Task;
+import io.rapid.rapido.data.SettingsStorage;
+import io.rapid.rapido.data.model.Task;
+import io.rapid.rapido.ui.list.item.TaskItemHandler;
+import io.rapid.rapido.ui.list.item.TaskItemViewModel;
 import me.tatarka.bindingcollectionadapter2.ItemBinding;
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
@@ -24,8 +27,8 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 public class TaskListViewModel implements TaskItemHandler {
 	public final ObservableField<String> newTaskTitle = new ObservableField<>();
 	public final ObservableField<String> searchQuery = new ObservableField<>();
-	public final ObservableField<String> orderProperty = new ObservableField<>("done");
-	public final ObservableField<Sorting> orderSorting = new ObservableField<>(Sorting.ASC);
+	public final ObservableField<String> orderProperty = new ObservableField<>();
+	public final ObservableField<Sorting> orderSorting = new ObservableField<>();
 	public ObservableBoolean searching = new ObservableBoolean();
 	public ObservableField<ConnectionState> connectionState = new ObservableField<>();
 	public ItemBinding<TaskItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_task);
@@ -44,13 +47,13 @@ public class TaskListViewModel implements TaskItemHandler {
 
 	private RapidCollectionSubscription mSubscription;
 	private RapidCollectionReference<Task> mTasks;
-	private TaskListActivity mActivity;
+	private TaskListView mView;
 
 
 	@Override
 	public void deleteTask(String id) {
 		mTasks.document(id).delete()
-				.onError(error -> mActivity.showToast(error.getMessage()));
+				.onError(error -> mView.showToast(error.getMessage()));
 	}
 
 
@@ -63,18 +66,20 @@ public class TaskListViewModel implements TaskItemHandler {
 			doc = mTasks.newDocument();
 			task.setCreatedAt(new Date());
 		}
-		doc.mutate(task).onError(error -> mActivity.showToast(error.getMessage()));
+		doc.mutate(task).onError(error -> mView.showToast(error.getMessage()));
 	}
 
 
 	@Override
 	public void editTask(String id, Task task) {
-		mActivity.showEditDialog(id, task);
+		mView.showEditDialog(id, task);
 	}
 
 
-	public void initialize(TaskListActivity taskListActivity) {
-		mActivity = taskListActivity;
+	public void initialize(TaskListView view, SettingsStorage settingsStorage) {
+		mView = view;
+		orderProperty.set(settingsStorage.getOrderProperty());
+		orderSorting.set(settingsStorage.getOrderSorting());
 
 		Rapid.getInstance().authorize(Config.RAPID_AUTH_TOKEN);
 
@@ -82,16 +87,18 @@ public class TaskListViewModel implements TaskItemHandler {
 
 		mTasks = Rapid.getInstance().collection("tasks_android_demo_01", Task.class);
 
-		Observable.OnPropertyChangedCallback resubscribeCallback = new Observable.OnPropertyChangedCallback() {
+		Observable.OnPropertyChangedCallback queryChangedCallback = new Observable.OnPropertyChangedCallback() {
 			@Override
 			public void onPropertyChanged(Observable observable, int i) {
+				settingsStorage.setOrderProperty(orderProperty.get());
+				settingsStorage.setOrderSorting(orderSorting.get());
 				mSubscription.unsubscribe();
 				subscribe();
 			}
 		};
-		searchQuery.addOnPropertyChangedCallback(resubscribeCallback);
-		orderProperty.addOnPropertyChangedCallback(resubscribeCallback);
-		orderSorting.addOnPropertyChangedCallback(resubscribeCallback);
+		searchQuery.addOnPropertyChangedCallback(queryChangedCallback);
+		orderProperty.addOnPropertyChangedCallback(queryChangedCallback);
+		orderSorting.addOnPropertyChangedCallback(queryChangedCallback);
 	}
 
 
@@ -130,7 +137,7 @@ public class TaskListViewModel implements TaskItemHandler {
 				.subscribe(items -> tasks.update(items))
 				.onError(error -> {
 					error.printStackTrace();
-					mActivity.showToast(error.getMessage());
+					mView.showToast(error.getMessage());
 				});
 	}
 
