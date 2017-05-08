@@ -6,8 +6,19 @@
 		<item name="colorAccent">@color/primary</item>
 	</style>
 
+	<style name="Theme.Design.Light.BottomSheetDialog.TranslucentStatus">
+		<item name="android:windowTranslucentStatus">true</item>
+	</style>
+
 	<style name="ThemeOverlay.AccentDivider" parent="ThemeOverlay.AppCompat">
 		<item name="colorAccent">@color/divider</item>
+	</style>
+
+	<style name="ThemeOverlay.Inverse" parent="ThemeOverlay.AppCompat">
+		<item name="colorAccent">#ddffffff</item>
+		<item name="android:textColorPrimary">#ddffffff</item>
+		<item name="android:textColorSecondary">#ddffffff</item>
+		<item name="android:textColorHint">#88ffffff</item>
 	</style>
 
 </resources>

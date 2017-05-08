@@ -5,4 +5,18 @@
 		<item>Medium Priority</item>
 		<item>High Priority</item>
 	</array>
+
+	<array name="order_names">
+		<item>Done</item>
+		<item>Title</item>
+		<item>Priority</item>
+		<item>Date</item>
+	</array>
+
+	<array name="order_values">
+		<item>done</item>
+		<item>title</item>
+		<item>priority</item>
+		<item>createdAt</item>
+	</array>
 </resources>

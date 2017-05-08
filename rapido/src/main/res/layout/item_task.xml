@@ -40,6 +40,7 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
 				android:layout_weight="1"
+				android:layout_marginRight="@dimen/spacing_8"
 				android:orientation="vertical">
 
 				<TextView
@@ -55,13 +56,14 @@
 				<TextView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_marginTop="@dimen/spacing_4"
+					android:layout_marginTop="@dimen/spacing_2"
+					app:show="@{viewModel.task.description != null &amp;&amp; !viewModel.task.description.empty}"
 					android:alpha="@{viewModel.task.done ? 0.4f : 1f}"
 					android:text="@{viewModel.task.description}"
 					android:textAppearance="@style/TextAppearance.AppCompat.Body1"
 					android:textColor="@color/secondary_text"
 					app:strikethrough="@{viewModel.task.done}"
-					tools:text="Title"/>
+					tools:text="Description"/>
 
 				<com.github.curioustechizen.ago.RelativeTimeTextView
 					android:layout_width="match_parent"
@@ -77,7 +79,7 @@
 			<LinearLayout
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center"
+				android:layout_gravity="bottom"
 				android:orientation="vertical">
 
 				<ImageView

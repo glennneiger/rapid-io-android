@@ -12,6 +12,7 @@ import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
 import io.rapid.RapidDocumentReference;
+import io.rapid.Sorting;
 import io.rapid.rapido.BR;
 import io.rapid.rapido.Config;
 import io.rapid.rapido.R;
@@ -23,6 +24,8 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 public class TaskListViewModel implements TaskItemHandler {
 	public final ObservableField<String> newTaskTitle = new ObservableField<>();
 	public final ObservableField<String> searchQuery = new ObservableField<>();
+	public final ObservableField<String> orderProperty = new ObservableField<>("done");
+	public final ObservableField<Sorting> orderSorting = new ObservableField<>(Sorting.ASC);
 	public ObservableBoolean searching = new ObservableBoolean();
 	public ObservableField<ConnectionState> connectionState = new ObservableField<>();
 	public ItemBinding<TaskItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_task);
@@ -35,7 +38,7 @@ public class TaskListViewModel implements TaskItemHandler {
 
 		@Override
 		public boolean areContentsTheSame(TaskItemViewModel oldItem, TaskItemViewModel newItem) {
-			return oldItem.getTask().equals(newItem.getTask());
+			return true;
 		}
 	});
 
@@ -79,14 +82,16 @@ public class TaskListViewModel implements TaskItemHandler {
 
 		mTasks = Rapid.getInstance().collection("tasks_android_demo_01", Task.class);
 
-		searchQuery.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+		Observable.OnPropertyChangedCallback resubscribeCallback = new Observable.OnPropertyChangedCallback() {
 			@Override
 			public void onPropertyChanged(Observable observable, int i) {
-				// search query changed -> resubscribe
 				mSubscription.unsubscribe();
 				subscribe();
 			}
-		});
+		};
+		searchQuery.addOnPropertyChangedCallback(resubscribeCallback);
+		orderProperty.addOnPropertyChangedCallback(resubscribeCallback);
+		orderSorting.addOnPropertyChangedCallback(resubscribeCallback);
 	}
 
 
@@ -120,7 +125,7 @@ public class TaskListViewModel implements TaskItemHandler {
 
 		// create subscription
 		mSubscription = mTasks
-				.orderBy("done")
+				.orderBy(orderProperty.get(), orderSorting.get())
 				.map(document -> new TaskItemViewModel(document.getId(), document.getBody(), this))
 				.subscribe(items -> tasks.update(items))
 				.onError(error -> {

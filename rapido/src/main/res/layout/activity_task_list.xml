@@ -36,26 +36,33 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					app:titleTextColor="@color/primary_darker"/>
+
+				<LinearLayout
+					android:layout_width="0px"
+					android:layout_height="0px"
+					android:focusable="true"
+					android:focusableInTouchMode="true"/>
+
+				<EditText
+					android:id="@+id/search_field"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="@dimen/spacing_8"
+					android:layout_marginRight="@dimen/spacing_8"
+					android:hint="@string/search"
+					android:inputType="textCapWords"
+					android:drawableLeft="@drawable/ic_search"
+					android:drawableTint="@color/white"
+					android:drawablePadding="@dimen/spacing_8"
+					android:nextFocusLeft="@id/search_field"
+					app:theme="@style/ThemeOverlay.Inverse"
+					android:nextFocusUp="@id/search_field"
+					android:text="@={viewModel.searchQuery}"
+					app:show="@{viewModel.searching}"/>
 			</android.support.design.widget.AppBarLayout>
 
 			<!--Focus catcher-->
-			<LinearLayout
-				android:layout_width="0px"
-				android:layout_height="0px"
-				android:focusable="true"
-				android:focusableInTouchMode="true"/>
 
-			<EditText
-				android:id="@+id/search_field"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_margin="@dimen/spacing_8"
-				android:hint="@string/search"
-				android:inputType="textCapWords"
-				android:nextFocusLeft="@id/search_field"
-				android:nextFocusUp="@id/search_field"
-				android:text="@={viewModel.searchQuery}"
-				app:show="@{viewModel.searching}"/>
 
 			<android.support.v7.widget.RecyclerView
 				android:id="@+id/list"

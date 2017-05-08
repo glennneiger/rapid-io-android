@@ -4,6 +4,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -12,11 +13,15 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
+
+import java.util.Arrays;
 
 import io.rapid.rapido.R;
 import io.rapid.rapido.databinding.ActivityTaskListBinding;
 import io.rapid.rapido.databinding.DialogEditTaskBinding;
+import io.rapid.rapido.databinding.DialogOrderBinding;
 import io.rapid.rapido.model.Task;
 import io.rapid.rapido.ui.edit.EditTaskViewModel;
 
@@ -44,13 +49,14 @@ public class TaskListActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 			case R.id.menu_search:
+				TransitionManager.beginDelayedTransition((ViewGroup) mBinding.getRoot());
 				mViewModel.searching.set(!mViewModel.searching.get());
 				return true;
 			case R.id.menu_filter:
 				// TODO
 				return true;
 			case R.id.menu_order:
-				// TODO
+				showOrderDialog();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -68,7 +74,7 @@ public class TaskListActivity extends AppCompatActivity {
 
 
 	public void showEditDialog(String taskId, Task task) {
-		BottomSheetDialog dialog = new BottomSheetDialog(this);
+		BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog_TranslucentStatus);
 		DialogEditTaskBinding dialogBinding = DialogEditTaskBinding.inflate(LayoutInflater.from(this));
 
 		EditTaskViewModel editTaskViewModel = new EditTaskViewModel(dialog, taskId, task, mViewModel);
@@ -79,6 +85,27 @@ public class TaskListActivity extends AppCompatActivity {
 		bottomSheetBehavior.setSkipCollapsed(true);
 		dialog.show();
 		bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+	}
+
+
+	public void showOrderDialog() {
+		BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog_TranslucentStatus);
+		DialogOrderBinding dialogBinding = DialogOrderBinding.inflate(LayoutInflater.from(this));
+
+
+		OrderViewModel orderViewModel = new OrderViewModel(
+				Arrays.asList(getResources().getStringArray(R.array.order_values)),
+				mViewModel.orderProperty.get(),
+				mViewModel.orderSorting.get(),
+				(orderProperty, sorting) -> {
+					mViewModel.orderProperty.set(orderProperty);
+					mViewModel.orderSorting.set(sorting);
+				}
+		);
+
+		dialogBinding.setViewModel(orderViewModel);
+		dialog.setContentView(dialogBinding.getRoot());
+		dialog.show();
 	}
 
 
