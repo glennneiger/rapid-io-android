@@ -6,10 +6,6 @@
 		<item name="colorAccent">@color/primary</item>
 	</style>
 
-	<style name="Theme.Design.Light.BottomSheetDialog.TranslucentStatus">
-		<item name="android:windowTranslucentStatus">true</item>
-	</style>
-
 	<style name="ThemeOverlay.AccentDivider" parent="ThemeOverlay.AppCompat">
 		<item name="colorAccent">@color/divider</item>
 	</style>

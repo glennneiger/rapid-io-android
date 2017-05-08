@@ -74,7 +74,7 @@ public class TaskListActivity extends AppCompatActivity {
 
 
 	public void showEditDialog(String taskId, Task task) {
-		BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog_TranslucentStatus);
+		BottomSheetDialog dialog = new BottomSheetDialog(this);
 		DialogEditTaskBinding dialogBinding = DialogEditTaskBinding.inflate(LayoutInflater.from(this));
 
 		EditTaskViewModel editTaskViewModel = new EditTaskViewModel(dialog, taskId, task, mViewModel);
@@ -89,7 +89,7 @@ public class TaskListActivity extends AppCompatActivity {
 
 
 	public void showOrderDialog() {
-		BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog_TranslucentStatus);
+		BottomSheetDialog dialog = new BottomSheetDialog(this);
 		DialogOrderBinding dialogBinding = DialogOrderBinding.inflate(LayoutInflater.from(this));
 
 
