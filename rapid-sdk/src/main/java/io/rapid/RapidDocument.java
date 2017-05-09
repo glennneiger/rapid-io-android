@@ -133,7 +133,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	public String getCreatedTimestamp()
+	String getCreatedTimestamp()
 	{
 		return createdTimestamp;
 	}
