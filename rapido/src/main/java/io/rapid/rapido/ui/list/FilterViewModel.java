@@ -83,7 +83,7 @@ public class FilterViewModel extends BaseObservable {
 
 	public void setFilterState(FilterState filterState) {
 		this.filterState.set(filterState);
-
+		onFilterChanged();
 	}
 
 
