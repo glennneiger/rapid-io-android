@@ -21,20 +21,20 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	private static final String KEY_CRT = "crt";
 	private static final String KEY_ETAG = "etag";
 	private String id;
-	private long createdTimestamp;
+	private String createdTimestamp;
 	private List<String> sorting;
 	private EntityOrder order;
 	private String etag;
 	private T body;
 
 
-	RapidDocument(String id, List<String> sortingKey, long createdTimestamp, String etag, T value) {
+	RapidDocument(String id, List<String> sortingKey, String createdTimestamp, String etag, T value) {
 		this.id = id;
 		this.sorting = sortingKey;
 		this.createdTimestamp = createdTimestamp;
 		this.etag = etag;
 		this.body = value;
-		this.sorting.add(Long.toString(this.createdTimestamp));
+		this.sorting.add(this.createdTimestamp);
 	}
 
 
@@ -54,7 +54,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 				sortingList.add(sortingJSONArray.optString(i));
 			}
 		}
-		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optLong(KEY_CRT), jsonObject.optString(KEY_ETAG),
+		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optString(KEY_CRT), jsonObject.optString(KEY_ETAG),
 				jsonConverter.fromJson(jsonObject.optString(KEY_BODY), documentType));
 	}
 
@@ -133,7 +133,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	public long getCreatedTimestamp()
+	public String getCreatedTimestamp()
 	{
 		return createdTimestamp;
 	}
