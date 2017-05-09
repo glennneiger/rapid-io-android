@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.transition.TransitionManager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +34,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 
 	private ActivityTaskListBinding mBinding;
 	private TaskListViewModel mViewModel;
+	private DrawerLayout mDrawerLayout;
 
 
 	private static void log(String message) {
@@ -54,7 +57,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 				mViewModel.searching.set(!mViewModel.searching.get());
 				return true;
 			case R.id.menu_filter:
-				// TODO
+				mDrawerLayout.openDrawer(Gravity.END);
 				return true;
 			case R.id.menu_order:
 				showOrderDialog();
@@ -129,6 +132,9 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 
 		mViewModel.initialize(this, new SettingsStorage(this));
 		mViewModel.onViewAttached();
+
+		// setup navigation drawer
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 		initItemTouchHelper();
 	}

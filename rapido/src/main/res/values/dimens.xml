@@ -6,4 +6,5 @@
 	<dimen name="spacing_16">16dp</dimen>
 	<dimen name="spacing_24">24dp</dimen>
 	<dimen name="spacing_32">32dp</dimen>
+	<dimen name="spacing_240">240dp</dimen>
 </resources>

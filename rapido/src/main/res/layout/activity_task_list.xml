@@ -18,121 +18,136 @@
 			type="io.rapid.rapido.ui.list.TaskListView"/>
 	</data>
 
-	<android.support.design.widget.CoordinatorLayout
+	<android.support.v4.widget.DrawerLayout
+		android:id="@+id/drawer_layout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<LinearLayout
+		<android.support.design.widget.CoordinatorLayout
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:orientation="vertical">
-
-			<android.support.design.widget.AppBarLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<android.support.v7.widget.Toolbar
-					android:id="@+id/toolbar"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					app:titleTextColor="@color/primary_darker"/>
-
-				<LinearLayout
-					android:layout_width="0px"
-					android:layout_height="0px"
-					android:focusable="true"
-					android:focusableInTouchMode="true"/>
-
-				<EditText
-					android:id="@+id/search_field"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginLeft="@dimen/spacing_8"
-					android:layout_marginRight="@dimen/spacing_8"
-					android:drawableLeft="@drawable/ic_search"
-					android:drawablePadding="@dimen/spacing_8"
-					android:drawableTint="@color/white"
-					android:hint="@string/search"
-					android:inputType="textCapWords"
-					android:nextFocusLeft="@id/search_field"
-					android:nextFocusUp="@id/search_field"
-					android:text="@={viewModel.searchQuery}"
-					app:show="@{viewModel.searching}"
-					app:theme="@style/ThemeOverlay.Inverse"/>
-			</android.support.design.widget.AppBarLayout>
-
-			<!--Focus catcher-->
-
-
-			<android.support.v7.widget.RecyclerView
-				android:id="@+id/list"
-				android:layout_width="match_parent"
-				android:layout_height="0dp"
-				android:layout_weight="1"
-				android:padding="@dimen/spacing_8"
-				android:clipToPadding="false"
-				app:itemBinding="@{viewModel.itemBinding}"
-				app:items="@{viewModel.tasks}"
-				app:layoutManager="@{LayoutManagers.linear()}"/>
+			android:layout_height="match_parent">
 
 			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:padding="@dimen/spacing_8"
-				app:show="@{viewModel.connectionState == ConnectionState.DISCONNECTED}">
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:orientation="vertical">
 
-				<ImageView
+				<android.support.design.widget.AppBarLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<android.support.v7.widget.Toolbar
+						android:id="@+id/toolbar"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						app:titleTextColor="@color/primary_darker"/>
+
+					<LinearLayout
+						android:layout_width="0px"
+						android:layout_height="0px"
+						android:focusable="true"
+						android:focusableInTouchMode="true"/>
+
+					<EditText
+						android:id="@+id/search_field"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginLeft="@dimen/spacing_8"
+						android:layout_marginRight="@dimen/spacing_8"
+						android:drawableLeft="@drawable/ic_search"
+						android:drawablePadding="@dimen/spacing_8"
+						android:drawableTint="@color/white"
+						android:hint="@string/search"
+						android:inputType="textCapWords"
+						android:nextFocusLeft="@id/search_field"
+						android:nextFocusUp="@id/search_field"
+						android:text="@={viewModel.searchQuery}"
+						app:show="@{viewModel.searching}"
+						app:theme="@style/ThemeOverlay.Inverse"/>
+				</android.support.design.widget.AppBarLayout>
+
+				<!--Focus catcher-->
+
+				<android.support.v7.widget.RecyclerView
+					android:id="@+id/list"
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
+					android:layout_weight="1"
+					android:clipToPadding="false"
+					android:padding="@dimen/spacing_8"
+					app:itemBinding="@{viewModel.itemBinding}"
+					app:items="@{viewModel.tasks}"
+					app:layoutManager="@{LayoutManagers.linear()}"/>
+
+				<LinearLayout
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center"
-					android:src="@drawable/ic_offline"
-					android:tint="@color/divider"/>
+					android:padding="@dimen/spacing_8"
+					app:show="@{viewModel.connectionState == ConnectionState.DISCONNECTED}">
 
-				<TextView
-					android:layout_width="match_parent"
+					<ImageView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center"
+						android:src="@drawable/ic_offline"
+						android:tint="@color/divider"/>
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center"
+						android:layout_marginLeft="@dimen/spacing_8"
+						android:text="@string/disconnected"
+						android:textColor="@color/divider"/>
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center"
-					android:layout_marginLeft="@dimen/spacing_8"
-					android:text="@string/disconnected"
-					android:textColor="@color/divider"/>
+					android:padding="@dimen/spacing_8"
+					app:show="@{viewModel.connectionState == ConnectionState.CONNECTING}">
+
+					<ProgressBar
+						android:layout_width="@dimen/spacing_24"
+						android:layout_height="@dimen/spacing_24"
+						android:layout_gravity="center"
+						android:theme="@style/ThemeOverlay.AccentDivider"/>
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center"
+						android:layout_marginLeft="@dimen/spacing_8"
+						android:text="@string/connecting"
+						android:textColor="@color/divider"/>
+				</LinearLayout>
+
 			</LinearLayout>
 
-			<LinearLayout
+			<android.support.design.widget.FloatingActionButton
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:padding="@dimen/spacing_8"
-				app:show="@{viewModel.connectionState == ConnectionState.CONNECTING}">
+				android:layout_gravity="bottom|right"
+				android:layout_margin="@dimen/spacing_16"
+				android:onClick="@{() -> view.showAddDialog()}"
+				android:src="@drawable/ic_add"
+				android:tint="@color/white"
+				app:backgroundTint="@color/primary"
+				app:fabSize="normal"/>
+		</android.support.design.widget.CoordinatorLayout>
 
-				<ProgressBar
-					android:layout_width="@dimen/spacing_24"
-					android:layout_height="@dimen/spacing_24"
-					android:layout_gravity="center"
-					android:theme="@style/ThemeOverlay.AccentDivider"/>
+		<LinearLayout
+			android:layout_width="@dimen/spacing_240"
+			android:layout_height="match_parent"
+			android:background="@color/primary_light"
+			android:layout_gravity="end">
 
-				<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center"
-					android:layout_marginLeft="@dimen/spacing_8"
-					android:text="@string/connecting"
-					android:textColor="@color/divider"/>
-			</LinearLayout>
 
 		</LinearLayout>
 
-		<android.support.design.widget.FloatingActionButton
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="bottom|right"
-			android:layout_margin="@dimen/spacing_16"
-			android:onClick="@{() -> view.showAddDialog()}"
-			android:src="@drawable/ic_add"
-			android:tint="@color/white"
-			app:backgroundTint="@color/primary"
-			app:fabSize="normal"/>
-	</android.support.design.widget.CoordinatorLayout>
+	</android.support.v4.widget.DrawerLayout>
 
 </layout>
 

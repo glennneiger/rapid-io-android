@@ -18,4 +18,6 @@
 	<string name="task_hint_description">Description</string>
 	<string name="created_at_prefix">Created\u0020</string>
 	<string name="edit_task_title">Edit Task</string>
+	<string name="drawer_open">Open filter</string>
+	<string name="drawer_close">Close filter</string>
 </resources>
