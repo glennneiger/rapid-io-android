@@ -14,10 +14,4 @@
 		android:title="@string/filter"
 		app:showAsAction="always"/>
 
-	<item
-		android:id="@+id/menu_order"
-		android:icon="@drawable/ic_order"
-		android:title="@string/order"
-		app:showAsAction="always"/>
-
 </menu>

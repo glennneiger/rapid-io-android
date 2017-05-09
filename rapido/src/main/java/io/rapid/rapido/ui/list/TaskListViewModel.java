@@ -6,6 +6,7 @@ import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 
 import java.util.Date;
+import java.util.List;
 
 import io.rapid.ConnectionState;
 import io.rapid.Rapid;
@@ -17,6 +18,7 @@ import io.rapid.rapido.BR;
 import io.rapid.rapido.Config;
 import io.rapid.rapido.R;
 import io.rapid.rapido.data.SettingsStorage;
+import io.rapid.rapido.data.model.FilterState;
 import io.rapid.rapido.data.model.Task;
 import io.rapid.rapido.ui.list.item.TaskItemHandler;
 import io.rapid.rapido.ui.list.item.TaskItemViewModel;
@@ -28,6 +30,8 @@ public class TaskListViewModel implements TaskItemHandler {
 	public final ObservableField<String> searchQuery = new ObservableField<>();
 	public final ObservableField<String> orderProperty = new ObservableField<>();
 	public final ObservableField<Sorting> orderSorting = new ObservableField<>();
+	public final ObservableField<FilterState> filterState = new ObservableField<>();
+	public final ObservableField<List<String>> filterTags = new ObservableField<>();
 	public ObservableBoolean searching = new ObservableBoolean();
 	public ObservableField<ConnectionState> connectionState = new ObservableField<>();
 	public ItemBinding<TaskItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_task);
@@ -43,7 +47,6 @@ public class TaskListViewModel implements TaskItemHandler {
 			return oldItem.getDocument().hasSameContentAs(newItem.getDocument());
 		}
 	});
-
 	private RapidCollectionSubscription mSubscription;
 	private RapidCollectionReference<Task> mTasksReference;
 	private TaskListView mView;
@@ -98,6 +101,8 @@ public class TaskListViewModel implements TaskItemHandler {
 		searchQuery.addOnPropertyChangedCallback(queryChangedCallback);
 		orderProperty.addOnPropertyChangedCallback(queryChangedCallback);
 		orderSorting.addOnPropertyChangedCallback(queryChangedCallback);
+		filterTags.addOnPropertyChangedCallback(queryChangedCallback);
+		filterState.addOnPropertyChangedCallback(queryChangedCallback);
 	}
 
 
@@ -127,6 +132,18 @@ public class TaskListViewModel implements TaskItemHandler {
 					.contains("title", query)
 					.contains("description", query)
 					.endOr();
+		}
+
+//		mTasksReference.beginOr();
+//		for(String tag : filterTags.get()) {
+//			mTasksReference.in
+//		}
+//		mTasksReference.endOr();
+
+		if(filterState.get() == FilterState.DONE) {
+			mTasksReference.equalTo("done", true);
+		} else if(filterState.get() == FilterState.NOT_DONE) {
+			mTasksReference.equalTo("done", false);
 		}
 
 		// create subscription

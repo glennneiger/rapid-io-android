@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.transition.TransitionManager;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -18,14 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.util.Arrays;
-
 import io.rapid.rapido.R;
 import io.rapid.rapido.data.SettingsStorage;
 import io.rapid.rapido.data.model.Task;
 import io.rapid.rapido.databinding.ActivityTaskListBinding;
 import io.rapid.rapido.databinding.DialogEditTaskBinding;
-import io.rapid.rapido.databinding.DialogOrderBinding;
+import io.rapid.rapido.databinding.DrawerFilterBinding;
 import io.rapid.rapido.ui.edit.EditTaskViewModel;
 
 
@@ -34,7 +31,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 
 	private ActivityTaskListBinding mBinding;
 	private TaskListViewModel mViewModel;
-	private DrawerLayout mDrawerLayout;
 
 
 	private static void log(String message) {
@@ -57,10 +53,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 				mViewModel.searching.set(!mViewModel.searching.get());
 				return true;
 			case R.id.menu_filter:
-				mDrawerLayout.openDrawer(Gravity.END);
-				return true;
-			case R.id.menu_order:
-				showOrderDialog();
+				showFilter();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -95,27 +88,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 	}
 
 
-	public void showOrderDialog() {
-		BottomSheetDialog dialog = new BottomSheetDialog(this);
-		DialogOrderBinding dialogBinding = DialogOrderBinding.inflate(LayoutInflater.from(this));
-
-
-		OrderViewModel orderViewModel = new OrderViewModel(
-				Arrays.asList(getResources().getStringArray(R.array.order_values)),
-				mViewModel.orderProperty.get(),
-				mViewModel.orderSorting.get(),
-				(orderProperty, sorting) -> {
-					mViewModel.orderProperty.set(orderProperty);
-					mViewModel.orderSorting.set(sorting);
-				}
-		);
-
-		dialogBinding.setViewModel(orderViewModel);
-		dialog.setContentView(dialogBinding.getRoot());
-		dialog.show();
-	}
-
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -133,9 +105,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 		mViewModel.initialize(this, new SettingsStorage(this));
 		mViewModel.onViewAttached();
 
-		// setup navigation drawer
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
 		initItemTouchHelper();
 	}
 
@@ -144,6 +113,29 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 	protected void onDestroy() {
 		mViewModel.onViewDetached();
 		super.onDestroy();
+	}
+
+
+	private void showFilter() {
+
+		if(mBinding.drawerContent.getChildCount() == 0) {
+			DrawerFilterBinding drawerBinding = DrawerFilterBinding.inflate(LayoutInflater.from(this), mBinding.drawerContent, true);
+
+			FilterViewModel filterViewModel = new FilterViewModel(
+					this,
+					mViewModel.orderProperty.get(),
+					mViewModel.orderSorting.get(),
+					(orderProperty, sorting, filterState, filterTags) -> {
+						mViewModel.orderProperty.set(orderProperty);
+						mViewModel.orderSorting.set(sorting);
+						mViewModel.filterState.set(filterState);
+						mViewModel.filterTags.set(filterTags);
+					}
+			);
+			drawerBinding.setViewModel(filterViewModel);
+		}
+
+		mBinding.drawerLayout.openDrawer(Gravity.END);
 	}
 
 

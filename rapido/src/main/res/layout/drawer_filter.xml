@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<data>
+
+		<import type="io.rapid.rapido.data.model.FilterState" />
+		<import type="io.rapid.Sorting" />
+
+		<variable
+			name="viewModel"
+			type="io.rapid.rapido.ui.list.FilterViewModel" />
+	</data>
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:padding="@dimen/spacing_16">
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/order_by"
+			android:textColor="@color/secondary_text"
+			android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_16">
+
+			<Spinner
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:entries="@array/order_names"
+				android:selectedItemPosition="@={viewModel.orderPosition}" />
+
+			<View
+				android:layout_width="0dp" android:layout_height="0dp"
+				android:layout_weight="1" />
+
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:background="?selectableItemBackgroundBorderless"
+				android:onClick="@{() -> viewModel.toggleSorting()}"
+				android:tint="@color/secondary_text"
+				android:src="@{viewModel.orderSorting == Sorting.ASC ? @drawable/ic_order_asc : @drawable/ic_order_desc}"
+				tools:src="@drawable/ic_order_desc" />
+		</LinearLayout>
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_16"
+			android:text="@string/filter"
+			android:textColor="@color/secondary_text"
+			android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_16">
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+				<RadioButton
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:onClick="@{() -> viewModel.setFilterState(FilterState.ALL)}"
+					android:checked="@{viewModel.filterState == FilterState.ALL}" />
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:text="@string/filter_all" />
+			</LinearLayout>
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+				<RadioButton
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:onClick="@{() -> viewModel.setFilterState(FilterState.DONE)}"
+					android:checked="@{viewModel.filterState == FilterState.DONE}" />
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:text="@string/filter_done" />
+			</LinearLayout>
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+				<RadioButton
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:onClick="@{() -> viewModel.setFilterState(FilterState.NOT_DONE)}"
+					android:checked="@{viewModel.filterState == FilterState.NOT_DONE}" />
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:text="@string/filter_not_done" />
+			</LinearLayout>
+		</LinearLayout>
+
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_16"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+				<CheckBox
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:checked="@={viewModel.filterTags[0]}" />
+				<include
+					layout="@layout/item_tag" app:tag="@{viewModel.tags[0]}" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+				<CheckBox
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:checked="@={viewModel.filterTags[1]}" />
+				<include
+					layout="@layout/item_tag" app:tag="@{viewModel.tags[1]}" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+				<CheckBox
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:checked="@={viewModel.filterTags[2]}" />
+				<include
+					layout="@layout/item_tag" app:tag="@{viewModel.tags[2]}" />
+			</LinearLayout>
+		</LinearLayout>
+	</LinearLayout>
+</layout>
