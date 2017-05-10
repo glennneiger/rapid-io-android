@@ -1,12 +1,12 @@
 package io.rapid.rapido.ui.list;
 
 
-import android.databinding.Observable;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import io.rapid.ConnectionState;
 import io.rapid.Rapid;
@@ -17,7 +17,6 @@ import io.rapid.Sorting;
 import io.rapid.rapido.BR;
 import io.rapid.rapido.Config;
 import io.rapid.rapido.R;
-import io.rapid.rapido.data.SettingsStorage;
 import io.rapid.rapido.data.model.FilterState;
 import io.rapid.rapido.data.model.Task;
 import io.rapid.rapido.ui.list.item.TaskItemHandler;
@@ -26,12 +25,12 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding;
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
 
-public class TaskListViewModel implements TaskItemHandler {
+public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFilterChangedListener {
 	public final ObservableField<String> searchQuery = new ObservableField<>();
 	public final ObservableField<String> orderProperty = new ObservableField<>();
 	public final ObservableField<Sorting> orderSorting = new ObservableField<>();
 	public final ObservableField<FilterState> filterState = new ObservableField<>();
-	public final ObservableField<List<String>> filterTags = new ObservableField<>();
+	public final ObservableField<Set<String>> filterTags = new ObservableField<>(new HashSet<>());
 	public ObservableBoolean searching = new ObservableBoolean();
 	public ObservableField<ConnectionState> connectionState = new ObservableField<>();
 	public ItemBinding<TaskItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_task);
@@ -78,31 +77,28 @@ public class TaskListViewModel implements TaskItemHandler {
 	}
 
 
-	public void initialize(TaskListView view, SettingsStorage settingsStorage) {
+	@Override
+	public void onFilterChanged(String orderProperty, Sorting sorting, FilterState filterState, Set<String> filterTags) {
+		this.orderProperty.set(orderProperty);
+		this.orderSorting.set(sorting);
+		this.filterState.set(filterState);
+		this.filterTags.set(filterTags);
+
+		if(mSubscription != null) {
+			mSubscription.unsubscribe();
+			subscribe();
+		}
+	}
+
+
+	public void initialize(TaskListView view) {
 		mView = view;
-		orderProperty.set(settingsStorage.getOrderProperty());
-		orderSorting.set(settingsStorage.getOrderSorting());
 
 		Rapid.getInstance().authorize(Config.RAPID_AUTH_TOKEN);
 
 		Rapid.getInstance().addConnectionStateListener(connectionState::set);
 
-		mTasksReference = Rapid.getInstance().collection("tasks_android_demo_01", Task.class);
-
-		Observable.OnPropertyChangedCallback queryChangedCallback = new Observable.OnPropertyChangedCallback() {
-			@Override
-			public void onPropertyChanged(Observable observable, int i) {
-				settingsStorage.setOrderProperty(orderProperty.get());
-				settingsStorage.setOrderSorting(orderSorting.get());
-				mSubscription.unsubscribe();
-				subscribe();
-			}
-		};
-		searchQuery.addOnPropertyChangedCallback(queryChangedCallback);
-		orderProperty.addOnPropertyChangedCallback(queryChangedCallback);
-		orderSorting.addOnPropertyChangedCallback(queryChangedCallback);
-		filterTags.addOnPropertyChangedCallback(queryChangedCallback);
-		filterState.addOnPropertyChangedCallback(queryChangedCallback);
+		mTasksReference = Rapid.getInstance().collection(Config.TODO_COLLECTION_NAME, Task.class);
 	}
 
 
@@ -134,11 +130,9 @@ public class TaskListViewModel implements TaskItemHandler {
 					.endOr();
 		}
 
-//		mTasksReference.beginOr();
-//		for(String tag : filterTags.get()) {
-//			mTasksReference.in
-//		}
-//		mTasksReference.endOr();
+		for(String tag : filterTags.get()) {
+			mTasksReference.arrayContains("tags", tag);
+		}
 
 		if(filterState.get() == FilterState.DONE) {
 			mTasksReference.equalTo("done", true);

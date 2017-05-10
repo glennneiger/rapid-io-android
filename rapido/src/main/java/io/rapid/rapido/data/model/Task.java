@@ -5,7 +5,7 @@ import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import io.rapid.rapido.BR;
 
@@ -15,8 +15,21 @@ public class Task extends BaseObservable {
 	private String description;
 	private Date createdAt;
 	private int priority;
-	private List<String> tags;
+	private Set<String> tags;
 	private boolean done;
+
+
+	@Override
+	public String toString() {
+		return "Task{" +
+				"title='" + title + '\'' +
+				", description='" + description + '\'' +
+				", createdAt=" + createdAt +
+				", priority=" + priority +
+				", tags=" + tags +
+				", done=" + done +
+				'}';
+	}
 
 
 	public String getTitle() {
@@ -59,12 +72,12 @@ public class Task extends BaseObservable {
 	}
 
 
-	public List<String> getTags() {
+	public Set<String> getTags() {
 		return tags;
 	}
 
 
-	public void setTags(List<String> tags) {
+	public void setTags(Set<String> tags) {
 		this.tags = tags;
 	}
 
@@ -78,18 +91,5 @@ public class Task extends BaseObservable {
 	public void setDone(boolean done) {
 		this.done = done;
 		notifyPropertyChanged(BR.done);
-	}
-
-
-	@Override
-	public String toString() {
-		return "Task{" +
-				"title='" + title + '\'' +
-				", description='" + description + '\'' +
-				", createdAt=" + createdAt +
-				", priority=" + priority +
-				", tags=" + tags +
-				", done=" + done +
-				'}';
 	}
 }

@@ -19,16 +19,4 @@
 		<item>priority</item>
 		<item>createdAt</item>
 	</string-array>
-
-	<string-array name="tag_names">
-		<item>work</item>
-		<item>home</item>
-		<item>other</item>
-	</string-array>
-
-	<string-array name="tag_colors">
-		<item>#F44336</item>
-		<item>#795548</item>
-		<item>#FFC107</item>
-	</string-array>
 </resources>

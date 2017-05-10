@@ -16,14 +16,15 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
-		android:padding="@dimen/spacing_16">
+		android:padding="@dimen/spacing_16"
+		tools:layout_width="@dimen/drawer_filter_width">
 
 		<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/order_by"
 			android:textColor="@color/secondary_text"
-			android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+			android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -31,15 +32,12 @@
 			android:layout_marginTop="@dimen/spacing_16">
 
 			<Spinner
-				android:layout_width="wrap_content"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
+				android:layout_weight="1"
 				android:layout_gravity="center"
 				android:entries="@array/order_names"
 				android:selectedItemPosition="@={viewModel.orderPosition}" />
-
-			<View
-				android:layout_width="0dp" android:layout_height="0dp"
-				android:layout_weight="1" />
 
 			<ImageView
 				android:layout_width="wrap_content"
@@ -51,116 +49,100 @@
 				android:src="@{viewModel.orderSorting == Sorting.ASC ? @drawable/ic_order_asc : @drawable/ic_order_desc}"
 				tools:src="@drawable/ic_order_desc" />
 		</LinearLayout>
+
 		<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/spacing_16"
-			android:text="@string/filter"
+			android:layout_marginTop="@dimen/spacing_24"
+			android:text="@string/filter_state"
 			android:textColor="@color/secondary_text"
-			android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+			android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/spacing_16">
+
 			<LinearLayout
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:orientation="vertical">
-				<RadioButton
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center"
-					android:onClick="@{() -> viewModel.setFilterState(FilterState.ALL)}"
-					android:checked="@{viewModel.filterState == FilterState.ALL}" />
-				<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="@string/filter_all" />
-			</LinearLayout>
-			<LinearLayout
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:orientation="vertical">
+
 				<RadioButton
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center"
 					android:onClick="@{() -> viewModel.setFilterState(FilterState.DONE)}"
 					android:checked="@{viewModel.filterState == FilterState.DONE}" />
+
 				<TextView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:textSize="10sp"
+					android:textAppearance="@style/TextAppearance.AppCompat.Body1"
 					android:gravity="center"
 					android:text="@string/filter_done" />
 			</LinearLayout>
+
 			<LinearLayout
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:orientation="vertical">
+
+				<RadioButton
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:onClick="@{() -> viewModel.setFilterState(FilterState.ALL)}"
+					android:checked="@{viewModel.filterState == FilterState.ALL}" />
+
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:textSize="10sp"
+					android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+					android:text="@string/filter_all" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+
 				<RadioButton
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center"
 					android:onClick="@{() -> viewModel.setFilterState(FilterState.NOT_DONE)}"
 					android:checked="@{viewModel.filterState == FilterState.NOT_DONE}" />
+
 				<TextView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center"
+					android:textSize="10sp"
+					android:textAppearance="@style/TextAppearance.AppCompat.Body1"
 					android:text="@string/filter_not_done" />
 			</LinearLayout>
 		</LinearLayout>
 
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_24"
+			android:text="@string/filter_tags"
+			android:textColor="@color/secondary_text"
+			android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
-		<LinearLayout
+		<io.rapid.rapido.ui.view.TagSelectView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/spacing_16"
-			android:orientation="vertical">
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
-				<CheckBox
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center"
-					android:checked="@={viewModel.filterTags[0]}" />
-				<include
-					layout="@layout/item_tag" app:tag="@{viewModel.tags[0]}" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
-				<CheckBox
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center"
-					android:checked="@={viewModel.filterTags[1]}" />
-				<include
-					layout="@layout/item_tag" app:tag="@{viewModel.tags[1]}" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
-				<CheckBox
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center"
-					android:checked="@={viewModel.filterTags[2]}" />
-				<include
-					layout="@layout/item_tag" app:tag="@{viewModel.tags[2]}" />
-			</LinearLayout>
-		</LinearLayout>
+			app:tags="@{viewModel.tags}"
+			app:onSelectionChangedListener="@{(selectedTags) -> viewModel.onSelectedTagsChanged(selectedTags)}" />
 	</LinearLayout>
 </layout>

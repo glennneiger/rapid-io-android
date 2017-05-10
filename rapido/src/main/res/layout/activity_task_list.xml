@@ -140,10 +140,10 @@
 
 		<FrameLayout
 			android:id="@+id/drawer_content"
-			android:clickable="true"
 			android:layout_width="@dimen/drawer_filter_width"
 			android:layout_height="match_parent"
 			android:layout_gravity="end"
+			android:clickable="true"
 			android:background="@color/white" />
 
 	</android.support.v4.widget.DrawerLayout>

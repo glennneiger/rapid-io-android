@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-		xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<data>
 
 		<variable
 			name="viewModel"
-			type="io.rapid.rapido.ui.edit.EditTaskViewModel"/>
+			type="io.rapid.rapido.ui.edit.EditTaskViewModel" />
 	</data>
 
 	<android.support.design.widget.CoordinatorLayout
@@ -25,7 +25,7 @@
 				app:navigationIcon="@drawable/ic_close"
 				app:navigationOnClickListener="@{() -> viewModel.dismiss()}"
 				app:theme="@style/ThemeOverlay.AppCompat.Light"
-				app:title="@string/edit_task_title"/>
+				app:title="@string/edit_task_title" />
 		</android.support.design.widget.AppBarLayout>
 
 
@@ -44,7 +44,7 @@
 				android:imeOptions="actionDone"
 				android:inputType="textCapWords"
 				android:text="@={viewModel.task.title}"
-				android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
+				android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
 			<EditText
 				android:layout_width="match_parent"
@@ -54,7 +54,7 @@
 				android:imeOptions="actionDone"
 				android:inputType="textCapWords"
 				android:text="@={viewModel.task.description}"
-				android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+				android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
 			<Spinner
 				android:layout_width="wrap_content"
@@ -63,7 +63,14 @@
 				android:layout_marginTop="@dimen/spacing_16"
 				android:entries="@array/priorities"
 				android:padding="@dimen/spacing_8"
-				android:selectedItemPosition="@={viewModel.task.priority}"/>
+				android:selectedItemPosition="@={viewModel.task.priority}" />
+
+			<io.rapid.rapido.ui.view.TagSelectView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:tags="@{viewModel.tags}"
+				app:selection="@{viewModel.task.tags}"
+				app:onSelectionChangedListener="@{(selectedTags) -> viewModel.onSelectedTagsChanged(selectedTags)}" />
 		</LinearLayout>
 
 		<android.support.design.widget.FloatingActionButton
@@ -74,7 +81,7 @@
 			android:onClick="@{() -> viewModel.onTaskUpdated()}"
 			android:src="@drawable/ic_done"
 			android:tint="@color/white"
-			app:fabSize="normal"/>
+			app:fabSize="normal" />
 	</android.support.design.widget.CoordinatorLayout>
 
 </layout>

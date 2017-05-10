@@ -5,11 +5,11 @@ import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
-import android.graphics.Color;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.rapid.Sorting;
 import io.rapid.rapido.BR;
@@ -22,33 +22,29 @@ public class FilterViewModel extends BaseObservable {
 	public final ObservableInt orderPosition = new ObservableInt();
 	public final ObservableField<FilterState> filterState = new ObservableField<>();
 	private final List<String> mOrderValues;
-	private final List<String> mTagNames;
-	public List<Boolean> filterTags;
+	public Set<String> filterTags;
 	public List<Tag> tags;
 	private String mOrderProperty;
 	private Sorting mOrderSorting;
-	private OnOrderChangedListener mOnOrderChangedListener;
+	private OnFilterChangedListener mOnFilterChangedListener;
 
 
-	public interface OnOrderChangedListener {
-		void onOrderChanged(String orderProperty, Sorting sorting, FilterState filterState, List<String> filterTags);
+	public interface OnFilterChangedListener {
+		void onFilterChanged(String orderProperty, Sorting sorting, FilterState filterState, Set<String> filterTags);
 	}
 
 
-	public FilterViewModel(Context context, String orderProperty, Sorting orderSorting, OnOrderChangedListener onOrderChangedListener) {
-		mOrderSorting = orderSorting;
-		mOnOrderChangedListener = onOrderChangedListener;
+	public FilterViewModel(Context context, OnFilterChangedListener onFilterChangedListener) {
+		mOrderSorting = Sorting.ASC;
+		mOnFilterChangedListener = onFilterChangedListener;
 		mOrderValues = Arrays.asList(context.getResources().getStringArray(R.array.order_values));
-		mOrderProperty = orderProperty;
+		mOrderProperty = "createdAt";
 
-		filterTags = new ArrayList<>();
-		tags = new ArrayList<>();
-		mTagNames = Arrays.asList(context.getResources().getStringArray(R.array.tag_names));
-		List<String> tagColors = Arrays.asList(context.getResources().getStringArray(R.array.tag_colors));
-		for(int i = 0; i < mTagNames.size(); i++) {
-			tags.add(new Tag(mTagNames.get(i), Color.parseColor(tagColors.get(i))));
-			filterTags.add(false);
-		}
+		filterState.set(FilterState.ALL);
+
+		filterTags = new HashSet<>();
+		tags = Tag.getAllTags();
+		onFilterChanged();
 	}
 
 
@@ -87,13 +83,13 @@ public class FilterViewModel extends BaseObservable {
 	}
 
 
+	public void onSelectedTagsChanged(Set<String> selectedTags) {
+		filterTags = selectedTags;
+		onFilterChanged();
+	}
+
+
 	private void onFilterChanged() {
-		List<String> filterTagNames = new ArrayList<>();
-		for(int i = 0; i < filterTags.size(); i++) {
-			if(filterTags.get(i)) {
-				filterTagNames.add(mTagNames.get(i));
-			}
-		}
-		mOnOrderChangedListener.onOrderChanged(mOrderProperty, mOrderSorting, filterState.get(), filterTagNames);
+		mOnFilterChangedListener.onFilterChanged(mOrderProperty, mOrderSorting, filterState.get(), filterTags);
 	}
 }

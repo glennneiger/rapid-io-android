@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import io.rapid.rapido.R;
-import io.rapid.rapido.data.SettingsStorage;
+import io.rapid.rapido.data.model.Tag;
 import io.rapid.rapido.data.model.Task;
 import io.rapid.rapido.databinding.ActivityTaskListBinding;
 import io.rapid.rapido.databinding.DialogEditTaskBinding;
@@ -77,7 +77,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 		BottomSheetDialog dialog = new BottomSheetDialog(this);
 		DialogEditTaskBinding dialogBinding = DialogEditTaskBinding.inflate(LayoutInflater.from(this));
 
-		EditTaskViewModel editTaskViewModel = new EditTaskViewModel(dialog, taskId, task, mViewModel);
+		EditTaskViewModel editTaskViewModel = new EditTaskViewModel(dialog, taskId, task, Tag.getAllTags(), mViewModel);
 
 		dialogBinding.setViewModel(editTaskViewModel);
 		dialog.setContentView(dialogBinding.getRoot());
@@ -102,7 +102,14 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 		mBinding.setView(this);
 		mBinding.setViewModel(mViewModel);
 
-		mViewModel.initialize(this, new SettingsStorage(this));
+
+		// setup filter drawer
+		DrawerFilterBinding drawerBinding = DrawerFilterBinding.inflate(LayoutInflater.from(this), mBinding.drawerContent, true);
+		FilterViewModel filterViewModel = new FilterViewModel(this, mViewModel);
+		drawerBinding.setViewModel(filterViewModel);
+
+
+		mViewModel.initialize(this);
 		mViewModel.onViewAttached();
 
 		initItemTouchHelper();
@@ -117,24 +124,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 
 
 	private void showFilter() {
-
-		if(mBinding.drawerContent.getChildCount() == 0) {
-			DrawerFilterBinding drawerBinding = DrawerFilterBinding.inflate(LayoutInflater.from(this), mBinding.drawerContent, true);
-
-			FilterViewModel filterViewModel = new FilterViewModel(
-					this,
-					mViewModel.orderProperty.get(),
-					mViewModel.orderSorting.get(),
-					(orderProperty, sorting, filterState, filterTags) -> {
-						mViewModel.orderProperty.set(orderProperty);
-						mViewModel.orderSorting.set(sorting);
-						mViewModel.filterState.set(filterState);
-						mViewModel.filterTags.set(filterTags);
-					}
-			);
-			drawerBinding.setViewModel(filterViewModel);
-		}
-
 		mBinding.drawerLayout.openDrawer(Gravity.END);
 	}
 
