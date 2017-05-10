@@ -4,7 +4,6 @@ package io.rapid;
 import android.os.Handler;
 
 import java.util.Date;
-import java.util.List;
 
 import io.rapid.converter.RapidJsonConverter;
 
@@ -270,9 +269,23 @@ public class RapidCollectionReference<T> {
 		return this;
 	}
 
+	// Array contains
 
-	public RapidCollectionReference<?> in(String property, List<?> list) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.ListPropertyValue<>(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, list)));
+
+	public RapidCollectionReference<?> arrayContains(String property, String value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<?> arrayContains(String property, int value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
+		return this;
+	}
+
+
+	public RapidCollectionReference<?> arrayContains(String property, double value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
 	}
 
@@ -409,14 +422,17 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public void onRemove(String subscriptionId, String documentJson) {
+		mConnection.onRemove(subscriptionId, documentJson);
+	}
+
+
+	// Private
 
 
 	void resubscribe() {
 		mConnection.resubscribe();
 	}
-
-
-	// Private
 
 
 	CollectionConnection<T> getConnection() {
@@ -441,11 +457,6 @@ public class RapidCollectionReference<T> {
 
 	void onUpdate(String subscriptionId, String documents) {
 		mConnection.onUpdate(subscriptionId, documents);
-	}
-
-
-	public void onRemove(String subscriptionId, String documentJson) {
-		mConnection.onRemove(subscriptionId, documentJson);
 	}
 
 
