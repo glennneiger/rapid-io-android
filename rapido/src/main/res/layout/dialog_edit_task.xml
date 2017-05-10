@@ -37,36 +37,64 @@
 			android:padding="@dimen/spacing_16"
 			app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-			<EditText
+			<android.support.design.widget.TextInputLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/task_hint_title"
-				android:imeOptions="actionDone"
-				android:inputType="textCapWords"
-				android:text="@={viewModel.task.title}"
-				android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+				android:layout_height="wrap_content">
 
-			<EditText
+				<EditText
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:hint="@string/task_hint_title"
+					android:imeOptions="actionDone"
+					android:inputType="textCapWords"
+					android:text="@={viewModel.task.title}"
+					android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+			</android.support.design.widget.TextInputLayout>
+
+
+			<android.support.design.widget.TextInputLayout
+				android:layout_width="match_parent"
+				android:layout_marginTop="@dimen/spacing_16"
+				android:layout_height="wrap_content">
+
+				<EditText
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/spacing_16"
+					android:hint="@string/task_hint_description"
+					android:imeOptions="actionDone"
+					android:inputType="textCapWords"
+					android:text="@={viewModel.task.description}"
+					android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+			</android.support.design.widget.TextInputLayout>
+
+			<TextView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/spacing_16"
-				android:hint="@string/task_hint_description"
-				android:imeOptions="actionDone"
-				android:inputType="textCapWords"
-				android:text="@={viewModel.task.description}"
-				android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+				android:layout_marginBottom="@dimen/spacing_8"
+				android:text="@string/priority"
+				android:textColor="@color/secondary_text"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
 			<Spinner
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				android:layout_marginTop="@dimen/spacing_16"
 				android:entries="@array/priorities"
 				android:padding="@dimen/spacing_8"
 				android:selectedItemPosition="@={viewModel.task.priority}" />
 
-			<io.rapid.rapido.ui.view.TagSelectView
+			<TextView
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/spacing_16"
+				android:layout_marginBottom="@dimen/spacing_8"
+				android:text="@string/filter_tags"
+				android:textColor="@color/secondary_text"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
+
+			<io.rapid.rapido.ui.view.TagSelectView
+				android:layout_width="200dp"
 				android:layout_height="wrap_content"
 				app:tags="@{viewModel.tags}"
 				app:selection="@{viewModel.task.tags}"

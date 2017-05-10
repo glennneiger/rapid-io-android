@@ -18,4 +18,5 @@
 	<string name="filter_not_done">Incomplete</string>
 	<string name="filter_state">State</string>
 	<string name="filter_tags">Tags</string>
+	<string name="priority">Priority</string>
 </resources>
