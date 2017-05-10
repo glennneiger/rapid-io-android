@@ -17,11 +17,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import io.rapid.rapido.R;
-import io.rapid.rapido.data.model.Tag;
-import io.rapid.rapido.data.model.Task;
 import io.rapid.rapido.databinding.ActivityTaskListBinding;
 import io.rapid.rapido.databinding.DialogEditTaskBinding;
 import io.rapid.rapido.databinding.DrawerFilterBinding;
+import io.rapid.rapido.model.Tag;
+import io.rapid.rapido.model.Task;
 import io.rapid.rapido.ui.edit.EditTaskViewModel;
 import io.rapid.rapido.ui.filter.FilterViewModel;
 
@@ -52,9 +52,15 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 		drawerBinding.setViewModel(filterViewModel);
 
 		mViewModel.initialize(this);
-		mViewModel.onViewAttached();
 
 		initListItemTouchHelper();
+	}
+
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		mViewModel.onViewAttached();
 	}
 
 
@@ -109,9 +115,9 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 
 
 	@Override
-	protected void onDestroy() {
+	protected void onStop() {
 		mViewModel.onViewDetached();
-		super.onDestroy();
+		super.onStop();
 	}
 
 
@@ -136,7 +142,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 
 			@Override
 			public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-				mViewModel.deleteTask(viewHolder.getAdapterPosition());
+				mViewModel.deleteTaskAtPosition(viewHolder.getAdapterPosition());
 			}
 		});
 		itemTouchHelper.attachToRecyclerView(mBinding.list);

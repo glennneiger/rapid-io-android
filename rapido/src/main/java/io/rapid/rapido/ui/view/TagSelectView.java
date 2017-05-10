@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import io.rapid.rapido.data.model.Tag;
+import io.rapid.rapido.model.Tag;
 import io.rapid.rapido.databinding.ItemTagSelectBinding;
 
 
@@ -58,8 +58,10 @@ public class TagSelectView extends LinearLayout {
 				binding.setInitState(false);
 			}
 
-			for(String selectedTag : selectedTags) {
-				mBindings.get(selectedTag).setInitState(true);
+			if(selectedTags != null) {
+				for(String selectedTag : selectedTags) {
+					mBindings.get(selectedTag).setInitState(true);
+				}
 			}
 		}
 	}

@@ -43,7 +43,10 @@ public class FilterViewModel extends BaseObservable {
 
 
 	public void setOrderPosition(int position) {
-		mOrderProperty = mOrderValues.get(position);
+		String orderProperty = mOrderValues.get(position);
+		if(orderProperty.equals(mOrderProperty)) return;
+
+		mOrderProperty = orderProperty;
 		onFilterChanged();
 	}
 
@@ -60,6 +63,7 @@ public class FilterViewModel extends BaseObservable {
 
 
 	public void setOrderSorting(Sorting sorting) {
+		if(sorting == mOrderSorting) return;
 		mOrderSorting = sorting;
 		notifyPropertyChanged(BR.orderSorting);
 		onFilterChanged();
@@ -73,6 +77,8 @@ public class FilterViewModel extends BaseObservable {
 
 
 	public void setFilterState(FilterState filterState) {
+		if(filterState == mFilterState) return;
+
 		mFilterState = filterState;
 		notifyPropertyChanged(BR.filterState);
 		onFilterChanged();

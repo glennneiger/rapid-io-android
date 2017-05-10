@@ -12,7 +12,7 @@
 
 		<variable
 			name="tag"
-			type="io.rapid.rapido.data.model.Tag" />
+			type="io.rapid.rapido.model.Tag" />
 
 		<variable
 			name="initState"

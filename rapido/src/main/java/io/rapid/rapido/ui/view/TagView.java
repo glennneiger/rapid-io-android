@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 
 import java.util.Collection;
 
-import io.rapid.rapido.data.model.Tag;
+import io.rapid.rapido.model.Tag;
 import io.rapid.rapido.databinding.ItemTagBinding;
 
 

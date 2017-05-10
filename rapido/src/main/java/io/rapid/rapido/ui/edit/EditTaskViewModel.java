@@ -7,8 +7,8 @@ import android.databinding.ObservableField;
 import java.util.List;
 import java.util.Set;
 
-import io.rapid.rapido.data.model.Tag;
-import io.rapid.rapido.data.model.Task;
+import io.rapid.rapido.model.Tag;
+import io.rapid.rapido.model.Task;
 import io.rapid.rapido.ui.list.item.TaskItemHandler;
 
 

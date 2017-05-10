@@ -1,6 +1,6 @@
 package io.rapid.rapido.ui.list.item;
 
-import io.rapid.rapido.data.model.Task;
+import io.rapid.rapido.model.Task;
 
 
 public interface TaskItemHandler {

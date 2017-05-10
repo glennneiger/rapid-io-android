@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.rapid.RapidDocument;
-import io.rapid.rapido.data.model.Tag;
-import io.rapid.rapido.data.model.Task;
+import io.rapid.rapido.model.Tag;
+import io.rapid.rapido.model.Task;
 
 
 public class TaskItemViewModel {
