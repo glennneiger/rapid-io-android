@@ -1,35 +1,17 @@
 package io.rapid.rapido.data.model;
 
 
-import android.databinding.BaseObservable;
-import android.databinding.Bindable;
-
 import java.util.Date;
 import java.util.Set;
 
-import io.rapid.rapido.BR;
 
-
-public class Task extends BaseObservable {
+public class Task {
 	private String title;
 	private String description;
 	private Date createdAt;
 	private int priority;
 	private Set<String> tags;
 	private boolean done;
-
-
-	@Override
-	public String toString() {
-		return "Task{" +
-				"title='" + title + '\'' +
-				", description='" + description + '\'' +
-				", createdAt=" + createdAt +
-				", priority=" + priority +
-				", tags=" + tags +
-				", done=" + done +
-				'}';
-	}
 
 
 	public String getTitle() {
@@ -82,7 +64,6 @@ public class Task extends BaseObservable {
 	}
 
 
-	@Bindable
 	public boolean isDone() {
 		return done;
 	}
@@ -90,6 +71,5 @@ public class Task extends BaseObservable {
 
 	public void setDone(boolean done) {
 		this.done = done;
-		notifyPropertyChanged(BR.done);
 	}
 }

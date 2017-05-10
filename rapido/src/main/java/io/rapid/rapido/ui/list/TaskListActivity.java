@@ -8,7 +8,6 @@ import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,17 +23,38 @@ import io.rapid.rapido.databinding.ActivityTaskListBinding;
 import io.rapid.rapido.databinding.DialogEditTaskBinding;
 import io.rapid.rapido.databinding.DrawerFilterBinding;
 import io.rapid.rapido.ui.edit.EditTaskViewModel;
+import io.rapid.rapido.ui.filter.FilterViewModel;
 
 
 public class TaskListActivity extends AppCompatActivity implements TaskListView {
-
 
 	private ActivityTaskListBinding mBinding;
 	private TaskListViewModel mViewModel;
 
 
-	private static void log(String message) {
-		Log.d("Rapid Sample", message);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		// setup ViewModel
+		mViewModel = new TaskListViewModel();
+
+		// setup views
+		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_task_list);
+		setSupportActionBar(mBinding.toolbar);
+
+		mBinding.setView(this);
+		mBinding.setViewModel(mViewModel);
+
+		// setup filter drawer
+		DrawerFilterBinding drawerBinding = DrawerFilterBinding.inflate(LayoutInflater.from(this), mBinding.drawerContent, true);
+		FilterViewModel filterViewModel = new FilterViewModel(this, mViewModel);
+		drawerBinding.setViewModel(filterViewModel);
+
+		mViewModel.initialize(this);
+		mViewModel.onViewAttached();
+
+		initListItemTouchHelper();
 	}
 
 
@@ -89,34 +109,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		// setup ViewModel
-		mViewModel = new TaskListViewModel();
-
-		// setup views
-		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_task_list);
-		setSupportActionBar(mBinding.toolbar);
-
-		mBinding.setView(this);
-		mBinding.setViewModel(mViewModel);
-
-
-		// setup filter drawer
-		DrawerFilterBinding drawerBinding = DrawerFilterBinding.inflate(LayoutInflater.from(this), mBinding.drawerContent, true);
-		FilterViewModel filterViewModel = new FilterViewModel(this, mViewModel);
-		drawerBinding.setViewModel(filterViewModel);
-
-
-		mViewModel.initialize(this);
-		mViewModel.onViewAttached();
-
-		initItemTouchHelper();
-	}
-
-
-	@Override
 	protected void onDestroy() {
 		mViewModel.onViewDetached();
 		super.onDestroy();
@@ -128,7 +120,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 	}
 
 
-	private void initItemTouchHelper() {
+	private void initListItemTouchHelper() {
 		ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
 			@Override
 			public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {

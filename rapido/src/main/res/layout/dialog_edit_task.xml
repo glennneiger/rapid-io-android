@@ -54,8 +54,8 @@
 
 			<android.support.design.widget.TextInputLayout
 				android:layout_width="match_parent"
-				android:layout_marginTop="@dimen/spacing_16"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/spacing_16">
 
 				<EditText
 					android:layout_width="match_parent"
@@ -96,7 +96,6 @@
 			<io.rapid.rapido.ui.view.TagSelectView
 				android:layout_width="200dp"
 				android:layout_height="wrap_content"
-				app:tags="@{viewModel.tags}"
 				app:selection="@{viewModel.task.tags}"
 				app:onSelectionChangedListener="@{(selectedTags) -> viewModel.onSelectedTagsChanged(selectedTags)}" />
 		</LinearLayout>

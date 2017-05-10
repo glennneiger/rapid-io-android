@@ -8,11 +8,11 @@ import java.util.List;
 
 
 public class Tag {
-	String name;
-	int color;
+	private String name;
+	private int color;
 
 
-	public Tag(String name, int color) {
+	private Tag(String name, int color) {
 		this.name = name;
 		this.color = color;
 	}

@@ -65,7 +65,13 @@ public class TagSelectView extends LinearLayout {
 	}
 
 
-	public void setTags(Collection<Tag> tags) {
+	private void init() {
+		setOrientation(VERTICAL);
+		setTags(Tag.getAllTags());
+	}
+
+
+	private void setTags(Collection<Tag> tags) {
 		removeAllViews();
 		mBindings = new HashMap<>();
 
@@ -92,8 +98,4 @@ public class TagSelectView extends LinearLayout {
 		}
 	}
 
-
-	private void init() {
-		setOrientation(VERTICAL);
-	}
 }

@@ -3,12 +3,13 @@
 
 	<data>
 
-		<import type="io.rapid.rapido.data.model.FilterState" />
+		<import type="io.rapid.rapido.ui.filter.FilterState" />
+
 		<import type="io.rapid.Sorting" />
 
 		<variable
 			name="viewModel"
-			type="io.rapid.rapido.ui.list.FilterViewModel" />
+			type="io.rapid.rapido.ui.filter.FilterViewModel" />
 	</data>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -142,7 +143,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/spacing_16"
-			app:tags="@{viewModel.tags}"
 			app:onSelectionChangedListener="@{(selectedTags) -> viewModel.onSelectedTagsChanged(selectedTags)}" />
 	</LinearLayout>
 </layout>

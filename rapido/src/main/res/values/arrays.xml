@@ -7,7 +7,7 @@
 	</string-array>
 
 	<string-array name="order_names">
-		<item>Done</item>
+		<item>Complete</item>
 		<item>Title</item>
 		<item>Priority</item>
 		<item>Date</item>

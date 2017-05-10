@@ -15,6 +15,7 @@ import io.rapid.rapido.ui.list.item.TaskItemHandler;
 public class EditTaskViewModel {
 	public final ObservableField<Task> task = new ObservableField<>();
 	public final List<Tag> tags;
+
 	private final Dialog mDialog;
 	private String mTaskId;
 	private TaskItemHandler mEditTaskHandler;

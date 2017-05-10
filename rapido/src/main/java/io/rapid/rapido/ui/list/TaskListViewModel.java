@@ -5,7 +5,6 @@ import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import io.rapid.ConnectionState;
@@ -17,8 +16,9 @@ import io.rapid.Sorting;
 import io.rapid.rapido.BR;
 import io.rapid.rapido.Config;
 import io.rapid.rapido.R;
-import io.rapid.rapido.data.model.FilterState;
 import io.rapid.rapido.data.model.Task;
+import io.rapid.rapido.ui.filter.FilterState;
+import io.rapid.rapido.ui.filter.FilterViewModel;
 import io.rapid.rapido.ui.list.item.TaskItemHandler;
 import io.rapid.rapido.ui.list.item.TaskItemViewModel;
 import me.tatarka.bindingcollectionadapter2.ItemBinding;
@@ -27,10 +27,6 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
 public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFilterChangedListener {
 	public final ObservableField<String> searchQuery = new ObservableField<>();
-	public final ObservableField<String> orderProperty = new ObservableField<>();
-	public final ObservableField<Sorting> orderSorting = new ObservableField<>();
-	public final ObservableField<FilterState> filterState = new ObservableField<>();
-	public final ObservableField<Set<String>> filterTags = new ObservableField<>(new HashSet<>());
 	public ObservableBoolean searching = new ObservableBoolean();
 	public ObservableField<ConnectionState> connectionState = new ObservableField<>();
 	public ItemBinding<TaskItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_task);
@@ -46,6 +42,11 @@ public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFil
 			return oldItem.getDocument().hasSameContentAs(newItem.getDocument());
 		}
 	});
+
+	private Sorting mOrderSorting;
+	private String mOrderProperty;
+	private FilterState mFilterState;
+	private Set<String> mFilterTags;
 	private RapidCollectionSubscription mSubscription;
 	private RapidCollectionReference<Task> mTasksReference;
 	private TaskListView mView;
@@ -79,10 +80,10 @@ public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFil
 
 	@Override
 	public void onFilterChanged(String orderProperty, Sorting sorting, FilterState filterState, Set<String> filterTags) {
-		this.orderProperty.set(orderProperty);
-		this.orderSorting.set(sorting);
-		this.filterState.set(filterState);
-		this.filterTags.set(filterTags);
+		mOrderProperty = orderProperty;
+		mOrderSorting = sorting;
+		mFilterState = filterState;
+		mFilterTags = filterTags;
 
 		if(mSubscription != null) {
 			mSubscription.unsubscribe();
@@ -120,7 +121,6 @@ public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFil
 
 
 	private void subscribe() {
-
 		// if search query is not empty - add it as a filter
 		String query = searchQuery.get();
 		if(query != null && !query.isEmpty()) {
@@ -130,19 +130,20 @@ public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFil
 					.endOr();
 		}
 
-		for(String tag : filterTags.get()) {
-			mTasksReference.arrayContains("tags", tag);
+		if(mFilterTags != null) {
+			for(String tag : mFilterTags) {
+				mTasksReference.arrayContains("tags", tag);
+			}
 		}
 
-		if(filterState.get() == FilterState.DONE) {
+		if(mFilterState == FilterState.DONE)
 			mTasksReference.equalTo("done", true);
-		} else if(filterState.get() == FilterState.NOT_DONE) {
+		else if(mFilterState == FilterState.NOT_DONE)
 			mTasksReference.equalTo("done", false);
-		}
 
 		// create subscription
 		mSubscription = mTasksReference
-				.orderBy(orderProperty.get(), orderSorting.get())
+				.orderBy(mOrderProperty, mOrderSorting)
 				.map(document -> new TaskItemViewModel(document, this))
 				.subscribe(items -> tasks.update(items))
 				.onError(error -> {
