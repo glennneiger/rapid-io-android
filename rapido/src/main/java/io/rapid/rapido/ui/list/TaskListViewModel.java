@@ -13,35 +13,20 @@ import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
 import io.rapid.RapidDocumentReference;
 import io.rapid.Sorting;
-import io.rapid.rapido.BR;
 import io.rapid.rapido.Config;
-import io.rapid.rapido.R;
+import io.rapid.rapido.data.adapter.TaskListAdapter;
 import io.rapid.rapido.data.model.Task;
 import io.rapid.rapido.ui.filter.FilterState;
 import io.rapid.rapido.ui.filter.FilterViewModel;
 import io.rapid.rapido.ui.list.item.TaskItemHandler;
 import io.rapid.rapido.ui.list.item.TaskItemViewModel;
-import me.tatarka.bindingcollectionadapter2.ItemBinding;
-import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
 
 public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFilterChangedListener {
 	public final ObservableField<String> searchQuery = new ObservableField<>();
 	public ObservableBoolean searching = new ObservableBoolean();
 	public ObservableField<ConnectionState> connectionState = new ObservableField<>();
-	public ItemBinding<TaskItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_task);
-	public DiffObservableList<TaskItemViewModel> tasks = new DiffObservableList<>(new DiffObservableList.Callback<TaskItemViewModel>() {
-		@Override
-		public boolean areItemsTheSame(TaskItemViewModel oldItem, TaskItemViewModel newItem) {
-			return oldItem.getId().equals(newItem.getId());
-		}
-
-
-		@Override
-		public boolean areContentsTheSame(TaskItemViewModel oldItem, TaskItemViewModel newItem) {
-			return oldItem.getDocument().hasSameContentAs(newItem.getDocument());
-		}
-	});
+	public TaskListAdapter taskListAdapter = new TaskListAdapter();
 
 	private Sorting mOrderSorting;
 	private String mOrderProperty;
@@ -115,7 +100,7 @@ public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFil
 
 
 	public void deleteTask(int position) {
-		TaskItemViewModel taskToDelete = tasks.get(position);
+		TaskItemViewModel taskToDelete = taskListAdapter.getItems().get(position);
 		deleteTask(taskToDelete.getId());
 	}
 
@@ -145,7 +130,10 @@ public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFil
 		mSubscription = mTasksReference
 				.orderBy(mOrderProperty, mOrderSorting)
 				.map(document -> new TaskItemViewModel(document, this))
-				.subscribe(items -> tasks.update(items))
+				.subscribeWithListUpdates((items, listUpdates) -> {
+					taskListAdapter.setItems(items);
+					listUpdates.dispatchUpdatesTo(taskListAdapter);
+				})
 				.onError(error -> {
 					error.printStackTrace();
 					mView.showToast(error.getMessage());

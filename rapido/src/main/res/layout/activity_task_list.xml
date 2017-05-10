@@ -7,8 +7,6 @@
 
 		<import type="io.rapid.ConnectionState" />
 
-		<import type="me.tatarka.bindingcollectionadapter2.LayoutManagers" />
-
 		<variable
 			name="viewModel"
 			type="io.rapid.rapido.ui.list.TaskListViewModel" />
@@ -75,9 +73,8 @@
 					android:layout_weight="1"
 					android:clipToPadding="false"
 					android:padding="@dimen/spacing_8"
-					app:itemBinding="@{viewModel.itemBinding}"
-					app:items="@{viewModel.tasks}"
-					app:layoutManager="@{LayoutManagers.linear()}" />
+					app:adapter="@{viewModel.taskListAdapter}"
+					app:layoutManager="LinearLayoutManager" />
 
 				<LinearLayout
 					android:layout_width="wrap_content"

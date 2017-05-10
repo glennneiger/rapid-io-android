@@ -5,6 +5,8 @@
 
 	<data>
 
+		<import type="android.text.format.DateUtils" />
+
 		<variable
 			name="viewModel"
 			type="io.rapid.rapido.ui.list.item.TaskItemViewModel" />
@@ -63,14 +65,13 @@
 					app:strikethrough="@{viewModel.task.done}"
 					tools:text="Description" />
 
-				<com.github.curioustechizen.ago.RelativeTimeTextView
+				<TextView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginTop="2dp"
 					android:alpha="0.4"
 					android:textSize="10sp"
-					app:referenceTime="@{viewModel.task.createdAt.time}"
-					app:relative_time_prefix="@string/created_at_prefix"
+					app:text="@{@string/created_at(DateUtils.getRelativeTimeSpanString(viewModel.task.createdAt.time))}"
 					tools:text="Created just now" />
 
 				<io.rapid.rapido.ui.view.TagView
