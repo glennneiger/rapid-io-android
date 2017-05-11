@@ -91,6 +91,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
 		void bind(TaskItemViewModel taskItemViewModel) {
 			mBinding.setViewModel(taskItemViewModel);
+			mBinding.executePendingBindings();
 		}
 	}
 }
