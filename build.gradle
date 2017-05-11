@@ -1,6 +1,21 @@
+
+
 ext{
-	groupId = 'io.rapid'
-	artifactVersion = '0.1'
+	gitTagName = 'git describe --tags --abbrev=0'.execute([], project.rootDir).text.trim()
+
+	isRelease = project.gradle.startParameter.taskNames.any { it.contains("install") || it.contains("bintray")}
+	println "RELEASE: $isRelease"
+
+	publishedGroupId = 'io.rapid'
+	artifact = 'rapid-sdk'
+	libraryVersion = gitTagName
+
+	bintrayUser = 'jakubkinst'
+	bintrayRepo = publishedGroupId
+	bintrayName = artifact
+
+	gitUrl = 'https://github.com/Rapid-SDK/android'
+	allLicenses = ["Apache-2.0"]
 }
 
 
@@ -18,6 +33,7 @@ buildscript {
 		classpath "com.android.tools.build:gradle:$android_plugin_version"
 		classpath 'me.tatarka:gradle-retrolambda:3.6.0'
 		classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 		classpath "com.google.gms:google-services:$play_services_plugin_version"
 	}

@@ -9,10 +9,8 @@ android {
 		minSdkVersion 15
 		targetSdkVersion 25
 		versionCode 1
-		versionName artifactVersion
+		versionName libraryVersion
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-		def isRelease = project.gradle.startParameter.taskNames.any { it.contains("install")}
-		println "RELEASE: $isRelease"
 		buildConfigField "boolean", "RELEASE", isRelease? "true" : "false"
 	}
 
@@ -70,6 +68,5 @@ android.libraryVariants.all { variant ->
 	}
 }
 
-// local Maven repo metadata
-group = groupId
-version = artifactVersion
+// add Maven publish script
+apply from: '../publish.gradle'
