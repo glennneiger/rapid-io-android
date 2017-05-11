@@ -42,8 +42,16 @@ or add this to your AndroidManifest.xml file
 [JavaDoc](https://rapid-sdk.github.io/android/)
 
 ## Build
+## Publishing
 `./gradlew install` - deploy to local Maven Repository
+`./gradlew bintrayUpload` - deploy to jCenter using Bintray API (for this to work you need to have Bintray API key set as an environment variable named `RAPID_BINTRAY_API_KEY`)
+
+### Version name
+Library version name is always based on the last Git tag name in current branch
+
+## Documentation
 `./gradlew generateReleaseJavadoc` - generates sdk API reference to `/docs` directory
+
 
 ## Changelog
 

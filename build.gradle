@@ -11,6 +11,7 @@ ext{
 	libraryVersion = gitTagName
 
 	bintrayUser = 'jakubkinst'
+	bintrayKey = "$System.env.RAPID_BINTRAY_API_KEY"
 	bintrayRepo = publishedGroupId
 	bintrayName = artifact
 

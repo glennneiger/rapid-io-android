@@ -49,7 +49,7 @@ artifacts {
 
 bintray {
 	user = bintrayUser
-	key = "$System.env.BINTRAY_API_KEY"
+	key = bintrayKey
 
 	configurations = ['archives']
 	pkg {
