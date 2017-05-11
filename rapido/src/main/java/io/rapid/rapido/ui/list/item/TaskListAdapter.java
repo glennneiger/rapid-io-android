@@ -1,6 +1,7 @@
 package io.rapid.rapido.ui.list.item;
 
 
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -46,8 +47,34 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 	}
 
 
-	public void setItems(List<TaskItemViewModel> taskItemViewModels) {
-		mTaskItemViewModels = taskItemViewModels;
+	public void setItems(List<TaskItemViewModel> items) {
+		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+			@Override
+			public int getOldListSize() {
+				return getItemCount();
+			}
+
+
+			@Override
+			public int getNewListSize() {
+				return items.size();
+			}
+
+
+			@Override
+			public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+				return getItems().get(oldItemPosition).getId().equals(items.get(newItemPosition).getId());
+			}
+
+
+			@Override
+			public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+				return getItems().get(oldItemPosition).getDocument().getEtag().equals(items.get(newItemPosition).getDocument().getEtag());
+			}
+		});
+
+		mTaskItemViewModels = items;
+		diffResult.dispatchUpdatesTo(this);
 	}
 
 

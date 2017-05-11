@@ -55,7 +55,7 @@ public class ListUpdate {
 	}
 
 
-	public void dispatchUpdatesTo(RecyclerView.Adapter adapter) {
+	public void dispatchUpdateTo(RecyclerView.Adapter adapter) {
 		if(mType == Type.ADDED)
 			adapter.notifyItemInserted(mNewPosition);
 		if(mType == Type.MOVED)

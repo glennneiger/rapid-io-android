@@ -155,11 +155,9 @@ public class TaskListViewModel implements TaskItemHandler, FilterViewModel.OnFil
 		mSubscription = mTasksReference
 				.orderBy(mOrderProperty, mOrderSorting) // order by specified property using specified sorting
 				.map(document -> new TaskItemViewModel(document, this)) // wrap each RapidDocument by ItemViewModel so we can use it in our list
-				.subscribeWithListUpdates((items, listUpdates) -> { // subscribe with list updates so we can properly animate our RecyclerView
+				.subscribe(items -> { // subscribe with list updates so we can properly animate our RecyclerView
 					// update items in adapter
 					taskListAdapter.setItems(items);
-					// notify adapter of the changes made to the collection to enable nice animations
-					listUpdates.dispatchUpdatesTo(taskListAdapter);
 				})
 				.onError(error -> {
 					// handle errors properly
