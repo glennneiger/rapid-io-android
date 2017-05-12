@@ -24,7 +24,7 @@ Rapid.io SDK for Android is an SDK written in Java for accessing Rapid.io realti
 ## Installation
 
 ```groovy
-compile 'io.rapid:rapidsdk:0.0.0'
+compile 'io.rapid:rapid-sdk-android:0.0.1-alpha'
 ```
 
 ## Usage
