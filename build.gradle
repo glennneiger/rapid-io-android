@@ -7,10 +7,10 @@ ext{
 	println "RELEASE: $isRelease"
 
 	publishedGroupId = 'io.rapid'
-	artifact = 'rapid-sdk'
+	artifact = 'rapid-sdk-android'
 	libraryVersion = gitTagName
 
-	bintrayUser = 'jakubkinst'
+	bintrayUser = 'rapid'
 	bintrayKey = "$System.env.RAPID_BINTRAY_API_KEY"
 	bintrayRepo = publishedGroupId
 	bintrayName = artifact
