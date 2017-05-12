@@ -39,27 +39,31 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 		// setup ViewModel
 		mViewModel = new TaskListViewModel();
 
-		// setup views
+		// setup binding
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_task_list);
-		setSupportActionBar(mBinding.toolbar);
-
 		mBinding.setView(this);
 		mBinding.setViewModel(mViewModel);
+
+		// setup Toolbar
+		setSupportActionBar(mBinding.toolbar);
 
 		// setup filter drawer
 		DrawerFilterBinding drawerBinding = DrawerFilterBinding.inflate(LayoutInflater.from(this), mBinding.drawerContent, true);
 		FilterViewModel filterViewModel = new FilterViewModel(this, mViewModel);
 		drawerBinding.setViewModel(filterViewModel);
 
-		mViewModel.initialize(this);
-
+		// setup swipe to delete on list items
 		initListItemTouchHelper();
+
+		// init ViewModel
+		mViewModel.initialize(this);
 	}
 
 
 	@Override
 	protected void onStart() {
 		super.onStart();
+
 		mViewModel.onViewAttached();
 	}
 
@@ -117,6 +121,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskListView 
 	@Override
 	protected void onStop() {
 		mViewModel.onViewDetached();
+
 		super.onStop();
 	}
 

@@ -48,6 +48,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
 
 	public void setItems(List<TaskItemViewModel> items) {
+		// use DiffUtil from Android support library to calculate list changes and perform animations
 		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
 			@Override
 			public int getOldListSize() {
@@ -69,10 +70,9 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
 			@Override
 			public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-				return getItems().get(oldItemPosition).getDocument().getEtag().equals(items.get(newItemPosition).getDocument().getEtag());
+				return getItems().get(oldItemPosition).getDocument().hasSameContentAs(items.get(newItemPosition).getDocument());
 			}
 		});
-
 		mTaskItemViewModels = items;
 		diffResult.dispatchUpdatesTo(this);
 	}
