@@ -25,26 +25,25 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<LinearLayout
+			<android.support.constraint.ConstraintLayout
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:orientation="vertical">
 
 				<android.support.design.widget.AppBarLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content">
+					android:id="@+id/appBarLayout"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="0dp"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="parent">
 
 					<android.support.v7.widget.Toolbar
 						android:id="@+id/toolbar"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						app:titleTextColor="@color/primary_darker" />
-
-					<LinearLayout
-						android:layout_width="0px"
-						android:layout_height="0px"
-						android:focusable="true"
-						android:focusableInTouchMode="true" />
 
 					<EditText
 						android:id="@+id/search_field"
@@ -57,8 +56,6 @@
 						android:drawableTint="@color/white"
 						android:hint="@string/search"
 						android:inputType="textCapWords"
-						android:nextFocusLeft="@id/search_field"
-						android:nextFocusUp="@id/search_field"
 						android:text="@={viewModel.searchQuery}"
 						app:show="@{viewModel.searching}"
 						app:theme="@style/ThemeOverlay.Inverse" />
@@ -68,20 +65,30 @@
 
 				<android.support.v7.widget.RecyclerView
 					android:id="@+id/list"
-					android:layout_width="match_parent"
+					android:layout_width="0dp"
 					android:layout_height="0dp"
-					android:layout_weight="1"
+					android:layout_marginBottom="0dp"
 					android:clipToPadding="false"
 					android:padding="@dimen/spacing_8"
 					app:adapter="@{viewModel.taskListAdapter}"
-					app:layoutManager="LinearLayoutManager" />
+					app:layoutManager="LinearLayoutManager"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+					app:layout_constraintBottom_toBottomOf="parent" />
 
 				<LinearLayout
+					android:id="@+id/linearLayout3"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="center"
+					android:layout_marginBottom="8dp"
+					android:layout_marginStart="8dp"
+					android:layout_marginEnd="8dp"
 					android:padding="@dimen/spacing_8"
-					app:show="@{viewModel.connectionState == ConnectionState.DISCONNECTED}">
+					app:show="@{viewModel.connectionState == ConnectionState.DISCONNECTED}"
+					app:layout_constraintBottom_toBottomOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent">
 
 					<ImageView
 						android:layout_width="wrap_content"
@@ -102,9 +109,14 @@
 				<LinearLayout
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="center"
+					android:layout_marginEnd="8dp"
+					android:layout_marginStart="8dp"
+					android:layout_marginBottom="8dp"
 					android:padding="@dimen/spacing_8"
-					app:show="@{viewModel.connectionState == ConnectionState.CONNECTING}">
+					app:show="@{viewModel.connectionState == ConnectionState.CONNECTING}"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintBottom_toBottomOf="parent">
 
 					<ProgressBar
 						android:layout_width="@dimen/spacing_24"
@@ -121,7 +133,7 @@
 						android:textColor="@color/divider" />
 				</LinearLayout>
 
-			</LinearLayout>
+			</android.support.constraint.ConstraintLayout>
 
 			<android.support.design.widget.FloatingActionButton
 				android:layout_width="wrap_content"

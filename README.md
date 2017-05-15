@@ -44,6 +44,7 @@ or add this to your AndroidManifest.xml file
 ## Build
 ## Publishing
 `./gradlew install` - deploy to local Maven Repository
+
 `./gradlew bintrayUpload` - deploy to jCenter using Bintray API (for this to work you need to have Bintray API key set as an environment variable named `RAPID_BINTRAY_API_KEY`)
 
 ### Version name
