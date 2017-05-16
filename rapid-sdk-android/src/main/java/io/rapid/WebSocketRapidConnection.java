@@ -24,13 +24,12 @@ import static io.rapid.RapidError.ErrorType.SUBSCRIPTION_CANCELED;
 import static io.rapid.RapidError.ErrorType.TIMEOUT;
 
 
-class WebSocketRapidConnection extends RapidConnection implements WebSocketConnection.WebSocketConnectionListener
-{
+class WebSocketRapidConnection extends RapidConnection implements WebSocketConnection.WebSocketConnectionListener {
 	private final Context mContext;
 	private final Handler mOriginalThreadHandler;
 	private final String mUrl;
 	private final RapidLogger mLogger;
-	private long mConnectionTimeout;
+	private long mConnectionTimeout = Config.DEFAULT_CONNECTION_TIMEOUT;
 	private WebSocketConnection mWebSocketConnection;
 	private boolean mInternetConnected = true;
 	private boolean mInternetConnectionBroadcast = false;
@@ -45,31 +44,19 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private AuthHelper mAuth;
 	private boolean mCheckRunning = false;
 	private Handler mCheckHandler = new Handler();
-	private Runnable mCheckRunnable = () ->
-	{
-		startCheckHandler();
-		check();
-	};
+	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
 	private Runnable mDisconnectRunnable = () -> {
 		disconnectWebSocketConnection(true);
 	};
-	private Runnable mConnectionRetryRunnable = this::createWebSocketConnectionIfNeeded;
-	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
-
-
-	private BroadcastReceiver mInternetConnectionBroadcastReceiver = new BroadcastReceiver()
-	{
+	private BroadcastReceiver mInternetConnectionBroadcastReceiver = new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-			if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
-			{
+		public void onReceive(Context context, Intent intent) {
+			if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
 				final ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 				final NetworkInfo info = connManager.getActiveNetworkInfo();
 				boolean hasInternetConnection = info != null && info.isConnected();
 				Logcat.d("Internet connected: " + hasInternetConnection);
-				if(hasInternetConnection)
-				{
+				if(hasInternetConnection) {
 					mInternetConnected = true;
 					unregisterInternetConnectionBroadcast();
 					createWebSocketConnectionIfNeeded();
@@ -77,10 +64,15 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			}
 		}
 	};
-
-
-	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger)
+	private Runnable mConnectionRetryRunnable = this::createWebSocketConnectionIfNeeded;
+	private Runnable mCheckRunnable = () ->
 	{
+		startCheckHandler();
+		check();
+	};
+
+
+	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger) {
 		super(rapidConnectionCallback);
 		mContext = context;
 		mUrl = url;
@@ -107,23 +99,19 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onOpen()
-	{
+	public void onOpen() {
 		changeConnectionState(CONNECTED);
 		startCheckHandler();
 		sendConnect();
 
-		if(mAuth.isAuthPending() || mAuth.isAuthRequired())
-		{
+		if(mAuth.isAuthPending() || mAuth.isAuthRequired()) {
 			mAuth.setAuthPending();
 			sendAuthMessage();
 		}
 		if(mAuth.isDeauthPending()) sendDeauthMessage();
 
-		if(!mPendingMessageList.isEmpty())
-		{
-			for(int i = 0; i < mPendingMessageList.size(); i++)
-			{
+		if(!mPendingMessageList.isEmpty()) {
+			for(int i = 0; i < mPendingMessageList.size(); i++) {
 				sendMessage(mPendingMessageList.get(i));
 			}
 			mPendingMessageList.clear();
@@ -132,35 +120,23 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onMessage(Message message)
-	{
+	public void onMessage(Message message) {
 		mLastCommunicationTimestamp = System.currentTimeMillis();
 		sendAckIfNeeded(message);
 
-		if(message.getMessageType() == MessageType.ERR)
-		{
+		if(message.getMessageType() == MessageType.ERR) {
 			handleErrMessage((Message.Err) message);
-		}
-		else if(message.getMessageType() == MessageType.CA)
-		{
+		} else if(message.getMessageType() == MessageType.CA) {
 			handleCaMessage((Message.Ca) message);
-		}
-		else if(message.getMessageType() == MessageType.ACK)
-		{
+		} else if(message.getMessageType() == MessageType.ACK) {
 			handleAckMessage((Message.Ack) message);
-		}
-		else if(message.getMessageType() == MessageType.VAL)
-		{
+		} else if(message.getMessageType() == MessageType.VAL) {
 			Message.Val valMessage = ((Message.Val) message);
 			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
-		}
-		else if(message.getMessageType() == MessageType.UPD)
-		{
+		} else if(message.getMessageType() == MessageType.UPD) {
 			Message.Upd updMessage = ((Message.Upd) message);
 			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
-		}
-		else if(message.getMessageType() == MessageType.RM)
-		{
+		} else if(message.getMessageType() == MessageType.RM) {
 			Message.Rm rmMessage = ((Message.Rm) message);
 			mCallback.onRemove(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), rmMessage.getDocument());
 		}
@@ -168,16 +144,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onClose(CloseReason reason)
-	{
+	public void onClose(CloseReason reason) {
 		mAuth.onClose();
-		if(reason == CloseReason.CLOSED_FROM_SERVER && mConnectionState == DISCONNECTED)
-		{
+		if(reason == CloseReason.CLOSED_FROM_SERVER && mConnectionState == DISCONNECTED) {
 			reason = CloseReason.CLOSED_MANUALLY;
 		}
 
-		if(reason != CloseReason.CLOSED_MANUALLY)
-		{
+		if(reason != CloseReason.CLOSED_MANUALLY) {
 			mLogger.logE("Connection closed. Reason: %s", reason.name());
 			if(mConnectionState == CONNECTED) mConnectionLossTimestamp = System.currentTimeMillis();
 			changeConnectionState(DISCONNECTED);
@@ -186,13 +159,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				startCheckHandler();
 
 			if(reason == CloseReason.INTERNET_CONNECTION_LOST ||
-					reason == CloseReason.NO_INTERNET_CONNECTION)
-			{
+					reason == CloseReason.NO_INTERNET_CONNECTION) {
 				mInternetConnected = false;
 				registerInternetConnectionBroadcast();
-			}
-			else
-			{
+			} else {
 				// try to connect again
 				mCheckHandler.postDelayed(mConnectionRetryRunnable, Config.CONNECTION_RETRY_PERIOD);
 			}
@@ -212,57 +182,49 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public RapidFuture authorize(String token)
-	{
+	public RapidFuture authorize(String token) {
 		return mAuth.authorize(token);
 	}
 
 
 	@Override
-	public RapidFuture deauthorize()
-	{
+	public RapidFuture deauthorize() {
 		return mAuth.deauthorize(mConnectionState);
 	}
 
 
 	@Override
-	boolean isAuthenticated()
-	{
+	boolean isAuthenticated() {
 		return mAuth.isAuthenticated();
 	}
 
 
 	@Override
-	public void addConnectionStateListener(RapidConnectionStateListener listener)
-	{
+	public void addConnectionStateListener(RapidConnectionStateListener listener) {
 		mConnectionStateListeners.add(listener);
 	}
 
 
 	@Override
-	public void removeConnectionStateListener(RapidConnectionStateListener listener)
-	{
+	public void removeConnectionStateListener(RapidConnectionStateListener listener) {
 		mConnectionStateListeners.remove(listener);
 	}
 
 
 	@Override
-	public void removeAllConnectionStateListeners()
-	{
+	public void removeAllConnectionStateListeners() {
 		mConnectionStateListeners.clear();
 	}
 
 
 	@Override
-	public ConnectionState getConnectionState()
-	{
+	public ConnectionState getConnectionState() {
 		return mConnectionState;
 	}
 
 
 	@Override
-	void subscribe(String subscriptionId, Subscription subscription)
-	{
+	void subscribe(String subscriptionId, Subscription subscription) {
 		Message.Sub messageSub = new Message.Sub(subscription.getCollectionName(), subscriptionId);
 		messageSub.setFilter(subscription.getFilter());
 		messageSub.setLimit(subscription.getLimit());
@@ -277,14 +239,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onUnsubscribe(Subscription subscription)
-	{
+	public void onUnsubscribe(Subscription subscription) {
 		boolean sendUnsubscribe = true;
-		for(int i = mPendingMessageList.size() - 1; i >= 0; i--)
-		{
+		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
 			if(mPendingMessageList.get(i).getMessage() instanceof Message.Sub && ((Message.Sub) mPendingMessageList.get(i).getMessage())
-					.getSubscriptionId().equals(subscription.getSubscriptionId()))
-			{
+					.getSubscriptionId().equals(subscription.getSubscriptionId())) {
 				mPendingMessageList.remove(i);
 				sendUnsubscribe = false;
 				break;
@@ -301,8 +260,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public RapidFuture mutate(String collectionName, FutureResolver<String> documentJsonResolver)
-	{
+	public RapidFuture mutate(String collectionName, FutureResolver<String> documentJsonResolver) {
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
 		return sendMessage(() -> new Message.Mut(collectionName, documentJsonResolver.resolve()));
@@ -310,11 +268,16 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public RapidFuture delete(String collectionName, String documentId)
-	{
+	public RapidFuture delete(String collectionName, String documentId) {
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
 		return sendMessage(() -> new Message.Del(collectionName, documentId));
+	}
+
+
+	@Override
+	public void setConnectionTimeout(long connectionTimeoutMs) {
+		mConnectionTimeout = connectionTimeoutMs;
 	}
 
 
@@ -339,7 +302,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void disconnectWebSocketConnectionIfNeeded() {
-		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mAuth.isAuthPending()&& !mAuth.isDeauthPending()
+		if(mSubscriptionCount == 0 && mPendingMutationCount == 0 && !mAuth.isAuthPending() && !mAuth.isDeauthPending()
 				&& mPendingMessageList.isEmpty()) {
 			Logcat.d("Scheduling websocket disconnection in %d ms", Config.WEBSOCKET_DISCONNECT_TIMEOUT);
 			mCheckHandler.postDelayed(mDisconnectRunnable, Config.WEBSOCKET_DISCONNECT_TIMEOUT);
@@ -347,8 +310,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private void disconnectWebSocketConnection(boolean sendDisconnectMessage)
-	{
+	private void disconnectWebSocketConnection(boolean sendDisconnectMessage) {
 		// cancel scheduled disconnect if any
 		mCheckHandler.removeCallbacks(mDisconnectRunnable);
 
@@ -362,20 +324,16 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private void registerInternetConnectionBroadcast()
-	{
-		if(mContext != null && !mInternetConnectionBroadcast)
-		{
+	private void registerInternetConnectionBroadcast() {
+		if(mContext != null && !mInternetConnectionBroadcast) {
 			mInternetConnectionBroadcast = true;
 			mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		}
 	}
 
 
-	private void unregisterInternetConnectionBroadcast()
-	{
-		if(mContext != null && mInternetConnectionBroadcast)
-		{
+	private void unregisterInternetConnectionBroadcast() {
+		if(mContext != null && mInternetConnectionBroadcast) {
 			mInternetConnectionBroadcast = false;
 			mContext.unregisterReceiver(mInternetConnectionBroadcastReceiver);
 		}
@@ -423,18 +381,15 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private void changeConnectionState(ConnectionState state) {
 		Logcat.d(state.name());
-		if(mConnectionState != state)
-		{
+		if(mConnectionState != state) {
 			mConnectionState = state;
 			invokeConnectionStateChanged(state);
 		}
 	}
 
 
-	private void invokeConnectionStateChanged(ConnectionState state)
-	{
-		for(RapidConnectionStateListener l : mConnectionStateListeners)
-		{
+	private void invokeConnectionStateChanged(ConnectionState state) {
+		for(RapidConnectionStateListener l : mConnectionStateListeners) {
 			if(l != null) l.onConnectionStateChanged(state);
 		}
 	}
@@ -448,15 +403,12 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 		boolean finalReconnect = reconnect;
 
-		try
-		{
+		try {
 			Message.Con m = new Message.Con(mConnectionId, finalReconnect);
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
 			sendMessage(messageFuture);
-		}
-		catch(JSONException e)
-		{
+		} catch(JSONException e) {
 			e.printStackTrace();
 		}
 	}
@@ -470,8 +422,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void handleErrMessage(Message.Err message) {
-		switch(message.getType())
-		{
+		switch(message.getType()) {
 			case CONNECTION_TERMINATED:
 				disconnectWebSocketConnection(false);
 				mOriginalThreadHandler.post(() ->
@@ -514,7 +465,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-
 	private synchronized void handleAckMessage(Message.Ack ackMessage) {
 		int size = mSentMessageList.size();
 
@@ -530,12 +480,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			MessageFuture messageFuture = mSentMessageList.get(position);
 			messageFuture.getRapidFuture().invokeSuccess();
 			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-			if(messageFuture.getMessage() instanceof Message.Auth)
-			{
+			if(messageFuture.getMessage() instanceof Message.Auth) {
 				mAuth.authSuccess();
 			}
-			if(messageFuture.getMessage() instanceof Message.Deauth)
-			{
+			if(messageFuture.getMessage() instanceof Message.Deauth) {
 				mAuth.deauthSuccess();
 			}
 			mSentMessageList.remove(position);
@@ -580,23 +528,19 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		long now = System.currentTimeMillis();
 
 		// message timeout
-		for(int i = 0; i < mSentMessageList.size(); i++)
-		{
+		for(int i = 0; i < mSentMessageList.size(); i++) {
 			if(now - mSentMessageList.get(i).getSentTimestamp() > mConnectionTimeout) {
 				timeoutMessage(mSentMessageList.remove(i));
 				i--;
-			}
-			else {
+			} else {
 				break;
 			}
 		}
-		for(int i = 0; i < mPendingMessageList.size(); i++)
-		{
+		for(int i = 0; i < mPendingMessageList.size(); i++) {
 			if(now - mPendingMessageList.get(i).getSentTimestamp() > mConnectionTimeout) {
 				timeoutMessage(mPendingMessageList.remove(i));
 				i--;
-			}
-			else {
+			} else {
 				break;
 			}
 		}
@@ -640,40 +584,30 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private void sendAuthMessage()
-	{
-		try
-		{
+	private void sendAuthMessage() {
+		try {
 			Message.Auth m = new Message.Auth(mAuth.getAuthToken());
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			future.onSuccess(() -> mAuth.authSuccess());
 			future.onError(error -> mAuth.authError(error));
 			MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
 			sendMessage(messageFuture);
-		}
-		catch(JSONException e)
-		{
+		} catch(JSONException e) {
 			e.printStackTrace();
 		}
 	}
 
 
-	private void sendDeauthMessage()
-	{
-		try
-		{
+	private void sendDeauthMessage() {
+		try {
 			Message.Deauth m = new Message.Deauth();
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			future.onSuccess(() -> mAuth.deauthSuccess());
 			future.onError(error -> mAuth.deauthError());
 			MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
 			sendMessage(messageFuture);
-		}
-		catch(JSONException e)
-		{
+		} catch(JSONException e) {
 			e.printStackTrace();
 		}
 	}
-
-	setCon
 }
