@@ -153,7 +153,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(reason != CloseReason.CLOSED_MANUALLY) {
 			mLogger.logE("Connection closed. Reason: %s", reason.name());
 			if(mConnectionState == CONNECTED) mConnectionLossTimestamp = System.currentTimeMillis();
-			changeConnectionState(DISCONNECTED);
+			changeConnectionState(CONNECTING);
 			mWebSocketConnection = null;
 			if(!mCheckRunning)
 				startCheckHandler();
@@ -560,7 +560,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		long now = System.currentTimeMillis();
 
 		// connection timeout
-		if(mConnectionState == DISCONNECTED && now - mConnectionLossTimestamp > mConnectionTimeout) {
+		if(mConnectionState == CONNECTING && now - mConnectionLossTimestamp > mConnectionTimeout) {
 			for(MessageFuture mf : mSentMessageList) {
 				RapidError error = new RapidError(TIMEOUT);
 				mLogger.logE(error);
@@ -580,6 +580,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			stopCheckHandler();
 			unregisterInternetConnectionBroadcast();
 			mCallback.onTimedOut();
+			changeConnectionState(DISCONNECTED);
 		}
 	}
 
