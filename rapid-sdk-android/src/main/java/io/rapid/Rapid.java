@@ -27,6 +27,7 @@ public class Rapid {
 
 	private Rapid(Context context, String apiKey) {
 		setLogLevel(LogLevel.LOG_LEVEL_INFO);
+
 		mLogger.logI("Initializing Rapid.io SDK with API key: %s", apiKey);
 
 		mApiKey = apiKey;
@@ -203,5 +204,10 @@ public class Rapid {
 
 	public boolean isAuthenticated() {
 		return mRapidConnection.isAuthenticated();
+	}
+
+
+	public void setConnectionTimeout(long connectionTimeoutInMs) {
+		mRapidConnection.setConnectionTimeout(connectionTimeoutInMs);
 	}
 }

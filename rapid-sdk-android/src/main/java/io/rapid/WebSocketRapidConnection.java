@@ -30,6 +30,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private final Handler mOriginalThreadHandler;
 	private final String mUrl;
 	private final RapidLogger mLogger;
+	private long mConnectionTimeout;
 	private WebSocketConnection mWebSocketConnection;
 	private boolean mInternetConnected = true;
 	private boolean mInternetConnectionBroadcast = false;
@@ -581,7 +582,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		// message timeout
 		for(int i = 0; i < mSentMessageList.size(); i++)
 		{
-			if(now - mSentMessageList.get(i).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
+			if(now - mSentMessageList.get(i).getSentTimestamp() > mConnectionTimeout) {
 				timeoutMessage(mSentMessageList.remove(i));
 				i--;
 			}
@@ -591,7 +592,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 		for(int i = 0; i < mPendingMessageList.size(); i++)
 		{
-			if(now - mPendingMessageList.get(i).getSentTimestamp() > Config.MESSAGE_TIMEOUT) {
+			if(now - mPendingMessageList.get(i).getSentTimestamp() > mConnectionTimeout) {
 				timeoutMessage(mPendingMessageList.remove(i));
 				i--;
 			}
@@ -615,7 +616,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		long now = System.currentTimeMillis();
 
 		// connection timeout
-		if(mConnectionState == DISCONNECTED && now - mConnectionLossTimestamp > Config.CONNECTION_TIMEOUT) {
+		if(mConnectionState == DISCONNECTED && now - mConnectionLossTimestamp > mConnectionTimeout) {
 			for(MessageFuture mf : mSentMessageList) {
 				RapidError error = new RapidError(TIMEOUT);
 				mLogger.logE(error);
@@ -673,4 +674,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			e.printStackTrace();
 		}
 	}
+
+	setCon
 }

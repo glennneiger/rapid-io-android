@@ -54,6 +54,9 @@ abstract class RapidConnection {
 	public abstract RapidFuture delete(String collectionName, String documentId);
 
 
+	public abstract void setConnectionTimeout(long connectionTimeoutMs);
+
+
 	Callback getCallback() {
 		return mCallback;
 	}
