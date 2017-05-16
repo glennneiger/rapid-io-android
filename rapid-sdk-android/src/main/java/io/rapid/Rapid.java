@@ -85,6 +85,11 @@ public class Rapid {
 	}
 
 
+	/**
+	 *
+	 * @param apiKey RapidIO API key. You can get it in the developers console
+	 * @return instance of Rapid
+	 */
 	public static Rapid getInstance(String apiKey) {
 		if(!sInstances.containsKey(apiKey))
 			initialize(apiKey);
@@ -92,6 +97,10 @@ public class Rapid {
 	}
 
 
+	/**
+	 *
+	 * @return instance of Rapid
+	 */
 	public static Rapid getInstance() {
 		if(sInstances.isEmpty())
 			throw new IllegalStateException("Rapid SDK not initialized. Please call Rapid.initialize(apiKey) first or add API key to AndroidManifest.xml.");
@@ -103,6 +112,10 @@ public class Rapid {
 	}
 
 
+	/**
+	 *
+	 * @param apiKey RapidIO API key. You can get it in the developers console
+	 */
 	public static void initialize(String apiKey) {
 		if(!sInstances.containsKey(apiKey))
 			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey));
@@ -129,78 +142,142 @@ public class Rapid {
 	}
 
 
+	/**
+	 *
+	 * @param collectionName collection name
+	 * @param itemClass the class of T
+	 * @param <T> the type of the desired object
+	 * @return collection reference
+	 */
 	public <T> RapidCollectionReference<T> collection(String collectionName, Class<T> itemClass) {
 		return mCollectionProvider.provideCollection(collectionName, itemClass);
 	}
 
 
+	/**
+	 *
+	 * @param collectionName collection name
+	 * @return collection reference
+	 */
 	public RapidCollectionReference<Map<String, Object>> collection(String collectionName) {
 		return mCollectionProvider.provideCollection(collectionName);
 	}
 
 
+	/**
+	 * Method for user authorization. Data from collection are readable/writable/editable based on rules and authorization token.
+	 * @param token authorization token
+	 * @return RapidFuture. You can set success or error callback on it.
+	 */
 	public RapidFuture authorize(String token) {
 
 		return mRapidConnection.authorize(token);
 	}
 
 
+	/**
+	 * Method for canceling authorization.
+	 * @return RapidFuture. You can set success or error callback on it.
+	 */
 	public RapidFuture deauthorize() {
 
 		return mRapidConnection.deauthorize();
 	}
 
 
+	/**
+	 * Rapid JSON converter. Converter is used for serialization and deserialization objects.
+	 * @return RapidJsonConverter
+	 */
 	public RapidJsonConverter getJsonConverter() {
 		return mJsonConverter;
 	}
 
 
+	/**
+	 * Method for changing JSON converter.
+	 * @param jsonConverter Custom JSON converter
+	 */
 	public void setJsonConverter(RapidJsonConverter jsonConverter) {
 		mJsonConverter = jsonConverter;
 	}
 
 
+	/**
+	 *
+	 * @return RapidIO API key
+	 */
 	public String getApiKey() {
 		return mApiKey;
 	}
 
 
+	/**
+	 * Method for setting connection state listener. Listener gives you information about Rapid connection state.
+	 * @param listener RapidConnectionStateListener
+	 */
 	public void addConnectionStateListener(RapidConnectionStateListener listener) {
 		mRapidConnection.addConnectionStateListener(listener);
 	}
 
 
+	/**
+	 * Method for removing connection state listener.
+	 * @param listener RapidConnectionStateListener
+	 */
 	public void removeConnectionStateListener(RapidConnectionStateListener listener) {
 		mRapidConnection.removeConnectionStateListener(listener);
 	}
 
 
+	/**
+	 * Method for removing all connection state listeners
+	 */
 	public void removeAllConnectionStateListeners() {
 		mRapidConnection.removeAllConnectionStateListeners();
 	}
 
 
+	/**
+	 * Method for getting Rapid connection state.
+	 * @return ConnectionState
+	 */
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
 	}
 
 
+	/**
+	 * Method for enabling/disabling subscriptions cache
+	 * @param cachingEnabled
+	 */
 	public void setCachingEnabled(boolean cachingEnabled) {
 		mCollectionProvider.getSubscriptionDiskCache().setEnabled(cachingEnabled);
 	}
 
 
+	/**
+	 * Method for changing cache size. Default size is 50 MB.
+	 * @param cacheSizeInMb Cache size in MB
+	 */
 	public void setCacheSize(int cacheSizeInMb) {
 		mCollectionProvider.getSubscriptionDiskCache().setMaxSize(cacheSizeInMb);
 	}
 
 
+	/**
+	 * Method for setting Log level.
+	 * @param level Log level
+	 */
 	public void setLogLevel(@LogLevel int level) {
 		mLogger.setLevel(level);
 	}
 
 
+	/**
+	 * Method for getting information if Rapid is authenticated.
+	 * @return
+	 */
 	public boolean isAuthenticated() {
 		return mRapidConnection.isAuthenticated();
 	}
