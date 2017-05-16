@@ -87,9 +87,13 @@ public class Rapid {
 
 
 	/**
+	 * Use this method to obtain specific {@link Rapid} instance
+	 * in case you have initialized more than one instance in a single app
+	 * <p>
+	 * If you have initialized only one instance of {@link Rapid}, you can use {@link #getInstance()} to obtain the instance
 	 *
-	 * @param apiKey RapidIO API key. You can get it in the developers console
-	 * @return instance of Rapid
+	 * @param apiKey Rapid.io API key (you can get it in the developer's console)
+	 * @return instance of {@link Rapid}
 	 */
 	public static Rapid getInstance(String apiKey) {
 		if(!sInstances.containsKey(apiKey))
@@ -99,8 +103,11 @@ public class Rapid {
 
 
 	/**
+	 * Use this method to obtain default {@link Rapid} instance initialized by calling {@link Rapid#initialize(String)}
+	 * <p>
+	 * If you have initialized multiple {@link Rapid} instances, use {@link Rapid#getInstance(String)} to obtain the right instance
 	 *
-	 * @return instance of Rapid
+	 * @return instance of {@link Rapid}
 	 */
 	public static Rapid getInstance() {
 		if(sInstances.isEmpty())
@@ -114,8 +121,25 @@ public class Rapid {
 
 
 	/**
+	 * Initialize {@link Rapid} instance with an Rapid.io API key
+	 * <p>
+	 * You can substitute this call by including API key in AndroidManifest file within {@code <application>} tag
+	 * <p>
+	 * Example:
+	 * <pre>
+	 * {@code
+	 * <manifest>
+	 * 	<application>
+	 * 		//...
+	 * 		<meta-data
+	 * 			android:name="io.rapid.apikey"
+	 * 			android:value="<API_KEY>" />
+	 * 	</application>
+	 * </manifest>
+	 * }
+	 * </pre>
 	 *
-	 * @param apiKey RapidIO API key. You can get it in the developers console
+	 * @param apiKey Rapid.io API key (you can get it in the developer's console)
 	 */
 	public static void initialize(String apiKey) {
 		if(!sInstances.containsKey(apiKey))
@@ -144,10 +168,17 @@ public class Rapid {
 
 
 	/**
+	 * Get collection reference {@link RapidCollectionReference} to create subscriptions and/or mutate the documents
+	 * <p>
+	 * With provided class reference for serialization/deserialization Rapid is able to automatically map document properties
+	 * to object properties in Java class. By default the documents are serialized/deserialized by Gson, but you can provide own
+	 * implementation of {@link RapidJsonConverter} via {@link Rapid#setJsonConverter(RapidJsonConverter)} method
+	 * <p>
+	 * If you don't want to convert data to a Java class, you can call {@link Rapid#collection(String)} and data
+	 * will be provided as a {@link Map}<String, Object>
 	 *
 	 * @param collectionName collection name
-	 * @param itemClass the class of T
-	 * @param <T> the type of the desired object
+	 * @param itemClass      class used for serializing/deserializing documents
 	 * @return collection reference
 	 */
 	public <T> RapidCollectionReference<T> collection(String collectionName, Class<T> itemClass) {
@@ -156,6 +187,11 @@ public class Rapid {
 
 
 	/**
+	 * Get collection reference {@link RapidCollectionReference} to create subscriptions and/or mutate the documents
+	 * <p>
+	 * Data will be provided as a {@link Map}<String, Object>
+	 * <p>
+	 * If you want Rapid to convert JSON automatically to Java objects, use {@link Rapid#collection(String, Class)}
 	 *
 	 * @param collectionName collection name
 	 * @return collection reference
@@ -166,19 +202,23 @@ public class Rapid {
 
 
 	/**
-	 * Method for user authorization. Data from collection are readable/writable/editable based on rules and authorization token.
-	 * @param token authorization token
-	 * @return RapidFuture. You can set success or error callback on it.
+	 * Authorize with an authorization token
+	 * <p>
+	 * Data from collection are readable/writable/editable based on rules included inside the token itself.
+	 *
+	 * @param authorizationToken Authorization token
+	 * @return RapidFuture for handling result of the process
 	 */
-	public RapidFuture authorize(String token) {
+	public RapidFuture authorize(String authorizationToken) {
 
-		return mRapidConnection.authorize(token);
+		return mRapidConnection.authorize(authorizationToken);
 	}
 
 
 	/**
-	 * Method for canceling authorization.
-	 * @return RapidFuture. You can set success or error callback on it.
+	 * Cancels existing authorization
+	 *
+	 * @return RapidFuture for handling result of the process
 	 */
 	public RapidFuture deauthorize() {
 
@@ -187,7 +227,10 @@ public class Rapid {
 
 
 	/**
-	 * Rapid JSON converter. Converter is used for serialization and deserialization objects.
+	 * Get JSON converter used for serialization and deserialization to/from Java objects.
+	 * <p>
+	 * By default, Gson is used for this task. Use {@link Rapid#setJsonConverter(RapidJsonConverter)} to provide custom converter
+	 *
 	 * @return RapidJsonConverter
 	 */
 	public RapidJsonConverter getJsonConverter() {
@@ -196,7 +239,10 @@ public class Rapid {
 
 
 	/**
-	 * Method for changing JSON converter.
+	 * Set JSON converter used for serialization and deserialization to/from Java objects.
+	 * <p>
+	 * By default, Gson is used for this task
+	 *
 	 * @param jsonConverter Custom JSON converter
 	 */
 	public void setJsonConverter(RapidJsonConverter jsonConverter) {
@@ -205,8 +251,9 @@ public class Rapid {
 
 
 	/**
+	 * Get Rapid.io API key this instance was initialized with
 	 *
-	 * @return RapidIO API key
+	 * @return Rapid.io API key
 	 */
 	public String getApiKey() {
 		return mApiKey;
@@ -214,8 +261,15 @@ public class Rapid {
 
 
 	/**
-	 * Method for setting connection state listener. Listener gives you information about Rapid connection state.
-	 * @param listener RapidConnectionStateListener
+	 * Method for setting connection state listener.
+	 * <p>
+	 * Possible states:
+	 * 
+	 * {@link ConnectionState#CONNECTED}
+	 * <p>
+	 * {@link ConnectionState#CONNECTING}
+	 * <p>
+	 * {@link ConnectionState#DISCONNECTED}
 	 */
 	public void addConnectionStateListener(RapidConnectionStateListener listener) {
 		mRapidConnection.addConnectionStateListener(listener);
@@ -224,7 +278,6 @@ public class Rapid {
 
 	/**
 	 * Method for removing connection state listener.
-	 * @param listener RapidConnectionStateListener
 	 */
 	public void removeConnectionStateListener(RapidConnectionStateListener listener) {
 		mRapidConnection.removeConnectionStateListener(listener);
@@ -240,8 +293,15 @@ public class Rapid {
 
 
 	/**
-	 * Method for getting Rapid connection state.
-	 * @return ConnectionState
+	 * Get current connection state
+	 * <p>
+	 * Possible states:
+	 *
+	 * {@link ConnectionState#CONNECTED}
+	 * <p>
+	 * {@link ConnectionState#CONNECTING}
+	 * <p>
+	 * {@link ConnectionState#DISCONNECTED}
 	 */
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
@@ -249,7 +309,8 @@ public class Rapid {
 
 
 	/**
-	 * Method for enabling/disabling subscriptions cache
+	 * Method for enabling/disabling subscription disk cache
+	 *
 	 * @param cachingEnabled
 	 */
 	public void setCachingEnabled(boolean cachingEnabled) {
@@ -258,7 +319,10 @@ public class Rapid {
 
 
 	/**
-	 * Method for changing cache size. Default size is 50 MB.
+	 * Adjust subscription disk cache size
+	 * <p>
+	 * Default size is 50 MB
+	 *
 	 * @param cacheSizeInMb Cache size in MB
 	 */
 	public void setCacheSize(int cacheSizeInMb) {
@@ -267,8 +331,19 @@ public class Rapid {
 
 
 	/**
-	 * Method for setting Log level.
-	 * @param level Log level
+	 * Set level of Logcat output
+	 * <p>
+	 * {@link LogLevel#LOG_LEVEL_NONE} - no logs at all
+	 * <p>
+	 * {@link LogLevel#LOG_LEVEL_ERRORS} - log only errors
+	 * <p>
+	 * {@link LogLevel#LOG_LEVEL_WARNINGS} - log errors and warnings
+	 * <p>
+	 * {@link LogLevel#LOG_LEVEL_INFO} - log errors, warnings and informative messages useful for debugging
+	 * <p>
+	 * {@link LogLevel#LOG_LEVEL_VERBOSE} - log everything
+	 *
+	 * @param level desired log level
 	 */
 	public void setLogLevel(@LogLevel int level) {
 		mLogger.setLevel(level);
@@ -276,14 +351,22 @@ public class Rapid {
 
 
 	/**
-	 * Method for getting information if Rapid is authenticated.
-	 * @return
+	 * Get current authentication state
+	 *
+	 * @return true when authenticated
 	 */
 	public boolean isAuthenticated() {
 		return mRapidConnection.isAuthenticated();
 	}
 
 
+	/**
+	 * Set network connection timeout for subscriptions and mutations
+	 * <p>
+	 * By default, Rapid SDK will keep trying to perform database operations until they are successful
+	 *
+	 * @param connectionTimeoutInMs Connection timeout in milliseconds
+	 */
 	public void setConnectionTimeout(long connectionTimeoutInMs) {
 		mRapidConnection.setConnectionTimeout(connectionTimeoutInMs);
 	}

@@ -8,7 +8,10 @@ import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.preference.PreferenceManager
 import android.widget.Toast
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import cz.kinst.jakub.viewmodelbinding.ViewModel
 import io.rapid.ConnectionState
 import io.rapid.Rapid
@@ -118,6 +121,16 @@ class MainViewModel : ViewModel() {
         val start = System.currentTimeMillis()
         val database = FirebaseDatabase.getInstance()
         val myRef = database.getReference(path)
+        myRef.addValueEventListener(object: ValueEventListener{
+            override fun onCancelled(p0: DatabaseError?) {
+                android.util.Log.d("ERROR", "ONCANCELLED")
+            }
+
+            override fun onDataChange(p0: DataSnapshot?) {
+                android.util.Log.d("SUCCESS", "VALUE")
+            }
+
+        })
         val doc = myRef.push()
 
         doc.setValue(TestObject.getRandom(), { e, ref ->
