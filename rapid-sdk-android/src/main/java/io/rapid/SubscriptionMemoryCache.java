@@ -7,22 +7,26 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 
 class SubscriptionMemoryCache<T> {
 
-	private LruCache<String, List<RapidDocument<T>>> mCache;
+	private LruCache<String, List<String>> mSubscriptionCache;
+	private LruCache<String, RapidDocument<T>> mDocumentCache;
 	private boolean mEnabled = true;
 
 
 	SubscriptionMemoryCache(int maxEntries) {
-		mCache = new LruCache<>(maxEntries);
+		mSubscriptionCache = new LruCache<>(maxEntries);
+		mDocumentCache = new LruCache<>(maxEntries);
 	}
 
 
 	public void setMaxSize(int maxEntries) {
-		mCache.resize(maxEntries);
+		mSubscriptionCache.resize(maxEntries);
+		mDocumentCache.resize(maxEntries);
 	}
 
 
@@ -31,7 +35,16 @@ class SubscriptionMemoryCache<T> {
 			return null;
 		String fingerprint = subscription.getFingerprint();
 		Logcat.d("Reading from in-memory subscription cache. key: %s", fingerprint);
-		return mCache.get(fingerprint);
+		List<String> documentIdList = mSubscriptionCache.get(fingerprint);
+		List<RapidDocument<T>> documentList = null;
+		if(documentIdList != null) {
+			documentList = new ArrayList<>();
+			for(String documentId : documentIdList)
+			{
+				documentList.add(mDocumentCache.get(documentId));
+			}
+		}
+		return documentList;
 	}
 
 
@@ -40,12 +53,21 @@ class SubscriptionMemoryCache<T> {
 			return;
 		String fingerprint = subscription.getFingerprint();
 		Logcat.d("Saving to in-memory subscription cache. key: %s", fingerprint);
-		mCache.put(fingerprint, value);
+		List<String> documentIdList = new ArrayList<>();
+		if(value != null) {
+			for(RapidDocument<T> document : value) {
+				documentIdList.add(document.getId());
+				mDocumentCache.put(document.getId(), document);
+			}
+
+			mSubscriptionCache.put(fingerprint, documentIdList);
+		}
 	}
 
 
 	public synchronized void clear() throws IOException {
-		mCache.evictAll();
+		mSubscriptionCache.evictAll();
+		mDocumentCache.evictAll();
 	}
 
 
@@ -54,7 +76,7 @@ class SubscriptionMemoryCache<T> {
 			return;
 		String fingerprint = subscription.getFingerprint();
 		Logcat.d("Removing from in-memory subscription cache. key: %s", fingerprint);
-		mCache.remove(fingerprint);
+		mSubscriptionCache.remove(fingerprint);
 	}
 
 

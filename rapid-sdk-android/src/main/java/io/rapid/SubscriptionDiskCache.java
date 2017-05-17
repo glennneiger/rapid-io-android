@@ -71,7 +71,12 @@ class SubscriptionDiskCache {
 			JSONArray documentIdArray = new JSONArray(jsonValue);
 			JSONArray documentArray = new JSONArray();
 			for(int i = 0; i < documentIdArray.length(); i++) {
-				documentArray.put(new JSONObject(getDocument(documentIdArray.optString(i))));
+				String document = getDocument(documentIdArray.optString(i));
+				if(document == null)
+				{
+					return null;
+				}
+				documentArray.put(new JSONObject(document));
 			}
 
 			return documentArray.toString();
