@@ -133,6 +133,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		} else if(message.getMessageType() == MessageType.VAL) {
 			Message.Val valMessage = ((Message.Val) message);
 			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
+		} else if(message.getMessageType() == MessageType.RES) {
+			Message.Res resMessage = ((Message.Res) message);
+			mCallback.onFetchResult(resMessage.getFetchId(), resMessage.getCollectionId(), resMessage.getDocuments());
 		} else if(message.getMessageType() == MessageType.UPD) {
 			Message.Upd updMessage = ((Message.Upd) message);
 			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
@@ -239,6 +242,20 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
+	void fetch(String fetchId, Subscription subscription) {
+		Message.Ftc messageFtc = new Message.Ftc(subscription.getCollectionName(), fetchId);
+		messageFtc.setFilter(subscription.getFilter());
+		messageFtc.setLimit(subscription.getLimit());
+		messageFtc.setOrder(subscription.getOrder());
+		messageFtc.setSkip(subscription.getSkip());
+
+		createWebSocketConnectionIfNeeded();
+		RapidFuture future = sendMessage(() -> messageFtc);
+		future.onError(error -> mCallback.onError(fetchId, subscription.getCollectionName(), error));
+	}
+
+
+	@Override
 	public void onUnsubscribe(Subscription subscription) {
 		boolean sendUnsubscribe = true;
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
@@ -268,10 +285,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public RapidFuture delete(String collectionName, String documentId) {
+	public RapidFuture delete(String collectionName, FutureResolver<String> documentJsonResolver) {
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
-		return sendMessage(() -> new Message.Del(collectionName, documentId));
+		return sendMessage(() -> new Message.Del(collectionName, documentJsonResolver.resolve()));
 	}
 
 
@@ -415,7 +432,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void sendAckIfNeeded(Message parsedMessage) {
-		if(parsedMessage.getMessageType() == MessageType.VAL || parsedMessage.getMessageType() == MessageType.UPD) {
+		if(parsedMessage.getMessageType() == MessageType.VAL
+				|| parsedMessage.getMessageType() == MessageType.UPD
+				|| parsedMessage.getMessageType() == MessageType.RES
+				|| parsedMessage.getMessageType() == MessageType.RM
+				|| parsedMessage.getMessageType() == MessageType.CA) {
 			sendMessage(() -> new Message.Ack(parsedMessage.getEventId()));
 		}
 	}

@@ -45,6 +45,12 @@ public class Rapid {
 
 
 			@Override
+			public void onFetchResult(String fetchId, String collectionId, String documentsJson) {
+				mCollectionProvider.findCollectionByName(collectionId).onFetchResult(fetchId, documentsJson);
+			}
+
+
+			@Override
 			public void onUpdate(String subscriptionId, String collectionId, String documentJson) {
 				mCollectionProvider.findCollectionByName(collectionId).onUpdate(subscriptionId, documentJson);
 			}
@@ -264,7 +270,7 @@ public class Rapid {
 	 * Method for setting connection state listener.
 	 * <p>
 	 * Possible states:
-	 * 
+	 *
 	 * {@link ConnectionState#CONNECTED}
 	 * <p>
 	 * {@link ConnectionState#CONNECTING}

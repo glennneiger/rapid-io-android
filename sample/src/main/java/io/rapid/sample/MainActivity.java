@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	@Override
 	public void onDelete(String id, Todo todo) {
-		mTodos.document(id).delete()
+		mTodos.document(id).safeDelete(oldDocument -> true)
 				.onSuccess(() -> log("Deleted"))
 				.onError(error -> Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show());
 	}

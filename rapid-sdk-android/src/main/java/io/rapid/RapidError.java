@@ -13,7 +13,8 @@ public class RapidError extends Error {
 		PERMISSION_DENIED("permission-denied", "Permission denied"),
 		CONNECTION_TERMINATED("connection-terminated", "Connection terminated"),
 		INVALID_AUTH_TOKEN("invalid-auth-token", "Invalid Auth Token"),
-		UNKNOWN_ERROR("unknown", "Unknown Error");
+		UNKNOWN_ERROR("unknown", "Unknown Error"),
+		ETAG_CONFLICT("etag-conflict", "ETAG Confilct");
 
 		private String mName;
 		private String mMessage;

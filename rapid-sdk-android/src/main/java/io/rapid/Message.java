@@ -11,7 +11,7 @@ import java.util.List;
 abstract class Message {
 	private static final String ATTR_EVENT_ID = "evt-id";
 
-	private MessageType mMessageType;
+	protected MessageType mMessageType;
 	private String mEventId;
 
 
@@ -541,6 +541,112 @@ abstract class Message {
 	}
 
 
+	static class Ftc extends Message {
+		private static final String ATTR_FTC_ID = "ftc-id";
+		private static final String ATTR_COL_ID = "col-id";
+		private static final String ATTR_LIMIT = "limit";
+		private static final String ATTR_FILTER = "filter";
+		private static final String ATTR_SKIP = "skip";
+		private static final String ATTR_ORDER = "order";
+
+		private String mFetchId;
+		private String mCollectionId;
+		private int mLimit;
+		private int mSkip;
+		private EntityOrder mOrder;
+		private Filter mFilter;
+
+
+		Ftc(String collectionId, String fetchId) {
+			super(MessageType.FTC);
+
+			mCollectionId = collectionId;
+			mFetchId = fetchId;
+		}
+
+
+		Ftc(JSONObject json) throws JSONException {
+			super(MessageType.FTC, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_FTC_ID, mFetchId);
+			body.put(ATTR_COL_ID, mCollectionId);
+			body.put(ATTR_LIMIT, mLimit);
+			body.put(ATTR_SKIP, mSkip);
+			if(mFilter != null) body.put(ATTR_FILTER, new JSONObject(mFilter.toJson()));
+			if(mOrder != null && !mOrder.getOrderList().isEmpty()) body.put(ATTR_ORDER, mOrder.toJson());
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mLimit = Config.DEFAULT_LIMIT;
+			mSkip = 0;
+			mFetchId = jsonBody.optString(ATTR_FTC_ID);
+			mCollectionId = jsonBody.optString(ATTR_COL_ID);
+			mLimit = jsonBody.optInt(ATTR_LIMIT);
+			mSkip = jsonBody.optInt(ATTR_SKIP);
+			mOrder = EntityOrder.fromJson(jsonBody.optJSONArray(ATTR_ORDER));
+		}
+
+
+		public String getFetchId() {
+			return mFetchId;
+		}
+
+
+		String getCollectionId() {
+			return mCollectionId;
+		}
+
+
+		int getLimit() {
+			return mLimit;
+		}
+
+
+		void setLimit(int limit) {
+			mLimit = limit;
+		}
+
+
+		int getSkip() {
+			return mSkip;
+		}
+
+
+		void setSkip(int skip) {
+			mSkip = skip;
+		}
+
+
+		public EntityOrder getOrder() {
+			return mOrder;
+		}
+
+
+		public void setOrder(EntityOrder order) {
+			mOrder = order;
+		}
+
+
+		public Filter getFilter() {
+			return mFilter;
+		}
+
+
+		public void setFilter(Filter filter) {
+			mFilter = filter;
+		}
+	}
+
+
 	static class Uns extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
 
@@ -681,6 +787,55 @@ abstract class Message {
 	}
 
 
+	static class Res extends Message {
+		private static final String ATTR_COL_ID = "col-id";
+		private static final String ATTR_FETCH_ID = "ftc-id";
+		private static final String ATTR_DOCS = "docs";
+
+		private String mCollectionId;
+		private String mFetchId;
+		private String mDocuments;
+
+
+		Res(JSONObject json) throws JSONException {
+			super(MessageType.RES, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_COL_ID, getCollectionId());
+			body.put(ATTR_DOCS, getDocuments());
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mCollectionId = jsonBody.optString(ATTR_COL_ID);
+			mFetchId = jsonBody.optString(ATTR_FETCH_ID);
+			mDocuments = jsonBody.optString(ATTR_DOCS);
+		}
+
+
+		public String getFetchId() {
+			return mFetchId;
+		}
+
+
+		String getCollectionId() {
+			return mCollectionId;
+		}
+
+
+		String getDocuments() {
+			return mDocuments;
+		}
+	}
+
+
 	static class Ca extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
 		private static final String ATTR_COL_ID = "col-id";
@@ -730,12 +885,13 @@ abstract class Message {
 	}
 
 
+
 	static class Del extends Message {
 		private static final String ATTR_COL_ID = "col-id";
-		private static final String ATTR_DOC_ID = "doc-id";
+		private static final String ATTR_DOC = "doc";
 
 		private String mCollectionId;
-		private String mDocumentId;
+		private String mDocument;
 
 
 		Del(JSONObject json) throws JSONException {
@@ -743,10 +899,10 @@ abstract class Message {
 		}
 
 
-		Del(String collectionId, String documentId) {
+		Del(String collectionId, String document) {
 			super(MessageType.DEL);
 			mCollectionId = collectionId;
-			mDocumentId = documentId;
+			mDocument = document;
 		}
 
 
@@ -754,7 +910,7 @@ abstract class Message {
 		protected JSONObject createJsonBody() throws JSONException {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_COL_ID, getCollectionId());
-			body.put(ATTR_DOC_ID, getDocumentId());
+			body.put(ATTR_DOC, new JSONObject(getDocument()));
 			return body;
 		}
 
@@ -763,7 +919,7 @@ abstract class Message {
 		protected void parseJsonBody(JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
-			mDocumentId = jsonBody.optString(ATTR_DOC_ID);
+			mDocument = jsonBody.optString(ATTR_DOC);
 		}
 
 
@@ -772,8 +928,8 @@ abstract class Message {
 		}
 
 
-		String getDocumentId() {
-			return mDocumentId;
+		public String getDocument() {
+			return mDocument;
 		}
 	}
 

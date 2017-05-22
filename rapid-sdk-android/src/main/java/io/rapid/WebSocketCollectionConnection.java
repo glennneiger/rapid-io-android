@@ -1,15 +1,12 @@
 package io.rapid;
 
 
-import com.google.gson.annotations.SerializedName;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,29 +42,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidFuture mutate(String id, T value) {
-
-		// TODO
-		if(IndexCache.getInstance().get(mType.getName()) == null) {
-			List<String> indexList = new ArrayList<>();
-			for(Field f : mType.getDeclaredFields()) {
-				if(f.isAnnotationPresent(Index.class)) {
-					if(f.isAnnotationPresent(SerializedName.class)) {
-						indexList.add(f.getAnnotation(SerializedName.class).value());
-					} else {
-						String indexName = f.getAnnotation(Index.class).value();
-						indexList.add(indexName.isEmpty() ? f.getName() : indexName);
-					}
-					Logcat.d(indexList.get(indexList.size() - 1));
-				}
-			}
-			IndexCache.getInstance().put(mType.getName(), indexList);
-		}
-
-		RapidDocument<T> doc = new RapidDocument<>(id, value);
+	public RapidFuture mutate(String id, T value, String etag) {
+		RapidDocument<T> doc = new RapidDocument<>(id, value, etag);
 
 		if(value == null) {
-			return mConnection.delete(mCollectionName, id);
+			return mConnection.delete(mCollectionName, () -> {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("Deleting document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			});
 		} else {
 			return mConnection.mutate(mCollectionName, () -> {
 				String documentJson = doc.toJson(mJsonConverter);
@@ -76,6 +60,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				return documentJson;
 			});
 		}
+	}
+
+
+	@Override
+	public void fetch(Subscription<T> subscription) {
+		String subscriptionId = IdProvider.getNewSubscriptionId();
+		mConnection.fetch(subscriptionId, subscription);
+		mSubscriptions.put(subscriptionId, subscription);
 	}
 
 
@@ -171,6 +163,13 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				e.printStackTrace();
 			}
 		}
+	}
+
+
+	@Override
+	public void onFetchResult(String fetchId, String documentsJson) {
+		Subscription<T> subscription = mSubscriptions.remove(fetchId);
+		applyValueToSubscription(subscription, documentsJson, false);
 	}
 
 

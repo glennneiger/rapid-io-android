@@ -417,6 +417,13 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	public void fetch(RapidCallback.Collection<T> callback){
+		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
+		mConnection.fetch(mSubscription);
+		initSubscription();
+	}
+
+
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
 		return new RapidCollectionMapReference<>(this, mapFunction);
 	}
@@ -447,6 +454,11 @@ public class RapidCollectionReference<T> {
 
 	boolean isSubscribed() {
 		return mConnection.hasActiveSubscription();
+	}
+
+
+	public void onFetchResult(String fetchId, String documentsJson) {
+		mConnection.onFetchResult(fetchId, documentsJson);
 	}
 
 

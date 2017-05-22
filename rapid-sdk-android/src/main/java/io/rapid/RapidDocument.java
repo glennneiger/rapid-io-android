@@ -38,9 +38,10 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	RapidDocument(String id, T value) {
+	RapidDocument(String id, T value, String etag) {
 		this.id = id;
 		body = value;
+		this.etag = etag;
 	}
 
 
@@ -96,7 +97,10 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 		{
 			JSONObject jsonBody = new JSONObject();
 			jsonBody.put(KEY_ID, id);
-			jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.toJson(body)));
+			if(etag != null)
+				jsonBody.put(KEY_ETAG, etag);
+			if (body != null)
+				jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.toJson(body)));
 
 			return jsonBody.toString();
 		}

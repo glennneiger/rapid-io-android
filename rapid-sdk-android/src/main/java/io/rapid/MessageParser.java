@@ -20,6 +20,10 @@ class MessageParser {
 				return new Message.Mer(json);
 			case SUB:
 				return new Message.Sub(json);
+			case FTC:
+				return new Message.Ftc(json);
+			case RES:
+				return new Message.Res(json);
 			case UNS:
 				return new Message.Uns(json);
 			case UPD:

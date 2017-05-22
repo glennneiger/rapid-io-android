@@ -18,6 +18,7 @@ public class RapidFuture {
 		void onSuccess();
 	}
 
+
 	public interface ErrorCallback {
 		void onError(RapidError error);
 	}
@@ -85,5 +86,12 @@ public class RapidFuture {
 			mHandler.post(() -> mSuccessCallback.onSuccess());
 		if(mCompletedCallback != null)
 			mHandler.post(() -> mCompletedCallback.onComplete());
+	}
+
+
+	void chainTo(RapidFuture rapidFuture) {
+		rapidFuture
+				.onSuccess(this::invokeSuccess)
+				.onError(this::invokeError);
 	}
 }
