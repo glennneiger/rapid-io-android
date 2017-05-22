@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.rapid.converter.RapidGsonConverter;
 import io.rapid.converter.RapidJsonConverter;
+import io.rapid.utility.Sha1Utility;
 
 
 public class Rapid {
@@ -76,8 +78,13 @@ public class Rapid {
 
 		SubscriptionDiskCache subscriptionDiskCache;
 		try {
-			subscriptionDiskCache = new SubscriptionDiskCache(context, mApiKey, Config.CACHE_DEFAULT_SIZE_MB);
+			subscriptionDiskCache = new SubscriptionDiskCache(context, Sha1Utility.sha1(mApiKey), Config.CACHE_DEFAULT_SIZE_MB);
 		} catch(IOException e) {
+			e.printStackTrace();
+			throw new IllegalStateException("Subscription cache could not be initialized");
+		}
+		catch(NoSuchAlgorithmException e)
+		{
 			e.printStackTrace();
 			throw new IllegalStateException("Subscription cache could not be initialized");
 		}
