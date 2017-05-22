@@ -80,6 +80,7 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 	void setDocument(RapidDocument<T> rapidDocument) {
 		mDocument = rapidDocument;
 		invokeChange();
+		mInitialValue = true;
 	}
 
 

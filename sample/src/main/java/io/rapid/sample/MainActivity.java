@@ -29,7 +29,7 @@ import io.rapid.sample.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
 	private final String AUTH_TOKEN =
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJydWxlcyI6W3siY29sbGVjdGlvbiI6InRvZG9zXzAxIiwicmVhZCI6dHJ1ZSwiY3JlYXRlIjp0cnVlLCJ1cGRhdGUiOnRydWUsImRlbGV0ZSI6dHJ1ZX1dfQ.P0cRnDCfqEP0FM7jg2fGuKZc2devCV1st-Y6uRuceEI";
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJydWxlcyI6W3siY29sbGVjdGlvbiI6Ii4qIiwicmVhZCI6dHJ1ZSwiY3JlYXRlIjp0cnVlLCJ1cGRhdGUiOnRydWUsImRlbGV0ZSI6dHJ1ZX1dfQ.iioOVJkc20bsi97qRAyuBmX7_D0ij22KCq3hwV4jgHc";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;

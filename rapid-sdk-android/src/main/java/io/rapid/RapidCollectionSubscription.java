@@ -152,6 +152,7 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 			doc.setOrder(mOrder);
 		}
 		invokeChange(new ListUpdate(fromCache ? ListUpdate.Type.NEW_LIST_FROM_CACHE : ListUpdate.Type.NEW_LIST, ListUpdate.NO_POSITION, ListUpdate.NO_POSITION));
+		mInitialValue = true;
 	}
 
 

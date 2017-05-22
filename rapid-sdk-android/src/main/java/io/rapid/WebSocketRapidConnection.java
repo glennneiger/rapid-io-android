@@ -501,12 +501,12 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			MessageFuture messageFuture = mSentMessageList.get(position);
 			messageFuture.getRapidFuture().invokeSuccess();
 			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-			if(messageFuture.getMessage() instanceof Message.Auth) {
-				mAuth.authSuccess();
-			}
-			if(messageFuture.getMessage() instanceof Message.Deauth) {
-				mAuth.deauthSuccess();
-			}
+//			if(messageFuture.getMessage() instanceof Message.Auth) {
+//				mAuth.authSuccess();
+//			}
+//			if(messageFuture.getMessage() instanceof Message.Deauth) {
+//				mAuth.deauthSuccess();
+//			}
 			mSentMessageList.remove(position);
 		}
 
