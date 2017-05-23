@@ -13,14 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.rapid.converter.RapidJsonConverter;
 import io.rapid.utility.BackgroundExecutor;
 import io.rapid.utility.ModifiableJSONArray;
 
 
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
-	private final RapidJsonConverter mJsonConverter;
+	private final JsonConverterProvider mJsonConverter;
 	private final SubscriptionMemoryCache<T> mSubscriptionMemoryCache;
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mLogger;
@@ -30,7 +29,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private Map<String, Subscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketCollectionConnection(RapidConnection connection, RapidJsonConverter jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger) {
+	WebSocketCollectionConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger) {
 		mCollectionName = collectionName;
 		mConnection = connection;
 		mJsonConverter = jsonConverter;

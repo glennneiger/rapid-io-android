@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import io.rapid.converter.RapidJsonConverter;
-
 
 class FilterValue implements Filter {
 	private String property;
@@ -146,12 +144,12 @@ class FilterValue implements Filter {
 
 	static class DatePropertyValue implements PropertyValue {
 
-		private final RapidJsonConverter jsonConverter;
+		private final JsonConverterProvider jsonConverter;
 		private final String compareType;
 		private Date value;
 
 
-		DatePropertyValue(String compareType, Date value, RapidJsonConverter jsonConverter) {
+		DatePropertyValue(String compareType, Date value, JsonConverterProvider jsonConverter) {
 			this.value = value;
 			this.jsonConverter = jsonConverter;
 			this.compareType = compareType;
@@ -162,10 +160,10 @@ class FilterValue implements Filter {
 		public String toJson() throws JSONException {
 			try {
 				if(compareType.equals(TYPE_EQUAL)) {
-					return jsonConverter.toJson(value);
+					return jsonConverter.get().toJson(value);
 				} else {
 					JSONObject root = new JSONObject();
-					root.put(compareType, jsonConverter.toJson(value));
+					root.put(compareType, jsonConverter.get().toJson(value));
 					return root.toString();
 				}
 			} catch(IOException e) {

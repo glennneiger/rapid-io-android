@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.rapid.converter.RapidJsonConverter;
-
 
 public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	static final String KEY_ID = "id";
@@ -45,7 +43,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, RapidJsonConverter jsonConverter, Class<T> documentType)
+	static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, JsonConverterProvider jsonConverter, Class<T> documentType)
 			throws	IOException {
 		JSONArray sortingJSONArray = jsonObject.optJSONArray(KEY_SKEY);
 		List<String> sortingList = new ArrayList<>();
@@ -56,7 +54,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 			}
 		}
 		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optString(KEY_CRT), jsonObject.optString(KEY_ETAG),
-				jsonConverter.fromJson(jsonObject.optString(KEY_BODY), documentType));
+				jsonConverter.get().fromJson(jsonObject.optString(KEY_BODY), documentType));
 	}
 
 
@@ -91,7 +89,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	String toJson(RapidJsonConverter jsonConverter)
+	String toJson(JsonConverterProvider jsonConverter)
 	{
 		try
 		{
@@ -100,7 +98,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 			if(etag != null)
 				jsonBody.put(KEY_ETAG, etag);
 			if (body != null)
-				jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.toJson(body)));
+				jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.get().toJson(body)));
 
 			return jsonBody.toString();
 		}

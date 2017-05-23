@@ -21,7 +21,7 @@ public class Rapid {
 	private static Map<String, Rapid> sInstances = new HashMap<>();
 	private static Context sApplicationContext;
 	private final String mApiKey;
-	private RapidJsonConverter mJsonConverter;
+	private JsonConverterProvider mJsonConverter;
 	private RapidConnection mRapidConnection;
 	private CollectionProvider mCollectionProvider;
 	private RapidLogger mLogger = new RapidLogger();
@@ -33,7 +33,7 @@ public class Rapid {
 		mLogger.logI("Initializing Rapid.io SDK with API key: %s", apiKey);
 
 		mApiKey = apiKey;
-		mJsonConverter = new RapidGsonConverter();
+		mJsonConverter = new JsonConverterProvider(new RapidGsonConverter());
 		Handler handler = new Handler();
 
 		AppMetadata appMetadata = new AppMetadata(apiKey);
@@ -247,7 +247,7 @@ public class Rapid {
 	 * @return RapidJsonConverter
 	 */
 	public RapidJsonConverter getJsonConverter() {
-		return mJsonConverter;
+		return mJsonConverter.get();
 	}
 
 
@@ -259,7 +259,7 @@ public class Rapid {
 	 * @param jsonConverter Custom JSON converter
 	 */
 	public void setJsonConverter(RapidJsonConverter jsonConverter) {
-		mJsonConverter = jsonConverter;
+		mJsonConverter.set(jsonConverter);
 	}
 
 

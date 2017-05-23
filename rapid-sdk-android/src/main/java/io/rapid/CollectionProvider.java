@@ -6,19 +6,17 @@ import android.os.Handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.rapid.converter.RapidJsonConverter;
-
 
 class CollectionProvider {
 	private final Handler mOriginalThreadHandler;
-	private final RapidJsonConverter mJsonConverter;
+	private final JsonConverterProvider mJsonConverter;
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mDebugLogger;
 	private RapidConnection mConnection;
 	private Map<String, RapidCollectionReference> mCollections = new HashMap<>();
 
 
-	CollectionProvider(RapidConnection connection, RapidJsonConverter jsonConverter, Handler originalThreadHandler, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
+	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, Handler originalThreadHandler, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mOriginalThreadHandler = originalThreadHandler;
