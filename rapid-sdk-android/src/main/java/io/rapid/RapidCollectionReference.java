@@ -809,15 +809,28 @@ public class RapidCollectionReference<T> {
 
 
 	/**
-	 * Subscribes to a collection using query
-	 * @param callback
-	 * @return
+	 * Subscribes to a collection using query built using fluent interface before calling this method
+	 * <p>
+	 * Use {@link #subscribeWithListUpdates(RapidCallback.CollectionUpdates)} to receive list update metadata (list refresh, item moved, item removed, item added)
+	 *
+	 * @param callback callback function to receive collection updates as list of documents
+	 * @return subscription with ability to unsubscribe, add error listener, etc.
 	 */
 	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback) {
 		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 	}
 
 
+	/**
+	 * Subscribes to a collection using query built using fluent interface before calling this method
+	 * <p>
+	 * Together with list of documents callback will receive list update metadata (list refresh, item moved, item removed, item added)
+	 * <p>
+	 * See {@link ListUpdate}
+	 *
+	 * @param callback callback function to receive collection updates as list of documents and list update metadata
+	 * @return subscription with ability to unsubscribe, add error listener, etc.
+	 */
 	public RapidCollectionSubscription subscribeWithListUpdates(RapidCallback.CollectionUpdates<T> callback) {
 		mSubscription.setCallback(callback);
 		mConnection.subscribe(mSubscription);
@@ -828,6 +841,11 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	/**
+	 * Fetch one-time collection snapshot using query built using fluent interface before calling this method
+	 *
+	 * @param callback callback function to receive collection updates as list of documents
+	 */
 	public void fetch(RapidCallback.Collection<T> callback) {
 		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 		mConnection.fetch(mSubscription);
@@ -835,22 +853,18 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	/**
+	 * Convenience method for manipulating data before they are received within subscribe callback.
+	 *
+	 * @param mapFunction function that will transform every single document coming to subscribe callback
+	 * @return collection reference itself
+	 */
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
 		return new RapidCollectionMapReference<>(this, mapFunction);
 	}
 
 
-	public void onRemove(String subscriptionId, String documentJson) {
-		mConnection.onRemove(subscriptionId, documentJson);
-	}
-
-
 	// Private
-
-
-	public void onFetchResult(String fetchId, String documentsJson) {
-		mConnection.onFetchResult(fetchId, documentsJson);
-	}
 
 
 	void resubscribe() {
@@ -880,6 +894,16 @@ public class RapidCollectionReference<T> {
 
 	void onUpdate(String subscriptionId, String documents) {
 		mConnection.onUpdate(subscriptionId, documents);
+	}
+
+
+	void onRemove(String subscriptionId, String documentJson) {
+		mConnection.onRemove(subscriptionId, documentJson);
+	}
+
+
+	void onFetchResult(String fetchId, String documentsJson) {
+		mConnection.onFetchResult(fetchId, documentsJson);
 	}
 
 
