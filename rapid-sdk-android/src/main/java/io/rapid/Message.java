@@ -107,7 +107,8 @@ abstract class Message {
 			INTERNAL_ERROR("internal-error"),
 			PERMISSION_DENIED("permission-denied"),
 			CONNECTION_TERMINATED("connection-terminated"),
-			INVALID_AUTH_TOKEN("invalid-auth-token");
+			INVALID_AUTH_TOKEN("invalid-auth-token"),
+			ETAG_CONFLICT("etag-conflict");
 
 
 			private String mKey;

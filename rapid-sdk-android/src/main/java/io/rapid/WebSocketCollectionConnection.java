@@ -41,7 +41,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidFuture mutate(String id, T value, String etag) {
+	public RapidFuture mutate(String id, T value, Etag etag) {
 		RapidDocument<T> doc = new RapidDocument<>(id, value, etag);
 
 		if(value == null) {
@@ -207,8 +207,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void onError(String subscriptionId, RapidError error) {
 		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
-		if(subscription != null)
-		{
+		if(subscription != null) {
 			subscription.invokeError(error);
 			mSubscriptions.remove(subscription.getSubscriptionId());
 		}
@@ -324,17 +323,18 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	private void applyValueToSubscription(Subscription subscription, String documents, boolean fromCache) {
+		List<RapidDocument<T>> parsedDocs = parseDocumentList(documents);
 		if(subscription instanceof RapidDocumentSubscription) {
-			((RapidDocumentSubscription) subscription).setDocument(parseDocumentList(documents).get(0));
+			((RapidDocumentSubscription) subscription).setDocument(parsedDocs.isEmpty() ? null : parsedDocs.get(0));
 		} else if(subscription instanceof RapidCollectionSubscription) {
-			((RapidCollectionSubscription) subscription).setDocuments(parseDocumentList(documents), fromCache);
+			((RapidCollectionSubscription) subscription).setDocuments(parsedDocs, fromCache);
 		}
 	}
 
 
 	private void applyValueToSubscription(Subscription subscription, List<RapidDocument<T>> documents, boolean fromCache) {
 		if(subscription instanceof RapidDocumentSubscription) {
-			((RapidDocumentSubscription) subscription).setDocument(documents.get(0));
+			((RapidDocumentSubscription) subscription).setDocument(documents.isEmpty() ? null : documents.get(0));
 		} else if(subscription instanceof RapidCollectionSubscription) {
 			((RapidCollectionSubscription) subscription).setDocuments(documents, fromCache);
 		}

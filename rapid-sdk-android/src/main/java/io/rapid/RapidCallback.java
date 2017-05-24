@@ -16,7 +16,7 @@ public class RapidCallback {
 
 
 	public interface Document<T> {
-		void onValueChanged(RapidDocument<T> value);
+		void onValueChanged(RapidDocument<T> document);
 	}
 
 

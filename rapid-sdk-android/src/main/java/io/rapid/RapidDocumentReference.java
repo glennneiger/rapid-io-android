@@ -72,7 +72,7 @@ public class RapidDocumentReference<T> {
 	 * @param etag etag value expected to be present on backend
 	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
 	 */
-	public RapidFuture mutate(T item, String etag) {
+	public RapidFuture mutate(T item, Etag etag) {
 		return mImpl.mutate(mId, item, etag);
 	}
 
@@ -93,7 +93,7 @@ public class RapidDocumentReference<T> {
 		RapidFuture result = new RapidFuture(mUiThreadHandler);
 		fetch(document -> {
 					T updated = documentTransformer.getMutatedDocument(document);
-					mutate(updated, document.getEtag()).onError(error -> {
+					mutate(updated, document != null ? document.getEtag() : Etag.NO_ETAG).onError(error -> {
 						if(error.getType() == RapidError.ErrorType.ETAG_CONFLICT) {
 							concurrencySafeMutate(documentTransformer)
 									.onSuccess(result::invokeSuccess)
@@ -126,7 +126,7 @@ public class RapidDocumentReference<T> {
 	 * @param etag etag value expected to be present on backend
 	 * @return
 	 */
-	public RapidFuture delete(String etag) {
+	public RapidFuture delete(Etag etag) {
 		return mImpl.mutate(mId, null, etag);
 	}
 

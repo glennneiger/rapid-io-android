@@ -22,11 +22,11 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	private String createdTimestamp;
 	private List<String> sorting;
 	private EntityOrder order;
-	private String etag;
+	private Etag etag;
 	private T body;
 
 
-	RapidDocument(String id, List<String> sortingKey, String createdTimestamp, String etag, T value) {
+	RapidDocument(String id, List<String> sortingKey, String createdTimestamp, Etag etag, T value) {
 		this.id = id;
 		this.sorting = sortingKey;
 		this.createdTimestamp = createdTimestamp;
@@ -36,7 +36,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	RapidDocument(String id, T value, String etag) {
+	RapidDocument(String id, T value, Etag etag) {
 		this.id = id;
 		body = value;
 		this.etag = etag;
@@ -53,7 +53,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 				sortingList.add(sortingJSONArray.optString(i));
 			}
 		}
-		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optString(KEY_CRT), jsonObject.optString(KEY_ETAG),
+		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optString(KEY_CRT), Etag.fromValue(jsonObject.optString(KEY_ETAG)),
 				jsonConverter.get().fromJson(jsonObject.optString(KEY_BODY), documentType));
 	}
 
@@ -96,7 +96,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 			JSONObject jsonBody = new JSONObject();
 			jsonBody.put(KEY_ID, id);
 			if(etag != null)
-				jsonBody.put(KEY_ETAG, etag);
+				jsonBody.put(KEY_ETAG, etag.getSerialized());
 			if (body != null)
 				jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.get().toJson(body)));
 
@@ -130,7 +130,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	public String getEtag() {
+	public Etag getEtag() {
 		return etag;
 	}
 
