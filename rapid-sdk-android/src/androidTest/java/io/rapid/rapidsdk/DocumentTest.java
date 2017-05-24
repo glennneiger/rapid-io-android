@@ -53,7 +53,7 @@ public class DocumentTest extends BaseRapidTest {
 
 
 	@Test
-	public void testConcurencySafety() throws InterruptedException {
+	public void testConcurrencySafety() throws InterruptedException {
 		int n = 10;
 		String id = UUID.randomUUID().toString();
 		CountDownLatch lock = new CountDownLatch(n);

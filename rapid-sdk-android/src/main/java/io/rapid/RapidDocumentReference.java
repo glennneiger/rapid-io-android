@@ -143,7 +143,7 @@ public class RapidDocumentReference<T> {
 	 * @param documentDeleteTransformer function responsible for deleting the latest version of document available on backend - return true if document should be deleted
 	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
 	 */
-	public RapidFuture safeDelete(DocumentDeleteTransformer<T> documentDeleteTransformer) {
+	public RapidFuture concurrencySafeDelete(DocumentDeleteTransformer<T> documentDeleteTransformer) {
 		return concurrencySafeMutate(oldDocument -> documentDeleteTransformer.shouldDeleteDocument(oldDocument) ? null : oldDocument.getBody());
 	}
 
