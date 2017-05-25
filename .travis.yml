@@ -37,7 +37,9 @@ before_script:
 script:
 # Unit tests
   - ./gradlew testReleaseUnitTest
+
 # Instrumented tests
   - ./gradlew rapid-sdk-android:connectedAndroidTest
+
 # If successful and Git TAG exists - publish to Bintray
   - '[[ -z $TRAVIS_TAG ]]  || ./gradlew bintrayUpload -q'
