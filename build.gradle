@@ -22,7 +22,6 @@ ext{
 
 buildscript {
 
-	ext.kotlin_version = '1.1.0'
 	ext.android_plugin_version = '2.3.1'
 	ext.play_services_plugin_version = '3.0.0'
 
@@ -35,7 +34,6 @@ buildscript {
 		classpath 'me.tatarka:gradle-retrolambda:3.6.0'
 		classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
 		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 		classpath "com.google.gms:google-services:$play_services_plugin_version"
 	}
 }
