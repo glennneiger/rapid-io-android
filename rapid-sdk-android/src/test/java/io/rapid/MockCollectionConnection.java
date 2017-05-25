@@ -3,9 +3,8 @@ package io.rapid;
 
 class MockCollectionConnection<T> implements CollectionConnection<T> {
 
-
 	@Override
-	public RapidFuture mutate(String id, T value) {
+	public RapidFuture mutate(String id, T value, Etag etag) {
 		return null;
 	}
 
@@ -18,6 +17,12 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onValue(String subscriptionId, String documents) {
+
+	}
+
+
+	@Override
+	public void onFetchResult(String fetchId, String documentsJson) {
 
 	}
 
@@ -54,6 +59,12 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onRemove(String subscriptionId, String document) {
+
+	}
+
+
+	@Override
+	public void fetch(Subscription<T> subscription) {
 
 	}
 }

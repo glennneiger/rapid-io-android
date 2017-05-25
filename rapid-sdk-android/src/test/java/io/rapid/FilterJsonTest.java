@@ -6,9 +6,6 @@ import android.support.annotation.NonNull;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.util.Arrays;
-import java.util.List;
-
 import io.rapid.base.BaseTest;
 import io.rapid.converter.RapidGsonConverter;
 
@@ -138,7 +135,7 @@ public class FilterJsonTest extends BaseTest {
 				.subscribe(rapidDocuments -> {
 				});
 
-		String json = "{\"and\":[{\"and\":[{\"and\":[{\"price\":{\"gte\":3}},{\"price\":{\"lte\":5.9}}]}]}]}";
+		String json = "{\"and\":[{\"and\":[{\"price\":{\"gte\":3}},{\"price\":{\"lte\":5.9}}]}]}";
 		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 
@@ -173,7 +170,7 @@ public class FilterJsonTest extends BaseTest {
 				.skip(10)
 				.subscribe(rapidDocuments -> {
 				});
-		JSONAssert.assertEquals(subscription.getFilter().toJson(), "{\"and\":[{\"model\":\"A5\"}]}", false);
+		JSONAssert.assertEquals(subscription.getFilter().toJson(), "{\"model\":\"A5\"}", false);
 		JSONAssert.assertEquals(subscription.getOrder().toJson().toString(), "[{\"p1\":\"asc\"}]", false);
 		assertEquals(10, subscription.getSkip());
 
@@ -182,7 +179,7 @@ public class FilterJsonTest extends BaseTest {
 				.orderBy("p2")
 				.subscribe(rapidDocuments -> {
 				});
-		JSONAssert.assertEquals(subscription2.getFilter().toJson(), "{\"and\":[{\"model2\":\"A1\"}]}", false);
+		JSONAssert.assertEquals(subscription2.getFilter().toJson(), "{\"model2\":\"A1\"}", false);
 		JSONAssert.assertEquals(subscription2.getOrder().toJson().toString(), "[{\"p2\":\"asc\"}]", false);
 		assertEquals(0, subscription2.getSkip());
 
@@ -191,18 +188,17 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test
 	public void test_array_filters() throws Exception {
-		List<String> values = Arrays.asList("a", "b", "c");
 		Subscription sub = getNewCollection()
-				.in("prop", values).subscribe(rapidDocuments -> {});
+				.arrayContains("prop", "a").subscribe(rapidDocuments -> {});
 
-		String json = "{\"and\":[{\"prop\":{\"arr-cnt\":[\"a\",\"b\",\"c\"]}}]}";
+		String json = "{\"prop\":{\"arr-cnt\":\"a\"}}";
 
 		assertEquals(sub.getFilter().toJson(), json);
 	}
 
 
 	@NonNull
-	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection", new Handler(), new RapidGsonConverter());}
+	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection", new Handler(), new JsonConverterProvider(new RapidGsonConverter()));}
 
 
 }
