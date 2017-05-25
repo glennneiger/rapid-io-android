@@ -56,8 +56,10 @@ class SubscriptionMemoryCache<T> {
 		List<String> documentIdList = new ArrayList<>();
 		if(value != null) {
 			for(RapidDocument<T> document : value) {
-				documentIdList.add(document.getId());
-				mDocumentCache.put(document.getId(), document);
+				if (document != null) {
+					documentIdList.add(document.getId());
+					mDocumentCache.put(document.getId(), document);
+				}
 			}
 
 			mSubscriptionCache.put(fingerprint, documentIdList);
