@@ -846,10 +846,14 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @param callback callback function to receive collection updates as list of documents
 	 */
-	public void fetch(RapidCallback.Collection<T> callback) {
+	public RapidCollectionSubscription<T> fetch(RapidCallback.Collection<T> callback) {
 		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 		mConnection.fetch(mSubscription);
 		initSubscription();
+
+		RapidCollectionSubscription<T> temp = mSubscription;
+		initSubscription();
+		return temp;
 	}
 
 

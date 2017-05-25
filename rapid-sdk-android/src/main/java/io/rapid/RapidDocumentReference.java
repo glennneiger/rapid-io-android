@@ -153,9 +153,10 @@ public class RapidDocumentReference<T> {
 	 *
 	 * @param callback callback function providing updated document on Main thread
 	 */
-	public void subscribe(RapidCallback.Document<T> callback) {
+	public RapidDocumentSubscription<T> subscribe(RapidCallback.Document<T> callback) {
 		mSubscription.setCallback(callback);
 		mImpl.subscribe(mSubscription);
+		return mSubscription;
 	}
 
 
@@ -164,8 +165,9 @@ public class RapidDocumentReference<T> {
 	 *
 	 * @param callback callback function providing document value on Main thread
 	 */
-	public void fetch(RapidCallback.Document<T> callback) {
+	public RapidDocumentSubscription<T> fetch(RapidCallback.Document<T> callback) {
 		mSubscription.setCallback(callback);
 		mImpl.fetch(mSubscription);
+		return mSubscription;
 	}
 }

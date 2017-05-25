@@ -3,8 +3,6 @@ package io.rapid.rapidsdk;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +39,7 @@ public class CollectionTest extends BaseRapidTest {
 		for(int i = 0; i < 10; i++) {
 			collection.newDocument().mutate(new Car("car", 0))
 					.onSuccess(lock::countDown)
-					.onError(error -> Assert.fail());
+					.onError(error -> fail(error.getMessage()));
 		}
 		lock.await();
 
@@ -53,10 +51,10 @@ public class CollectionTest extends BaseRapidTest {
 
 		int m = 2;
 		collection.limit(m).fetch(rapidDocuments -> {
-			assertEquals(m+1, rapidDocuments.size());
+			assertEquals(m+1
+					, rapidDocuments.size());
 			unlockAsync();
-		});
-		fail(); // TODO: cannot add error callback for fetch()
+		}).onError(error -> fail(error.getMessage()));
 		lockAsync();
 
 
