@@ -40,7 +40,6 @@ dependencies {
 	compile 'cz.kinst.jakub:viewmodelbinding:2.0.0'
 	compile 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter:2.0.1'
 	compile 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter-recyclerview:2.0.1'
-	compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
 
 	compile 'com.google.firebase:firebase-core:10.2.1'
 	compile 'com.google.firebase:firebase-database:10.2.1'
