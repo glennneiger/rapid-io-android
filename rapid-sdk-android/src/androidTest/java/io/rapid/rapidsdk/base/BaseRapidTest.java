@@ -15,7 +15,6 @@ public class BaseRapidTest {
 
 	@Before
 	public void prepareRapid() {
-		mAsyncLock = new AsyncLock();
 		InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
 			Rapid.initialize("MTMuNjQuNzcuMjAyOjgwODA=");
 			Rapid.getInstance().authorize("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbklkIjoiMGU0NzAyOWUtMDY2OC00NGRhLWFkMDItZWQ4N2E5MmQzY2E4IiwicnVsZXMiOlt7ImNvbGxlY3Rpb24iOiIuKiIsInJlYWQiOnRydWUsImNyZWF0ZSI6dHJ1ZSwidXBkYXRlIjp0cnVlLCJkZWxldGUiOnRydWV9XX0.dV5Z67kgjpaD7jWzOTtmZJBsx_kcapcy2dZ2YCM4m-o");
@@ -24,6 +23,7 @@ public class BaseRapidTest {
 
 
 	protected void lockAsync() {
+		mAsyncLock = new AsyncLock();
 		mAsyncLock.lock();
 	}
 

@@ -849,7 +849,6 @@ public class RapidCollectionReference<T> {
 	public RapidCollectionSubscription<T> fetch(RapidCallback.Collection<T> callback) {
 		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 		mConnection.fetch(mSubscription);
-		initSubscription();
 
 		RapidCollectionSubscription<T> temp = mSubscription;
 		initSubscription();

@@ -30,13 +30,18 @@ public class CollectionTest extends BaseRapidTest {
 
 	@Test
 	public void testLimit() throws InterruptedException {
+		testLimit(10, 1);
+		testLimit(10, 10);
+		testLimit(10, 20);
+	}
+
+
+	private void testLimit(int numDocs, int limit) throws InterruptedException {
 		RapidCollectionReference<Car> collection = Rapid.getInstance().collection("android_instr_test_002_" + UUID.randomUUID().toString(), Car.class);
 
-		int n = 10;
-
 		// add n documents
-		CountDownLatch lock = new CountDownLatch(n);
-		for(int i = 0; i < 10; i++) {
+		CountDownLatch lock = new CountDownLatch(numDocs);
+		for(int i = 0; i < numDocs; i++) {
 			collection.newDocument().mutate(new Car("car", 0))
 					.onSuccess(lock::countDown)
 					.onError(error -> fail(error.getMessage()));
@@ -44,20 +49,18 @@ public class CollectionTest extends BaseRapidTest {
 		lock.await();
 
 		collection.fetch(rapidDocuments -> {
-			assertEquals(n, rapidDocuments.size());
+			assertEquals(numDocs, rapidDocuments.size());
 			unlockAsync();
 		});
 		lockAsync();
 
-		int m = 2;
-		collection.limit(m).fetch(rapidDocuments -> {
-			assertEquals(m+1
-					, rapidDocuments.size());
+		collection.limit(limit).fetch(rapidDocuments -> {
+			assertEquals(Math.min(limit, numDocs), rapidDocuments.size());
 			unlockAsync();
-		}).onError(error -> fail(error.getMessage()));
+		}).onError(error -> {
+			fail(error.getMessage());
+		});
 		lockAsync();
-
-
 	}
 
 
