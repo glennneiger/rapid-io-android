@@ -1,19 +1,23 @@
-# Rapid.io SDK for Android
+![Rapid.io](extras/rapid.svg)
+
+# Rapid.io real-time database SDK  for Android
 [![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android)
 
-Rapid.io SDK for Android is an SDK written in Java for accessing Rapid.io realtime database.
 
-## Features
+## Installation
 
-- [-] Connect to Rapid.io database
-- [-] Subscribe to changes
-- [-] Mutate database
-- [-] Authenticate
-- [-] Complete Documentation
+```groovy
+compile 'io.rapid:rapid-sdk-android:0.0.5-alpha'
+```
 
-## Requirements
 
-- Android API level 15
+## Documentation
+
+For complete documentation visit [Rapid.io](https://www.rapid.io)
+
+### API Reference
+[JavaDoc API Reference](https://rapid-sdk.github.io/android/)
+
 
 ## Communication
 
@@ -21,48 +25,31 @@ Rapid.io SDK for Android is an SDK written in Java for accessing Rapid.io realti
 - If you **have a feature request**, open an issue.
 - If you **want to contribute**, submit a pull request.
 
-## Installation
+### Security Disclosure
 
-```groovy
-compile 'io.rapid:rapid-sdk-android:0.0.1-alpha'
-```
+If you believe you have identified a security vulnerability with Rapid Android SDK, you should report it as soon as possible via email to [security@rapid.io](mailto:security@rapid.io). Please do not post it to a public issue tracker.
 
-## Usage
 
-### Initialization
-```java
-Rapid.initialize("<API_KEY>");
-```
-or add this to your AndroidManifest.xml file
-```xml
-<meta-data android:name="io.rapid.apikey" android:value="<API_KEY>" />
-```
+## Building
 
-### API Reference
-[JavaDoc](https://rapid-sdk.github.io/android/)
-
-## Build
-## Publishing
+### Publishing
 `./gradlew install` - deploy to local Maven Repository
 
 `./gradlew bintrayUpload` - deploy to jCenter using Bintray API (for this to work you need to have Bintray API key set as an environment variable named `RAPID_BINTRAY_API_KEY`)
 
+### Documentation
+`./gradlew generateReleaseJavadoc` - generates sdk API reference to `/docs` directory
+
 ### Version name
 Library version name is always based on the last Git tag name in current branch
 
-## Documentation
-`./gradlew generateReleaseJavadoc` - generates sdk API reference to `/docs` directory
-
-
 ## Changelog
+
 
 ## Credits
 
-Rapid iOS SDK is owned and maintained by the [Rapid.io](http://www.rapid.io).
+Rapid.io Android SDK is owned and maintained by the [Rapid.io](http://www.rapid.io)
 
-### Security Disclosure
-
-If you believe you have identified a security vulnerability with Rapid Android SDK, you should report it as soon as possible via email to security@rapid.io. Please do not post it to a public issue tracker.
 
 ## License
     Copyright 2017 Rapid.io
