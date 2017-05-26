@@ -1,4 +1,4 @@
-![Rapid.io](extras/rapid.svg)
+![Rapid.io](extras/rapid.png)
 
 # Rapid.io real-time database SDK  for Android
 [![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android)
