@@ -476,7 +476,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					messageFuture.getRapidFuture().invokeError(error);
 					if(messageFuture.getMessage() instanceof Message.Mut || messageFuture.getMessage() instanceof Message.Del)
 						mPendingMutationCount--;
-					if(messageFuture.getMessage() instanceof Message.Sub) mSubscriptionCount--;
+					if(messageFuture.getMessage() instanceof Message.Sub || messageFuture.getMessage() instanceof Message.Ftc)
+						mSubscriptionCount--;
 					mSentMessageList.remove(position);
 				}
 
