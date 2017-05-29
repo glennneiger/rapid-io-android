@@ -29,6 +29,7 @@ public class CollectionTest extends BaseRapidTest {
 
 	@Before
 	public void init() {
+		prepareRapid();
 	}
 
 

@@ -20,7 +20,7 @@ import static io.rapid.Config.HB_PERIOD;
 import static io.rapid.ConnectionState.CONNECTED;
 import static io.rapid.ConnectionState.CONNECTING;
 import static io.rapid.ConnectionState.DISCONNECTED;
-import static io.rapid.RapidError.ErrorType.SUBSCRIPTION_CANCELED;
+import static io.rapid.RapidError.ErrorType.SUBSCRIPTION_CANCELLED;
 import static io.rapid.RapidError.ErrorType.TIMEOUT;
 
 
@@ -45,6 +45,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private boolean mCheckRunning = false;
 	private Handler mCheckHandler = new Handler();
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
+	private Runnable mCheckRunnable = () ->
+	{
+		startCheckHandler();
+		check();
+	};
 	private Runnable mDisconnectRunnable = () -> {
 		disconnectWebSocketConnection(true);
 	};
@@ -65,11 +70,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 	};
 	private Runnable mConnectionRetryRunnable = this::createWebSocketConnectionIfNeeded;
-	private Runnable mCheckRunnable = () ->
-	{
-		startCheckHandler();
-		check();
-	};
 
 
 	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger) {
@@ -135,6 +135,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
 		} else if(message.getMessageType() == MessageType.RES) {
 			Message.Res resMessage = ((Message.Res) message);
+			handleResMessage(resMessage);
 			mCallback.onFetchResult(resMessage.getFetchId(), resMessage.getCollectionId(), resMessage.getDocuments());
 		} else if(message.getMessageType() == MessageType.UPD) {
 			Message.Upd updMessage = ((Message.Upd) message);
@@ -173,6 +174,12 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
+	@Override
+	public RapidFuture authorize(String token) {
+		return mAuth.authorize(token);
+	}
+
+
 //	@Override
 //	public void onError(Exception ex)
 //	{
@@ -182,12 +189,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 //		stopCheckHandler();
 //		//TODO invoke error to user
 //	}
-
-
-	@Override
-	public RapidFuture authorize(String token) {
-		return mAuth.authorize(token);
-	}
 
 
 	@Override
@@ -249,6 +250,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		messageFtc.setOrder(subscription.getOrder());
 		messageFtc.setSkip(subscription.getSkip());
 
+		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
 		RapidFuture future = sendMessage(() -> messageFtc);
 		future.onError(error -> mCallback.onError(fetchId, subscription.getCollectionName(), error));
@@ -295,6 +297,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public void setConnectionTimeout(long connectionTimeoutMs) {
 		mConnectionTimeout = connectionTimeoutMs;
+	}
+
+
+	private void handleResMessage(Message.Res resMessage) {
+		mSubscriptionCount--;
 	}
 
 
@@ -467,7 +474,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					RapidError error = new RapidError(RapidError.ErrorType.fromServerError(message));
 					mLogger.logE(error);
 					messageFuture.getRapidFuture().invokeError(error);
-					if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
+					if(messageFuture.getMessage() instanceof Message.Mut || messageFuture.getMessage() instanceof Message.Del)
+						mPendingMutationCount--;
 					if(messageFuture.getMessage() instanceof Message.Sub) mSubscriptionCount--;
 					mSentMessageList.remove(position);
 				}
@@ -482,7 +490,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private synchronized void handleCaMessage(Message.Ca message) {
 		mSubscriptionCount--;
 		disconnectWebSocketConnectionIfNeeded();
-		getCallback().onError(message.getSubscriptionId(), message.getCollectionId(), new RapidError(SUBSCRIPTION_CANCELED));
+		getCallback().onError(message.getSubscriptionId(), message.getCollectionId(), new RapidError(SUBSCRIPTION_CANCELLED));
 	}
 
 
@@ -500,7 +508,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(position != -1) {
 			MessageFuture messageFuture = mSentMessageList.get(position);
 			messageFuture.getRapidFuture().invokeSuccess();
-			if(messageFuture.getMessage() instanceof Message.Mut) mPendingMutationCount--;
+			if(messageFuture.getMessage() instanceof Message.Mut || messageFuture.getMessage() instanceof Message.Del)
+				mPendingMutationCount--;
 //			if(messageFuture.getMessage() instanceof Message.Auth) {
 //				mAuth.authSuccess();
 //			}

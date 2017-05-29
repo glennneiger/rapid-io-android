@@ -35,6 +35,7 @@ public class DocumentTest extends BaseRapidTest {
 
 	@Before
 	public void init() {
+		prepareRapid();
 		mCollection = Rapid.getInstance().collection("android_instr_test_001", Car.class);
 	}
 
