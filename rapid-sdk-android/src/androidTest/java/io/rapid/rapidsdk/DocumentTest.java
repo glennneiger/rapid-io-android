@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import io.rapid.Etag;
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
+import io.rapid.RapidDocumentExecutor;
 import io.rapid.RapidDocumentReference;
 import io.rapid.RapidError;
 import io.rapid.rapidsdk.base.BaseRapidTest;
@@ -61,7 +62,7 @@ public class DocumentTest extends BaseRapidTest {
 		String id = UUID.randomUUID().toString();
 		CountDownLatch lock = new CountDownLatch(n);
 		for(int i = 0; i < n; i++) {
-			mCollection.document(id).concurrencySafeMutate(oldDocument -> {
+			mCollection.document(id).execute(oldDocument -> {
 				Car car;
 				if(oldDocument == null)
 					car = new Car("car_x", 1);
@@ -69,7 +70,7 @@ public class DocumentTest extends BaseRapidTest {
 					car = oldDocument.getBody();
 					car.setNumber(car.getNumber() + 1);
 				}
-				return car;
+				return RapidDocumentExecutor.mutate(car);
 			}).onCompleted(lock::countDown);
 		}
 		lock.await();

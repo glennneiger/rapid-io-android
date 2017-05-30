@@ -19,11 +19,6 @@ public class RapidDocumentReference<T> {
 	private Handler mUiThreadHandler;
 
 
-	public interface DocumentTransformer<T> {
-		T getMutatedDocument(RapidDocument<T> oldDocument);
-	}
-
-
 	public interface DocumentDeleteTransformer<T> {
 		boolean shouldDeleteDocument(RapidDocument<T> oldDocument);
 	}
@@ -78,30 +73,35 @@ public class RapidDocumentReference<T> {
 
 
 	/**
-	 * Concurrency-safe mutate document (set new value)
+	 * Concurrency-safe mutate/delete document (set new value)
 	 * <p>
 	 * When you provide document transformer, this operation will safely update document value,
-	 * because within documentTransformer you can be sure you are updating the latest version available on backend.
+	 * because within documentExecutor you can be sure you are updating the latest version available on backend.
 	 * <p>
 	 * The SDK will automatically try to update the document until there is no conflicting version on backend so the document
 	 * transformer function may be called multiple times.
 	 *
-	 * @param documentTransformer function responsible for updating the latest version of document available on backend
+	 * @param documentExecutor function responsible for updating the latest version of document available on backend
+	 *                         you need to return one of `RapidDocumentExecutor.mutate(value)`, `RapidDocumentExecutor.delete()` or `RapidDocumentExecutor.cancel()`
 	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
 	 */
-	public RapidFuture concurrencySafeMutate(DocumentTransformer<T> documentTransformer) {
+	public RapidFuture execute(RapidDocumentExecutor.Callback<T> documentExecutor) {
 		RapidFuture result = new RapidFuture(mUiThreadHandler);
 		fetch(document -> {
-					T updated = documentTransformer.getMutatedDocument(document);
-					mutate(updated, document != null ? document.getEtag() : Etag.NO_ETAG).onError(error -> {
-						if(error.getType() == RapidError.ErrorType.ETAG_CONFLICT) {
-							concurrencySafeMutate(documentTransformer)
-									.onSuccess(result::invokeSuccess)
-									.onError(result::invokeError);
-						} else {
-							result.invokeError(error);
-						}
-					}).onSuccess(result::invokeSuccess);
+					RapidDocumentExecutor.Result<T> executorResult = documentExecutor.execute(document);
+					if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_CANCEL) {
+						result.invokeSuccess();
+					} else if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_MUTATE) {
+						mutate(executorResult.getValue(), document != null ? document.getEtag() : Etag.NO_ETAG).onError(error -> {
+							if(error.getType() == RapidError.ErrorType.ETAG_CONFLICT) {
+								execute(documentExecutor)
+										.onSuccess(result::invokeSuccess)
+										.onError(result::invokeError);
+							} else {
+								result.invokeError(error);
+							}
+						}).onSuccess(result::invokeSuccess);
+					}
 				}
 		);
 		return result;
@@ -128,23 +128,6 @@ public class RapidDocumentReference<T> {
 	 */
 	public RapidFuture delete(Etag etag) {
 		return mImpl.mutate(mId, null, etag);
-	}
-
-
-	/**
-	 * Concurrency-safe mutate document (set new value)
-	 * <p>
-	 * When you provide document transformer, this operation will safely delete document value,
-	 * because within documentTransformer you can be sure you are updating the latest version available on backend.
-	 * <p>
-	 * The SDK will automatically try to delete the document until there is no conflicting version on backend so the document
-	 * transformer function may be called multiple times.
-	 *
-	 * @param documentDeleteTransformer function responsible for deleting the latest version of document available on backend - return true if document should be deleted
-	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
-	 */
-	public RapidFuture concurrencySafeDelete(DocumentDeleteTransformer<T> documentDeleteTransformer) {
-		return concurrencySafeMutate(oldDocument -> documentDeleteTransformer.shouldDeleteDocument(oldDocument) ? null : oldDocument.getBody());
 	}
 
 

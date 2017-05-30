@@ -17,6 +17,7 @@ import io.rapid.Sorting;
 public class SampleUsage {
 
 	private static final String RAPID_API_KEY = "sdafh87923jweql2393rfksad";
+	private static final String TAG = "sample";
 
 
 	public static void sampleMethod() {
@@ -182,6 +183,42 @@ public class SampleUsage {
 		Rapid.getInstance().collection("maps").subscribe(rapidDocuments -> {
 			Map<String, Object> map = rapidDocuments.get(0).getBody();
 		});
+
+//		Rapid.initialize("<API KEY>");
+//
+//		Rapid.getInstance().collection("todo-list", Todo.class)
+//				.equalTo("completed", false)
+//				.orderBy("priority", Sorting.DESC)
+//				.subscribeWithListUpdates((tasks, listUpdate) -> {
+//					Log.d(TAG, "My todo list: " + tasks);
+//					adapter.setItems(tasks);
+//					listUpdate.dispatchUpdateTo(adapter);
+//				});
+
+
+//		// connect with your API key
+//		Rapid.initialize("<API KEY>");
+//
+//		// reference a collection name 'my-todo-list'
+//		RapidCollectionReference<Todo> todos =
+//				Rapid.getInstance().collection("my-todo-list", Todo.class);
+//
+//		// reference a document id 'my-todo-1'
+//		RapidDocumentReference<Todo> todo1 = todos.document("my-todo-1");
+//
+//		// reference a new document
+//		RapidDocumentReference<Todo> newTodo = todos.newDocument();
+
+
+		// subscribe to all to-dos with 'priority' parameter set to 'high'
+//		Rapid.getInstance().collection("my-todo-list")
+//				.equalTo("priority", Todo.Priority.HIGH)
+//				.subscribe(todos -> {
+//					// this will be called once and then every time a document is
+//					// added, updated or removed from a subset
+//					// TODO: update user interface
+//					Log.d(TAG, todos.toString());
+//				});
 
 	}
 
