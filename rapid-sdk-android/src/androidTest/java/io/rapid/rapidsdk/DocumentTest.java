@@ -134,7 +134,7 @@ public class DocumentTest extends BaseRapidTest {
 
 		mCollection.document(id).mutate(new Car("car", 0), Etag.NO_ETAG)
 				.onError(error -> fail())
-				.onSuccess(this::unlockAsync);
+				.onSuccess(() -> unlockAsync());
 		lockAsync();
 	}
 
