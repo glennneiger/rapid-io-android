@@ -19,6 +19,7 @@ import io.rapid.RapidDocument;
 import io.rapid.rapidsdk.base.BaseRapidTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 
@@ -68,6 +69,22 @@ public class CollectionTest extends BaseRapidTest {
 	}
 
 
+	@Test
+	public void testSubscribe() {
+		RapidCollectionReference<Car> collection = Rapid.getInstance().collection("android_instr_test_003_" + UUID.randomUUID().toString(), Car.class);
+		collection.subscribe(rapidDocuments -> {
+			assertNotNull(rapidDocuments);
+			unlockAsync();
+		}).onError(error -> fail(error.getMessage()));
+		lockAsync();
+
+		collection.newDocument().mutate(new Car("asda", 1))
+				.onSuccess(() -> unlockAsync())
+				.onError(error -> fail(error.getMessage()));
+		lockAsync();
+	}
+
+
 	private void testLimit(int numDocs, int limit) throws InterruptedException {
 		RapidCollectionReference<Car> collection = Rapid.getInstance().collection("android_instr_test_002_" + UUID.randomUUID().toString(), Car.class);
 
@@ -94,4 +111,5 @@ public class CollectionTest extends BaseRapidTest {
 		});
 		lockAsync();
 	}
+
 }
