@@ -18,6 +18,7 @@ import io.rapid.RapidCollectionReference;
 import io.rapid.RapidDocumentExecutor;
 import io.rapid.RapidDocumentReference;
 import io.rapid.RapidError;
+import io.rapid.RapidServerValue;
 import io.rapid.rapidsdk.base.BaseRapidTest;
 
 import static org.junit.Assert.assertEquals;
@@ -134,7 +135,22 @@ public class DocumentTest extends BaseRapidTest {
 
 		mCollection.document(id).mutate(new Car("car", 0), Etag.NO_ETAG)
 				.onError(error -> fail())
-				.onSuccess(this::unlockAsync);
+				.onSuccess(() -> unlockAsync());
+		lockAsync();
+	}
+
+
+	@Test
+	public void testTimestampServerValue() {
+		RapidDocumentReference<Car> doc = mCollection.newDocument();
+		doc.mutate(new Car(RapidServerValue.TIMESTAMP, 0))
+				.onSuccess(() -> unlockAsync())
+				.onError(error -> fail(error.getMessage()));
+		lockAsync();
+
+		doc.fetch(document -> {
+			unlockAsync();
+		}).onError(error -> fail(error.getMessage()));
 		lockAsync();
 	}
 
