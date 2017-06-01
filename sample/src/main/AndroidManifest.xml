@@ -17,6 +17,14 @@
 			</intent-filter>
 		</activity>
 
+		<activity android:name="io.rapid.sample.LifecycleTestActivity" android:label="Lifecycle Test">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+
 		<meta-data
 			android:name="io.rapid.apikey"
 			android:value="MTMuNjQuNzcuMjAyOjgwODA=" />

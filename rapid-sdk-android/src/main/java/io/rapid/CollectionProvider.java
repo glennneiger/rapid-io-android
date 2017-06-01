@@ -13,7 +13,7 @@ class CollectionProvider {
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mDebugLogger;
 	private RapidConnection mConnection;
-	private Map<String, RapidCollectionReference> mCollections = new HashMap<>();
+	private Map<String, CollectionConnection> mCollectionConnections = new HashMap<>();
 
 
 	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, Handler originalThreadHandler, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
@@ -31,37 +31,37 @@ class CollectionProvider {
 
 
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
-		if(!mCollections.containsKey(collectionName))
-			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger), collectionName, mOriginalThreadHandler, mJsonConverter));
-		return mCollections.get(collectionName);
+		if(!mCollectionConnections.containsKey(collectionName))
+			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger));
+		return new RapidCollectionReference<>(mCollectionConnections.get(collectionName), collectionName, mOriginalThreadHandler, mJsonConverter);
 	}
 
 
 	RapidCollectionReference<Map<String, Object>> provideCollection(String collectionName) {
-		if(!mCollections.containsKey(collectionName))
-			mCollections.put(collectionName, new RapidCollectionReference<>(new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger), collectionName, mOriginalThreadHandler, mJsonConverter));
-		return mCollections.get(collectionName);
+		if(!mCollectionConnections.containsKey(collectionName))
+			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger));
+		return new RapidCollectionReference<>(mCollectionConnections.get(collectionName), collectionName, mOriginalThreadHandler, mJsonConverter);
 	}
 
 
-	RapidCollectionReference findCollectionByName(String collectionName) {
-		return mCollections.get(collectionName);
+	CollectionConnection findCollectionByName(String collectionName) {
+		return mCollectionConnections.get(collectionName);
 	}
 
 
 	void resubscribeAll() {
-		for(RapidCollectionReference rapidCollectionReference : mCollections.values()) {
-			if(rapidCollectionReference.isSubscribed()) {
-				rapidCollectionReference.resubscribe();
+		for(CollectionConnection conn : mCollectionConnections.values()) {
+			if(conn.hasActiveSubscription()) {
+				conn.resubscribe();
 			}
 		}
 	}
 
 
 	void timedOutAll() {
-		for(RapidCollectionReference rapidCollectionReference : mCollections.values()) {
-			if(rapidCollectionReference.isSubscribed()) {
-				rapidCollectionReference.onTimedOut();
+		for(CollectionConnection conn : mCollectionConnections.values()) {
+			if(conn.hasActiveSubscription()) {
+				conn.onTimedOut();
 			}
 		}
 	}

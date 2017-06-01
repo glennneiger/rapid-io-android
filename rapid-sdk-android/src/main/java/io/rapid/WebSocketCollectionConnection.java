@@ -65,6 +65,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void fetch(Subscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
+		subscription.setSubscribed(true);
 		mConnection.fetch(subscriptionId, subscription);
 		mSubscriptions.put(subscriptionId, subscription);
 	}
@@ -74,6 +75,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public void subscribe(Subscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);
+		subscription.setSubscribed(true);
 
 		mLogger.logI("Subscribing to collection '%s'", mCollectionName);
 
@@ -168,6 +170,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void onFetchResult(String fetchId, String documentsJson) {
 		Subscription<T> subscription = mSubscriptions.remove(fetchId);
+		subscription.setSubscribed(false);
 		applyValueToSubscription(subscription, documentsJson, false);
 	}
 
@@ -210,6 +213,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		if(subscription != null) {
 			subscription.invokeError(error);
 			mSubscriptions.remove(subscription.getSubscriptionId());
+			subscription.setSubscribed(false);
 		}
 	}
 

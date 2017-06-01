@@ -23,13 +23,12 @@ import io.rapid.LogLevel;
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
+import io.rapid.RapidDocumentExecutor;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
 
 public class MainActivity extends AppCompatActivity implements TodoItemViewModel.TodoItemHandler {
 
-	private final String AUTH_TOKEN =
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJydWxlcyI6W3siY29sbGVjdGlvbiI6Ii4qIiwicmVhZCI6dHJ1ZSwiY3JlYXRlIjp0cnVlLCJ1cGRhdGUiOnRydWUsImRlbGV0ZSI6dHJ1ZX1dfQ.iioOVJkc20bsi97qRAyuBmX7_D0ij22KCq3hwV4jgHc";
 	private RapidCollectionSubscription mSubscription;
 	private ActivityMainBinding mBinding;
 	private MainViewModel mViewModel;
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	@Override
 	public void onDelete(String id, Todo todo) {
-		mTodos.document(id).concurrencySafeDelete(oldDocument -> true)
+		mTodos.document(id).execute(oldDocument -> RapidDocumentExecutor.delete())
 				.onSuccess(() -> log("Deleted"))
 				.onError(error -> Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show());
 	}
@@ -188,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			mToggleAuthMenu.setIcon(icon);
 		}
 
-		Rapid.getInstance().authorize(AUTH_TOKEN)
+		Rapid.getInstance().authorize(Config.MASTER_AUTH_TOKEN)
 				.onSuccess(() -> log("Auth success"))
 				.onError(error -> log("Auth fail: " + error.getMessage()));
 	}
