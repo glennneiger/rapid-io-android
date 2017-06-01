@@ -7,7 +7,7 @@
 ## Installation
 
 ```groovy
-compile 'io.rapid:rapid-sdk-android:0.0.5-alpha'
+compile 'io.rapid:rapid-sdk-android:0.0.7-alpha'
 ```
 
 
@@ -48,7 +48,7 @@ Library version name is always based on the last Git tag name in current branch
 
 ## Credits
 
-Rapid.io Android SDK is owned and maintained by the [Rapid.io](http://www.rapid.io)
+Rapid.io Android SDK is owned and maintained by [Rapid.io](http://www.rapid.io)
 
 
 ## License
