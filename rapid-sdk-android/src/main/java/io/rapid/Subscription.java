@@ -16,7 +16,7 @@ abstract class Subscription<T> {
 	final Handler mUiThreadHandler;
 	private final String mCollectionName;
 	private OnUnsubscribeCallback mOnUnsubscribeCallback;
-	private boolean mSubscribed = true;
+	private boolean mSubscribed;
 	RapidCallback.Error mErrorCallback;
 	private String mSubscriptionId;
 	private String mFingerprintCache;
@@ -81,6 +81,11 @@ abstract class Subscription<T> {
 
 	public String getCollectionName() {
 		return mCollectionName;
+	}
+
+
+	public void setSubscribed(boolean subscribed) {
+		mSubscribed = subscribed;
 	}
 
 

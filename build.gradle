@@ -27,11 +27,12 @@ buildscript {
 
 	repositories {
 		jcenter()
+		maven { url 'https://maven.google.com' }
 	}
 
 	dependencies {
 		classpath "com.android.tools.build:gradle:$android_plugin_version"
-		classpath 'me.tatarka:gradle-retrolambda:3.6.0'
+		classpath 'me.tatarka:gradle-retrolambda:3.6.1'
 		classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
 		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 	}
@@ -40,6 +41,7 @@ buildscript {
 allprojects {
 	repositories {
 		jcenter()
+		maven { url 'https://maven.google.com' }
 	}
 }
 

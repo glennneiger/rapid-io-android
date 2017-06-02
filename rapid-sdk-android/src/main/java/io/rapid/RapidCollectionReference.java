@@ -1,9 +1,13 @@
 package io.rapid;
 
 
+import android.arch.lifecycle.LiveData;
 import android.os.Handler;
 
 import java.util.Date;
+import java.util.List;
+
+import io.rapid.lifecycle.RapidLiveData;
 
 
 /**
@@ -56,7 +60,7 @@ public class RapidCollectionReference<T> {
 		mConnection = collectionConnection;
 		mUiThreadHandler = uiThreadHandler;
 		mJsonConverter = jsonConverter;
-		initSubscription();
+		mSubscription = new RapidCollectionSubscription<>(mCollectionName, mUiThreadHandler);
 	}
 
 
@@ -835,9 +839,7 @@ public class RapidCollectionReference<T> {
 		mSubscription.setCallback(callback);
 		mConnection.subscribe(mSubscription);
 
-		RapidCollectionSubscription<T> temp = mSubscription;
-		initSubscription();
-		return temp;
+		return mSubscription;
 	}
 
 
@@ -850,9 +852,7 @@ public class RapidCollectionReference<T> {
 		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 		mConnection.fetch(mSubscription);
 
-		RapidCollectionSubscription<T> temp = mSubscription;
-		initSubscription();
-		return temp;
+		return mSubscription;
 	}
 
 
@@ -867,12 +867,12 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	// Private
-
-
-	void resubscribe() {
-		mConnection.resubscribe();
+	public LiveData<List<RapidDocument<T>>> getLiveData() {
+		return new RapidLiveData<T>(this);
 	}
+
+
+	// Private
 
 
 	CollectionConnection<T> getConnection() {
@@ -885,43 +885,8 @@ public class RapidCollectionReference<T> {
 	}
 
 
-	boolean isSubscribed() {
-		return mConnection.hasActiveSubscription();
-	}
-
-
-	void onValue(String subscriptionId, String documents) {
-		mConnection.onValue(subscriptionId, documents);
-	}
-
-
-	void onUpdate(String subscriptionId, String documents) {
-		mConnection.onUpdate(subscriptionId, documents);
-	}
-
-
-	void onRemove(String subscriptionId, String documentJson) {
-		mConnection.onRemove(subscriptionId, documentJson);
-	}
-
-
-	void onFetchResult(String fetchId, String documentsJson) {
-		mConnection.onFetchResult(fetchId, documentsJson);
-	}
-
-
 	void onError(String subscriptionId, RapidError error) {
 		mConnection.onError(subscriptionId, error);
-	}
-
-
-	void onTimedOut() {
-		mConnection.onTimedOut();
-	}
-
-
-	void initSubscription() {
-		mSubscription = new RapidCollectionSubscription<>(mCollectionName, mUiThreadHandler);
 	}
 
 
