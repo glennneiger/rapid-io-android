@@ -52,4 +52,4 @@ Rapid.io Android SDK is owned and maintained by [Rapid.io](http://www.rapid.io)
 
 
 ## License
-Rapid.io Android SDK is released under the MIT license. See [LICENSE](/LICENSE) for details.
+Rapid.io Android SDK is released under the MIT license. See [LICENSE](/LICENSE.md) for details.
