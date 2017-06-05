@@ -7,7 +7,7 @@
 ## Installation
 
 ```groovy
-compile 'io.rapid:rapid-sdk-android:0.0.7-alpha'
+compile 'io.rapid:rapid-sdk-android:0.1.0-alpha'
 ```
 
 
