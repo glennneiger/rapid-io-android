@@ -1,5 +1,5 @@
 <p align="center">
-  ![asd](extras/logo.png)
+  <img alt="logo" src="https://raw.githubusercontent.com/Rapid-SDK/android/master/extras/logo.png" />
 </p>
 <hr/>
 
