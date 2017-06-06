@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="logo" src="extras/logo.png" />
+  ![asd](extras/logo.png)
 </p>
 <hr/>
 
