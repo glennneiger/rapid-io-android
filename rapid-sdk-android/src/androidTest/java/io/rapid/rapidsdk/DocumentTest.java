@@ -18,10 +18,11 @@ import io.rapid.RapidCollectionReference;
 import io.rapid.RapidDocumentExecutor;
 import io.rapid.RapidDocumentReference;
 import io.rapid.RapidError;
-import io.rapid.RapidServerValue;
+import io.rapid.RapidMutateOptions;
 import io.rapid.rapidsdk.base.BaseRapidTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -125,17 +126,27 @@ public class DocumentTest extends BaseRapidTest {
 	public void testMutateWithEtag() {
 		String id = UUID.randomUUID().toString();
 
-		mCollection.document(id).mutate(new Car("car", 0), Etag.fromValue("random"))
+		RapidMutateOptions options = new RapidMutateOptions.Builder()
+				.expectEtag(Etag.fromValue("random"))
+				.build();
+
+		mCollection.document(id).mutate(new Car("car", 0), options)
 				.onSuccess(Assert::fail)
 				.onError(error -> {
 					assertEquals(RapidError.ErrorType.ETAG_CONFLICT, error.getType());
 					unlockAsync();
 				});
+
 		lockAsync();
 
-		mCollection.document(id).mutate(new Car("car", 0), Etag.NO_ETAG)
+		RapidMutateOptions options2 = new RapidMutateOptions.Builder()
+				.expectEtag(Etag.NO_ETAG)
+				.build();
+
+		mCollection.document(id).mutate(new Car("car", 0), options2)
 				.onError(error -> fail())
 				.onSuccess(() -> unlockAsync());
+
 		lockAsync();
 	}
 
@@ -143,12 +154,18 @@ public class DocumentTest extends BaseRapidTest {
 	@Test
 	public void testTimestampServerValue() {
 		RapidDocumentReference<Car> doc = mCollection.newDocument();
-		doc.mutate(new Car(RapidServerValue.TIMESTAMP, 0))
+
+		RapidMutateOptions options = new RapidMutateOptions.Builder()
+				.fillPropertyWithServerTimestamp("number")
+				.build();
+
+		doc.mutate(new Car("name", 0), options)
 				.onSuccess(() -> unlockAsync())
 				.onError(error -> fail(error.getMessage()));
 		lockAsync();
 
 		doc.fetch(document -> {
+			assertNotEquals(0, document.getBody().getNumber());
 			unlockAsync();
 		}).onError(error -> fail(error.getMessage()));
 		lockAsync();

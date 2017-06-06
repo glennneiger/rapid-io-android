@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -18,6 +19,7 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	private static final String KEY_SKEY = "skey";
 	private static final String KEY_CRT = "crt";
 	private static final String KEY_ETAG = "etag";
+	private Collection<String> mFillWithTimestampProperties;
 	private String id;
 	private String createdTimestamp;
 	private List<String> sorting;
@@ -36,10 +38,13 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	RapidDocument(String id, T value, Etag etag) {
+	RapidDocument(String id, T value, RapidMutateOptions options) {
 		this.id = id;
 		body = value;
-		this.etag = etag;
+		if (options != null) {
+			this.etag = options.getExpectedEtag();
+			mFillWithTimestampProperties = options.getFillWithTimestampProperties();
+		}
 	}
 
 
@@ -99,6 +104,29 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 				jsonBody.put(KEY_ETAG, etag.getSerialized());
 			if (body != null)
 				jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.get().toJson(body)));
+
+
+			// handle server values
+			// timestamp
+			if(mFillWithTimestampProperties != null) {
+				if(jsonBody.optJSONObject(KEY_BODY) != null) {
+					for(String fillWithTimestampProperty : mFillWithTimestampProperties) {
+						JSONObject replacePosition = jsonBody.getJSONObject(KEY_BODY);
+						String[] parts = fillWithTimestampProperty.contains(".") ? fillWithTimestampProperty.split("\\.") : new String[]{fillWithTimestampProperty};
+						for(int i = 0; i < parts.length; i++) {
+							String part = parts[i];
+							if (part.isEmpty()) continue;
+							if(i != parts.length - 1) {
+								if(replacePosition.optJSONObject(part) == null)
+									replacePosition.put(part, new JSONObject());
+								replacePosition = replacePosition.optJSONObject(part);
+							} else {
+								replacePosition.put(part, ServerValue.TIMESTAMP);
+							}
+						}
+					}
+				}
+			}
 
 			return jsonBody.toString();
 		}

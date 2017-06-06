@@ -1,7 +1,6 @@
 package io.rapid;
 
 import android.os.Handler;
-import android.support.annotation.NonNull;
 
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -196,7 +195,6 @@ public class FilterJsonTest extends BaseTest {
 	}
 
 
-	@NonNull
 	private RapidCollectionReference<Object> getNewCollection() {return new RapidCollectionReference<>(new MockCollectionConnection<>(), "collection", new Handler(), new JsonConverterProvider(new RapidGsonConverter()));}
 
 
