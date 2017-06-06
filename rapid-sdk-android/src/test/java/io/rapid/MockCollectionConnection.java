@@ -4,7 +4,7 @@ package io.rapid;
 class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
-	public RapidFuture mutate(String id, T value, Etag etag) {
+	public RapidFuture mutate(String id, T value, RapidMutateOptions options) {
 		return null;
 	}
 

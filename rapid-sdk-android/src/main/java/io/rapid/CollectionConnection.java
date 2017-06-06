@@ -2,7 +2,7 @@ package io.rapid;
 
 
 interface CollectionConnection<T> {
-	RapidFuture mutate(String id, T value, Etag etag);
+	RapidFuture mutate(String id, T value, RapidMutateOptions options);
 	void subscribe(Subscription<T> subscription);
 	void onValue(String subscriptionId, String documents);
 	void onFetchResult(String fetchId, String documentsJson);

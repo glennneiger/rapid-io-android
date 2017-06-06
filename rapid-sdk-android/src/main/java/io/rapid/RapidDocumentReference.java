@@ -19,11 +19,6 @@ public class RapidDocumentReference<T> {
 	private Handler mUiThreadHandler;
 
 
-	public interface DocumentDeleteTransformer<T> {
-		boolean shouldDeleteDocument(RapidDocument<T> oldDocument);
-	}
-
-
 	RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl) {
 		this(uiThreadHandler, collectionName, impl, IdProvider.getNewDocumentId());
 	}
@@ -59,16 +54,14 @@ public class RapidDocumentReference<T> {
 
 
 	/**
-	 * Mutate document (set new value)
-	 * <p>
-	 * Operation will fail when provided etag value does not equal current etag on backend (document was modified in the meantime)
+	 * Mutate document (set new value) with options
 	 *
-	 * @param item new content for the document
-	 * @param etag etag value expected to be present on backend
+	 * @param item    new content for the document
+	 * @param options options allowing to expect specific Etag value or autofilling properties with server values
 	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
 	 */
-	public RapidFuture mutate(T item, Etag etag) {
-		return mImpl.mutate(mId, item, etag);
+	public RapidFuture mutate(T item, RapidMutateOptions options) {
+		return mImpl.mutate(mId, item, options);
 	}
 
 
@@ -92,7 +85,7 @@ public class RapidDocumentReference<T> {
 					if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_CANCEL) {
 						result.invokeSuccess();
 					} else if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_MUTATE) {
-						mutate(executorResult.getValue(), document != null ? document.getEtag() : Etag.NO_ETAG).onError(error -> {
+						mutate(executorResult.getValue(), new RapidMutateOptions.Builder().expectEtag(document != null ? document.getEtag() : Etag.NO_ETAG).build()).onError(error -> {
 							if(error.getType() == RapidError.ErrorType.ETAG_CONFLICT) {
 								execute(documentExecutor)
 										.onSuccess(result::invokeSuccess)
@@ -119,15 +112,13 @@ public class RapidDocumentReference<T> {
 
 
 	/**
-	 * Delete the document from collection
-	 * <p>
-	 * Operation will fail when provided etag value does not equal current etag on backend (document was modified in the meantime)
+	 * Delete document (set new value) with options
 	 *
-	 * @param etag etag value expected to be present on backend
-	 * @return
+	 * @param options options allowing to expect specific Etag value or autofilling properties with server values
+	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
 	 */
-	public RapidFuture delete(Etag etag) {
-		return mImpl.mutate(mId, null, etag);
+	public RapidFuture delete(RapidMutateOptions options) {
+		return mImpl.mutate(mId, null, options);
 	}
 
 
