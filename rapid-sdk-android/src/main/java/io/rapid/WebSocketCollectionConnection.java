@@ -41,8 +41,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidFuture mutate(String id, T value, Etag etag) {
-		RapidDocument<T> doc = new RapidDocument<>(id, value, etag);
+	public RapidFuture mutate(String id, T value, RapidMutateOptions options) {
+		RapidDocument<T> doc = new RapidDocument<>(id, value, options);
 
 		if(value == null) {
 			return mConnection.delete(mCollectionName, () -> {

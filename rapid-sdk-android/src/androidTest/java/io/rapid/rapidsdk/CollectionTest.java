@@ -57,7 +57,7 @@ public class CollectionTest extends BaseRapidTest {
 
 		collection.orderBy("number").fetch(rapidDocuments -> {
 			ArrayList<RapidDocument<Car>> orderedList = new ArrayList<>(rapidDocuments);
-			Collections.sort(orderedList, (o1, o2) -> Integer.compare(o1.getBody().getNumber(), o2.getBody().getNumber()));
+			Collections.sort(orderedList, (o1, o2) -> Long.compare(o1.getBody().getNumber(), o2.getBody().getNumber()));
 			for(int i = 0; i < orderedList.size(); i++) {
 				assertEquals("Order does not match", rapidDocuments.get(i).getId(), orderedList.get(i).getId());
 			}

@@ -3,10 +3,10 @@ package io.rapid.rapidsdk;
 
 public class Car {
 	private String name;
-	private int number;
+	private long number;
 
 
-	public Car(String name, int number) {
+	public Car(String name, long number) {
 		this.name = name;
 		this.number = number;
 	}
@@ -22,12 +22,12 @@ public class Car {
 	}
 
 
-	public int getNumber() {
+	public long getNumber() {
 		return number;
 	}
 
 
-	public void setNumber(int number) {
+	public void setNumber(long number) {
 		this.number = number;
 	}
 }
