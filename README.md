@@ -1,55 +1,64 @@
-![Rapid.io](extras/rapid.png)
+<p align="center">
+  <img alt="logo" src="extras/logo.png" />
+</p>
+<hr/>
 
-# Rapid.io real-time database SDK  for Android
+
+<p align="center">
+  <strong>Android client for a realtime database <a href="https://rapid.io">rapid.io</a></strong>
+</p>
+<h3 align="center">
+	<a href="https://rapid.io">
+	  Website
+	</a>
+	<span> | </span>
+	<a href="https://rapid.io/docs">
+	  Documentation
+	</a>
+	<span> | </span>
+	<a href="https://rapid.io/docs/api-reference-android">
+	  Reference
+	</a>
+</h3>
+
 [![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android)
 
 
-## Installation
+# What
+Rapid.io is a cloud-hosted service that allows app developers to build realtime user interfaces without having to worry about the underlying infrastructure. It works as a non-relational data store accessible from a client-side code.
+
+
+# Why
+Clients can create, update, delete and subscribe to a set of data and receive updates in realtime.
+
+
+# How
+
+### Gradle
 
 ```groovy
 compile 'io.rapid:rapid-sdk-android:0.2.0-alpha'
 ```
 
-
-## Documentation
-
-For complete documentation visit [Rapid.io](https://www.rapid.io/docs)
-
-### API Reference
-[JavaDoc API Reference](https://rapid-sdk.github.io/android/)
-
-
-## Communication
-
-- If you **found a bug**, open an issue.
-- If you **have a feature request**, open an issue.
-- If you **want to contribute**, submit a pull request.
-
-### Security Disclosure
-
-If you believe you have identified a security vulnerability with Rapid Android SDK, you should report it as soon as possible via email to [security@rapid.io](mailto:security@rapid.io). Please do not post it to a public issue tracker.
-
+See [Getting Started](https://rapid.io/docs/getting-started) for more information.
 
 ## Building
 
-### Publishing
+### Deployment
 `./gradlew install` - deploy to local Maven Repository
 
 `./gradlew bintrayUpload` - deploy to jCenter using Bintray API (for this to work you need to have Bintray API key set as an environment variable named `RAPID_BINTRAY_API_KEY`)
 
-### Documentation
+### Generate JavaDoc
 `./gradlew generateReleaseJavadoc` - generates sdk API reference to `/docs` directory
 
 ### Version name
 Library version name is always based on the last Git tag name in current branch
 
-## Changelog
 
-
-## Credits
-
-Rapid.io Android SDK is owned and maintained by [Rapid.io](http://www.rapid.io)
+## Caught a bug? 
+Open an issue.
 
 
 ## License
-Rapid.io Android SDK is released under the MIT license. See [LICENSE](/LICENSE.md) for details.
+[The MIT License](/LICENSE.md)
