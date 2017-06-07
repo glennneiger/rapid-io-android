@@ -36,7 +36,7 @@ Clients can create, update, delete and subscribe to a set of data and receive up
 ### Gradle
 
 ```groovy
-compile 'io.rapid:rapid-sdk-android:0.2.0-alpha'
+compile 'io.rapid:rapid-sdk-android:0.2.1-alpha'
 ```
 
 See [Getting Started](https://rapid.io/docs/getting-started) for more information.
