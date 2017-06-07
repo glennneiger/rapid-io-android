@@ -21,7 +21,7 @@
 	</a>
 </h3>
 
-[![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android)
+[![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android) [ ![Download](https://api.bintray.com/packages/rapid/io.rapid/rapid-sdk-android/images/download.svg) ](https://bintray.com/rapid/io.rapid/rapid-sdk-android/_latestVersion)
 
 
 # What
