@@ -10,7 +10,7 @@ class AppMetadata {
 
 
 	AppMetadata(String apiKey) {
-		mUrl = "ws://" + new String(Base64.decode(apiKey, Base64.DEFAULT));
+		mUrl = "wss://" + new String(Base64.decode(apiKey, Base64.DEFAULT));
 	}
 
 
