@@ -21,8 +21,7 @@
 	</a>
 </h3>
 
-[![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android) [ ![Download](https://api.bintray.com/packages/rapid/io.rapid/rapid-sdk-android/images/download.svg) ](https://bintray.com/rapid/io.rapid/rapid-sdk-android/_latestVersion)
-
+[![Build Status](https://travis-ci.org/Rapid-SDK/android.svg?branch=master)](https://travis-ci.org/Rapid-SDK/android) [ ![Download](https://api.bintray.com/packages/rapid/io.rapid/rapid-sdk-android/images/download.svg) ](https://bintray.com/rapid/io.rapid/rapid-sdk-android/_latestVersion) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
 # What
 Rapid.io is a cloud-hosted service that allows app developers to build realtime user interfaces without having to worry about the underlying infrastructure. It works as a non-relational data store accessible from a client-side code.
