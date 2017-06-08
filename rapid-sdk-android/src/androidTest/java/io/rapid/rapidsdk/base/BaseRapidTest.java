@@ -18,9 +18,9 @@ public class BaseRapidTest {
 
 	protected void prepareRapid(boolean authorize) {
 		InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-			Rapid.initialize("MTMuNjQuNzcuMjAyOjgwODA=");
+			Rapid.initialize("ZGV2LXdzLXNlcnZpY2UucmFwaWQuaW8=");
 			if(authorize)
-				Rapid.getInstance().authorize("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbklkIjoiMGU0NzAyOWUtMDY2OC00NGRhLWFkMDItZWQ4N2E5MmQzY2E4IiwicnVsZXMiOlt7ImNvbGxlY3Rpb24iOiIuKiIsInJlYWQiOnRydWUsImNyZWF0ZSI6dHJ1ZSwidXBkYXRlIjp0cnVlLCJkZWxldGUiOnRydWV9XX0.dV5Z67kgjpaD7jWzOTtmZJBsx_kcapcy2dZ2YCM4m-o");
+				Rapid.getInstance().authorize("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbklkIjoiMGU0NzAyOWUtMDY2OC00NGRhLWFkMDItZWQ4N2E5MmQzY2E4IiwicnVsZXMiOlt7ImNvbGxlY3Rpb24iOiIuKiIsInJlYWQiOnRydWUsImNyZWF0ZSI6dHJ1ZSwidXBkYXRlIjp0cnVlLCJkZWxldGUiOnRydWV9XX0.3i4K3AGJp5xYEcpKsliFT8QNvG0pmAi3RHs-0J13rP0");
 		});
 	}
 

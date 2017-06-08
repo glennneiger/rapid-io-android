@@ -27,8 +27,7 @@
 
 		<meta-data
 			android:name="io.rapid.apikey"
-			android:value="MTMuNjQuNzcuMjAyOjgwODA=" />
-			<!--android:value="MTA0LjQwLjU4LjUwOjgwODA=" />-->
+			android:value="ZGV2LXdzLXNlcnZpY2UucmFwaWQuaW8=" />
 
 	</application>
 
