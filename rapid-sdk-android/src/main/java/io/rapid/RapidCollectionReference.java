@@ -836,6 +836,8 @@ public class RapidCollectionReference<T> {
 	 * @return subscription with ability to unsubscribe, add error listener, etc.
 	 */
 	public RapidCollectionSubscription subscribeWithListUpdates(RapidCallback.CollectionUpdates<T> callback) {
+		if (mSubscription.isSubscribed())
+			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
 		mConnection.subscribe(mSubscription);
 
@@ -849,6 +851,8 @@ public class RapidCollectionReference<T> {
 	 * @param callback callback function to receive collection updates as list of documents
 	 */
 	public RapidCollectionSubscription<T> fetch(RapidCallback.Collection<T> callback) {
+		if (mSubscription.isSubscribed())
+			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 		mConnection.fetch(mSubscription);
 

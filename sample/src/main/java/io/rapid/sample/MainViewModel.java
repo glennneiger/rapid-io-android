@@ -10,7 +10,7 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList;
 
 public class MainViewModel {
 	public ObservableField<ConnectionState> connectionState = new ObservableField<>();
-	public ItemBinding<TodoItemViewModel> itemBinding = ItemBinding.of(BR.viewModel, R.layout.item_todo);
+	public ItemBinding<TodoItemViewModel> itemBinding = ItemBinding.of(io.rapid.sample.BR.viewModel, R.layout.item_todo);
 	public DiffObservableList<TodoItemViewModel> items = new DiffObservableList<>(new DiffObservableList.Callback<TodoItemViewModel>() {
 		@Override
 		public boolean areItemsTheSame(TodoItemViewModel oldItem, TodoItemViewModel newItem) {

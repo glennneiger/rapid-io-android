@@ -172,4 +172,14 @@ public class DocumentTest extends BaseRapidTest {
 	}
 
 
+	@Test
+	public void testNotExistingDoc() {
+		mCollection.document(UUID.randomUUID().toString()).fetch(document -> {
+			assertNull(document);
+			unlockAsync();
+		}).onError(error -> fail(error.getMessage()));
+		lockAsync();
+	}
+
+
 }

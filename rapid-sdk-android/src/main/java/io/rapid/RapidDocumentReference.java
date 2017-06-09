@@ -128,6 +128,8 @@ public class RapidDocumentReference<T> {
 	 * @param callback callback function providing updated document on Main thread
 	 */
 	public RapidDocumentSubscription<T> subscribe(RapidCallback.Document<T> callback) {
+		if (mSubscription.isSubscribed())
+			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
 		mImpl.subscribe(mSubscription);
 		return mSubscription;
@@ -140,6 +142,8 @@ public class RapidDocumentReference<T> {
 	 * @param callback callback function providing document value on Main thread
 	 */
 	public RapidDocumentSubscription<T> fetch(RapidCallback.Document<T> callback) {
+		if (mSubscription.isSubscribed())
+			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
 		mImpl.fetch(mSubscription);
 		return mSubscription;
