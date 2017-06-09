@@ -74,7 +74,7 @@ public class FilterJsonTest extends BaseTest {
 				.subscribe(rapidDocuments -> {
 				});
 
-		String json = "{\"and\":[{\"mileage\":{\"lte\":34.4}},{\"and\":[{\"and\":[{\"price\":{\"gte\":321212.3}},{\"price\":{\"lte\":1213123.2}}]},{\"size\":\"121\"}]}]}";
+		String json = "{\"and\":[{\"mileage\":{\"lte\":34.4}},{\"and\":[{\"and\":[{\"price\":{\"gte\":321212.3}},{\"price\":{\"lte\":1213123.2}}]},{\"size\":121}]}]}";
 		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 
@@ -154,6 +154,18 @@ public class FilterJsonTest extends BaseTest {
 				});
 
 		String json = "{\"and\":[{\"or\":[{\"model\":\"A5\"},{\"model\":\"A7\"}]},{\"and\":[{\"price\":{\"lte\":10000}},{\"hp\":{\"lte\":400}}]}]}";
+		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
+	}
+
+
+	@Test
+	public void test_query2json_9() throws Exception {
+		RapidCollectionSubscription subscription = getNewCollection()
+				.equalTo("testDouble", 2.3)
+				.subscribe(rapidDocuments -> {
+				});
+
+		String json = "{\"testDouble\": 2.3}";
 		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 

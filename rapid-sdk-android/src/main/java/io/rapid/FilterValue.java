@@ -63,9 +63,9 @@ class FilterValue implements Filter {
 
 
 		@Override
-		public String toJson() throws JSONException {
+		public Object toJson() throws JSONException {
 			if(compareType.equals(TYPE_EQUAL)) {
-				return String.valueOf(value);
+				return value;
 			} else {
 				JSONObject root = new JSONObject();
 				root.put(compareType, value);
@@ -113,9 +113,9 @@ class FilterValue implements Filter {
 
 
 		@Override
-		public String toJson() throws JSONException {
+		public Object toJson() throws JSONException {
 			if(compareType.equals(TYPE_EQUAL)) {
-				return String.valueOf(value);
+				return value;
 			} else {
 				JSONObject root = new JSONObject();
 				root.put(compareType, value);
