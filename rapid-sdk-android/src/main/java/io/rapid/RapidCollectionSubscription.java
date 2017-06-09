@@ -146,12 +146,13 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 	}
 
 
-	synchronized void setDocuments(List<RapidDocument<T>> rapidDocuments, boolean fromCache) {
+	synchronized void setDocuments(List<RapidDocument<T>> rapidDocuments, DataState dataState) {
+		mDataState = dataState;
 		mDocuments = rapidDocuments;
 		for(RapidDocument<T> doc : mDocuments) {
 			doc.setOrder(mOrder);
 		}
-		invokeChange(new ListUpdate(fromCache ? ListUpdate.Type.NEW_LIST_FROM_CACHE : ListUpdate.Type.NEW_LIST, ListUpdate.NO_POSITION, ListUpdate.NO_POSITION));
+		invokeChange(new ListUpdate(dataState == DataState.LOADED_FROM_DISK_CACHE || dataState == DataState.LOADED_FROM_MEMORY_CACHE ? ListUpdate.Type.NEW_LIST_FROM_CACHE : ListUpdate.Type.NEW_LIST, ListUpdate.NO_POSITION, ListUpdate.NO_POSITION));
 		mInitialValue = true;
 	}
 

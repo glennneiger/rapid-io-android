@@ -77,7 +77,8 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 	}
 
 
-	void setDocument(RapidDocument<T> rapidDocument) {
+	void setDocument(RapidDocument<T> rapidDocument, DataState dataState) {
+		mDataState = dataState;
 		mDocument = rapidDocument;
 		invokeChange();
 		mInitialValue = true;
