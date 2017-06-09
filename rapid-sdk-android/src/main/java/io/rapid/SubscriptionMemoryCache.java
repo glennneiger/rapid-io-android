@@ -6,9 +6,12 @@ import android.util.LruCache;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.rapid.utility.Sha1Utility;
 
 
 class SubscriptionMemoryCache<T> {
@@ -24,12 +27,6 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public void setMaxSize(int maxEntries) {
-		mSubscriptionCache.resize(maxEntries);
-		mDocumentCache.resize(maxEntries);
-	}
-
-
 	public synchronized List<RapidDocument<T>> get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return null;
@@ -39,9 +36,8 @@ class SubscriptionMemoryCache<T> {
 		List<RapidDocument<T>> documentList = null;
 		if(documentIdList != null) {
 			documentList = new ArrayList<>();
-			for(String documentId : documentIdList)
-			{
-				documentList.add(mDocumentCache.get(documentId));
+			for(String documentId : documentIdList) {
+				documentList.add(mDocumentCache.get(getDocumentKey(subscription, documentId)));
 			}
 		}
 		return documentList;
@@ -56,9 +52,9 @@ class SubscriptionMemoryCache<T> {
 		List<String> documentIdList = new ArrayList<>();
 		if(value != null) {
 			for(RapidDocument<T> document : value) {
-				if (document != null) {
+				if(document != null) {
 					documentIdList.add(document.getId());
-					mDocumentCache.put(document.getId(), document);
+					mDocumentCache.put(getDocumentKey(subscription, document.getId()), document);
 				}
 			}
 
@@ -73,6 +69,11 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
+	public void setEnabled(boolean cachingEnabled) {
+		mEnabled = cachingEnabled;
+	}
+
+
 	synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
@@ -82,7 +83,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public void setEnabled(boolean cachingEnabled) {
-		mEnabled = cachingEnabled;
+	private String getDocumentKey(Subscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+		return Sha1Utility.sha1(subscription.getCollectionName() + "/" + documentId);
 	}
 }
