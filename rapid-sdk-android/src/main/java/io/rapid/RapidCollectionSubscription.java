@@ -153,7 +153,6 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 			doc.setOrder(mOrder);
 		}
 		invokeChange(new ListUpdate(dataState == DataState.LOADED_FROM_DISK_CACHE || dataState == DataState.LOADED_FROM_MEMORY_CACHE ? ListUpdate.Type.NEW_LIST_FROM_CACHE : ListUpdate.Type.NEW_LIST, ListUpdate.NO_POSITION, ListUpdate.NO_POSITION));
-		mInitialValue = true;
 	}
 
 

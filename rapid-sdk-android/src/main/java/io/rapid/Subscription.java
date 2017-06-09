@@ -20,7 +20,6 @@ public abstract class Subscription<T> {
 	RapidCallback.Error mErrorCallback;
 	private String mSubscriptionId;
 	private String mFingerprintCache;
-	boolean mInitialValue = false;
 	protected DataState mDataState = DataState.NO_DATA;
 
 
@@ -140,11 +139,5 @@ public abstract class Subscription<T> {
 
 	void setOnUnsubscribeCallback(OnUnsubscribeCallback callback) {
 		mOnUnsubscribeCallback = callback;
-	}
-
-
-	public boolean isInitialValueLoaded()
-	{
-		return mInitialValue;
 	}
 }

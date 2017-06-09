@@ -81,7 +81,6 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 		mDataState = dataState;
 		mDocument = rapidDocument;
 		invokeChange();
-		mInitialValue = true;
 	}
 
 
