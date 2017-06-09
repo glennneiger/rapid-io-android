@@ -86,7 +86,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mConnection.subscribe(subscriptionId, subscription);
 			else {
 				// update the subscription with already existing data
-				applyValueToSubscription(subscription, identicalSubscriptions.get(0).getDocuments(), true);
+				applyValueToSubscription(subscription, identicalSubscriptions.get(0).getDocuments(), identicalSubscriptions.get(0).getDataState());
 			}
 		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -94,10 +94,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		}
 
 		mSubscriptions.put(subscriptionId, subscription);
-		if(subscription instanceof RapidCollectionSubscription)
-			((RapidCollectionSubscription) subscription).setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
-		else if(subscription instanceof RapidDocumentSubscription)
-			((RapidDocumentSubscription) subscription).setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
+		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 
 
 		// try to read from cache
@@ -106,7 +103,9 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			List<RapidDocument<T>> docs = mSubscriptionMemoryCache.get(subscription);
 			mLogger.logI("Value for collection '%s' loaded from in-memory cache", mCollectionName);
 			if(docs != null) {
-				applyValueToSubscription(subscription, docs, true);
+				if (subscription.getDataState() != Subscription.DataState.LOADED_FROM_SERVER) {
+					applyValueToSubscription(subscription, docs, Subscription.DataState.LOADED_FROM_MEMORY_CACHE);
+				}
 			} else { // then try disk cache
 				BackgroundExecutor.fetchInBackground(() -> {
 					try {
@@ -117,10 +116,12 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					return null;
 				}, jsonDocs -> {
 					if(jsonDocs != null) {
-						mLogger.logI("Value for collection '%s' loaded from disk cache", mCollectionName);
-						mLogger.logJson(jsonDocs);
+						if (subscription.getDataState() != Subscription.DataState.LOADED_FROM_SERVER) {
+							mLogger.logI("Value for collection '%s' loaded from disk cache", mCollectionName);
+							mLogger.logJson(jsonDocs);
 
-						applyValueToSubscription(subscription, jsonDocs, true);
+							applyValueToSubscription(subscription, jsonDocs, Subscription.DataState.LOADED_FROM_DISK_CACHE);
+						}
 					}
 				});
 			}
@@ -140,11 +141,11 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			try {
 				List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
 				for(Subscription s : identicalSubscriptions) {
-					applyValueToSubscription(s, documents, false);
+					applyValueToSubscription(s, documents, Subscription.DataState.LOADED_FROM_SERVER);
 				}
 			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
-				applyValueToSubscription(subscription, documents, false);
+				applyValueToSubscription(subscription, documents, Subscription.DataState.LOADED_FROM_SERVER);
 			}
 
 			// try to put value to cache
@@ -171,7 +172,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public void onFetchResult(String fetchId, String documentsJson) {
 		Subscription<T> subscription = mSubscriptions.remove(fetchId);
 		subscription.setSubscribed(false);
-		applyValueToSubscription(subscription, documentsJson, false);
+		applyValueToSubscription(subscription, documentsJson, Subscription.DataState.LOADED_FROM_SERVER);
 	}
 
 
@@ -326,21 +327,21 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyValueToSubscription(Subscription subscription, String documents, boolean fromCache) {
+	private void applyValueToSubscription(Subscription subscription, String documents, Subscription.DataState dataState) {
 		List<RapidDocument<T>> parsedDocs = parseDocumentList(documents);
 		if(subscription instanceof RapidDocumentSubscription) {
-			((RapidDocumentSubscription) subscription).setDocument(parsedDocs.isEmpty() ? null : parsedDocs.get(0));
+			((RapidDocumentSubscription) subscription).setDocument(parsedDocs.isEmpty() ? null : parsedDocs.get(0), dataState);
 		} else if(subscription instanceof RapidCollectionSubscription) {
-			((RapidCollectionSubscription) subscription).setDocuments(parsedDocs, fromCache);
+			((RapidCollectionSubscription) subscription).setDocuments(parsedDocs, dataState);
 		}
 	}
 
 
-	private void applyValueToSubscription(Subscription subscription, List<RapidDocument<T>> documents, boolean fromCache) {
+	private void applyValueToSubscription(Subscription subscription, List<RapidDocument<T>> documents, Subscription.DataState dataState) {
 		if(subscription instanceof RapidDocumentSubscription) {
-			((RapidDocumentSubscription) subscription).setDocument(documents.isEmpty() ? null : documents.get(0));
+			((RapidDocumentSubscription) subscription).setDocument(documents.isEmpty() ? null : documents.get(0), dataState);
 		} else if(subscription instanceof RapidCollectionSubscription) {
-			((RapidCollectionSubscription) subscription).setDocuments(documents, fromCache);
+			((RapidCollectionSubscription) subscription).setDocuments(documents, dataState);
 		}
 	}
 

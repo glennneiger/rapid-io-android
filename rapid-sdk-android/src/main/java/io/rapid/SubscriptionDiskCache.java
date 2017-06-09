@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 import io.rapid.utility.Sha1Utility;
@@ -29,8 +30,28 @@ class SubscriptionDiskCache {
 	}
 
 
-	void setMaxSize(int maxSizeInMb) {
-		mCache.setMaxSize(maxSizeInMb * 1_000_000);
+	public synchronized String get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+		if(!mEnabled)
+			return null;
+		String fingerprint = subscription.getFingerprint();
+		DiskLruCache.Snapshot record = mCache.get(fingerprint);
+		if(record != null) {
+			String jsonValue = record.getString(DEFAULT_INDEX);
+			Logcat.d("Reading from subscription cache. key=%s; value=%s", fingerprint, jsonValue);
+			JSONArray documentIdArray = new JSONArray(jsonValue);
+			JSONArray documentArray = new JSONArray();
+			for(int i = 0; i < documentIdArray.length(); i++) {
+				String document = getDocument(subscription, documentIdArray.optString(i));
+				if(document == null) {
+					return null;
+				}
+				documentArray.put(new JSONObject(document));
+			}
+
+			return documentArray.toString();
+		}
+		Logcat.d("Reading from disk subscription cache. key=%s; value=null", fingerprint);
+		return null;
 	}
 
 
@@ -60,45 +81,6 @@ class SubscriptionDiskCache {
 //	}
 
 
-	public synchronized String get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
-		if(!mEnabled)
-			return null;
-		String fingerprint = subscription.getFingerprint();
-		DiskLruCache.Snapshot record = mCache.get(fingerprint);
-		if(record != null) {
-			String jsonValue = record.getString(DEFAULT_INDEX);
-			Logcat.d("Reading from subscription cache. key=%s; value=%s", fingerprint, jsonValue);
-			JSONArray documentIdArray = new JSONArray(jsonValue);
-			JSONArray documentArray = new JSONArray();
-			for(int i = 0; i < documentIdArray.length(); i++) {
-				String document = getDocument(documentIdArray.optString(i));
-				if(document == null)
-				{
-					return null;
-				}
-				documentArray.put(new JSONObject(document));
-			}
-
-			return documentArray.toString();
-		}
-		Logcat.d("Reading from disk subscription cache. key=%s; value=null", fingerprint);
-		return null;
-	}
-
-
-	private synchronized String getDocument(String documentId) throws IOException, JSONException, NoSuchAlgorithmException
-	{
-		DiskLruCache.Snapshot record = mCache.get(documentId);
-		if(record != null) {
-			String jsonValue = record.getString(DEFAULT_INDEX);
-			Logcat.d("Reading from document cache. key=%s; value=%s", documentId, jsonValue);
-			return jsonValue;
-		}
-		Logcat.d("Reading from disk document cache. key=%s; value=null", documentId);
-		return null;
-	}
-
-
 	public synchronized void put(Subscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return;
@@ -109,7 +91,7 @@ class SubscriptionDiskCache {
 			JSONObject document = documentArray.getJSONObject(i);
 			String documentId = Sha1Utility.sha1(document.optString(RapidDocument.KEY_ID));
 			documentIdArray.put(documentId);
-			putDocument(documentId, document.toString());
+			putDocument(subscription, documentId, document.toString());
 		}
 
 		String documentIdArrayJson = documentIdArray.toString();
@@ -121,16 +103,18 @@ class SubscriptionDiskCache {
 	}
 
 
-	private synchronized void putDocument(String documentId, String documentJson) throws IOException, JSONException, NoSuchAlgorithmException {
-		DiskLruCache.Editor editor = mCache.edit(documentId);
-		editor.set(DEFAULT_INDEX, documentJson);
-		editor.commit();
-		Logcat.d("Saving to disk document cache. key=%s; value=%s", documentId, documentJson);
+	public synchronized void clear() throws IOException {
+		mCache.delete();
 	}
 
 
-	public synchronized void clear() throws IOException {
-		mCache.delete();
+	public void setEnabled(boolean cachingEnabled) {
+		mEnabled = cachingEnabled;
+	}
+
+
+	void setMaxSize(int maxSizeInMb) {
+		mCache.setMaxSize(maxSizeInMb * 1_000_000);
 	}
 
 
@@ -143,7 +127,27 @@ class SubscriptionDiskCache {
 	}
 
 
-	public void setEnabled(boolean cachingEnabled) {
-		mEnabled = cachingEnabled;
+	private synchronized String getDocument(Subscription subscription, String documentId) throws IOException, JSONException, NoSuchAlgorithmException {
+		DiskLruCache.Snapshot record = mCache.get(getDocumentKey(subscription, documentId));
+		if(record != null) {
+			String jsonValue = record.getString(DEFAULT_INDEX);
+			Logcat.d("Reading from document cache. key=%s; value=%s", getDocumentKey(subscription, documentId), jsonValue);
+			return jsonValue;
+		}
+		Logcat.d("Reading from disk document cache. key=%s; value=null", getDocumentKey(subscription, documentId));
+		return null;
+	}
+
+
+	private synchronized void putDocument(Subscription subscription, String documentId, String documentJson) throws IOException, JSONException, NoSuchAlgorithmException {
+		DiskLruCache.Editor editor = mCache.edit(getDocumentKey(subscription, documentId));
+		editor.set(DEFAULT_INDEX, documentJson);
+		editor.commit();
+		Logcat.d("Saving to disk document cache. key=%s; value=%s", getDocumentKey(subscription, documentId), documentJson);
+	}
+
+
+	private String getDocumentKey(Subscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+		return Sha1Utility.sha1(subscription.getCollectionName() + "/" + documentId);
 	}
 }

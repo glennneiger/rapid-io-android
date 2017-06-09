@@ -12,7 +12,7 @@ import java.util.List;
 import io.rapid.utility.Sha1Utility;
 
 
-abstract class Subscription<T> {
+public abstract class Subscription<T> {
 	final Handler mUiThreadHandler;
 	private final String mCollectionName;
 	private OnUnsubscribeCallback mOnUnsubscribeCallback;
@@ -20,7 +20,10 @@ abstract class Subscription<T> {
 	RapidCallback.Error mErrorCallback;
 	private String mSubscriptionId;
 	private String mFingerprintCache;
-	boolean mInitialValue = false;
+	protected DataState mDataState = DataState.NO_DATA;
+
+
+	public enum DataState {NO_DATA, LOADED_FROM_DISK_CACHE, LOADED_FROM_MEMORY_CACHE, LOADED_FROM_SERVER}
 
 
 	interface OnUnsubscribeCallback {
@@ -89,6 +92,11 @@ abstract class Subscription<T> {
 	}
 
 
+	public DataState getDataState() {
+		return mDataState;
+	}
+
+
 	String getFingerprint() throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
 		if(mFingerprintCache == null) {
 			long startMs = System.currentTimeMillis();
@@ -131,11 +139,5 @@ abstract class Subscription<T> {
 
 	void setOnUnsubscribeCallback(OnUnsubscribeCallback callback) {
 		mOnUnsubscribeCallback = callback;
-	}
-
-
-	public boolean isInitialValueLoaded()
-	{
-		return mInitialValue;
 	}
 }
