@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools">
+	<data>
+		<variable
+			name="viewModel" type="io.rapid.benchmark.MainViewModel" />
+	</data>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+		<android.support.v7.widget.CardView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="8dp">
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="8dp"
+				android:orientation="vertical">
+
+				<RadioGroup
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="8dp"
+					android:orientation="horizontal">
+
+					<RadioButton
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:checked="@={viewModel.rapid}"
+						android:text="Rapid.IO"/>
+
+					<RadioButton
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginLeft="16dp"
+						android:checked="@={!viewModel.rapid}"
+						android:text="Firebase"/>
+
+				</RadioGroup>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+					<TextView
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:textAppearance="@style/TextAppearance.AppCompat.Title"
+						android:text="1 connection - N mutations" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginRight="8dp"
+						android:text="Delay" />
+					<Switch
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:checked="@={viewModel.delayEnabled}" />
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+					<Button
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="1"
+						android:textSize="10sp"
+						android:onClick="@{() -> viewModel.performMutationsOnSingleConnection(1)}" />
+					<Button
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="10"
+						android:textSize="10sp"
+						android:onClick="@{() -> viewModel.performMutationsOnSingleConnection(10)}" />
+					<Button
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:textSize="10sp"
+						android:text="100"
+						android:onClick="@{() -> viewModel.performMutationsOnSingleConnection(100)}" />
+					<Button
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:textSize="10sp"
+						android:text="500"
+						android:onClick="@{() -> viewModel.performMutationsOnSingleConnection(500)}" />
+					<Button
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="1 000"
+						android:textSize="10sp"
+						android:onClick="@{() -> viewModel.performMutationsOnSingleConnection(1000)}" />
+					<Button
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="3 000"
+						android:textSize="10sp"
+						android:onClick="@{() -> viewModel.performMutationsOnSingleConnection(3000)}" />
+					<Button
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="10 000"
+						android:textSize="9sp"
+						android:onClick="@{() -> viewModel.performMutationsOnSingleConnection(10000)}" />
+				</LinearLayout>
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
+		<android.support.v7.widget.CardView
+			android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp">
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" android:padding="8dp" android:orientation="vertical">
+
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:textAppearance="@style/TextAppearance.AppCompat.Title"
+					android:text="Collection Manager" />
+				<EditText
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="@={viewModel.collectionName}"
+					android:inputType="textNoSuggestions"
+					android:hint="Collection name" />
+				<Button
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="Show contents"
+					android:enabled="@{!viewModel.collectionName.isEmpty()}"
+					android:onClick="@{() -> viewModel.viewCollection()}" />
+				<Button
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="Import from CSV"
+					android:enabled="@{!viewModel.collectionName.isEmpty()}"
+					android:onClick="@{() -> viewModel.loadFromCsv()}" />
+				<ProgressBar
+					android:layout_width="match_parent" android:layout_height="wrap_content"
+					android:progress="@{viewModel.csvImportProgress}"
+					style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
+
+		<View
+			android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@{viewModel.console}"
+			android:padding="8dp"
+			android:textSize="12sp"
+			android:typeface="monospace"
+			android:background="#efefef"
+			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+			tools:text="console" />
+	</LinearLayout>
+</layout>
+

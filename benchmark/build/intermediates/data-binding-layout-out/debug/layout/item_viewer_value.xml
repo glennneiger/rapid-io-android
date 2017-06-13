@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+                                                                                                                  
+	
+           
+                                
+        
+	<TextView
+		android:layout_width="160dp"
+		android:layout_height="wrap_content"
+		                       
+		android:paddingLeft="8dp"
+		android:paddingRight="8dp"
+		android:paddingTop="4dp"
+		android:paddingBottom="4dp"
+		tools:text="Value"  android:tag="layout/item_viewer_value_0" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"/>
+         
