@@ -16,7 +16,7 @@ abstract class WebSocketConnection
 		void onOpen();
 		void onMessage(Message message);
 		void onClose(CloseReason reason);
-//		void onError(Exception ex);
+//		void onCollectionError(Exception ex);
 	}
 
 

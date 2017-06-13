@@ -20,7 +20,7 @@ public class BaseRapidTest {
 		InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
 			Rapid.initialize("ZGV2LXdzLXNlcnZpY2UucmFwaWQuaW8=");
 			if(authorize)
-				Rapid.getInstance().authorize("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbklkIjoiMGU0NzAyOWUtMDY2OC00NGRhLWFkMDItZWQ4N2E5MmQzY2E4IiwicnVsZXMiOlt7ImNvbGxlY3Rpb24iOiIuKiIsInJlYWQiOnRydWUsImNyZWF0ZSI6dHJ1ZSwidXBkYXRlIjp0cnVlLCJkZWxldGUiOnRydWV9XX0.3i4K3AGJp5xYEcpKsliFT8QNvG0pmAi3RHs-0J13rP0");
+				Rapid.getInstance().authorize("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJydWxlcyI6W3siY2hhbm5lbCI6Ii4qIiwicmVhZCI6dHJ1ZSwid3JpdGUiOnRydWV9LHsiY29sbGVjdGlvbiI6Ii4qIiwicmVhZCI6dHJ1ZSwiY3JlYXRlIjp0cnVlLCJ1cGRhdGUiOnRydWUsImRlbGV0ZSI6dHJ1ZX1dfQ.uTfMkm_fTlEw6QaudEJrXg8G2ay8uZhYMoUdqpmlAuY");
 		});
 	}
 

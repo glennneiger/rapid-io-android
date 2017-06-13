@@ -274,6 +274,53 @@ abstract class Message {
 		}
 	}
 
+	static class Pub extends Message {
+		private static final String ATTR_CHAN_ID = "chan-id";
+		private static final String ATTR_BODY = "body";
+
+		private String mChannelId;
+		private String mDocument;
+
+
+		Pub(JSONObject json) throws JSONException {
+			super(MessageType.PUB, json);
+		}
+
+
+		Pub(String channelId, String document) {
+			super(MessageType.PUB);
+			mChannelId = channelId;
+			mDocument = document;
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_CHAN_ID, getChannelId());
+			body.put(ATTR_BODY, new JSONObject(getDocument()));
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mChannelId = jsonBody.optString(ATTR_CHAN_ID);
+			mDocument = jsonBody.optString(ATTR_BODY);
+		}
+
+
+		String getChannelId() {
+			return mChannelId;
+		}
+
+
+		public String getDocument() {
+			return mDocument;
+		}
+	}
+
 
 	static class Con extends Message {
 		private static final String ATTR_CON_ID = "con-id";
@@ -541,6 +588,54 @@ abstract class Message {
 		}
 	}
 
+	static class SubCh extends Message {
+		private static final String ATTR_SUB_ID = "sub-id";
+		private static final String ATTR_CHANNEL_ID = "chan-id";
+
+		private String mSubscriptionId;
+		private String mChannelId;
+
+
+		SubCh(String channelId, String subscriptionId) {
+			super(MessageType.SUB_CH);
+
+			mChannelId = channelId;
+			mSubscriptionId = subscriptionId;
+		}
+
+
+		SubCh(JSONObject json) throws JSONException {
+			super(MessageType.SUB_CH, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_SUB_ID, mSubscriptionId);
+			body.put(ATTR_CHANNEL_ID, mChannelId);
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+			mChannelId = jsonBody.optString(ATTR_CHANNEL_ID);
+		}
+
+
+		public String getSubscriptionId() {
+			return mSubscriptionId;
+		}
+
+
+		String getChannelId() {
+			return mChannelId;
+		}
+
+	}
 
 	static class Ftc extends Message {
 		private static final String ATTR_FTC_ID = "ftc-id";
@@ -737,6 +832,55 @@ abstract class Message {
 		}
 	}
 
+	static class Mes extends Message {
+		private static final String ATTR_SUB_ID = "sub-id";
+		private static final String ATTR_CHANNEL_ID = "chan-id";
+		private static final String ATTR_DOCS = "body";
+
+		private String mSubscriptionId;
+		private String mChannelName;
+		private String mBody;
+
+
+		Mes(JSONObject json) throws JSONException {
+			super(MessageType.MES, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_SUB_ID, getSubscriptionId());
+			body.put(ATTR_CHANNEL_ID, getChannelName());
+			body.put(ATTR_DOCS, getBody());
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+			mChannelName = jsonBody.optString(ATTR_CHANNEL_ID);
+			mBody = jsonBody.optString(ATTR_DOCS);
+		}
+
+
+		public String getSubscriptionId() {
+			return mSubscriptionId;
+		}
+
+
+		String getChannelName() {
+			return mChannelName;
+		}
+
+
+		String getBody() {
+			return mBody;
+		}
+	}
+
 
 	static class Val extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
@@ -882,6 +1026,54 @@ abstract class Message {
 
 		String getCollectionId() {
 			return mCollectionId;
+		}
+	}
+
+	static class CaCh extends Message {
+		private static final String ATTR_SUB_ID = "sub-id";
+		private static final String ATTR_CHANNEL_ID = "chan-id";
+
+		private String mSubscriptionId;
+		private String mChannelId;
+
+
+		public CaCh(String collectionId, String subscriptionId) {
+			super(MessageType.CA_CH);
+
+			mChannelId = collectionId;
+			mSubscriptionId = subscriptionId;
+		}
+
+
+		CaCh(JSONObject json) throws JSONException {
+			super(MessageType.CA_CH, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_SUB_ID, mSubscriptionId);
+			body.put(ATTR_CHANNEL_ID, mChannelId);
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+			mChannelId = jsonBody.optString(ATTR_CHANNEL_ID);
+		}
+
+
+		public String getSubscriptionId() {
+			return mSubscriptionId;
+		}
+
+
+		String getChannelId() {
+			return mChannelId;
 		}
 	}
 

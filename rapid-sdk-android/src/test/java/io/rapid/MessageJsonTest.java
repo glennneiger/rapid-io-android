@@ -93,7 +93,7 @@ public class MessageJsonTest extends BaseTest {
 		Message.Mut mutMsg = (Message.Mut) msg;
 		assertEquals(mutMsg.getMessageType(), MessageType.MUT);
 		assertEquals(mutMsg.getEventId(),"eventId");
-		assertEquals(mutMsg.getCollectionId(),"collection");
+		assertEquals(mutMsg.getChannelId(),"collection");
 		assertEquals(mutMsg.getDocument(),"{}");
 	}
 

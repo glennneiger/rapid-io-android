@@ -37,7 +37,7 @@ import io.rapid.lifecycle.RapidLiveData;
  * 		.subscribe(documents -> {
  * 			log(documents.toString());
  * 		})
- * 		.onError(error -> {
+ * 		.onCollectionError(error -> {
  * 			error.printStackTrace();
  * 		});
  * }

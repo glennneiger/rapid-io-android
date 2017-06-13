@@ -12,13 +12,8 @@ import java.util.List;
 import io.rapid.utility.Sha1Utility;
 
 
-public abstract class Subscription<T> {
-	final Handler mUiThreadHandler;
+public abstract class Subscription<T> extends BaseSubscription {
 	private final String mCollectionName;
-	private OnUnsubscribeCallback mOnUnsubscribeCallback;
-	private boolean mSubscribed;
-	RapidCallback.Error mErrorCallback;
-	private String mSubscriptionId;
 	private String mFingerprintCache;
 	protected DataState mDataState = DataState.NO_DATA;
 
@@ -32,7 +27,7 @@ public abstract class Subscription<T> {
 
 
 	Subscription(String collectionName, Handler uiThreadHandler) {
-		mUiThreadHandler = uiThreadHandler;
+		super(uiThreadHandler);
 		mCollectionName = collectionName;
 	}
 
@@ -55,40 +50,8 @@ public abstract class Subscription<T> {
 	abstract List<RapidDocument<T>> getDocuments();
 
 
-	public abstract Subscription onError(RapidCallback.Error callback);
-
-
-	public void unsubscribe() {
-		if(mSubscribed) {
-			mSubscribed = false;
-			if(mOnUnsubscribeCallback != null)
-				mOnUnsubscribeCallback.onUnsubscribe();
-		}
-	}
-
-
-	public String getSubscriptionId() {
-		return mSubscriptionId;
-	}
-
-
-	public void setSubscriptionId(String subscriptionId) {
-		mSubscriptionId = subscriptionId;
-	}
-
-
-	public boolean isSubscribed() {
-		return mSubscribed;
-	}
-
-
 	public String getCollectionName() {
 		return mCollectionName;
-	}
-
-
-	public void setSubscribed(boolean subscribed) {
-		mSubscribed = subscribed;
 	}
 
 
@@ -119,25 +82,9 @@ public abstract class Subscription<T> {
 	}
 
 
-	synchronized void invokeError(RapidError error) {
-		if(mErrorCallback != null && mSubscribed) {
-			mSubscribed = false;
-
-			mUiThreadHandler.post(() -> {
-				synchronized(mErrorCallback) {
-					mErrorCallback.onError(error);
-				}
-			});
-		}
-	}
-
-
 	void invalidateFingerprintCache() {
 		mFingerprintCache = null;
 	}
 
 
-	void setOnUnsubscribeCallback(OnUnsubscribeCallback callback) {
-		mOnUnsubscribeCallback = callback;
-	}
 }

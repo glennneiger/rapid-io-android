@@ -46,7 +46,7 @@ public class RapidDocumentReference<T> {
 	 * Mutate document (set new value)
 	 *
 	 * @param item new content for the document
-	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
+	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
 	 */
 	public RapidFuture mutate(T item) {
 		return mutate(item, null);
@@ -58,7 +58,7 @@ public class RapidDocumentReference<T> {
 	 *
 	 * @param item    new content for the document
 	 * @param options options allowing to expect specific Etag value or autofilling properties with server values
-	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
+	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
 	 */
 	public RapidFuture mutate(T item, RapidMutateOptions options) {
 		return mImpl.mutate(mId, item, options);
@@ -76,7 +76,7 @@ public class RapidDocumentReference<T> {
 	 *
 	 * @param documentExecutor function responsible for updating the latest version of document available on backend
 	 *                         you need to return one of `RapidDocumentExecutor.mutate(value)`, `RapidDocumentExecutor.delete()` or `RapidDocumentExecutor.cancel()`
-	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
+	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
 	 */
 	public RapidFuture execute(RapidDocumentExecutor.Callback<T> documentExecutor) {
 		RapidFuture result = new RapidFuture(mUiThreadHandler);
@@ -104,7 +104,7 @@ public class RapidDocumentReference<T> {
 	/**
 	 * Delete the document from collection
 	 *
-	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
+	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
 	 */
 	public RapidFuture delete() {
 		return delete(null);
@@ -115,7 +115,7 @@ public class RapidDocumentReference<T> {
 	 * Delete document (set new value) with options
 	 *
 	 * @param options options allowing to expect specific Etag value or autofilling properties with server values
-	 * @return RapidFuture providing callbacks for onComplete, onError, onSuccess events
+	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
 	 */
 	public RapidFuture delete(RapidMutateOptions options) {
 		return mImpl.mutate(mId, null, options);

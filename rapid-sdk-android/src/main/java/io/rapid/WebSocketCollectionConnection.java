@@ -83,14 +83,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		try {
 			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
 			if(identicalSubscriptions.isEmpty())
-				mConnection.subscribe(subscriptionId, subscription);
+				mConnection.subscribe(subscription);
 			else {
 				// update the subscription with already existing data
 				applyValueToSubscription(subscription, identicalSubscriptions.get(0).getDocuments(), identicalSubscriptions.get(0).getDataState());
 			}
 		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
-			mConnection.subscribe(subscriptionId, subscription);
+			mConnection.subscribe(subscription);
 		}
 
 		mSubscriptions.put(subscriptionId, subscription);
@@ -244,7 +244,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	public void resubscribe() {
 		for(Map.Entry<String, Subscription<T>> subscriptionEntry : mSubscriptions.entrySet()) {
 			Subscription<T> subscription = subscriptionEntry.getValue();
-			mConnection.subscribe(subscriptionEntry.getKey(), subscription);
+			mConnection.subscribe(subscription);
 		}
 	}
 

@@ -77,9 +77,8 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	public RapidCollectionSubscription onError(RapidCallback.Error callback) {
-		mErrorCallback = callback;
-		return this;
+	public RapidCollectionSubscription<T> onError(RapidCallback.Error callback) {
+		return (RapidCollectionSubscription<T>) super.onError(callback);
 	}
 
 

@@ -29,6 +29,12 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 
 
 	@Override
+	public RapidDocumentSubscription<T> onError(RapidCallback.Error callback) {
+		return (RapidDocumentSubscription) super.onError(callback);
+	}
+
+
+	@Override
 	int getSkip() {
 		return 0;
 	}
@@ -57,13 +63,6 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 		List<RapidDocument<T>> list = new ArrayList<>();
 		list.add(mDocument);
 		return list;
-	}
-
-
-	@Override
-	public RapidDocumentSubscription onError(RapidCallback.Error callback) {
-		mErrorCallback = callback;
-		return this;
 	}
 
 

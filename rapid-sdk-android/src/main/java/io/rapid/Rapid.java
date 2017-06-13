@@ -59,8 +59,14 @@ public class Rapid {
 
 
 			@Override
-			public void onError(String subscriptionId, String collectionId, RapidError error) {
+			public void onCollectionError(String subscriptionId, String collectionId, RapidError error) {
 				mCollectionProvider.findCollectionByName(collectionId).onError(subscriptionId, error);
+			}
+
+
+			@Override
+			public void onChannelError(String subscriptionId, String channelId, RapidError error) {
+				mCollectionProvider.findChannelByName(channelId).onError(subscriptionId, error);
 			}
 
 
@@ -79,6 +85,12 @@ public class Rapid {
 			@Override
 			public void onReconnected() {
 				mCollectionProvider.resubscribeAll();
+			}
+
+
+			@Override
+			public void onChannelMessage(String subscriptionId, String channelName, String body) {
+				mCollectionProvider.findChannelByName(channelName).onMessage(subscriptionId, body);
 			}
 		}, handler, mLogger);
 
@@ -211,6 +223,11 @@ public class Rapid {
 	 */
 	public RapidCollectionReference<Map<String, Object>> collection(String collectionName) {
 		return mCollectionProvider.provideCollection(collectionName);
+	}
+
+
+	public <T> RapidChannelReference<T> channel(String channelName, Class<T> messageClass){
+		return mCollectionProvider.provideChannel(channelName, messageClass);
 	}
 
 

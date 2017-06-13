@@ -14,6 +14,7 @@ class CollectionProvider {
 	private final RapidLogger mDebugLogger;
 	private RapidConnection mConnection;
 	private Map<String, CollectionConnection> mCollectionConnections = new HashMap<>();
+	private Map<String, ChannelConnection> mChannelConnections = new HashMap<>();
 
 
 	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, Handler originalThreadHandler, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
@@ -22,6 +23,18 @@ class CollectionProvider {
 		mOriginalThreadHandler = originalThreadHandler;
 		mSubscriptionDiskCache = subscriptionDiskCache;
 		mDebugLogger = debugLogger;
+	}
+
+
+	public ChannelConnection findChannelByName(String channelName) {
+		return mChannelConnections.get(channelName);
+	}
+
+
+	<T> RapidChannelReference<T> provideChannel(String channelName, Class<T> messageClass) {
+		if(!mChannelConnections.containsKey(channelName))
+			mChannelConnections.put(channelName, new WebSocketChannelConnection<>(mConnection, mJsonConverter, channelName, messageClass, mDebugLogger));
+		return new RapidChannelReference<>(mChannelConnections.get(channelName), channelName, mOriginalThreadHandler);
 	}
 
 
