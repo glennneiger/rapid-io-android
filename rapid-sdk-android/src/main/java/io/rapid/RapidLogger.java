@@ -68,7 +68,12 @@ class RapidLogger {
 
 	private void log(int type, String message, Throwable throwable, Object... args) {
 		if(type > mLevel) return;
-		String formattedMessage = String.format(message, args);
+		String formattedMessage;
+		try {
+			formattedMessage = String.format(message, args);
+		} catch(Exception e) {
+			formattedMessage = message;
+		}
 		switch(type) {
 			case TYPE_ERROR:
 				Log.e(TAG, formattedMessage, throwable);
