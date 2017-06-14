@@ -26,7 +26,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private String mCollectionName;
 	private RapidConnection mConnection;
 	private Class<T> mType;
-	private Map<String, Subscription<T>> mSubscriptions = new HashMap<>();
+	private Map<String, BaseCollectionSubscription<T>> mSubscriptions = new HashMap<>();
 
 
 	WebSocketCollectionConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger) {
@@ -63,7 +63,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void fetch(Subscription<T> subscription) {
+	public void fetch(BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscribed(true);
 		mConnection.fetch(subscriptionId, subscription);
@@ -72,7 +72,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void subscribe(Subscription<T> subscription) {
+	public void subscribe(BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);
 		subscription.setSubscribed(true);
@@ -81,7 +81,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 		// send subscribe message only if there is no other subscription with same filter
 		try {
-			List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+			List<BaseCollectionSubscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
 			if(identicalSubscriptions.isEmpty())
 				mConnection.subscribe(subscription);
 			else {
@@ -103,8 +103,8 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			List<RapidDocument<T>> docs = mSubscriptionMemoryCache.get(subscription);
 			mLogger.logI("Value for collection '%s' loaded from in-memory cache", mCollectionName);
 			if(docs != null) {
-				if (subscription.getDataState() != Subscription.DataState.LOADED_FROM_SERVER) {
-					applyValueToSubscription(subscription, docs, Subscription.DataState.LOADED_FROM_MEMORY_CACHE);
+				if (subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
+					applyValueToSubscription(subscription, docs, BaseCollectionSubscription.DataState.LOADED_FROM_MEMORY_CACHE);
 				}
 			} else { // then try disk cache
 				BackgroundExecutor.fetchInBackground(() -> {
@@ -116,11 +116,11 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					return null;
 				}, jsonDocs -> {
 					if(jsonDocs != null) {
-						if (subscription.getDataState() != Subscription.DataState.LOADED_FROM_SERVER) {
+						if (subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
 							mLogger.logI("Value for collection '%s' loaded from disk cache", mCollectionName);
 							mLogger.logJson(jsonDocs);
 
-							applyValueToSubscription(subscription, jsonDocs, Subscription.DataState.LOADED_FROM_DISK_CACHE);
+							applyValueToSubscription(subscription, jsonDocs, BaseCollectionSubscription.DataState.LOADED_FROM_DISK_CACHE);
 						}
 					}
 				});
@@ -136,16 +136,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		mLogger.logI("Collection '%s' value updated", mCollectionName);
 		mLogger.logJson(documents);
 
-		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
+		BaseCollectionSubscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription != null) {
 			try {
-				List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
-				for(Subscription s : identicalSubscriptions) {
-					applyValueToSubscription(s, documents, Subscription.DataState.LOADED_FROM_SERVER);
+				List<BaseCollectionSubscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+				for(BaseCollectionSubscription s : identicalSubscriptions) {
+					applyValueToSubscription(s, documents, BaseCollectionSubscription.DataState.LOADED_FROM_SERVER);
 				}
 			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
-				applyValueToSubscription(subscription, documents, Subscription.DataState.LOADED_FROM_SERVER);
+				applyValueToSubscription(subscription, documents, BaseCollectionSubscription.DataState.LOADED_FROM_SERVER);
 			}
 
 			// try to put value to cache
@@ -170,9 +170,9 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onFetchResult(String fetchId, String documentsJson) {
-		Subscription<T> subscription = mSubscriptions.remove(fetchId);
+		BaseCollectionSubscription<T> subscription = mSubscriptions.remove(fetchId);
 		subscription.setSubscribed(false);
-		applyValueToSubscription(subscription, documentsJson, Subscription.DataState.LOADED_FROM_SERVER);
+		applyValueToSubscription(subscription, documentsJson, BaseCollectionSubscription.DataState.LOADED_FROM_SERVER);
 	}
 
 
@@ -181,12 +181,12 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		mLogger.logI("Document in collection '%s' updated", mCollectionName);
 		mLogger.logJson(document);
 
-		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
+		BaseCollectionSubscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription != null) {
 			try {
 				int documentPosition = -1;
-				List<Subscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
-				for(Subscription<T> s : identicalSubscriptions) {
+				List<BaseCollectionSubscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
+				for(BaseCollectionSubscription<T> s : identicalSubscriptions) {
 					// apply update to subscription and memory cache
 					documentPosition = applyUpdateToSubscription(document, s);
 				}
@@ -210,7 +210,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onError(String subscriptionId, RapidError error) {
-		Subscription<T> subscription = mSubscriptions.get(subscriptionId);
+		BaseCollectionSubscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription != null) {
 			subscription.invokeError(error);
 			mSubscriptions.remove(subscription.getSubscriptionId());
@@ -221,7 +221,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void onTimedOut() {
-		for(Subscription<T> subscription : mSubscriptions.values()) {
+		for(BaseCollectionSubscription<T> subscription : mSubscriptions.values()) {
 			RapidError error = new RapidError(RapidError.ErrorType.TIMEOUT);
 			mLogger.logE(error);
 			subscription.invokeError(error);
@@ -232,7 +232,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public boolean hasActiveSubscription() {
-		for(Subscription<T> subscription : mSubscriptions.values()) {
+		for(BaseCollectionSubscription<T> subscription : mSubscriptions.values()) {
 			if(subscription.isSubscribed())
 				return true;
 		}
@@ -242,14 +242,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public void resubscribe() {
-		for(Map.Entry<String, Subscription<T>> subscriptionEntry : mSubscriptions.entrySet()) {
-			Subscription<T> subscription = subscriptionEntry.getValue();
+		for(Map.Entry<String, BaseCollectionSubscription<T>> subscriptionEntry : mSubscriptions.entrySet()) {
+			BaseCollectionSubscription<T> subscription = subscriptionEntry.getValue();
 			mConnection.subscribe(subscription);
 		}
 	}
 
 
-	private int applyUpdateToSubscription(String document, Subscription<T> subscription) {
+	private int applyUpdateToSubscription(String document, BaseCollectionSubscription<T> subscription) {
 		int documentPosition = subscription.onDocumentUpdated(parseDocument(document));
 
 		// try to update in-memory cache
@@ -270,7 +270,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyUpdateToDiskCache(int documentPosition, String document, Subscription<T> subscription) {
+	private void applyUpdateToDiskCache(int documentPosition, String document, BaseCollectionSubscription<T> subscription) {
 		try {
 			// disk cache
 			String jsonDocs = mSubscriptionDiskCache.get(subscription);
@@ -327,7 +327,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyValueToSubscription(Subscription subscription, String documents, Subscription.DataState dataState) {
+	private void applyValueToSubscription(BaseCollectionSubscription subscription, String documents, BaseCollectionSubscription.DataState dataState) {
 		List<RapidDocument<T>> parsedDocs = parseDocumentList(documents);
 		if(subscription instanceof RapidDocumentSubscription) {
 			((RapidDocumentSubscription) subscription).setDocument(parsedDocs.isEmpty() ? null : parsedDocs.get(0), dataState);
@@ -337,7 +337,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyValueToSubscription(Subscription subscription, List<RapidDocument<T>> documents, Subscription.DataState dataState) {
+	private void applyValueToSubscription(BaseCollectionSubscription subscription, List<RapidDocument<T>> documents, BaseCollectionSubscription.DataState dataState) {
 		if(subscription instanceof RapidDocumentSubscription) {
 			((RapidDocumentSubscription) subscription).setDocument(documents.isEmpty() ? null : documents.get(0), dataState);
 		} else if(subscription instanceof RapidCollectionSubscription) {
@@ -346,9 +346,9 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private List<Subscription<T>> getSubscriptionsWithFingerprint(String fingerprint) {
-		ArrayList<Subscription<T>> list = new ArrayList<>();
-		for(Subscription<T> s : mSubscriptions.values()) {
+	private List<BaseCollectionSubscription<T>> getSubscriptionsWithFingerprint(String fingerprint) {
+		ArrayList<BaseCollectionSubscription<T>> list = new ArrayList<>();
+		for(BaseCollectionSubscription<T> s : mSubscriptions.values()) {
 			try {
 				if(s.getFingerprint().equals(fingerprint))
 					list.add(s);
@@ -360,7 +360,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void onSubscriptionUnsubscribed(Subscription<T> subscription) {
+	private void onSubscriptionUnsubscribed(BaseCollectionSubscription<T> subscription) {
 		mLogger.logI("Unsubscribing from collection '%s'", mCollectionName);
 
 		mSubscriptions.remove(subscription.getSubscriptionId());

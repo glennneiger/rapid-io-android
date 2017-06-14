@@ -876,6 +876,15 @@ public class RapidCollectionReference<T> {
 	}
 
 
+	/**
+	 * Provides collection name this reference was initialized with
+	 *
+	 * @return collection name
+	 */
+	public String getCollectionName() {
+		return mCollectionName;
+	}
+
 	// Private
 
 

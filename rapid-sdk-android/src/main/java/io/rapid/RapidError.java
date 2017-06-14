@@ -8,7 +8,7 @@ public class RapidError extends Error {
 
 	public enum ErrorType {
 		TIMEOUT("timeout", "Connection timed out"),
-		SUBSCRIPTION_CANCELLED("subscription-cancelled", "Subscription cancelled"),
+		SUBSCRIPTION_CANCELLED("subscription-cancelled", "BaseCollectionSubscription cancelled"),
 		INTERNAL_ERROR("internal-error", "Internal server error"),
 		PERMISSION_DENIED("permission-denied", "Permission denied"),
 		CONNECTION_TERMINATED("connection-terminated", "Connection terminated"),

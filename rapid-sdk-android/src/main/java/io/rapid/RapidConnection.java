@@ -45,16 +45,18 @@ abstract class RapidConnection {
 	abstract ConnectionState getConnectionState();
 
 
-	abstract void subscribe(Subscription subscription);
+	abstract void subscribe(BaseCollectionSubscription subscription);
 
 
-	public abstract void subscribeChannel(String subscriptionId, RapidChannelSubscription subscription);
+	public abstract void subscribeChannel(String subscriptionId, RapidChannelSubscription subscription, boolean nameIsPrefix);
 
 
-	abstract void fetch(String fetchId, Subscription subscription);
+	abstract void fetch(String fetchId, BaseCollectionSubscription subscription);
 
 
-	abstract void onUnsubscribe(BaseSubscription subscription);
+	abstract void onUnsubscribe(BaseCollectionSubscription subscription);
+
+	abstract void onUnsubscribe(RapidChannelSubscription subscription);
 
 
 	public abstract RapidFuture mutate(String collectionName, FutureResolver<String> documentJson);

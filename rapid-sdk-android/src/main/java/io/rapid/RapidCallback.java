@@ -20,7 +20,7 @@ public class RapidCallback {
 	}
 
 	public interface Message<T> {
-		void onMessageReceived(T message);
+		void onMessageReceived(RapidMessage<T> message);
 	}
 
 

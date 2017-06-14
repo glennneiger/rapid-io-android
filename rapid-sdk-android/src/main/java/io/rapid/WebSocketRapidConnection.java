@@ -235,7 +235,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	void subscribe(Subscription subscription) {
+	void subscribe(BaseCollectionSubscription subscription) {
 		Message.Sub messageSub = new Message.Sub(subscription.getCollectionName(), subscription.getSubscriptionId());
 		messageSub.setFilter(subscription.getFilter());
 		messageSub.setLimit(subscription.getLimit());
@@ -250,8 +250,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void subscribeChannel(String subscriptionId, RapidChannelSubscription subscription) {
-		Message.SubCh messageSub = new Message.SubCh(subscription.getChannelName(), subscription.getSubscriptionId());
+	public void subscribeChannel(String subscriptionId, RapidChannelSubscription subscription, boolean nameIsPrefix) {
+		Message.SubCh messageSub = new Message.SubCh(subscription.getChannelName(), subscription.getSubscriptionId(), nameIsPrefix);
 		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
 		RapidFuture future = sendMessage(() -> messageSub);
@@ -260,7 +260,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	void fetch(String fetchId, Subscription subscription) {
+	void fetch(String fetchId, BaseCollectionSubscription subscription) {
 		Message.Ftc messageFtc = new Message.Ftc(subscription.getCollectionName(), fetchId);
 		messageFtc.setFilter(subscription.getFilter());
 		messageFtc.setLimit(subscription.getLimit());
@@ -275,7 +275,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public void onUnsubscribe(BaseSubscription subscription) {
+	public void onUnsubscribe(BaseCollectionSubscription subscription) {
 		boolean sendUnsubscribe = true;
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
 			if(mPendingMessageList.get(i).getMessage() instanceof Message.Sub && ((Message.Sub) mPendingMessageList.get(i).getMessage())
@@ -290,6 +290,27 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 		if(sendUnsubscribe) {
 			Message.Uns messageUns = new Message.Uns(subscription.getSubscriptionId());
+			sendMessage(() -> messageUns);
+		}
+	}
+
+
+	@Override
+	void onUnsubscribe(RapidChannelSubscription subscription) {
+		boolean sendUnsubscribe = true;
+		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
+			if(mPendingMessageList.get(i).getMessage() instanceof Message.SubCh && ((Message.SubCh) mPendingMessageList.get(i).getMessage())
+					.getSubscriptionId().equals(subscription.getSubscriptionId())) {
+				mPendingMessageList.remove(i);
+				sendUnsubscribe = false;
+				break;
+			}
+		}
+
+		mSubscriptionCount--;
+
+		if(sendUnsubscribe) {
+			Message.UnsCh messageUns = new Message.UnsCh(subscription.getSubscriptionId());
 			sendMessage(() -> messageUns);
 		}
 	}

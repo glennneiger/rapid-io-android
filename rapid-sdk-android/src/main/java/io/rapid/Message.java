@@ -591,16 +591,19 @@ abstract class Message {
 	static class SubCh extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
 		private static final String ATTR_CHANNEL_ID = "chan-id";
+		private static final String ATTR_CHANNEL_PREFIX = "pref";
 
 		private String mSubscriptionId;
+		private boolean mNameIsPrefix;
 		private String mChannelId;
 
 
-		SubCh(String channelId, String subscriptionId) {
+		SubCh(String channelId, String subscriptionId, boolean nameIsPrefix) {
 			super(MessageType.SUB_CH);
 
 			mChannelId = channelId;
 			mSubscriptionId = subscriptionId;
+			mNameIsPrefix = nameIsPrefix;
 		}
 
 
@@ -613,7 +616,13 @@ abstract class Message {
 		protected JSONObject createJsonBody() throws JSONException {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_SUB_ID, mSubscriptionId);
-			body.put(ATTR_CHANNEL_ID, mChannelId);
+			if (mNameIsPrefix){
+				JSONObject channelId = new JSONObject();
+				channelId.put(ATTR_CHANNEL_PREFIX, mChannelId);
+				body.put(ATTR_CHANNEL_ID, channelId);
+			} else {
+				body.put(ATTR_CHANNEL_ID, mChannelId);
+			}
 			return body;
 		}
 
@@ -622,7 +631,16 @@ abstract class Message {
 		protected void parseJsonBody(JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
-			mChannelId = jsonBody.optString(ATTR_CHANNEL_ID);
+			try {
+				mChannelId = jsonBody.getString(ATTR_CHANNEL_ID);
+				mNameIsPrefix = false;
+			} catch(JSONException e){
+				JSONObject channelId = jsonBody.optJSONObject(ATTR_CHANNEL_ID);
+				if (channelId!=null) {
+					mChannelId = channelId.optString(ATTR_CHANNEL_PREFIX);
+					mNameIsPrefix = true;
+				}
+			}
 		}
 
 
@@ -758,6 +776,44 @@ abstract class Message {
 
 		Uns(JSONObject json) throws JSONException {
 			super(MessageType.UNS, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_SUB_ID, getSubscriptionId());
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
+		}
+
+
+		public String getSubscriptionId() {
+			return mSubscriptionId;
+		}
+	}
+
+	static class UnsCh extends Message {
+		private static final String ATTR_SUB_ID = "sub-id";
+
+		private String mSubscriptionId;
+
+
+		UnsCh(String subscriptionId) {
+			super(MessageType.UNS_CH);
+
+			mSubscriptionId = subscriptionId;
+		}
+
+
+		UnsCh(JSONObject json) throws JSONException {
+			super(MessageType.UNS_CH, json);
 		}
 
 
@@ -1032,9 +1088,11 @@ abstract class Message {
 	static class CaCh extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
 		private static final String ATTR_CHANNEL_ID = "chan-id";
+		private static final String ATTR_CHANNEL_PREFIX = "pref";
 
 		private String mSubscriptionId;
 		private String mChannelId;
+		private boolean mNameIsPrefix;
 
 
 		public CaCh(String collectionId, String subscriptionId) {
@@ -1054,7 +1112,13 @@ abstract class Message {
 		protected JSONObject createJsonBody() throws JSONException {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_SUB_ID, mSubscriptionId);
-			body.put(ATTR_CHANNEL_ID, mChannelId);
+			if (mNameIsPrefix){
+				JSONObject channelId = new JSONObject();
+				channelId.put(ATTR_CHANNEL_PREFIX, mChannelId);
+				body.put(ATTR_CHANNEL_ID, channelId);
+			} else {
+				body.put(ATTR_CHANNEL_ID, mChannelId);
+			}
 			return body;
 		}
 
@@ -1063,12 +1127,26 @@ abstract class Message {
 		protected void parseJsonBody(JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
-			mChannelId = jsonBody.optString(ATTR_CHANNEL_ID);
+			try {
+				mChannelId = jsonBody.getString(ATTR_CHANNEL_ID);
+				mNameIsPrefix = false;
+			} catch(JSONException e){
+				JSONObject channelId = jsonBody.optJSONObject(ATTR_CHANNEL_ID);
+				if (channelId!=null) {
+					mChannelId = channelId.optString(ATTR_CHANNEL_PREFIX);
+					mNameIsPrefix = true;
+				}
+			}
 		}
 
 
 		public String getSubscriptionId() {
 			return mSubscriptionId;
+		}
+
+
+		public boolean isNamePrefix() {
+			return mNameIsPrefix;
 		}
 
 

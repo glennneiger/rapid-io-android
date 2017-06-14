@@ -31,4 +31,9 @@ public class RapidChannelReference<T> {
 	public RapidFuture publish(T message) {
 		return mChannelConnection.publish(message);
 	}
+
+
+	public String getChannelName() {
+		return mChannelName;
+	}
 }

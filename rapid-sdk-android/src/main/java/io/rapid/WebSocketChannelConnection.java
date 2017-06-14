@@ -12,15 +12,17 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 	private String mChannelName;
 	private final Class<T> mMessageClass;
 	private final RapidLogger mLogger;
+	private boolean mNameIsPrefix;
 	private Map<String, RapidChannelSubscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketChannelConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String channelName, Class<T> messageClass, RapidLogger debugLogger) {
+	WebSocketChannelConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String channelName, Class<T> messageClass, RapidLogger debugLogger, boolean nameIsPrefix) {
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mChannelName = channelName;
 		mMessageClass = messageClass;
 		mLogger = debugLogger;
+		mNameIsPrefix = nameIsPrefix;
 	}
 
 
@@ -29,7 +31,7 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 		subscription.setSubscribed(true);
 		mSubscriptions.put(subscription.getSubscriptionId(), subscription);
-		mConnection.subscribeChannel(subscription.getSubscriptionId(), subscription);
+		mConnection.subscribeChannel(subscription.getSubscriptionId(), subscription, mNameIsPrefix);
 	}
 
 
@@ -58,14 +60,14 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 
 
 	@Override
-	public void onMessage(String subscriptionId, String messageBody) {
+	public void onMessage(String subscriptionId, String channelName, String messageBody) {
 
 		mLogger.logI("New message in channel '%s'", mChannelName);
 		mLogger.logJson(messageBody);
 
 		RapidChannelSubscription<T> subscription = mSubscriptions.get(subscriptionId);
 		T message = parseMessage(messageBody);
-		subscription.onMessage(message);
+		subscription.onMessage(new RapidMessage<>(channelName, message));
 	}
 
 
@@ -77,6 +79,12 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 			mSubscriptions.remove(subscription.getSubscriptionId());
 			subscription.setSubscribed(false);
 		}
+	}
+
+
+	@Override
+	public boolean hasSubscription(String subscriptionId) {
+		return mSubscriptions.containsKey(subscriptionId);
 	}
 
 

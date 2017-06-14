@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RapidDocumentSubscription<T> extends Subscription<T> {
+public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> {
 
 	private RapidCallback.Document<T> mCallback;
 	private String mId;
@@ -30,7 +30,7 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 
 	@Override
 	public RapidDocumentSubscription<T> onError(RapidCallback.Error callback) {
-		return (RapidDocumentSubscription) super.onError(callback);
+		return (RapidDocumentSubscription<T>) super.onError(callback);
 	}
 
 

@@ -4,7 +4,7 @@ package io.rapid;
 import android.os.Handler;
 
 
-public class RapidChannelSubscription<T> extends BaseSubscription{
+public class RapidChannelSubscription<T> extends Subscription {
 	private String mChannelName;
 	private RapidCallback.Message<T> mCallback;
 
@@ -25,12 +25,12 @@ public class RapidChannelSubscription<T> extends BaseSubscription{
 
 
 	@Override
-	public RapidChannelSubscription onError(RapidCallback.Error callback) {
-		return (RapidChannelSubscription) super.onError(callback);
+	public RapidChannelSubscription<T> onError(RapidCallback.Error callback) {
+		return (RapidChannelSubscription<T>) super.onError(callback);
 	}
 
 
-	void onMessage(T message) {
+	void onMessage(RapidMessage<T> message) {
 		mCallback.onMessageReceived(message);
 	}
 }

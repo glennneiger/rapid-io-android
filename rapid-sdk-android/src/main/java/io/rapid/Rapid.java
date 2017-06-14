@@ -66,7 +66,7 @@ public class Rapid {
 
 			@Override
 			public void onChannelError(String subscriptionId, String channelId, RapidError error) {
-				mCollectionProvider.findChannelByName(channelId).onError(subscriptionId, error);
+				mCollectionProvider.findChannelBySubscriptionId(subscriptionId).onError(subscriptionId, error);
 			}
 
 
@@ -90,7 +90,7 @@ public class Rapid {
 
 			@Override
 			public void onChannelMessage(String subscriptionId, String channelName, String body) {
-				mCollectionProvider.findChannelByName(channelName).onMessage(subscriptionId, body);
+				mCollectionProvider.findChannelBySubscriptionId(subscriptionId).onMessage(subscriptionId, channelName, body);
 			}
 		}, handler, mLogger);
 
@@ -99,12 +99,12 @@ public class Rapid {
 			subscriptionDiskCache = new SubscriptionDiskCache(context, Sha1Utility.sha1(mApiKey), Config.CACHE_DEFAULT_SIZE_MB);
 		} catch(IOException e) {
 			e.printStackTrace();
-			throw new IllegalStateException("Subscription cache could not be initialized");
+			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
 		}
 		catch(NoSuchAlgorithmException e)
 		{
 			e.printStackTrace();
-			throw new IllegalStateException("Subscription cache could not be initialized");
+			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
 		}
 
 		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, handler, subscriptionDiskCache, mLogger);
@@ -227,7 +227,11 @@ public class Rapid {
 
 
 	public <T> RapidChannelReference<T> channel(String channelName, Class<T> messageClass){
-		return mCollectionProvider.provideChannel(channelName, messageClass);
+		return mCollectionProvider.provideChannel(channelName, messageClass, true);
+	}
+
+	public <T> RapidChannelReference<T> channels(String channelNamePrefix, Class<T> messageClass){
+		return mCollectionProvider.provideChannel(channelNamePrefix, messageClass, true);
 	}
 
 
