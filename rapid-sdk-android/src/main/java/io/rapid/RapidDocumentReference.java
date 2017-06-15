@@ -85,7 +85,13 @@ public class RapidDocumentReference<T> {
 					if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_CANCEL) {
 						result.invokeSuccess();
 					} else if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_MUTATE) {
-						mutate(executorResult.getValue(), new RapidMutateOptions.Builder().expectEtag(document != null ? document.getEtag() : Etag.NO_ETAG).build()).onError(error -> {
+						RapidMutateOptions options = executorResult.getOptions();
+						if (options == null)
+							options = new RapidMutateOptions.Builder().build();
+
+						options.setExpectedEtag(document != null ? document.getEtag() : Etag.NO_ETAG);
+
+						mutate(executorResult.getValue(), options).onError(error -> {
 							if(error.getType() == RapidError.ErrorType.ETAG_CONFLICT) {
 								execute(documentExecutor)
 										.onSuccess(result::invokeSuccess)
