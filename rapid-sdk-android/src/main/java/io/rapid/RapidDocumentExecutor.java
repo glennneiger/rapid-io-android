@@ -12,7 +12,7 @@ public class RapidDocumentExecutor<T> {
 	 * Return this if you decided to delete the document based on the most recent data
 	 */
 	public static Result delete() {
-		return new Result<>(Result.TYPE_MUTATE, null);
+		return new Result<>(Result.TYPE_MUTATE, null, null);
 	}
 
 
@@ -20,7 +20,15 @@ public class RapidDocumentExecutor<T> {
 	 * Return this if you decided to mutate the document based on the most recent data
 	 */
 	public static <T> Result mutate(T value) {
-		return new Result<>(Result.TYPE_MUTATE, value);
+		return mutate(value, null);
+	}
+
+
+	/**
+	 * Return this if you decided to mutate the document based on the most recent data
+	 */
+	public static <T> Result mutate(T value, RapidMutateOptions options) {
+		return new Result<>(Result.TYPE_MUTATE, value, options);
 	}
 
 
@@ -28,7 +36,7 @@ public class RapidDocumentExecutor<T> {
 	 * Return this if you decided not to do anything with the document
 	 */
 	public static Result cancel() {
-		return new Result<>(Result.TYPE_CANCEL, null);
+		return new Result<>(Result.TYPE_CANCEL, null, null);
 	}
 
 
@@ -38,11 +46,18 @@ public class RapidDocumentExecutor<T> {
 
 		private int mType;
 		private T mValue;
+		private RapidMutateOptions mOptions;
 
 
-		Result(int type, T value) {
+		Result(int type, T value, RapidMutateOptions options) {
 			mType = type;
 			mValue = value;
+			mOptions = options;
+		}
+
+
+		public RapidMutateOptions getOptions() {
+			return mOptions;
 		}
 
 

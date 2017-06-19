@@ -101,9 +101,9 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		try {
 			// first try in-memory cache
 			List<RapidDocument<T>> docs = mSubscriptionMemoryCache.get(subscription);
-			mLogger.logI("Value for collection '%s' loaded from in-memory cache", mCollectionName);
 			if(docs != null) {
 				if (subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
+					mLogger.logI("Value for collection '%s' loaded from in-memory cache", mCollectionName);
 					applyValueToSubscription(subscription, docs, BaseCollectionSubscription.DataState.LOADED_FROM_MEMORY_CACHE);
 				}
 			} else { // then try disk cache

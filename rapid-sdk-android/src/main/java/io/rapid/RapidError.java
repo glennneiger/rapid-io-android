@@ -26,7 +26,7 @@ public class RapidError extends Error {
 		}
 
 
-		public static ErrorType fromServerError(Message.Err serverError) {
+		public static ErrorType fromServerError(Message.Err serverError, MessageFuture messageFuture) {
 			ErrorType result = UNKNOWN_ERROR; // default error type
 			Message.Err.Type errorType = serverError.getType();
 			for(ErrorType type : values()) {
@@ -39,6 +39,12 @@ public class RapidError extends Error {
 			// if there is a error message provided by server - use it
 			if(serverError.getErrorMessage() != null)
 				result.setMessage(serverError.getErrorMessage());
+
+			if(result == PERMISSION_DENIED && messageFuture.getMessage() instanceof Message.Sub)
+			{
+				Message.Sub msg = (Message.Sub)messageFuture.getMessage();
+				result.setMessage("Permission denied, collection: " + msg.getCollectionId());
+			}
 
 			return result;
 		}

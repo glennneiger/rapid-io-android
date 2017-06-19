@@ -38,6 +38,11 @@ public class RapidMutateOptions {
 	}
 
 
+	void setExpectedEtag(Etag expectedEtag) {
+		mExpectedEtag = expectedEtag;
+	}
+
+
 	Etag getExpectedEtag() {
 		return mExpectedEtag;
 	}

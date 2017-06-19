@@ -517,7 +517,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				}
 				if(position != -1) {
 					MessageFuture messageFuture = mSentMessageList.get(position);
-					RapidError error = new RapidError(RapidError.ErrorType.fromServerError(message));
+					RapidError error = new RapidError(RapidError.ErrorType.fromServerError(message, messageFuture));
 					mLogger.logE(error);
 					messageFuture.getRapidFuture().invokeError(error);
 					if(messageFuture.getMessage() instanceof Message.Mut || messageFuture.getMessage() instanceof Message.Del)
