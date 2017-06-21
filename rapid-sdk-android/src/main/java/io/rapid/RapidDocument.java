@@ -78,7 +78,9 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 		}
 
 		Sorting sortingType;
-		if(depth == sorting.size() - 1) // last sorting by created_timestamp
+		if (order == null){
+			sortingType = Sorting.ASC;
+		} else if(depth == sorting.size() - 1) // last sorting by created_timestamp
 			// TODO: temp fix until DocumentDB supports multiple order
 			// Document DB can sort by one attribute for now. Secondary sort is by 'crt' attribute but the direction is the same
 			// Therefore we need to get sorting type form the first sorting in order list temporarily
