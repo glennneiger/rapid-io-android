@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
+import io.rapid.RapidCollectionSubscription;
 import io.rapid.RapidDocument;
 import io.rapid.rapidsdk.base.BaseRapidTest;
 
@@ -110,6 +111,18 @@ public class CollectionTest extends BaseRapidTest {
 			fail(error.getMessage());
 		});
 		lockAsync();
+	}
+
+	@Test
+	public void testUnsubscribe() throws InterruptedException {
+		RapidCollectionReference<Car> collection = Rapid.getInstance().collection("android_instr_test_002_" + UUID.randomUUID().toString(), Car.class);
+		RapidCollectionSubscription sub = collection.subscribe(rapidDocuments -> {
+			unlockAsync();
+		}).onError(error -> fail(error.getMessage()));
+
+		lockAsync();
+		sub.unsubscribe();
+		Thread.sleep(5000);
 	}
 
 }
