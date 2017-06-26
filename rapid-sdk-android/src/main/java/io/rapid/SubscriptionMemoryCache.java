@@ -27,7 +27,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public synchronized List<RapidDocument<T>> get(Subscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized List<RapidDocument<T>> get(BaseCollectionSubscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return null;
 		String fingerprint = subscription.getFingerprint();
@@ -44,7 +44,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public synchronized void put(Subscription subscription, List<RapidDocument<T>> value) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized void put(BaseCollectionSubscription subscription, List<RapidDocument<T>> value) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
@@ -74,7 +74,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	synchronized void remove(Subscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	synchronized void remove(BaseCollectionSubscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
@@ -83,7 +83,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	private String getDocumentKey(Subscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+	private String getDocumentKey(BaseCollectionSubscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		return Sha1Utility.sha1(subscription.getCollectionName() + "/" + documentId);
 	}
 }

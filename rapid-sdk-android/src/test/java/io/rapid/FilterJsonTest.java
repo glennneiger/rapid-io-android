@@ -198,7 +198,7 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test
 	public void test_array_filters() throws Exception {
-		Subscription sub = getNewCollection()
+		BaseCollectionSubscription sub = getNewCollection()
 				.arrayContains("prop", "a").subscribe(rapidDocuments -> {});
 
 		String json = "{\"prop\":{\"arr-cnt\":\"a\"}}";

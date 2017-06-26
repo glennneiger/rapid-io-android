@@ -10,7 +10,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void subscribe(Subscription<T> subscription) {
+	public void subscribe(BaseCollectionSubscription<T> subscription) {
 
 	}
 
@@ -64,7 +64,7 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void fetch(Subscription<T> subscription) {
+	public void fetch(BaseCollectionSubscription<T> subscription) {
 
 	}
 }

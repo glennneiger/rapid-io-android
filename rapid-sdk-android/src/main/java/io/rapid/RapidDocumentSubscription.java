@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RapidDocumentSubscription<T> extends Subscription<T> {
+public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> {
 
 	private RapidCallback.Document<T> mCallback;
 	private String mId;
@@ -25,6 +25,12 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 		mDocument = document;
 		invokeChange();
 		return 0;
+	}
+
+
+	@Override
+	public RapidDocumentSubscription<T> onError(RapidCallback.Error callback) {
+		return (RapidDocumentSubscription<T>) super.onError(callback);
 	}
 
 
@@ -57,13 +63,6 @@ public class RapidDocumentSubscription<T> extends Subscription<T> {
 		List<RapidDocument<T>> list = new ArrayList<>();
 		list.add(mDocument);
 		return list;
-	}
-
-
-	@Override
-	public RapidDocumentSubscription onError(RapidCallback.Error callback) {
-		mErrorCallback = callback;
-		return this;
 	}
 
 

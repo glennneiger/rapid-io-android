@@ -37,7 +37,7 @@ import io.rapid.lifecycle.RapidLiveData;
  * 		.subscribe(documents -> {
  * 			log(documents.toString());
  * 		})
- * 		.onError(error -> {
+ * 		.onCollectionError(error -> {
  * 			error.printStackTrace();
  * 		});
  * }
@@ -875,6 +875,15 @@ public class RapidCollectionReference<T> {
 		return new RapidLiveData<T>(this);
 	}
 
+
+	/**
+	 * Provides collection name this reference was initialized with
+	 *
+	 * @return collection name
+	 */
+	public String getCollectionName() {
+		return mCollectionName;
+	}
 
 	// Private
 

@@ -10,7 +10,7 @@ import java.util.Stack;
 import io.rapid.utility.SortUtility;
 
 
-public class RapidCollectionSubscription<T> extends Subscription<T> {
+public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T> {
 
 
 	private List<RapidDocument<T>> mDocuments = new ArrayList<>();
@@ -77,9 +77,8 @@ public class RapidCollectionSubscription<T> extends Subscription<T> {
 
 
 	@Override
-	public RapidCollectionSubscription onError(RapidCallback.Error callback) {
-		mErrorCallback = callback;
-		return this;
+	public RapidCollectionSubscription<T> onError(RapidCallback.Error callback) {
+		return (RapidCollectionSubscription<T>) super.onError(callback);
 	}
 
 

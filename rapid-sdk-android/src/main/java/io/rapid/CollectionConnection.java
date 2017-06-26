@@ -3,7 +3,7 @@ package io.rapid;
 
 interface CollectionConnection<T> {
 	RapidFuture mutate(String id, T value, RapidMutateOptions options);
-	void subscribe(Subscription<T> subscription);
+	void subscribe(BaseCollectionSubscription<T> subscription);
 	void onValue(String subscriptionId, String documents);
 	void onFetchResult(String fetchId, String documentsJson);
 	void onUpdate(String subscriptionId, String document);
@@ -12,5 +12,5 @@ interface CollectionConnection<T> {
 	boolean hasActiveSubscription();
 	void resubscribe();
 	void onRemove(String subscriptionId, String document);
-	void fetch(Subscription<T> subscription);
+	void fetch(BaseCollectionSubscription<T> subscription);
 }

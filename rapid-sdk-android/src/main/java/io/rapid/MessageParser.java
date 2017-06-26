@@ -20,6 +20,10 @@ class MessageParser {
 				return new Message.Mer(json);
 			case SUB:
 				return new Message.Sub(json);
+			case MES:
+				return new Message.Mes(json);
+			case SUB_CH:
+				return new Message.SubCh(json);
 			case FTC:
 				return new Message.Ftc(json);
 			case RES:
@@ -40,10 +44,14 @@ class MessageParser {
 				return new Message.Nop(json);
 			case CA:
 				return new Message.Ca(json);
+			case CA_CH:
+				return new Message.CaCh(json);
+			case PUB:
+				return new Message.Pub(json);
 			case DEL:
 				return new Message.Del(json);
 			case RM:
-				return new Message.Rm( json);
+				return new Message.Rm(json);
 			case UNKNOWN:
 				return new Message.Unknown();
 			default:

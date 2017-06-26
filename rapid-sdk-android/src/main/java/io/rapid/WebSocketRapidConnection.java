@@ -128,6 +128,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			handleErrMessage((Message.Err) message);
 		} else if(message.getMessageType() == MessageType.CA) {
 			handleCaMessage((Message.Ca) message);
+		} else if(message.getMessageType() == MessageType.CA_CH) {
+			handleCaMessage((Message.CaCh) message);
 		} else if(message.getMessageType() == MessageType.ACK) {
 			handleAckMessage((Message.Ack) message);
 		} else if(message.getMessageType() == MessageType.VAL) {
@@ -143,8 +145,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		} else if(message.getMessageType() == MessageType.RM) {
 			Message.Rm rmMessage = ((Message.Rm) message);
 			mCallback.onRemove(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), rmMessage.getDocument());
+		} else if (message.getMessageType() == MessageType.MES){
+			Message.Mes mesMessage = (Message.Mes) message;
+			mCallback.onChannelMessage(mesMessage.getSubscriptionId(), mesMessage.getChannelName(), mesMessage.getBody());
 		}
 	}
+
+
 
 
 	@Override
@@ -181,7 +188,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 //	@Override
-//	public void onError(Exception ex)
+//	public void onCollectionError(Exception ex)
 //	{
 //		mLogger.logE(ex);
 //		changeConnectionState(DISCONNECTED);
@@ -228,8 +235,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	void subscribe(String subscriptionId, Subscription subscription) {
-		Message.Sub messageSub = new Message.Sub(subscription.getCollectionName(), subscriptionId);
+	void subscribe(BaseCollectionSubscription subscription) {
+		Message.Sub messageSub = new Message.Sub(subscription.getCollectionName(), subscription.getSubscriptionId());
 		messageSub.setFilter(subscription.getFilter());
 		messageSub.setLimit(subscription.getLimit());
 		messageSub.setOrder(subscription.getOrder());
@@ -238,12 +245,22 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
 		RapidFuture future = sendMessage(() -> messageSub);
-		future.onError(error -> mCallback.onError(subscriptionId, subscription.getCollectionName(), error));
+		future.onError(error -> mCallback.onCollectionError(subscription.getSubscriptionId(), subscription.getCollectionName(), error));
 	}
 
 
 	@Override
-	void fetch(String fetchId, Subscription subscription) {
+	public void subscribeChannel(String subscriptionId, RapidChannelSubscription subscription, boolean nameIsPrefix) {
+		Message.SubCh messageSub = new Message.SubCh(subscription.getChannelName(), subscription.getSubscriptionId(), nameIsPrefix);
+		mSubscriptionCount++;
+		createWebSocketConnectionIfNeeded();
+		RapidFuture future = sendMessage(() -> messageSub);
+		future.onError(error ->  mCallback.onChannelError(subscription.getSubscriptionId(), subscription.getChannelName(), error));
+	}
+
+
+	@Override
+	void fetch(String fetchId, BaseCollectionSubscription subscription) {
 		Message.Ftc messageFtc = new Message.Ftc(subscription.getCollectionName(), fetchId);
 		messageFtc.setFilter(subscription.getFilter());
 		messageFtc.setLimit(subscription.getLimit());
@@ -253,12 +270,12 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
 		RapidFuture future = sendMessage(() -> messageFtc);
-		future.onError(error -> mCallback.onError(fetchId, subscription.getCollectionName(), error));
+		future.onError(error -> mCallback.onCollectionError(fetchId, subscription.getCollectionName(), error));
 	}
 
 
 	@Override
-	public void onUnsubscribe(Subscription subscription) {
+	public void onUnsubscribe(BaseCollectionSubscription subscription) {
 		boolean sendUnsubscribe = true;
 		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
 			if(mPendingMessageList.get(i).getMessage() instanceof Message.Sub && ((Message.Sub) mPendingMessageList.get(i).getMessage())
@@ -279,10 +296,39 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
+	void onUnsubscribe(RapidChannelSubscription subscription) {
+		boolean sendUnsubscribe = true;
+		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
+			if(mPendingMessageList.get(i).getMessage() instanceof Message.SubCh && ((Message.SubCh) mPendingMessageList.get(i).getMessage())
+					.getSubscriptionId().equals(subscription.getSubscriptionId())) {
+				mPendingMessageList.remove(i);
+				sendUnsubscribe = false;
+				break;
+			}
+		}
+
+		mSubscriptionCount--;
+
+		if(sendUnsubscribe) {
+			Message.UnsCh messageUns = new Message.UnsCh(subscription.getSubscriptionId());
+			sendMessage(() -> messageUns);
+		}
+	}
+
+
+	@Override
 	public RapidFuture mutate(String collectionName, FutureResolver<String> documentJsonResolver) {
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
 		return sendMessage(() -> new Message.Mut(collectionName, documentJsonResolver.resolve()));
+	}
+
+
+	@Override
+	public RapidFuture publish(String channelName, FutureResolver<String> messageJson) {
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		return sendMessage(() -> new Message.Pub(channelName, messageJson.resolve()));
 	}
 
 
@@ -491,7 +537,14 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private synchronized void handleCaMessage(Message.Ca message) {
 		mSubscriptionCount--;
 		disconnectWebSocketConnectionIfNeeded();
-		getCallback().onError(message.getSubscriptionId(), message.getCollectionId(), new RapidError(SUBSCRIPTION_CANCELLED));
+		getCallback().onCollectionError(message.getSubscriptionId(), message.getCollectionId(), new RapidError(SUBSCRIPTION_CANCELLED));
+	}
+
+
+	private void handleCaMessage(Message.CaCh message) {
+		mSubscriptionCount--;
+		disconnectWebSocketConnectionIfNeeded();
+		getCallback().onChannelError(message.getSubscriptionId(), message.getChannelId(), new RapidError(SUBSCRIPTION_CANCELLED));
 	}
 
 
@@ -509,7 +562,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		if(position != -1) {
 			MessageFuture messageFuture = mSentMessageList.get(position);
 			messageFuture.getRapidFuture().invokeSuccess();
-			if(messageFuture.getMessage() instanceof Message.Mut || messageFuture.getMessage() instanceof Message.Del)
+			if(messageFuture.getMessage() instanceof Message.Mut
+					|| messageFuture.getMessage() instanceof Message.Del
+					|| messageFuture.getMessage() instanceof Message.Pub)
 				mPendingMutationCount--;
 //			if(messageFuture.getMessage() instanceof Message.Auth) {
 //				mAuth.authSuccess();
