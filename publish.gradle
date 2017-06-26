@@ -66,3 +66,20 @@ bintray {
 		}
 	}
 }
+
+// Update README.md version automatically
+task updateReadmeVersion << {
+	println "Updating README.md SDK version to $libraryVersion"
+	def readme = file('README.md')
+	def compilePath = publishedGroupId + ":" + artifact + ":"
+	def updatedReadmeText = readme.text.replaceFirst("compile '" + compilePath + "[^']+'", "compile '" + compilePath + libraryVersion + "'")
+	readme.write(updatedReadmeText)
+
+
+	// commit version changes and push
+	println "Committing changes to git and pushing to origin"
+	exec {commandLine 'git', 'add', 'README.md'}
+	exec {commandLine 'git', 'commit', '-m', '"Updated README SDK version"'}
+	exec {commandLine 'git', 'push', 'origin'}
+}
+bintrayUpload.dependsOn updateReadmeVersion
