@@ -220,6 +220,10 @@ public class SampleUsage {
 //					Log.d(TAG, todos.toString());
 //				});
 
+
+		Rapid.getInstance().channels("todos-update", Todo.class)
+				.publish(new Todo()).onSuccess(() -> {Log.d(TAG, "Message published");});
+
 	}
 
 

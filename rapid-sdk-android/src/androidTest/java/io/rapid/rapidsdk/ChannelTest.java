@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import io.rapid.Rapid;
+import io.rapid.RapidChannelPrefixReference;
 import io.rapid.RapidChannelReference;
 import io.rapid.RapidChannelSubscription;
 import io.rapid.rapidsdk.base.BaseRapidTest;
@@ -45,9 +46,10 @@ public class ChannelTest extends BaseRapidTest {
 		subscription.unsubscribe();
 	}
 
+
 	@Test
 	public void testPrefix() {
-		RapidChannelReference<Car> channel = Rapid.getInstance().channels("android_instr_test_channel_002_", Car.class);
+		RapidChannelPrefixReference<Car> channel = Rapid.getInstance().channels("android_instr_test_channel_002_", Car.class);
 		RapidChannelSubscription<Car> subscription = channel.subscribe(message -> {
 			assertEquals("test_channel", message.getBody().getName());
 			assertEquals(7, message.getBody().getNumber());
@@ -62,6 +64,5 @@ public class ChannelTest extends BaseRapidTest {
 
 		subscription.unsubscribe();
 	}
-
 
 }
