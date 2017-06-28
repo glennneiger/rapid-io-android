@@ -173,7 +173,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 	private synchronized void invokeChange(ListUpdate listUpdate) {
 		mUiThreadHandler.post(() -> {
 			synchronized(mCallback) {
-				mCallback.onValueChanged(mDocuments, listUpdate);
+				mCallback.onValueChanged(new ArrayList<>(mDocuments), listUpdate);
 			}
 		});
 	}
