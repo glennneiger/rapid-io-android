@@ -227,10 +227,10 @@ public class Rapid {
 
 
 	public <T> RapidChannelReference<T> channel(String channelName, Class<T> messageClass){
-		return mCollectionProvider.provideChannel(channelName, messageClass, true);
+		return ((RapidChannelReference) mCollectionProvider.provideChannel(channelName, messageClass, false));
 	}
 
-	public <T> RapidChannelReference<T> channels(String channelNamePrefix, Class<T> messageClass){
+	public <T> RapidChannelPrefixReference<T> channels(String channelNamePrefix, Class<T> messageClass){
 		return mCollectionProvider.provideChannel(channelNamePrefix, messageClass, true);
 	}
 

@@ -29,18 +29,18 @@ class CollectionProvider {
 
 	public ChannelConnection findChannelBySubscriptionId(String subscriptionId) {
 		for(String channelName : mChannelConnections.keySet()) {
-			if (mChannelConnections.get(channelName).hasSubscription(subscriptionId))
+			if(mChannelConnections.get(channelName).hasSubscription(subscriptionId))
 				return mChannelConnections.get(channelName);
 		}
 		for(String channelName : mChannelPrefixConnections.keySet()) {
-			if (mChannelPrefixConnections.get(channelName).hasSubscription(subscriptionId))
+			if(mChannelPrefixConnections.get(channelName).hasSubscription(subscriptionId))
 				return mChannelPrefixConnections.get(channelName);
 		}
 		throw new IllegalArgumentException("BaseCollectionSubscription not found");
 	}
 
 
-	<T> RapidChannelReference<T> provideChannel(String channelName, Class<T> messageClass, boolean nameIsPrefix) {
+	<T> RapidChannelPrefixReference<T> provideChannel(String channelName, Class<T> messageClass, boolean nameIsPrefix) {
 		if(nameIsPrefix) {
 			if(!mChannelPrefixConnections.containsKey(channelName))
 				mChannelPrefixConnections.put(channelName, new WebSocketChannelConnection<>(mConnection, mJsonConverter, channelName, messageClass, mDebugLogger, true));
@@ -48,7 +48,10 @@ class CollectionProvider {
 			if(!mChannelConnections.containsKey(channelName))
 				mChannelConnections.put(channelName, new WebSocketChannelConnection<>(mConnection, mJsonConverter, channelName, messageClass, mDebugLogger, false));
 		}
-		return new RapidChannelReference<T>(nameIsPrefix ? mChannelPrefixConnections.get(channelName) : mChannelConnections.get(channelName), channelName, mOriginalThreadHandler);
+		if(nameIsPrefix)
+			return new RapidChannelPrefixReference<T>(mChannelPrefixConnections.get(channelName), channelName, mOriginalThreadHandler);
+		else
+			return new RapidChannelReference<T>(mChannelConnections.get(channelName), channelName, mOriginalThreadHandler);
 	}
 
 
