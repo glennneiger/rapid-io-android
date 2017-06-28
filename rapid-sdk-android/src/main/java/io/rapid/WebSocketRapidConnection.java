@@ -1,16 +1,9 @@
 package io.rapid;
 
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
-import android.os.PowerManager;
 
 import org.json.JSONException;
 
@@ -33,8 +26,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private final RapidLogger mLogger;
 	private long mConnectionTimeout = Config.DEFAULT_CONNECTION_TIMEOUT;
 	private WebSocketConnection mWebSocketConnection;
-	private boolean mInternetConnected = true;
-	private boolean mInternetConnectionBroadcast = false;
 	private long mConnectionLossTimestamp = -1;
 	private ConnectionState mConnectionState = DISCONNECTED;
 	private String mConnectionId;
@@ -55,41 +46,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private Runnable mDisconnectRunnable = () -> {
 		disconnectWebSocketConnection(true);
 	};
-	private BroadcastReceiver mInternetConnectionBroadcastReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-				final ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-				final NetworkInfo info = connManager.getActiveNetworkInfo();
-				boolean hasInternetConnection = info != null && info.isConnected();
-				Logcat.d("Internet connected: " + hasInternetConnection);
-				if(hasInternetConnection) {
-					mInternetConnected = true;
-					unregisterDeviceIdleBroadcast();
-					unregisterInternetConnectionBroadcast();
-					createWebSocketConnectionIfNeeded();
-				}
-			}
-		}
-	};
 	private Runnable mConnectionRetryRunnable = this::createWebSocketConnectionIfNeeded;
-
-	private BroadcastReceiver mDeviceIdleBroadcastReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-			if(intent.getAction().equals(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED)) {
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-				{
-					if(!((PowerManager) context.getSystemService(Context.POWER_SERVICE)).isDeviceIdleMode() && !mInternetConnected)
-					{
-						registerInternetConnectionBroadcast();
-					}
-				}
-			}
-		}
-	};
-
 
 	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger) {
 		super(rapidConnectionCallback);
@@ -171,8 +128,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-
-
 	@Override
 	public void onClose(CloseReason reason) {
 		mAuth.onClose();
@@ -188,15 +143,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			if(!mCheckRunning)
 				startCheckHandler();
 
-			if(reason == CloseReason.INTERNET_CONNECTION_LOST ||
-					reason == CloseReason.NO_INTERNET_CONNECTION) {
-				mInternetConnected = false;
-				registerDeviceIdleBroadcast();
-				registerInternetConnectionBroadcast();
-			} else {
-				// try to connect again
-				mCheckHandler.postDelayed(mConnectionRetryRunnable, Config.CONNECTION_RETRY_PERIOD);
-			}
+			// try to connect again
+			mCheckHandler.postDelayed(mConnectionRetryRunnable, Config.CONNECTION_RETRY_PERIOD);
 		}
 	}
 
@@ -376,17 +324,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			// cancel scheduled disconnect if any
 			mCheckHandler.removeCallbacks(mDisconnectRunnable);
 			if(mWebSocketConnection == null) {
-				if(mInternetConnected) {
-					changeConnectionState(CONNECTING);
-					mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
-					mWebSocketConnection.connectToServer(mContext);
-				} else {
-					registerInternetConnectionBroadcast();
-					registerDeviceIdleBroadcast();
-					if(!mCheckRunning) {
-						startCheckHandler();
-					}
-				}
+				changeConnectionState(CONNECTING);
+				mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this);
+				mWebSocketConnection.connectToServer(mContext);
 			}
 		}
 	}
@@ -411,60 +351,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mWebSocketConnection = null;
 			mConnectionId = null;
 			stopCheckHandler();
-		}
-	}
-
-
-	private void registerInternetConnectionBroadcast() {
-		if(mContext != null && !mInternetConnectionBroadcast) {
-			try
-			{
-				unregisterInternetConnectionBroadcast();
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-
-			mInternetConnectionBroadcast = true;
-			mContext.registerReceiver(mInternetConnectionBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		}
-	}
-
-
-	private void unregisterInternetConnectionBroadcast() {
-		if(mContext != null && mInternetConnectionBroadcast) {
-			mInternetConnectionBroadcast = false;
-			mContext.unregisterReceiver(mInternetConnectionBroadcastReceiver);
-		}
-	}
-
-
-	private void registerDeviceIdleBroadcast() {
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-		{
-
-		}
-		if(mContext != null) {
-
-			try
-			{
-				unregisterDeviceIdleBroadcast();
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-
-			mInternetConnectionBroadcast = true;
-			mContext.registerReceiver(mDeviceIdleBroadcastReceiver, new IntentFilter(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED));
-		}
-	}
-
-
-	private void unregisterDeviceIdleBroadcast() {
-		if(mContext != null) {
-			mContext.unregisterReceiver(mDeviceIdleBroadcastReceiver);
 		}
 	}
 
@@ -723,8 +609,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mPendingMutationCount = 0;
 			mCheckHandler.removeCallbacks(mConnectionRetryRunnable);
 			stopCheckHandler();
-			unregisterInternetConnectionBroadcast();
-			unregisterDeviceIdleBroadcast();
 			mCallback.onTimedOut();
 			changeConnectionState(DISCONNECTED);
 		}
