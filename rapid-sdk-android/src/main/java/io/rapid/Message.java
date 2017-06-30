@@ -79,6 +79,14 @@ abstract class Message {
 		Nop(JSONObject json) throws JSONException {
 			super(MessageType.NOP, json);
 		}
+
+
+		@Override
+		public JSONObject toJson() throws JSONException {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put(getMessageType().getKey(), JSONObject.NULL);
+			return jsonObject;
+		}
 	}
 
 
@@ -418,6 +426,14 @@ abstract class Message {
 
 		Dis(JSONObject json) throws JSONException {
 			super(MessageType.DIS, json);
+		}
+
+
+		@Override
+		public JSONObject toJson() throws JSONException {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put(getMessageType().getKey(), JSONObject.NULL);
+			return jsonObject;
 		}
 	}
 

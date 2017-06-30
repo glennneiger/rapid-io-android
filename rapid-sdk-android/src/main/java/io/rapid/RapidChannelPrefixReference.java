@@ -4,15 +4,15 @@ package io.rapid;
 import android.os.Handler;
 
 
-public class RapidChannelReference<T> {
+public class RapidChannelPrefixReference<T> {
 
 
-	private ChannelConnection<T> mChannelConnection;
+	protected ChannelConnection<T> mChannelConnection;
 	private String mChannelName;
 	private Handler mOriginalThreadHandler;
 
 
-	RapidChannelReference(ChannelConnection<T> channelConnection, String channelName, Handler originalThreadHandler) {
+	RapidChannelPrefixReference(ChannelConnection<T> channelConnection, String channelName, Handler originalThreadHandler) {
 		mChannelConnection = channelConnection;
 		mChannelName = channelName;
 		mOriginalThreadHandler = originalThreadHandler;
@@ -28,9 +28,7 @@ public class RapidChannelReference<T> {
 	}
 
 
-	public RapidFuture publish(T message) {
-		return mChannelConnection.publish(message);
-	}
+
 
 
 	public String getChannelName() {
