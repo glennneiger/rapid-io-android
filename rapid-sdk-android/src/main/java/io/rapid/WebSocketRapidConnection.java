@@ -8,7 +8,9 @@ import android.os.Handler;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import static io.rapid.Config.CHECKER_HANDLER_PERIOD;
 import static io.rapid.Config.HB_PERIOD;
@@ -38,15 +40,17 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private boolean mCheckRunning = false;
 	private Handler mCheckHandler = new Handler();
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
+	private Runnable mDisconnectRunnable = () -> {
+		disconnectWebSocketConnection(true);
+	};
+	private Runnable mConnectionRetryRunnable = this::createWebSocketConnectionIfNeeded;
 	private Runnable mCheckRunnable = () ->
 	{
 		startCheckHandler();
 		check();
 	};
-	private Runnable mDisconnectRunnable = () -> {
-		disconnectWebSocketConnection(true);
-	};
-	private Runnable mConnectionRetryRunnable = this::createWebSocketConnectionIfNeeded;
+	private Queue<RapidCallback.TimeOffset> mTimeOffsetCallbacks = new LinkedList<>();
+
 
 	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, Handler originalThreadHandler, RapidLogger logger) {
 		super(rapidConnectionCallback);
@@ -121,7 +125,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		} else if(message.getMessageType() == MessageType.RM) {
 			Message.Rm rmMessage = ((Message.Rm) message);
 			mCallback.onRemove(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), rmMessage.getDocument());
-		} else if (message.getMessageType() == MessageType.MES){
+		} else if(message.getMessageType() == MessageType.TS) {
+			Message.Ts tsMessage = (Message.Ts) message;
+			handleTsMessage(tsMessage);
+		} else if(message.getMessageType() == MessageType.MES) {
 			Message.Mes mesMessage = (Message.Mes) message;
 			mCallback.onChannelMessage(mesMessage.getSubscriptionId(), mesMessage.getChannelName(), mesMessage.getBody());
 		}
@@ -223,7 +230,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
 		RapidFuture future = sendMessage(() -> messageSub);
-		future.onError(error ->  mCallback.onChannelError(subscription.getSubscriptionId(), subscription.getChannelName(), error));
+		future.onError(error -> mCallback.onChannelError(subscription.getSubscriptionId(), subscription.getChannelName(), error));
 	}
 
 
@@ -311,6 +318,22 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public void setConnectionTimeout(long connectionTimeoutMs) {
 		mConnectionTimeout = connectionTimeoutMs;
+	}
+
+
+	@Override
+	public RapidFuture getSetverTimeOffset(RapidCallback.TimeOffset callback) {
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		mTimeOffsetCallbacks.add(callback);
+		return sendMessage(Message.ReqTs::new);
+	}
+
+
+	private void handleTsMessage(Message.Ts tsMessage) {
+		mPendingMutationCount--;
+		long diff = System.currentTimeMillis() - tsMessage.getTimestamp();
+		mTimeOffsetCallbacks.poll().onTimeOffsetReceived(diff);
 	}
 
 
@@ -434,6 +457,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				|| parsedMessage.getMessageType() == MessageType.UPD
 				|| parsedMessage.getMessageType() == MessageType.RES
 				|| parsedMessage.getMessageType() == MessageType.RM
+				|| parsedMessage.getMessageType() == MessageType.TS
+				|| parsedMessage.getMessageType() == MessageType.CA_CH
+				|| parsedMessage.getMessageType() == MessageType.MES
 				|| parsedMessage.getMessageType() == MessageType.CA) {
 			sendMessage(() -> new Message.Ack(parsedMessage.getEventId()));
 		}
@@ -465,10 +491,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 					RapidError error = new RapidError(RapidError.ErrorType.fromServerError(message, messageFuture));
 					mLogger.logE(error);
 					messageFuture.getRapidFuture().invokeError(error);
-					if(messageFuture.getMessage() instanceof Message.Mut || messageFuture.getMessage() instanceof Message.Del)
-						mPendingMutationCount--;
-					if(messageFuture.getMessage() instanceof Message.Sub || messageFuture.getMessage() instanceof Message.Ftc)
-						mSubscriptionCount--;
+					updateCountersOnError(messageFuture);
 					mSentMessageList.remove(position);
 				}
 
@@ -476,6 +499,22 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 
 		disconnectWebSocketConnectionIfNeeded();
+	}
+
+
+	private void updateCountersOnError(MessageFuture erroredMessageFuture) {
+		if(erroredMessageFuture.getMessage() instanceof Message.Mut || erroredMessageFuture.getMessage() instanceof Message.Del || erroredMessageFuture.getMessage() instanceof Message.Ts || erroredMessageFuture.getMessage() instanceof Message.Pub)
+			mPendingMutationCount--;
+		if(erroredMessageFuture.getMessage() instanceof Message.Sub || erroredMessageFuture.getMessage() instanceof Message.Ftc)
+			mSubscriptionCount--;
+	}
+
+
+	private void timeoutMessage(MessageFuture messageFuture) {
+		updateCountersOnError(messageFuture);
+		RapidError error = new RapidError(TIMEOUT);
+		mLogger.logE(error);
+		messageFuture.getRapidFuture().invokeError(error);
 	}
 
 
@@ -575,15 +614,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				break;
 			}
 		}
-	}
-
-
-	private void timeoutMessage(MessageFuture message) {
-		if(message.getMessage() instanceof Message.Sub) mSubscriptionCount--;
-		if(message.getMessage() instanceof Message.Mut) mPendingMutationCount--;
-		RapidError error = new RapidError(TIMEOUT);
-		mLogger.logE(error);
-		message.getRapidFuture().invokeError(error);
 	}
 
 

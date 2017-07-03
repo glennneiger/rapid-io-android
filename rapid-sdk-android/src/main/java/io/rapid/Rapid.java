@@ -100,9 +100,7 @@ public class Rapid {
 		} catch(IOException e) {
 			e.printStackTrace();
 			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
-		}
-		catch(NoSuchAlgorithmException e)
-		{
+		} catch(NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
 		}
@@ -226,11 +224,12 @@ public class Rapid {
 	}
 
 
-	public <T> RapidChannelReference<T> channel(String channelName, Class<T> messageClass){
+	public <T> RapidChannelReference<T> channel(String channelName, Class<T> messageClass) {
 		return ((RapidChannelReference) mCollectionProvider.provideChannel(channelName, messageClass, false));
 	}
 
-	public <T> RapidChannelPrefixReference<T> channels(String channelNamePrefix, Class<T> messageClass){
+
+	public <T> RapidChannelPrefixReference<T> channels(String channelNamePrefix, Class<T> messageClass) {
 		return mCollectionProvider.provideChannel(channelNamePrefix, messageClass, true);
 	}
 
@@ -257,6 +256,21 @@ public class Rapid {
 	public RapidFuture deauthorize() {
 
 		return mRapidConnection.deauthorize();
+	}
+
+
+	/**
+	 * Get a difference between local device time and server time in milliseconds
+	 * <p>
+	 * When server time is 1.1.2017 7:18:19 AM and device time is 1.1.2017 7:18:20
+	 * the offset is positive 1000
+	 * <p>
+	 * Offset's accuracy can be affected by network latency, so it is useful primarily for discovering large (> 1 second) discrepancies in clock time
+	 *
+	 * @param callback called with time offset in milliseconds
+	 */
+	public RapidFuture getServerTimeOffset(RapidCallback.TimeOffset callback) {
+		return mRapidConnection.getSetverTimeOffset(callback);
 	}
 
 
@@ -298,7 +312,7 @@ public class Rapid {
 	 * Method for setting connection state listener.
 	 * <p>
 	 * Possible states:
-	 *
+	 * <p>
 	 * {@link ConnectionState#CONNECTED}
 	 * <p>
 	 * {@link ConnectionState#CONNECTING}
@@ -330,7 +344,7 @@ public class Rapid {
 	 * Get current connection state
 	 * <p>
 	 * Possible states:
-	 *
+	 * <p>
 	 * {@link ConnectionState#CONNECTED}
 	 * <p>
 	 * {@link ConnectionState#CONNECTING}

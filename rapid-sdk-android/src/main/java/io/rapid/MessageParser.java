@@ -52,6 +52,8 @@ class MessageParser {
 				return new Message.Del(json);
 			case RM:
 				return new Message.Rm(json);
+			case TS:
+				return new Message.Ts(json);
 			case UNKNOWN:
 				return new Message.Unknown();
 			default:

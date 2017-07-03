@@ -70,6 +70,8 @@ abstract class RapidConnection {
 
 	public abstract void setConnectionTimeout(long connectionTimeoutMs);
 
+	public abstract RapidFuture getSetverTimeOffset(RapidCallback.TimeOffset callback);
+
 
 	Callback getCallback() {
 		return mCallback;

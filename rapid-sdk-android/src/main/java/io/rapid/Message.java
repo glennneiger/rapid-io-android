@@ -50,16 +50,6 @@ abstract class Message {
 	}
 
 
-	MessageType getMessageType() {
-		return mMessageType;
-	}
-
-
-	String getEventId() {
-		return mEventId;
-	}
-
-
 	protected JSONObject createJsonBody() throws JSONException {
 		return new JSONObject();
 	}
@@ -67,6 +57,16 @@ abstract class Message {
 
 	protected void parseJsonBody(JSONObject jsonBody) {
 
+	}
+
+
+	MessageType getMessageType() {
+		return mMessageType;
+	}
+
+
+	String getEventId() {
+		return mEventId;
 	}
 
 
@@ -272,15 +272,16 @@ abstract class Message {
 		}
 
 
-		String getCollectionId() {
-			return mCollectionId;
-		}
-
-
 		public String getDocument() {
 			return mDocument;
 		}
+
+
+		String getCollectionId() {
+			return mCollectionId;
+		}
 	}
+
 
 	static class Pub extends Message {
 		private static final String ATTR_CHAN_ID = "chan-id";
@@ -319,13 +320,13 @@ abstract class Message {
 		}
 
 
-		String getChannelId() {
-			return mChannelId;
+		public String getDocument() {
+			return mDocument;
 		}
 
 
-		public String getDocument() {
-			return mDocument;
+		String getChannelId() {
+			return mChannelId;
 		}
 	}
 
@@ -405,13 +406,13 @@ abstract class Message {
 		}
 
 
-		String getCollectionId() {
-			return mCollectionId;
+		public String getDocument() {
+			return mDocument;
 		}
 
 
-		public String getDocument() {
-			return mDocument;
+		String getCollectionId() {
+			return mCollectionId;
 		}
 	}
 
@@ -559,6 +560,26 @@ abstract class Message {
 		}
 
 
+		public EntityOrder getOrder() {
+			return mOrder;
+		}
+
+
+		public void setOrder(EntityOrder order) {
+			mOrder = order;
+		}
+
+
+		public Filter getFilter() {
+			return mFilter;
+		}
+
+
+		public void setFilter(Filter filter) {
+			mFilter = filter;
+		}
+
+
 		String getCollectionId() {
 			return mCollectionId;
 		}
@@ -582,27 +603,8 @@ abstract class Message {
 		void setSkip(int skip) {
 			mSkip = skip;
 		}
-
-
-		public EntityOrder getOrder() {
-			return mOrder;
-		}
-
-
-		public void setOrder(EntityOrder order) {
-			mOrder = order;
-		}
-
-
-		public Filter getFilter() {
-			return mFilter;
-		}
-
-
-		public void setFilter(Filter filter) {
-			mFilter = filter;
-		}
 	}
+
 
 	static class SubCh extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
@@ -632,7 +634,7 @@ abstract class Message {
 		protected JSONObject createJsonBody() throws JSONException {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_SUB_ID, mSubscriptionId);
-			if (mNameIsPrefix){
+			if(mNameIsPrefix) {
 				JSONObject channelId = new JSONObject();
 				channelId.put(ATTR_CHANNEL_PREFIX, mChannelId);
 				body.put(ATTR_CHANNEL_ID, channelId);
@@ -650,9 +652,9 @@ abstract class Message {
 			try {
 				mChannelId = jsonBody.getString(ATTR_CHANNEL_ID);
 				mNameIsPrefix = false;
-			} catch(JSONException e){
+			} catch(JSONException e) {
 				JSONObject channelId = jsonBody.optJSONObject(ATTR_CHANNEL_ID);
-				if (channelId!=null) {
+				if(channelId != null) {
 					mChannelId = channelId.optString(ATTR_CHANNEL_PREFIX);
 					mNameIsPrefix = true;
 				}
@@ -670,6 +672,7 @@ abstract class Message {
 		}
 
 	}
+
 
 	static class Ftc extends Message {
 		private static final String ATTR_FTC_ID = "ftc-id";
@@ -731,6 +734,26 @@ abstract class Message {
 		}
 
 
+		public EntityOrder getOrder() {
+			return mOrder;
+		}
+
+
+		public void setOrder(EntityOrder order) {
+			mOrder = order;
+		}
+
+
+		public Filter getFilter() {
+			return mFilter;
+		}
+
+
+		public void setFilter(Filter filter) {
+			mFilter = filter;
+		}
+
+
 		String getCollectionId() {
 			return mCollectionId;
 		}
@@ -753,26 +776,6 @@ abstract class Message {
 
 		void setSkip(int skip) {
 			mSkip = skip;
-		}
-
-
-		public EntityOrder getOrder() {
-			return mOrder;
-		}
-
-
-		public void setOrder(EntityOrder order) {
-			mOrder = order;
-		}
-
-
-		public Filter getFilter() {
-			return mFilter;
-		}
-
-
-		public void setFilter(Filter filter) {
-			mFilter = filter;
 		}
 	}
 
@@ -814,6 +817,7 @@ abstract class Message {
 			return mSubscriptionId;
 		}
 	}
+
 
 	static class UnsCh extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
@@ -894,15 +898,16 @@ abstract class Message {
 		}
 
 
-		String getCollectionId() {
-			return mCollectionId;
-		}
-
-
 		public String getDocument() {
 			return mDocument;
 		}
+
+
+		String getCollectionId() {
+			return mCollectionId;
+		}
 	}
+
 
 	static class Mes extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
@@ -1101,6 +1106,7 @@ abstract class Message {
 		}
 	}
 
+
 	static class CaCh extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
 		private static final String ATTR_CHANNEL_ID = "chan-id";
@@ -1128,7 +1134,7 @@ abstract class Message {
 		protected JSONObject createJsonBody() throws JSONException {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_SUB_ID, mSubscriptionId);
-			if (mNameIsPrefix){
+			if(mNameIsPrefix) {
 				JSONObject channelId = new JSONObject();
 				channelId.put(ATTR_CHANNEL_PREFIX, mChannelId);
 				body.put(ATTR_CHANNEL_ID, channelId);
@@ -1146,9 +1152,9 @@ abstract class Message {
 			try {
 				mChannelId = jsonBody.getString(ATTR_CHANNEL_ID);
 				mNameIsPrefix = false;
-			} catch(JSONException e){
+			} catch(JSONException e) {
 				JSONObject channelId = jsonBody.optJSONObject(ATTR_CHANNEL_ID);
-				if (channelId!=null) {
+				if(channelId != null) {
 					mChannelId = channelId.optString(ATTR_CHANNEL_PREFIX);
 					mNameIsPrefix = true;
 				}
@@ -1170,7 +1176,6 @@ abstract class Message {
 			return mChannelId;
 		}
 	}
-
 
 
 	static class Del extends Message {
@@ -1210,13 +1215,13 @@ abstract class Message {
 		}
 
 
-		String getCollectionId() {
-			return mCollectionId;
+		public String getDocument() {
+			return mDocument;
 		}
 
 
-		public String getDocument() {
-			return mDocument;
+		String getCollectionId() {
+			return mCollectionId;
 		}
 	}
 
@@ -1268,6 +1273,38 @@ abstract class Message {
 
 		String getDocument() {
 			return mDocument;
+		}
+	}
+
+
+	static class ReqTs extends Message {
+
+		public ReqTs() {
+			super(MessageType.REQ_TS);
+		}
+	}
+
+
+	static class Ts extends Message {
+
+		private static final String ATTR_TIMESTAMP = "timestamp";
+		private long mTimestamp;
+
+
+		public Ts(JSONObject json) throws JSONException {
+			super(MessageType.TS, json);
+		}
+
+
+		@Override
+		protected void parseJsonBody(JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mTimestamp = jsonBody.optLong(ATTR_TIMESTAMP);
+		}
+
+
+		public long getTimestamp() {
+			return mTimestamp;
 		}
 	}
 }

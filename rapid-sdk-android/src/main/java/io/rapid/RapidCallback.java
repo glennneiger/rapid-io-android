@@ -33,4 +33,9 @@ public class RapidCallback {
 	public interface Error {
 		void onError(RapidError error);
 	}
+
+
+	public interface TimeOffset {
+		void onTimeOffsetReceived(long timeOffsetMs);
+	}
 }
