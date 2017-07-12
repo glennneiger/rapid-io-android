@@ -100,6 +100,19 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	public RapidCollectionReference<T> equalTo(String property, long value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should be equal to desired value
+	 *
+	 * @param property property name
+	 * @param value    desired value
+	 * @return collection reference itself
+	 */
 	public RapidCollectionReference<T> equalTo(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
@@ -143,7 +156,9 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, String value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		beginNot();
+		equalTo(property,value);
+		endNot();
 		return this;
 	}
 
@@ -156,7 +171,24 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, int value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		beginNot();
+		equalTo(property,value);
+		endNot();
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should not be equal to desired value
+	 *
+	 * @param property property name
+	 * @param value    desired value
+	 * @return collection reference itself
+	 */
+	public RapidCollectionReference<T> notEqualTo(String property, long value) {
+		beginNot();
+		equalTo(property,value);
+		endNot();
 		return this;
 	}
 
@@ -169,7 +201,9 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, double value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value)));
+		beginNot();
+		equalTo(property,value);
+		endNot();
 		return this;
 	}
 
@@ -182,7 +216,9 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, Date value) {
-		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_NOT_EQUAL, value, mJsonConverter)));
+		beginNot();
+		equalTo(property,value);
+		endNot();
 		return this;
 	}
 
@@ -212,6 +248,19 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> lessThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should be less than desired value
+	 *
+	 * @param property property name
+	 * @param value    desired value
+	 * @return collection reference itself
+	 */
+	public RapidCollectionReference<T> lessThan(String property, long value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
 	}
 
@@ -278,6 +327,19 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	public RapidCollectionReference<T> lessOrEqualThan(String property, long value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should be less or equal than desired value
+	 *
+	 * @param property property name
+	 * @param value    desired value
+	 * @return collection reference itself
+	 */
 	public RapidCollectionReference<T> lessOrEqualThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
@@ -322,6 +384,19 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> greaterThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should be greater than desired value
+	 *
+	 * @param property property name
+	 * @param value    desired value
+	 * @return collection reference itself
+	 */
+	public RapidCollectionReference<T> greaterThan(String property, long value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
 	}
 
@@ -388,6 +463,19 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	public RapidCollectionReference<T> greaterOrEqualThan(String property, long value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should be greater or equal than desired value
+	 *
+	 * @param property property name
+	 * @param value    desired value
+	 * @return collection reference itself
+	 */
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
@@ -436,6 +524,23 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> between(String property, int from, int to) {
+		beginAnd();
+		greaterOrEqualThan(property, from);
+		lessOrEqualThan(property, to);
+		endAnd();
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should be between desired value (bounds inclusive)
+	 *
+	 * @param property property name
+	 * @param from     left bound for value
+	 * @param to       right bound for value
+	 * @return collection reference itself
+	 */
+	public RapidCollectionReference<T> between(String property, long from, long to) {
 		beginAnd();
 		greaterOrEqualThan(property, from);
 		lessOrEqualThan(property, to);
@@ -584,8 +689,47 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	public RapidCollectionReference<?> arrayContains(String property, long value) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified array property should contain desired value
+	 *
+	 * @param property property name
+	 * @param value    desired value
+	 * @return collection reference itself
+	 */
 	public RapidCollectionReference<?> arrayContains(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should be null (empty)
+	 *
+	 * @param property property name
+	 * @return collection reference itself
+	 */
+	public RapidCollectionReference<?> isNull(String property) {
+		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.NullPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL)));
+		return this;
+	}
+
+
+	/**
+	 * Query method saying that specified property should not be null (empty)
+	 *
+	 * @param property property name
+	 * @return collection reference itself
+	 */
+	public RapidCollectionReference<?> isNotNull(String property) {
+		beginNot();
+		isNull(property);
+		endNot();
 		return this;
 	}
 
@@ -836,7 +980,7 @@ public class RapidCollectionReference<T> {
 	 * @return subscription with ability to unsubscribe, add error listener, etc.
 	 */
 	public RapidCollectionSubscription subscribeWithListUpdates(RapidCallback.CollectionUpdates<T> callback) {
-		if (mSubscription.isSubscribed())
+		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
 		mConnection.subscribe(mSubscription);
@@ -851,7 +995,7 @@ public class RapidCollectionReference<T> {
 	 * @param callback callback function to receive collection updates as list of documents
 	 */
 	public RapidCollectionSubscription<T> fetch(RapidCallback.Collection<T> callback) {
-		if (mSubscription.isSubscribed())
+		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 		mConnection.fetch(mSubscription);

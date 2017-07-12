@@ -125,4 +125,19 @@ public class CollectionTest extends BaseRapidTest {
 		Thread.sleep(5000);
 	}
 
+	@Test
+	public void testNull() {
+		RapidCollectionReference<Car> collection = Rapid.getInstance().collection("android_instr_test_003_" + UUID.randomUUID().toString(), Car.class);
+		collection
+				.equalTo("name", (String) null)
+				.isNull("name")
+				.isNotNull("number")
+				.subscribe(rapidDocuments -> {
+			assertNotNull(rapidDocuments);
+			unlockAsync();
+		}).onError(error -> fail(error.getMessage()));
+		lockAsync();
+
+	}
+
 }

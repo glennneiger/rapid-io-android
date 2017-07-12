@@ -91,6 +91,18 @@ interface Filter {
 		protected String getKeyword() {
 			return "not";
 		}
+
+
+		@Override
+		public String toJson() throws JSONException {
+			JSONObject root = new JSONObject();
+			if(filters.size() > 1) {
+				root.put(getKeyword(), new JSONObject(new And(filters.toArray(new Filter[]{})).toJson()));
+			} else if(filters.size() == 1) {
+				root.put(getKeyword(), new JSONObject(filters.get(0).toJson()));
+			}
+			return root.toString();
+		}
 	}
 
 

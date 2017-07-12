@@ -17,7 +17,6 @@ class FilterValue implements Filter {
 
 	interface PropertyValue {
 		String TYPE_EQUAL = "eq";
-		String TYPE_NOT_EQUAL = "neq";
 		String TYPE_GREATER_THAN = "gt";
 		String TYPE_GREATER_OR_EQUAL_THAN = "gte";
 		String TYPE_LESS_THAN = "lt";
@@ -74,6 +73,30 @@ class FilterValue implements Filter {
 		}
 	}
 
+	static class LongPropertyValue implements PropertyValue {
+
+		private final String compareType;
+		private long value;
+
+
+		LongPropertyValue(String compareType, long value) {
+			this.value = value;
+			this.compareType = compareType;
+		}
+
+
+		@Override
+		public Object toJson() throws JSONException {
+			if(compareType.equals(TYPE_EQUAL)) {
+				return value;
+			} else {
+				JSONObject root = new JSONObject();
+				root.put(compareType, value);
+				return root.toString();
+			}
+		}
+	}
+
 
 	static class StringPropertyValue implements PropertyValue {
 
@@ -88,12 +111,34 @@ class FilterValue implements Filter {
 
 
 		@Override
-		public String toJson() throws JSONException {
+		public Object toJson() throws JSONException {
 			if(compareType.equals(TYPE_EQUAL)) {
-				return value;
+				return value != null ? value : JSONObject.NULL;
 			} else {
 				JSONObject root = new JSONObject();
-				root.put(compareType, value);
+				root.put(compareType, value != null ? value : JSONObject.NULL);
+				return root.toString();
+			}
+		}
+	}
+
+	static class NullPropertyValue implements PropertyValue {
+
+		private final String compareType;
+
+
+		public NullPropertyValue(String compareType) {
+			this.compareType = compareType;
+		}
+
+
+		@Override
+		public Object toJson() throws JSONException {
+			if(compareType.equals(TYPE_EQUAL)) {
+				return JSONObject.NULL;
+			} else {
+				JSONObject root = new JSONObject();
+				root.put(compareType, JSONObject.NULL);
 				return root.toString();
 			}
 		}
@@ -157,13 +202,13 @@ class FilterValue implements Filter {
 
 
 		@Override
-		public String toJson() throws JSONException {
+		public Object toJson() throws JSONException {
 			try {
 				if(compareType.equals(TYPE_EQUAL)) {
-					return jsonConverter.get().toJson(value);
+					return value != null ? jsonConverter.get().toJson(value) : JSONObject.NULL;
 				} else {
 					JSONObject root = new JSONObject();
-					root.put(compareType, jsonConverter.get().toJson(value));
+					root.put(compareType, value != null ? jsonConverter.get().toJson(value) : JSONObject.NULL);
 					return root.toString();
 				}
 			} catch(IOException e) {
