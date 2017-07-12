@@ -45,7 +45,7 @@ public class MessageJsonTest extends BaseTest {
 	@Test
 	public void test_model2jsonDis() throws Exception {
 		Message.Dis disMsg = new Message.Dis();
-		JSONAssert.assertEquals(disMsg.toJson().toString(), "{\"dis\": {\"evt-id\": \""+disMsg.getEventId()+"\"}}", false);
+		JSONAssert.assertEquals(disMsg.toJson().toString(), "{\"dis\": null}", false);
 	}
 
 
@@ -81,7 +81,7 @@ public class MessageJsonTest extends BaseTest {
 	@Test
 	public void test_model2jsonHb() throws Exception {
 		Message.Nop hbMsg = new Message.Nop();
-		JSONAssert.assertEquals(hbMsg.toJson().toString(), "{\"nop\":{}}", false);
+		JSONAssert.assertEquals(hbMsg.toJson().toString(), "{\"nop\":null}", false);
 	}
 
 
@@ -234,7 +234,7 @@ public class MessageJsonTest extends BaseTest {
 		Message.Batch batchMsg = new Message.Batch();
 		batchMsg.addMessage(new Message.Ack("eventId"));
 		batchMsg.addMessage(new Message.Nop());
-		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": {}}]}", false);
+		JSONAssert.assertEquals(batchMsg.toJson().toString(), "{\"batch\":[{\"ack\": {\"evt-id\": \"eventId\"}}, {\"nop\": null}]}", false);
 	}
 
 

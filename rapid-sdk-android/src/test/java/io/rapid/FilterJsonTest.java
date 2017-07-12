@@ -120,7 +120,7 @@ public class FilterJsonTest extends BaseTest {
 		RapidCollectionSubscription subscription = getNewCollection().idEqualTo("123").idNotEqualTo("223").subscribe(rapidDocuments -> {
 		});
 
-		String json = "{\"and\":[{\"$id\":\"123\"},{\"$id\":{\"neq\":\"223\"}}]}";
+		String json = "{\"and\":[{\"$id\":\"123\"},{\"not\": {\"$id\":\"223\"}}]}";
 		JSONAssert.assertEquals(subscription.getFilter().toJson(), json, false);
 	}
 
