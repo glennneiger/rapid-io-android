@@ -338,6 +338,44 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
+	@Override
+	public RapidActionFuture onDisconnectDelete(String collectionName, FutureResolver<String> documentJsonResolver) {
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		String actionId = IdProvider.getNewActionId();
+		RapidActionFuture future = new RapidActionFuture(mOriginalThreadHandler, actionId, this);
+		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Del(collectionName, documentJsonResolver.resolve())));
+	}
+
+
+	@Override
+	public RapidActionFuture onDisconnectMutate(String collectionName, FutureResolver<String> documentJsonResolver) {
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		String actionId = IdProvider.getNewActionId();
+		RapidActionFuture future = new RapidActionFuture(mOriginalThreadHandler, actionId, this);
+		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Mut(collectionName, documentJsonResolver.resolve())));
+	}
+
+
+	@Override
+	public RapidActionFuture onDisconnectMerge(String collectionName, FutureResolver<String> documentJsonResolver) {
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		String actionId = IdProvider.getNewActionId();
+		RapidActionFuture future = new RapidActionFuture(mOriginalThreadHandler, actionId, this);
+		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Mer(collectionName, documentJsonResolver.resolve())));
+	}
+
+
+	@Override
+	public RapidFuture cancelOnDisconnect(String actionId) {
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		return sendMessage(() -> new Message.DaCa(actionId));
+	}
+
+
 	private void handleTsMessage(Message.Ts tsMessage) {
 		mPendingMutationCount--;
 		long diff = System.currentTimeMillis() - tsMessage.getTimestamp();
@@ -393,14 +431,18 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private RapidFuture sendMessage(FutureResolver<Message> message) {
 		RapidFuture future = new RapidFuture(mOriginalThreadHandler);
+		return sendMessage(future, message);
+	}
 
+
+	private RapidFuture sendMessage(RapidFuture baseFuture, FutureResolver<Message> message) {
 		// send message in background
 		new AsyncTask<Void, Void, MessageFuture>() {
 			@Override
 			protected MessageFuture doInBackground(Void... params) {
 				Message m = message.resolve();
 				try {
-					MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
+					MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), baseFuture);
 					if(mConnectionState == CONNECTED) {
 						sendMessage(messageFuture);
 					} else {
@@ -413,7 +455,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				return null;
 			}
 		}.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-		return future;
+		return baseFuture;
 	}
 
 
@@ -511,7 +553,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void updateCountersOnError(MessageFuture erroredMessageFuture) {
-		if(erroredMessageFuture.getMessage() instanceof Message.Mut || erroredMessageFuture.getMessage() instanceof Message.Del || erroredMessageFuture.getMessage() instanceof Message.Ts || erroredMessageFuture.getMessage() instanceof Message.Pub|| erroredMessageFuture.getMessage() instanceof Message.Mer)
+		if(erroredMessageFuture.getMessage() instanceof Message.Mut
+				|| erroredMessageFuture.getMessage() instanceof Message.Del
+				|| erroredMessageFuture.getMessage() instanceof Message.Ts
+				|| erroredMessageFuture.getMessage() instanceof Message.Pub
+				|| erroredMessageFuture.getMessage() instanceof Message.Da
+				|| erroredMessageFuture.getMessage() instanceof Message.DaCa
+				|| erroredMessageFuture.getMessage() instanceof Message.Mer)
 			mPendingMutationCount--;
 		if(erroredMessageFuture.getMessage() instanceof Message.Sub || erroredMessageFuture.getMessage() instanceof Message.Ftc)
 			mSubscriptionCount--;
@@ -557,6 +605,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			if(messageFuture.getMessage() instanceof Message.Mut
 					|| messageFuture.getMessage() instanceof Message.Del
 					|| messageFuture.getMessage() instanceof Message.Mer
+					|| messageFuture.getMessage() instanceof Message.Da
+					|| messageFuture.getMessage() instanceof Message.DaCa
 					|| messageFuture.getMessage() instanceof Message.Pub)
 				mPendingMutationCount--;
 //			if(messageFuture.getMessage() instanceof Message.Auth) {

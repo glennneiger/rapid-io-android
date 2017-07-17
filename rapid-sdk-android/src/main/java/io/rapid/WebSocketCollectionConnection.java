@@ -84,6 +84,40 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
+	public RapidActionFuture onDisconnectMutate(String docId, T item, RapidMutateOptions options) {
+		RapidDocument<T> doc = new RapidDocument<>(docId, item, options);
+
+		if(item == null) {
+			return mConnection.onDisconnectDelete(mCollectionName, () -> {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("On Disconnect: Deleting document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			});
+		} else {
+			return mConnection.onDisconnectMutate(mCollectionName, () -> {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("On Disconnect: Mutating document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			});
+		}
+	}
+
+
+	@Override
+	public RapidActionFuture onDisconnectMerge(String docId, Map<String, Object> mergeMap, RapidMutateOptions options) {
+		RapidDocument<Map<String, Object>> doc = new RapidDocument<>(docId, mergeMap, options);
+		return mConnection.onDisconnectMerge(mCollectionName, () -> {
+			String documentJson = doc.toJson(mJsonConverter);
+			mLogger.logI("On Disconnect: Merging to document in collection '%s'", mCollectionName);
+			mLogger.logJson(documentJson);
+			return documentJson;
+		});
+	}
+
+
+	@Override
 	public void subscribe(BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);

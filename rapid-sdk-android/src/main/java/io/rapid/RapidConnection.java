@@ -56,6 +56,7 @@ abstract class RapidConnection {
 
 	abstract void onUnsubscribe(BaseCollectionSubscription subscription);
 
+
 	abstract void onUnsubscribe(RapidChannelSubscription subscription);
 
 
@@ -73,7 +74,20 @@ abstract class RapidConnection {
 
 	public abstract void setConnectionTimeout(long connectionTimeoutMs);
 
+
 	public abstract RapidFuture getSetverTimeOffset(RapidCallback.TimeOffset callback);
+
+
+	public abstract RapidActionFuture onDisconnectDelete(String collectionName, FutureResolver<String> documentJson);
+
+
+	public abstract RapidActionFuture onDisconnectMutate(String collectionName, FutureResolver<String> documentJson);
+
+
+	public abstract RapidActionFuture onDisconnectMerge(String collectionName, FutureResolver<String> documentJson);
+
+
+	public abstract RapidFuture cancelOnDisconnect(String actionId);
 
 
 	Callback getCallback() {

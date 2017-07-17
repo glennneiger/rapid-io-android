@@ -23,4 +23,9 @@ class IdProvider {
 	static String getConnectionId() {
 		return ShortId.generate();
 	}
+
+
+	static String getNewActionId() {
+		return ShortId.generate();
+	}
 }

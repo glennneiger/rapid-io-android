@@ -67,13 +67,31 @@ public class RapidDocumentReference<T> {
 	}
 
 
+	/**
+	 * Merge map into document (set new value). This will add/replace properties to the document. It woll not replace the entire body of the doc with the map.
+	 *
+	 * @param mergeMap map to merge to the doc
+	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
+	 */
 	public RapidFuture merge(Map<String, Object> mergeMap) {
 		return merge(mergeMap, null);
 	}
 
 
+	/**
+	 * Merge map into document (set new value) with options. This will add/replace properties to the document. It woll not replace the entire body of the doc with the map.
+	 *
+	 * @param mergeMap map to merge to the doc
+	 * @param options  options allowing to expect specific Etag value or autofilling properties with server values
+	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
+	 */
 	public RapidFuture merge(Map<String, Object> mergeMap, RapidMutateOptions options) {
 		return mImpl.merge(mId, mergeMap, options);
+	}
+
+
+	public RapidDocumentOnDisconnectReference<T> onDisconnect() {
+		return new RapidDocumentOnDisconnectReference<>(mImpl, mId);
 	}
 
 

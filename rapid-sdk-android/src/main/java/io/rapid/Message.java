@@ -1307,4 +1307,60 @@ abstract class Message {
 			return mTimestamp;
 		}
 	}
+
+
+	static class Da extends Message {
+
+		private static final String ATTR_ACTION = "act";
+		private static final String ATTR_ACTION_ID = "act-id";
+		private String mActionId;
+		private Message mActionMessage;
+
+
+		public Da(JSONObject json) throws JSONException {
+			super(MessageType.DA, json);
+		}
+
+
+		public Da(String actionId, Message actionMessage) {
+			super(MessageType.DA);
+			mActionId = actionId;
+			mActionMessage = actionMessage;
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_ACTION_ID, mActionId);
+			body.put(ATTR_ACTION, mActionMessage.toJson());
+			return body;
+		}
+	}
+
+	static class DaCa extends Message {
+
+		private static final String ATTR_ACTION_ID = "act-id";
+		private String mActionId;
+
+
+		public DaCa(JSONObject json) throws JSONException {
+			super(MessageType.DA_CA, json);
+		}
+
+
+		public DaCa(String actionId) {
+			super(MessageType.DA_CA);
+			mActionId = actionId;
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_ACTION_ID, mActionId);
+			return body;
+		}
+	}
+
 }
