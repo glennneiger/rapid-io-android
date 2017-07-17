@@ -1,8 +1,12 @@
 package io.rapid;
 
 
+import java.util.Map;
+
+
 interface CollectionConnection<T> {
 	RapidFuture mutate(String id, T value, RapidMutateOptions options);
+	RapidFuture merge(String id, Map<String, Object> mergeMap, RapidMutateOptions options);
 	void subscribe(BaseCollectionSubscription<T> subscription);
 	void onValue(String subscriptionId, String documents);
 	void onFetchResult(String fetchId, String documentsJson);
