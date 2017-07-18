@@ -50,8 +50,8 @@ dependencies {
 	compile 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter-recyclerview:2.1.0'
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
 
-	compile "android.arch.lifecycle:runtime:1.0.0-alpha2"
-	compile "android.arch.lifecycle:extensions:1.0.0-alpha2"
+	compile "android.arch.lifecycle:runtime:1.0.0-alpha4"
+	compile "android.arch.lifecycle:extensions:1.0.0-alpha4"
 	
 	testCompile 'junit:junit:4.12'
 }
