@@ -663,7 +663,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
-	public RapidCollectionReference<?> arrayContains(String property, String value) {
+	public RapidCollectionReference<T> arrayContains(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
 	}
@@ -676,7 +676,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
-	public RapidCollectionReference<?> arrayContains(String property, int value) {
+	public RapidCollectionReference<T> arrayContains(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
 	}
@@ -689,7 +689,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
-	public RapidCollectionReference<?> arrayContains(String property, long value) {
+	public RapidCollectionReference<T> arrayContains(String property, long value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
 	}
@@ -702,7 +702,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
-	public RapidCollectionReference<?> arrayContains(String property, double value) {
+	public RapidCollectionReference<T> arrayContains(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
 	}
@@ -714,7 +714,7 @@ public class RapidCollectionReference<T> {
 	 * @param property property name
 	 * @return collection reference itself
 	 */
-	public RapidCollectionReference<?> isNull(String property) {
+	public RapidCollectionReference<T> isNull(String property) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.NullPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL)));
 		return this;
 	}
@@ -726,7 +726,7 @@ public class RapidCollectionReference<T> {
 	 * @param property property name
 	 * @return collection reference itself
 	 */
-	public RapidCollectionReference<?> isNotNull(String property) {
+	public RapidCollectionReference<T> isNotNull(String property) {
 		beginNot();
 		isNull(property);
 		endNot();
