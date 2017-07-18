@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -181,5 +183,26 @@ public class DocumentTest extends BaseRapidTest {
 		lockAsync();
 	}
 
+
+	@Test
+	public void testDocumentAddMergeAndFetch() {
+		RapidDocumentReference<Car> newDoc = mCollection.newDocument();
+		int carNumber = mRandom.nextInt();
+
+		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(() -> unlockAsync()).onError(error -> fail(error.getMessage()));
+		lockAsync();
+
+		Map<String, Object> mergeMap = new HashMap<>();
+		mergeMap.put("number", carNumber + 1);
+		newDoc.merge(mergeMap).onSuccess(() -> unlockAsync()).onError(error -> fail(error.getMessage()));
+		lockAsync();
+
+		newDoc.fetch(document -> {
+			assertEquals(carNumber+1, document.getBody().getNumber());
+			assertEquals("car_1", document.getBody().getName());
+			unlockAsync();
+		}).onError(error -> fail(error.getMessage()));
+		lockAsync();
+	}
 
 }

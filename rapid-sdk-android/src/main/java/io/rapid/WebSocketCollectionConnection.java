@@ -63,6 +63,18 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
+	public RapidFuture merge(String id, Map<String, Object> mergeMap, RapidMutateOptions options) {
+		RapidDocument<Map<String, Object>> doc = new RapidDocument<>(id, mergeMap, options);
+		return mConnection.merge(mCollectionName, () -> {
+			String documentJson = doc.toJson(mJsonConverter);
+			mLogger.logI("Merging to document in collection '%s'", mCollectionName);
+			mLogger.logJson(documentJson);
+			return documentJson;
+		});
+	}
+
+
+	@Override
 	public void fetch(BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscribed(true);

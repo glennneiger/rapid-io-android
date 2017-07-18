@@ -62,6 +62,9 @@ abstract class RapidConnection {
 	public abstract RapidFuture mutate(String collectionName, FutureResolver<String> documentJson);
 
 
+	public abstract RapidFuture merge(String collectionName, FutureResolver<String> documentJson);
+
+
 	public abstract RapidFuture publish(String channelName, FutureResolver<String> messageJson);
 
 

@@ -3,6 +3,8 @@ package io.rapid;
 
 import android.os.Handler;
 
+import java.util.Map;
+
 
 /**
  * Rapid.io document reference
@@ -65,6 +67,16 @@ public class RapidDocumentReference<T> {
 	}
 
 
+	public RapidFuture merge(Map<String, Object> mergeMap) {
+		return merge(mergeMap, null);
+	}
+
+
+	public RapidFuture merge(Map<String, Object> mergeMap, RapidMutateOptions options) {
+		return mImpl.merge(mId, mergeMap, options);
+	}
+
+
 	/**
 	 * Concurrency-safe mutate/delete document (set new value)
 	 * <p>
@@ -86,7 +98,7 @@ public class RapidDocumentReference<T> {
 						result.invokeSuccess();
 					} else if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_MUTATE) {
 						RapidMutateOptions options = executorResult.getOptions();
-						if (options == null)
+						if(options == null)
 							options = new RapidMutateOptions.Builder().build();
 
 						options.setExpectedEtag(document != null ? document.getEtag() : Etag.NO_ETAG);
@@ -134,7 +146,7 @@ public class RapidDocumentReference<T> {
 	 * @param callback callback function providing updated document on Main thread
 	 */
 	public RapidDocumentSubscription<T> subscribe(RapidCallback.Document<T> callback) {
-		if (mSubscription.isSubscribed())
+		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
 		mImpl.subscribe(mSubscription);
@@ -148,7 +160,7 @@ public class RapidDocumentReference<T> {
 	 * @param callback callback function providing document value on Main thread
 	 */
 	public RapidDocumentSubscription<T> fetch(RapidCallback.Document<T> callback) {
-		if (mSubscription.isSubscribed())
+		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
 		mImpl.fetch(mSubscription);

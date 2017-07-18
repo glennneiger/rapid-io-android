@@ -300,6 +300,14 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
+	public RapidFuture merge(String collectionName, FutureResolver<String> documentJsonResolver) {
+		mPendingMutationCount++;
+		createWebSocketConnectionIfNeeded();
+		return sendMessage(() -> new Message.Mer(collectionName, documentJsonResolver.resolve()));
+	}
+
+
+	@Override
 	public RapidFuture publish(String channelName, FutureResolver<String> messageJson) {
 		mPendingMutationCount++;
 		createWebSocketConnectionIfNeeded();
@@ -503,7 +511,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void updateCountersOnError(MessageFuture erroredMessageFuture) {
-		if(erroredMessageFuture.getMessage() instanceof Message.Mut || erroredMessageFuture.getMessage() instanceof Message.Del || erroredMessageFuture.getMessage() instanceof Message.Ts || erroredMessageFuture.getMessage() instanceof Message.Pub)
+		if(erroredMessageFuture.getMessage() instanceof Message.Mut || erroredMessageFuture.getMessage() instanceof Message.Del || erroredMessageFuture.getMessage() instanceof Message.Ts || erroredMessageFuture.getMessage() instanceof Message.Pub|| erroredMessageFuture.getMessage() instanceof Message.Mer)
 			mPendingMutationCount--;
 		if(erroredMessageFuture.getMessage() instanceof Message.Sub || erroredMessageFuture.getMessage() instanceof Message.Ftc)
 			mSubscriptionCount--;
