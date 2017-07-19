@@ -58,8 +58,8 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 				sortingList.add(sortingJSONArray.optString(i));
 			}
 		}
-		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optString(KEY_CRT), Etag.fromValue(jsonObject.optString(KEY_ETAG)),
-				jsonConverter.get().fromJson(jsonObject.optString(KEY_BODY), documentType));
+		T body = jsonObject.has(KEY_BODY) ? jsonConverter.get().fromJson(jsonObject.optString(KEY_BODY), documentType) : null;
+		return new RapidDocument<>(jsonObject.optString(KEY_ID), sortingList, jsonObject.optString(KEY_CRT), Etag.fromValue(jsonObject.optString(KEY_ETAG)), body);
 	}
 
 
