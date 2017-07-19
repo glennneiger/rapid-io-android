@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 
+import com.annimon.stream.Stream;
+
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -84,53 +86,64 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		startCheckHandler();
 		sendConnect();
 
+		// send all pending (unsent) messages
 		if(mAuth.isAuthPending() || mAuth.isAuthRequired()) {
 			mAuth.setAuthPending();
 			sendAuthMessage();
 		}
+
 		if(mAuth.isDeauthPending()) sendDeauthMessage();
 
-		if(!mPendingMessageList.isEmpty()) {
-			for(int i = 0; i < mPendingMessageList.size(); i++) {
-				sendMessage(mPendingMessageList.get(i));
-			}
-			mPendingMessageList.clear();
-		}
+		Stream.of(mPendingMessageList).forEach(this::sendMessage);
+		mPendingMessageList.clear();
 	}
 
 
 	@Override
 	public void onMessage(Message message) {
 		mLastCommunicationTimestamp = System.currentTimeMillis();
-		sendAckIfNeeded(message);
 
-		if(message.getMessageType() == MessageType.ERR) {
-			handleErrMessage((Message.Err) message);
-		} else if(message.getMessageType() == MessageType.CA) {
-			handleCaMessage((Message.Ca) message);
-		} else if(message.getMessageType() == MessageType.CA_CH) {
-			handleCaMessage((Message.CaCh) message);
-		} else if(message.getMessageType() == MessageType.ACK) {
-			handleAckMessage((Message.Ack) message);
-		} else if(message.getMessageType() == MessageType.VAL) {
-			Message.Val valMessage = ((Message.Val) message);
-			mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
-		} else if(message.getMessageType() == MessageType.RES) {
-			Message.Res resMessage = ((Message.Res) message);
-			handleResMessage(resMessage);
-			mCallback.onFetchResult(resMessage.getFetchId(), resMessage.getCollectionId(), resMessage.getDocuments());
-		} else if(message.getMessageType() == MessageType.UPD) {
-			Message.Upd updMessage = ((Message.Upd) message);
-			mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
-		} else if(message.getMessageType() == MessageType.RM) {
-			Message.Rm rmMessage = ((Message.Rm) message);
-			mCallback.onRemove(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), rmMessage.getDocument());
-		} else if(message.getMessageType() == MessageType.TS) {
-			Message.Ts tsMessage = (Message.Ts) message;
-			handleTsMessage(tsMessage);
-		} else if(message.getMessageType() == MessageType.MES) {
-			Message.Mes mesMessage = (Message.Mes) message;
-			mCallback.onChannelMessage(mesMessage.getSubscriptionId(), mesMessage.getChannelName(), mesMessage.getBody());
+		if(message.shouldBeAcked())
+			sendMessage(() -> new Message.Ack(message.getEventId()));
+
+		switch(message.getMessageType()) {
+			case ERR:
+				handleErrMessage((Message.Err) message);
+				break;
+			case CA:
+				handleCaMessage((Message.Ca) message);
+				break;
+			case CA_CH:
+				handleCaMessage((Message.CaCh) message);
+				break;
+			case ACK:
+				handleAckMessage((Message.Ack) message);
+				break;
+			case VAL:
+				Message.Val valMessage = ((Message.Val) message);
+				mCallback.onValue(valMessage.getSubscriptionId(), valMessage.getCollectionId(), valMessage.getDocuments());
+				break;
+			case RES:
+				Message.Res resMessage = ((Message.Res) message);
+				handleResMessage(resMessage);
+				mCallback.onFetchResult(resMessage.getFetchId(), resMessage.getCollectionId(), resMessage.getDocuments());
+				break;
+			case UPD:
+				Message.Upd updMessage = ((Message.Upd) message);
+				mCallback.onUpdate(updMessage.getSubscriptionId(), updMessage.getCollectionId(), updMessage.getDocument());
+				break;
+			case RM:
+				Message.Rm rmMessage = ((Message.Rm) message);
+				mCallback.onRemove(rmMessage.getSubscriptionId(), rmMessage.getCollectionId(), rmMessage.getDocument());
+				break;
+			case TS:
+				Message.Ts tsMessage = (Message.Ts) message;
+				handleTsMessage(tsMessage);
+				break;
+			case MES:
+				Message.Mes mesMessage = (Message.Mes) message;
+				mCallback.onChannelMessage(mesMessage.getSubscriptionId(), mesMessage.getChannelName(), mesMessage.getBody());
+				break;
 		}
 	}
 
@@ -160,17 +173,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	public RapidFuture authorize(String token) {
 		return mAuth.authorize(token);
 	}
-
-
-//	@Override
-//	public void onCollectionError(Exception ex)
-//	{
-//		mLogger.logE(ex);
-//		changeConnectionState(DISCONNECTED);
-//		mWebSocketConnection = null;
-//		stopCheckHandler();
-//		//TODO invoke error to user
-//	}
 
 
 	@Override
@@ -252,10 +254,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public void onUnsubscribe(BaseCollectionSubscription subscription) {
 		boolean sendUnsubscribe = true;
-		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
-			if(mPendingMessageList.get(i).getMessage() instanceof Message.Sub && ((Message.Sub) mPendingMessageList.get(i).getMessage())
+		for(MessageFuture messageFuture : mPendingMessageList) {
+			if(messageFuture.getMessage() instanceof Message.Sub && ((Message.Sub) messageFuture.getMessage())
 					.getSubscriptionId().equals(subscription.getSubscriptionId())) {
-				mPendingMessageList.remove(i);
+				mPendingMessageList.remove(messageFuture);
 				sendUnsubscribe = false;
 				break;
 			}
@@ -273,10 +275,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	void onUnsubscribe(RapidChannelSubscription subscription) {
 		boolean sendUnsubscribe = true;
-		for(int i = mPendingMessageList.size() - 1; i >= 0; i--) {
-			if(mPendingMessageList.get(i).getMessage() instanceof Message.SubCh && ((Message.SubCh) mPendingMessageList.get(i).getMessage())
+		for(MessageFuture messageFuture : mPendingMessageList) {
+			if(messageFuture.getMessage() instanceof Message.SubCh && ((Message.SubCh) messageFuture.getMessage())
 					.getSubscriptionId().equals(subscription.getSubscriptionId())) {
-				mPendingMessageList.remove(i);
+				mPendingMessageList.remove(messageFuture);
 				sendUnsubscribe = false;
 				break;
 			}
@@ -437,6 +439,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private RapidFuture sendMessage(RapidFuture baseFuture, FutureResolver<Message> message) {
 		// send message in background
+
 		new AsyncTask<Void, Void, MessageFuture>() {
 			@Override
 			protected MessageFuture doInBackground(Void... params) {
@@ -460,7 +463,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void sendMessage(MessageFuture msg) {
-		if(msg.getMessage().getMessageType() != MessageType.ACK && msg.getMessage().getMessageType() != MessageType.NOP)
+		if(msg.getMessage().shouldBeAcked())
 			mSentMessageList.add(msg);
 		mWebSocketConnection.sendMessage(msg.getMessageJson());
 		mLastCommunicationTimestamp = System.currentTimeMillis();
@@ -477,9 +480,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private void invokeConnectionStateChanged(ConnectionState state) {
-		for(RapidConnectionStateListener l : mConnectionStateListeners) {
-			if(l != null) l.onConnectionStateChanged(state);
-		}
+		Stream.of(mConnectionStateListeners).filter(l -> l != null).forEach(l -> l.onConnectionStateChanged(state));
 	}
 
 
@@ -502,20 +503,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private void sendAckIfNeeded(Message parsedMessage) {
-		if(parsedMessage.getMessageType() == MessageType.VAL
-				|| parsedMessage.getMessageType() == MessageType.UPD
-				|| parsedMessage.getMessageType() == MessageType.RES
-				|| parsedMessage.getMessageType() == MessageType.RM
-				|| parsedMessage.getMessageType() == MessageType.TS
-				|| parsedMessage.getMessageType() == MessageType.CA_CH
-				|| parsedMessage.getMessageType() == MessageType.MES
-				|| parsedMessage.getMessageType() == MessageType.CA) {
-			sendMessage(() -> new Message.Ack(parsedMessage.getEventId()));
-		}
-	}
-
-
 	private synchronized void handleErrMessage(Message.Err message) {
 		switch(message.getType()) {
 			case CONNECTION_TERMINATED:
@@ -528,21 +515,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				});
 				break;
 			default:
-				int size = mSentMessageList.size();
-				int position = -1;
-				for(int i = 0; i < size; i++) {
-					if(message.getEventId().equals(mSentMessageList.get(i).getMessage().getEventId())) {
-						position = i;
-						break;
-					}
-				}
-				if(position != -1) {
-					MessageFuture messageFuture = mSentMessageList.get(position);
-					RapidError error = new RapidError(RapidError.ErrorType.fromServerError(message, messageFuture));
+				MessageFuture sentMessage = Stream.of(mSentMessageList).filter(m -> message.getEventId().equals(m.getMessage().getEventId())).findFirst().orElse(null);
+				if(sentMessage != null) {
+					RapidError error = new RapidError(RapidError.ErrorType.fromServerError(message, sentMessage));
 					mLogger.logE(error);
-					messageFuture.getRapidFuture().invokeError(error);
-					updateCountersOnError(messageFuture);
-					mSentMessageList.remove(position);
+					sentMessage.getRapidFuture().invokeError(error);
+					updateCountersOnError(sentMessage);
+					mSentMessageList.remove(sentMessage);
 				}
 
 				break;
@@ -589,33 +568,18 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void handleAckMessage(Message.Ack ackMessage) {
-		int size = mSentMessageList.size();
+		MessageFuture sentMessage = Stream.of(mSentMessageList).filter(m -> ackMessage.getEventId().equals(m.getMessage().getEventId())).findFirst().orElse(null);
 
-		int position = -1;
-
-		for(int i = 0; i < size; i++) {
-			if(ackMessage.getEventId().equals(mSentMessageList.get(i).getMessage().getEventId())) {
-				position = i;
-				break;
-			}
-		}
-		if(position != -1) {
-			MessageFuture messageFuture = mSentMessageList.get(position);
-			messageFuture.getRapidFuture().invokeSuccess();
-			if(messageFuture.getMessage() instanceof Message.Mut
-					|| messageFuture.getMessage() instanceof Message.Del
-					|| messageFuture.getMessage() instanceof Message.Mer
-					|| messageFuture.getMessage() instanceof Message.Da
-					|| messageFuture.getMessage() instanceof Message.DaCa
-					|| messageFuture.getMessage() instanceof Message.Pub)
+		if(sentMessage != null) {
+			sentMessage.getRapidFuture().invokeSuccess();
+			if(sentMessage.getMessage() instanceof Message.Mut
+					|| sentMessage.getMessage() instanceof Message.Del
+					|| sentMessage.getMessage() instanceof Message.Mer
+					|| sentMessage.getMessage() instanceof Message.Da
+					|| sentMessage.getMessage() instanceof Message.DaCa
+					|| sentMessage.getMessage() instanceof Message.Pub)
 				mPendingMutationCount--;
-//			if(messageFuture.getMessage() instanceof Message.Auth) {
-//				mAuth.authSuccess();
-//			}
-//			if(messageFuture.getMessage() instanceof Message.Deauth) {
-//				mAuth.deauthSuccess();
-//			}
-			mSentMessageList.remove(position);
+			mSentMessageList.remove(sentMessage);
 		}
 
 		disconnectWebSocketConnectionIfNeeded();

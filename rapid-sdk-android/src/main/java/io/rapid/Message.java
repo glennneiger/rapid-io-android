@@ -50,6 +50,11 @@ abstract class Message {
 	}
 
 
+	public boolean shouldBeAcked() {
+		return true;
+	}
+
+
 	protected JSONObject createJsonBody() throws JSONException {
 		return new JSONObject();
 	}
@@ -87,6 +92,12 @@ abstract class Message {
 			jsonObject.put(getMessageType().getKey(), JSONObject.NULL);
 			return jsonObject;
 		}
+
+
+		@Override
+		public boolean shouldBeAcked() {
+			return false;
+		}
 	}
 
 
@@ -99,6 +110,12 @@ abstract class Message {
 
 		Ack(JSONObject json) throws JSONException {
 			super(MessageType.ACK, json);
+		}
+
+
+		@Override
+		public boolean shouldBeAcked() {
+			return false;
 		}
 	}
 
@@ -154,6 +171,12 @@ abstract class Message {
 
 		Err(JSONObject json) throws JSONException {
 			super(MessageType.ERR, json);
+		}
+
+
+		@Override
+		public boolean shouldBeAcked() {
+			return false;
 		}
 
 
@@ -1337,6 +1360,7 @@ abstract class Message {
 			return body;
 		}
 	}
+
 
 	static class DaCa extends Message {
 
