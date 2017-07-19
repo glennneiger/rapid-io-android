@@ -1,13 +1,9 @@
 package io.rapid;
 
 
-import android.arch.lifecycle.LiveData;
 import android.os.Handler;
 
 import java.util.Date;
-import java.util.List;
-
-import io.rapid.lifecycle.RapidLiveData;
 
 
 /**
@@ -1012,11 +1008,6 @@ public class RapidCollectionReference<T> {
 	 */
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
 		return new RapidCollectionMapReference<>(this, mapFunction);
-	}
-
-
-	public LiveData<List<RapidDocument<T>>> getLiveData() {
-		return new RapidLiveData<T>(this);
 	}
 
 
