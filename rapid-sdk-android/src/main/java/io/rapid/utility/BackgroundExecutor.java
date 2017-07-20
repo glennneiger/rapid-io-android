@@ -3,6 +3,8 @@ package io.rapid.utility;
 
 import android.os.AsyncTask;
 
+import java.util.concurrent.Executor;
+
 
 public class BackgroundExecutor {
 	public interface Fetchable<T> {
@@ -15,14 +17,19 @@ public class BackgroundExecutor {
 	}
 
 
+
 	public static void doInBackground(Runnable runnable) {
+		doInBackground(runnable, AsyncTask.SERIAL_EXECUTOR);
+	}
+
+	public static void doInBackground(Runnable runnable, Executor executor) {
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... params) {
 				runnable.run();
 				return null;
 			}
-		}.execute();
+		}.executeOnExecutor(executor);
 	}
 
 

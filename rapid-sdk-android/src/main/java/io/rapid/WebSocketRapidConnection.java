@@ -2,7 +2,6 @@ package io.rapid;
 
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 
 import com.annimon.stream.Stream;
@@ -13,6 +12,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
+import io.rapid.utility.BackgroundExecutor;
 
 import static io.rapid.Config.CHECKER_HANDLER_PERIOD;
 import static io.rapid.Config.HB_PERIOD;
@@ -41,12 +42,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private boolean mCheckRunning = false;
 	private Handler mCheckHandler = new Handler();
 	private List<RapidConnectionStateListener> mConnectionStateListeners = new ArrayList<>();
-	private Runnable mDisconnectRunnable = () -> {
-		disconnectWebSocketConnection(true);
-	};
+	private Runnable mDisconnectRunnable = () -> disconnectWebSocketConnection(true);
 	private Runnable mConnectionRetryRunnable = this::createWebSocketConnectionIfNeeded;
-	private Runnable mCheckRunnable = () ->
-	{
+	private Runnable mCheckRunnable = () -> {
 		startCheckHandler();
 		check();
 	};
@@ -428,26 +426,24 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private RapidFuture sendMessage(RapidFuture baseFuture, FutureResolver<Message> message) {
 		// send message in background
-
-		new AsyncTask<Void, Void, MessageFuture>() {
-			@Override
-			protected MessageFuture doInBackground(Void... params) {
-				Message m = message.resolve();
-				try {
-					MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), baseFuture);
-					if(mConnectionState == CONNECTED) {
-						sendMessage(messageFuture);
-					} else {
-						if(!(messageFuture.getMessage() instanceof Message.Nop)) mPendingMessageList.add(messageFuture);
-					}
-				} catch(JSONException e) {
-					e.printStackTrace();
-					return null;
-				}
-				return null;
+		BackgroundExecutor.doInBackground(() -> {
+			MessageFuture messageFuture = createMessageFuture(message.resolve(), baseFuture);
+			if(mConnectionState == CONNECTED) {
+				sendMessage(messageFuture);
+			} else {
+				if(!(messageFuture.getMessage() instanceof Message.Nop)) mPendingMessageList.add(messageFuture);
 			}
-		}.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+		});
 		return baseFuture;
+	}
+
+
+	private MessageFuture createMessageFuture(Message message, RapidFuture future) {
+		try {
+			return new MessageFuture(message, message.toJson().toString(), future);
+		} catch(JSONException e) {
+			throw new IllegalArgumentException("Could not create message", e);
+		}
 	}
 
 
@@ -481,14 +477,10 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		}
 		boolean finalReconnect = reconnect;
 
-		try {
-			Message.Con m = new Message.Con(mConnectionId, finalReconnect);
-			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
-			MessageFuture messageFuture = new MessageFuture(m, m.toJson().toString(), future);
-			sendMessage(messageFuture);
-		} catch(JSONException e) {
-			e.printStackTrace();
-		}
+		Message.Con m = new Message.Con(mConnectionId, finalReconnect);
+		RapidFuture future = new RapidFuture(mOriginalThreadHandler);
+		MessageFuture messageFuture = createMessageFuture(m, future);
+		sendMessage(messageFuture);
 	}
 
 
@@ -583,9 +575,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private synchronized void checkMessagesTimeout() {
-		Logcat.d("Messages status: PENDING=" + mPendingMessageList.size() + "; SENT=" + mSentMessageList.size() + "; SUBSCRIPTIONS=" +
-				mSubscriptionCount + "; PENDING AUTH=" + mAuth.isAuthPending() +
-				"; PENDING DEAUTH=" + mAuth.isDeauthPending());
+		Logcat.d("Messages status: \n---> PENDING=%d; SENT=%d; SUBSCRIPTIONS=%d; PENDING AUTH=%b; PENDING DEAUTH=%b", mPendingMessageList.size(), mSentMessageList.size(), mSubscriptionCount, mAuth.isAuthPending(), mAuth.isDeauthPending());
 
 		long now = System.currentTimeMillis();
 
@@ -641,7 +631,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 		future.onSuccess(() -> mAuth.authSuccess());
 		future.onError(error -> mAuth.authError(error));
-		sendMessage(() -> m);
+		sendMessage(createMessageFuture(m, future));
 	}
 
 
@@ -650,6 +640,6 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 		future.onSuccess(() -> mAuth.deauthSuccess());
 		future.onError(error -> mAuth.deauthError());
-		sendMessage(() -> m);
+		sendMessage(createMessageFuture(m, future));
 	}
 }
