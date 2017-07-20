@@ -1,10 +1,19 @@
 package io.rapid;
 
 
+import java.util.Map;
+
+
 class MockCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidFuture mutate(String id, T value, RapidMutateOptions options) {
+		return null;
+	}
+
+
+	@Override
+	public RapidFuture merge(String id, Map<String, Object> mergeMap, RapidMutateOptions options) {
 		return null;
 	}
 
@@ -66,5 +75,17 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 	@Override
 	public void fetch(BaseCollectionSubscription<T> subscription) {
 
+	}
+
+
+	@Override
+	public RapidActionFuture onDisconnectMutate(String docId, T item, RapidMutateOptions options) {
+		return null;
+	}
+
+
+	@Override
+	public RapidActionFuture onDisconnectMerge(String docId, Map<String, Object> mergeMap, RapidMutateOptions options) {
+		return null;
 	}
 }

@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import java.util.UUID;
+
+import io.rapid.utility.UUIDUtility;
 import me.nimavat.shortid.ShortId;
 
 
@@ -16,7 +19,7 @@ class IdProvider {
 
 
 	static String getNewDocumentId() {
-		return ShortId.generate();
+		return UUIDUtility.base64(UUID.randomUUID());
 	}
 
 
