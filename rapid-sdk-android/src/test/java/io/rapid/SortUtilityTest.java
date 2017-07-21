@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 public class SortUtilityTest extends BaseTest {
 
 	// TODO: temp commented due to temp fix for multiple-level sorting
-//	@Test
+//	@io.rapid.Test
 //	public void test_insertToSortedList_1() throws Exception {
 //		EntityOrder order = new EntityOrder();
 //		order.putOrder("a", Sorting.ASC);
@@ -233,7 +233,7 @@ public class SortUtilityTest extends BaseTest {
 
 
 	// TODO: temp commented due to temp fix for multiple-level sorting
-//	@Test
+//	@io.rapid.Test
 //	public void test_insertToSortedList_10() throws Exception {
 //		EntityOrder order = new EntityOrder();
 //		order.putOrder("a", Sorting.ASC);

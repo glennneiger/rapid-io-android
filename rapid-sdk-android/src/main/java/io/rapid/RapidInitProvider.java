@@ -4,18 +4,88 @@ package io.rapid;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
+import io.rapid.utility.Sha1Utility;
 
 
 public class RapidInitProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		Context context = getContext();
-		Rapid.injectContext(context);
+
+		String TAG = "Rapid.io";
+		Rapid.setLoggerOutput(new LoggerOutput() {
+			@Override
+			public void error(String message, Throwable throwable) {
+				Log.e(TAG, message, throwable);
+			}
+
+
+			@Override
+			public void info(String message, Throwable throwable) {
+				Log.i(TAG, message, throwable);
+			}
+
+
+			@Override
+			public void warning(String message, Throwable throwable) {
+				Log.w(TAG, message, throwable);
+			}
+		});
+
+
+		Handler handler = new Handler();
+		RapidExecutor executor = new AndroidRapidExecutor(handler);
+		Rapid.setExecutor(executor);
+
+		Rapid.setCacheProvider(new CacheProvider() {
+			@Override
+			public DiskCache getNewDiskCache(String apiKey) {
+				try {
+					return new AndroidDiskCache(new File(context.getCacheDir() + "/rapid/" + Sha1Utility.sha1(apiKey)), Config.CACHE_DEFAULT_SIZE_MB);
+				} catch(IOException e) {
+					throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized", e);
+				} catch(NoSuchAlgorithmException e) {
+					throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized", e);
+				}
+			}
+
+
+			@Override
+			public <T> MemoryCache<T> getNewMemoryCache(int maxValue) {
+				return new AndroidMemoryCache<>(maxValue);
+			}
+		});
+
+		// try to auto-init from AndroidManifest metadata
+		try {
+			ApplicationInfo app = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+			Bundle metaData = app.metaData;
+			if(metaData != null) {
+				String apiKey = metaData.getString(Config.API_KEY_METADATA);
+				if(apiKey != null) {
+					Rapid.initialize(apiKey);
+				}
+			}
+
+		} catch(PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 
