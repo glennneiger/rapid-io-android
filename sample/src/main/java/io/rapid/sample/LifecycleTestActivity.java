@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.View;
 
 import io.rapid.Rapid;
-import io.rapid.lifecycle.RapidLiveData;
+import io.rapid.android.lifecycle.RapidLiveData;
 
 
 public class LifecycleTestActivity extends LifecycleActivity {

@@ -1,4 +1,4 @@
-package io.rapid;
+package io.rapid.android;
 
 
 import android.os.AsyncTask;
@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 
 import java.util.concurrent.Executor;
+
+import io.rapid.RapidExecutor;
 
 
 public class AndroidRapidExecutor implements RapidExecutor {

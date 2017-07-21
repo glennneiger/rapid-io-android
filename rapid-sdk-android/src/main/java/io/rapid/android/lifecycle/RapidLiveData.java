@@ -1,4 +1,4 @@
-package io.rapid.lifecycle;
+package io.rapid.android.lifecycle;
 
 
 import android.arch.lifecycle.LiveData;

@@ -1,7 +1,9 @@
-package io.rapid;
+package io.rapid.android;
 
 
 import android.support.v4.util.LruCache;
+
+import io.rapid.MemoryCache;
 
 
 public class AndroidMemoryCache<T> implements MemoryCache<T> {

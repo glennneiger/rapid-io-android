@@ -4,7 +4,7 @@ package io.rapid;
 import java.io.IOException;
 
 
-interface DiskCache {
+public interface DiskCache {
 	void delete() throws IOException;
 	void setMaxSize(int maxSizeInBytes);
 	void remove(String key) throws IOException;

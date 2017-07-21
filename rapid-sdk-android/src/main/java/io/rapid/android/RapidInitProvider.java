@@ -1,4 +1,4 @@
-package io.rapid;
+package io.rapid.android;
 
 
 import android.content.ContentProvider;
@@ -19,6 +19,12 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import io.rapid.CacheProvider;
+import io.rapid.DiskCache;
+import io.rapid.LoggerOutput;
+import io.rapid.MemoryCache;
+import io.rapid.Rapid;
+import io.rapid.RapidExecutor;
 import io.rapid.utility.Sha1Utility;
 
 

@@ -1,1 +1,1 @@
-include ':rapid-sdk-android', ':sample', ':rapid-sdk-java'
+include ':rapid-sdk-java', ':rapid-sdk-android', ':sample'

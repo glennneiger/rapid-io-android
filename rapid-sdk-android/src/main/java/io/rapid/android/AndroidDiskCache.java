@@ -1,10 +1,12 @@
-package io.rapid;
+package io.rapid.android;
 
 
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.IOException;
+
+import io.rapid.DiskCache;
 
 
 public class AndroidDiskCache implements DiskCache {
