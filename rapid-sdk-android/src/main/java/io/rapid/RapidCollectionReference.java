@@ -1,9 +1,9 @@
 package io.rapid;
 
 
-import android.os.Handler;
-
 import java.util.Date;
+
+import io.rapid.executor.RapidExecutor;
 
 
 /**
@@ -45,18 +45,18 @@ import java.util.Date;
 public class RapidCollectionReference<T> {
 
 	private final String mCollectionName;
-	private final Handler mUiThreadHandler;
+	private final RapidExecutor mExecutor;
 	private final JsonConverterProvider mJsonConverter;
 	private RapidCollectionSubscription<T> mSubscription;
 	private CollectionConnection<T> mConnection;
 
 
-	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, Handler uiThreadHandler, JsonConverterProvider jsonConverter) {
+	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, RapidExecutor executor, JsonConverterProvider jsonConverter) {
 		mCollectionName = collectionName;
 		mConnection = collectionConnection;
-		mUiThreadHandler = uiThreadHandler;
+		mExecutor = executor;
 		mJsonConverter = jsonConverter;
-		mSubscription = new RapidCollectionSubscription<>(mCollectionName, mUiThreadHandler);
+		mSubscription = new RapidCollectionSubscription<>(mCollectionName, mExecutor);
 	}
 
 
@@ -935,7 +935,7 @@ public class RapidCollectionReference<T> {
 	 * @return document reference
 	 */
 	public RapidDocumentReference<T> newDocument() {
-		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection);
+		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection);
 	}
 
 
@@ -948,7 +948,7 @@ public class RapidCollectionReference<T> {
 	 * @return
 	 */
 	public RapidDocumentReference<T> document(String documentId) {
-		return new RapidDocumentReference<>(mUiThreadHandler, mCollectionName, mConnection, documentId);
+		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection, documentId);
 	}
 
 

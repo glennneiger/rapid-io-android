@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-import android.os.Handler;
+import io.rapid.executor.RapidExecutor;
 
 
 public class RapidActionFuture extends RapidFuture{
@@ -9,7 +9,7 @@ public class RapidActionFuture extends RapidFuture{
 	private RapidConnection mRapidConnection;
 
 
-	RapidActionFuture(Handler handler, String actionId, RapidConnection rapidConnection) {
+	RapidActionFuture(RapidExecutor handler, String actionId, RapidConnection rapidConnection) {
 		super(handler);
 		mActionId = actionId;
 		mRapidConnection = rapidConnection;

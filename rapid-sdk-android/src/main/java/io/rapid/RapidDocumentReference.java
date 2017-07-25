@@ -1,9 +1,9 @@
 package io.rapid;
 
 
-import android.os.Handler;
-
 import java.util.Map;
+
+import io.rapid.executor.RapidExecutor;
 
 
 /**
@@ -18,19 +18,19 @@ public class RapidDocumentReference<T> {
 	private final CollectionConnection<T> mImpl;
 	private final String mId;
 	private final RapidDocumentSubscription<T> mSubscription;
-	private Handler mUiThreadHandler;
+	private RapidExecutor mExecutor;
 
 
-	RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl) {
-		this(uiThreadHandler, collectionName, impl, IdProvider.getNewDocumentId());
+	RapidDocumentReference(RapidExecutor executor, String collectionName, CollectionConnection<T> impl) {
+		this(executor, collectionName, impl, IdProvider.getNewDocumentId());
 	}
 
 
-	RapidDocumentReference(Handler uiThreadHandler, String collectionName, CollectionConnection<T> impl, String documentId) {
-		mUiThreadHandler = uiThreadHandler;
+	RapidDocumentReference(RapidExecutor executor, String collectionName, CollectionConnection<T> impl, String documentId) {
+		mExecutor = executor;
 		mId = documentId;
 		mImpl = impl;
-		mSubscription = new RapidDocumentSubscription<>(documentId, collectionName, uiThreadHandler);
+		mSubscription = new RapidDocumentSubscription<>(documentId, collectionName, executor);
 	}
 
 
@@ -109,7 +109,7 @@ public class RapidDocumentReference<T> {
 	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
 	 */
 	public RapidFuture execute(RapidDocumentExecutor.Callback<T> documentExecutor) {
-		RapidFuture result = new RapidFuture(mUiThreadHandler);
+		RapidFuture result = new RapidFuture(mExecutor);
 		fetch(document -> {
 					RapidDocumentExecutor.Result<T> executorResult = documentExecutor.execute(document);
 					if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_CANCEL) {

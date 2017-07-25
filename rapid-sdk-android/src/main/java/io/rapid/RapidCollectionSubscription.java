@@ -1,12 +1,11 @@
 package io.rapid;
 
 
-import android.os.Handler;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import io.rapid.executor.RapidExecutor;
 import io.rapid.utility.SortUtility;
 
 
@@ -23,7 +22,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 	private RapidCallback.CollectionUpdates<T> mCallback;
 
 
-	RapidCollectionSubscription(String collectionName, Handler uiThreadHandler) {
+	RapidCollectionSubscription(String collectionName, RapidExecutor uiThreadHandler) {
 		super(collectionName, uiThreadHandler);
 	}
 
@@ -171,7 +170,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 
 
 	private synchronized void invokeChange(ListUpdate listUpdate) {
-		mUiThreadHandler.post(() -> {
+		mExecutor.doOnMain(() -> {
 			synchronized(mCallback) {
 				mCallback.onValueChanged(new ArrayList<>(mDocuments), listUpdate);
 			}

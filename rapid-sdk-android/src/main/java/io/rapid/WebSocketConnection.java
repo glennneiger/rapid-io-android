@@ -4,11 +4,14 @@ import android.content.Context;
 
 import org.json.JSONException;
 
+import io.rapid.executor.RapidExecutor;
+
 
 abstract class WebSocketConnection
 {
 	String mServerURI;
 	WebSocketConnectionListener mListener;
+	protected RapidExecutor mExecutor;
 
 
 	interface WebSocketConnectionListener
@@ -20,10 +23,11 @@ abstract class WebSocketConnection
 	}
 
 
-	WebSocketConnection(String serverURI, WebSocketConnectionListener listener)
+	WebSocketConnection(String serverURI, WebSocketConnectionListener listener, RapidExecutor executor)
 	{
 		mServerURI = serverURI;
 		mListener = listener;
+		mExecutor = executor;
 	}
 
 

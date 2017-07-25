@@ -1,14 +1,13 @@
 package io.rapid;
 
 
-import android.os.Handler;
-
 import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import io.rapid.executor.RapidExecutor;
 import io.rapid.utility.Sha1Utility;
 
 
@@ -26,8 +25,8 @@ public abstract class BaseCollectionSubscription<T> extends Subscription {
 	}
 
 
-	BaseCollectionSubscription(String collectionName, Handler uiThreadHandler) {
-		super(uiThreadHandler);
+	BaseCollectionSubscription(String collectionName, RapidExecutor executor) {
+		super(executor);
 		mCollectionName = collectionName;
 	}
 

@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-import android.os.Handler;
+import io.rapid.executor.RapidExecutor;
 
 
 public class RapidChannelPrefixReference<T> {
@@ -9,18 +9,18 @@ public class RapidChannelPrefixReference<T> {
 
 	protected ChannelConnection<T> mChannelConnection;
 	private String mChannelName;
-	private Handler mOriginalThreadHandler;
+	private RapidExecutor mExecutor;
 
 
-	RapidChannelPrefixReference(ChannelConnection<T> channelConnection, String channelName, Handler originalThreadHandler) {
+	RapidChannelPrefixReference(ChannelConnection<T> channelConnection, String channelName, RapidExecutor executor) {
 		mChannelConnection = channelConnection;
 		mChannelName = channelName;
-		mOriginalThreadHandler = originalThreadHandler;
+		mExecutor = executor;
 	}
 
 
 	public RapidChannelSubscription<T> subscribe(RapidCallback.Message<T> callback) {
-		RapidChannelSubscription<T> subscription = new RapidChannelSubscription<>(mChannelName, mOriginalThreadHandler);
+		RapidChannelSubscription<T> subscription = new RapidChannelSubscription<>(mChannelName, mExecutor);
 		subscription.setSubscriptionId(IdProvider.getNewSubscriptionId());
 		subscription.setCallback(callback);
 		mChannelConnection.subscribe(subscription);

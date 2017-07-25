@@ -1,10 +1,10 @@
 package io.rapid;
 
 
-import android.os.Handler;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import io.rapid.executor.RapidExecutor;
 
 
 public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> {
@@ -14,8 +14,8 @@ public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> 
 	private RapidDocument<T> mDocument;
 
 
-	RapidDocumentSubscription(String documentId, String collectionName, Handler uiThreadHandler) {
-		super(collectionName, uiThreadHandler);
+	RapidDocumentSubscription(String documentId, String collectionName, RapidExecutor executor) {
+		super(collectionName, executor);
 		mId = documentId;
 	}
 
@@ -89,6 +89,6 @@ public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> 
 
 
 	private void invokeChange() {
-		mUiThreadHandler.post(() -> mCallback.onValueChanged(mDocument));
+		mExecutor.doOnMain(() -> mCallback.onValueChanged(mDocument));
 	}
 }

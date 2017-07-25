@@ -14,6 +14,8 @@ import java.util.Map;
 
 import io.rapid.converter.RapidGsonConverter;
 import io.rapid.converter.RapidJsonConverter;
+import io.rapid.executor.AndroidRapidExecutor;
+import io.rapid.executor.RapidExecutor;
 import io.rapid.utility.Sha1Utility;
 
 
@@ -34,7 +36,7 @@ public class Rapid {
 
 		mApiKey = apiKey;
 		mJsonConverter = new JsonConverterProvider(new RapidGsonConverter());
-		Handler handler = new Handler();
+		RapidExecutor executor = new AndroidRapidExecutor(new Handler());
 
 		AppMetadata appMetadata = new AppMetadata(apiKey);
 		Logcat.d("URL: " + appMetadata.getUrl());
@@ -92,7 +94,7 @@ public class Rapid {
 			public void onChannelMessage(String subscriptionId, String channelName, String body) {
 				mCollectionProvider.findChannelBySubscriptionId(subscriptionId).onMessage(subscriptionId, channelName, body);
 			}
-		}, handler, mLogger);
+		}, executor, mLogger);
 
 		SubscriptionDiskCache subscriptionDiskCache;
 		try {
@@ -105,7 +107,7 @@ public class Rapid {
 			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
 		}
 
-		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, handler, subscriptionDiskCache, mLogger);
+		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, executor, subscriptionDiskCache, mLogger);
 	}
 
 
