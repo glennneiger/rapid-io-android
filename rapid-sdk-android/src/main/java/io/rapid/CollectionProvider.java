@@ -55,9 +55,6 @@ class CollectionProvider {
 	}
 
 
-	SubscriptionDiskCache getSubscriptionDiskCache() {
-		return mSubscriptionDiskCache;
-	}
 
 
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {

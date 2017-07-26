@@ -176,7 +176,7 @@ public class SampleUsage {
 
 
 		// mutate custom JSON converter
-		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
+//		Rapid.getInstance().setJsonConverter(new RapidJacksonConverter());
 
 
 		// Reading collection as a Map<String, Object>

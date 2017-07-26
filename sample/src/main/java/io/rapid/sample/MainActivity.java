@@ -23,6 +23,7 @@ import io.rapid.LogLevel;
 import io.rapid.Rapid;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
+import io.rapid.RapidConfig;
 import io.rapid.RapidDocumentExecutor;
 import io.rapid.sample.databinding.ActivityMainBinding;
 
@@ -48,7 +49,10 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		super.onCreate(savedInstanceState);
 
 		enableStrictMode();
-		Rapid.getInstance().setLogLevel(LogLevel.LOG_LEVEL_NONE);
+		Rapid.initialize("", new RapidConfig.Builder()
+				.setLogLevel(LogLevel.LOG_LEVEL_NONE)
+				.setCacheSize(200)
+				.build());
 
 		mViewModel = new MainViewModel();
 		mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
@@ -179,8 +183,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	private void auth()
-	{
+	private void auth() {
 		if(mToggleAuthMenu != null) {
 			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_deauth, null);
 			mToggleAuthMenu.setTitle(R.string.deauth);
@@ -193,8 +196,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	private void deauth()
-	{
+	private void deauth() {
 		if(mToggleAuthMenu != null) {
 			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_auth, null);
 			mToggleAuthMenu.setTitle(R.string.auth);
@@ -213,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			mToggleSubscriptionMenu.setTitle(R.string.unsubscribe);
 			mToggleSubscriptionMenu.setIcon(icon);
 		}
-		if (mSearchQuery!=null && !mSearchQuery.isEmpty()){
+		if(mSearchQuery != null && !mSearchQuery.isEmpty()) {
 			mTodos.contains("mTitle", mSearchQuery);
 		}
 		mSubscription = mTodos

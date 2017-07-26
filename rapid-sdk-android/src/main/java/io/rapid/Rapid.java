@@ -5,16 +5,13 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.rapid.converter.RapidGsonConverter;
 import io.rapid.converter.RapidJsonConverter;
-import io.rapid.executor.AndroidRapidExecutor;
 import io.rapid.executor.RapidExecutor;
 import io.rapid.utility.Sha1Utility;
 
@@ -23,20 +20,19 @@ public class Rapid {
 	private static Map<String, Rapid> sInstances = new HashMap<>();
 	private static Context sApplicationContext;
 	private final String mApiKey;
-	private JsonConverterProvider mJsonConverter;
 	private RapidConnection mRapidConnection;
 	private CollectionProvider mCollectionProvider;
-	private RapidLogger mLogger = new RapidLogger();
+	private RapidLogger mLogger;
 
 
-	private Rapid(Context context, String apiKey) {
-		setLogLevel(LogLevel.LOG_LEVEL_INFO);
+	private Rapid(Context context, String apiKey, RapidConfig config) {
 
 		mLogger.logI("Initializing Rapid.io SDK with API key: %s", apiKey);
 
 		mApiKey = apiKey;
-		mJsonConverter = new JsonConverterProvider(new RapidGsonConverter());
-		RapidExecutor executor = new AndroidRapidExecutor(new Handler());
+		JsonConverterProvider jsonConverterProvider = new JsonConverterProvider(config.getJsonConverter());
+		mLogger = new RapidLogger(config.getLogLevel());
+		RapidExecutor executor = config.getExecutor();
 
 		AppMetadata appMetadata = new AppMetadata(apiKey);
 		Logcat.d("URL: " + appMetadata.getUrl());
@@ -98,7 +94,7 @@ public class Rapid {
 
 		SubscriptionDiskCache subscriptionDiskCache;
 		try {
-			subscriptionDiskCache = new SubscriptionDiskCache(context, Sha1Utility.sha1(mApiKey), Config.CACHE_DEFAULT_SIZE_MB);
+			subscriptionDiskCache = new SubscriptionDiskCache(context, Sha1Utility.sha1(mApiKey), config.getCacheSize());
 		} catch(IOException e) {
 			e.printStackTrace();
 			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
@@ -107,7 +103,7 @@ public class Rapid {
 			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
 		}
 
-		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, executor, subscriptionDiskCache, mLogger);
+		mCollectionProvider = new CollectionProvider(mRapidConnection, jsonConverterProvider, executor, subscriptionDiskCache, mLogger);
 	}
 
 
@@ -166,9 +162,33 @@ public class Rapid {
 	 *
 	 * @param apiKey Rapid.io API key (you can get it in the developer's console)
 	 */
-	public static void initialize(String apiKey) {
+	public static void initialize(String apiKey) {initialize(apiKey, new RapidConfig.Builder().build());}
+
+
+	/**
+	 * Initialize {@link Rapid} instance with an Rapid.io API key
+	 * <p>
+	 * You can substitute this call by including API key in AndroidManifest file within {@code <application>} tag
+	 * <p>
+	 * Example:
+	 * <pre>
+	 * {@code
+	 * <manifest>
+	 * 	<application>
+	 * 		//...
+	 * 		<meta-data
+	 * 			android:name="io.rapid.apikey"
+	 * 			android:value="<API_KEY>" />
+	 * 	</application>
+	 * </manifest>
+	 * }
+	 * </pre>
+	 *
+	 * @param apiKey Rapid.io API key (you can get it in the developer's console)
+	 */
+	public static void initialize(String apiKey, RapidConfig rapidConfig) {
 		if(!sInstances.containsKey(apiKey))
-			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey));
+			sInstances.put(apiKey, new Rapid(sApplicationContext, apiKey, rapidConfig));
 	}
 
 
@@ -197,7 +217,7 @@ public class Rapid {
 	 * <p>
 	 * With provided class reference for serialization/deserialization Rapid is able to automatically map document properties
 	 * to object properties in Java class. By default the documents are serialized/deserialized by Gson, but you can provide own
-	 * implementation of {@link RapidJsonConverter} via {@link Rapid#setJsonConverter(RapidJsonConverter)} method
+	 * implementation of {@link RapidJsonConverter} via {@link RapidConfig} con
 	 * <p>
 	 * If you don't want to convert data to a Java class, you can call {@link Rapid#collection(String)} and data
 	 * will be provided as a {@link Map}<String, Object>
@@ -277,30 +297,6 @@ public class Rapid {
 
 
 	/**
-	 * Get JSON converter used for serialization and deserialization to/from Java objects.
-	 * <p>
-	 * By default, Gson is used for this task. Use {@link Rapid#setJsonConverter(RapidJsonConverter)} to provide custom converter
-	 *
-	 * @return RapidJsonConverter
-	 */
-	public RapidJsonConverter getJsonConverter() {
-		return mJsonConverter.get();
-	}
-
-
-	/**
-	 * Set JSON converter used for serialization and deserialization to/from Java objects.
-	 * <p>
-	 * By default, Gson is used for this task
-	 *
-	 * @param jsonConverter Custom JSON converter
-	 */
-	public void setJsonConverter(RapidJsonConverter jsonConverter) {
-		mJsonConverter.set(jsonConverter);
-	}
-
-
-	/**
 	 * Get Rapid.io API key this instance was initialized with
 	 *
 	 * @return Rapid.io API key
@@ -355,48 +351,6 @@ public class Rapid {
 	 */
 	public ConnectionState getConnectionState() {
 		return mRapidConnection.getConnectionState();
-	}
-
-
-	/**
-	 * Method for enabling/disabling subscription disk cache
-	 *
-	 * @param cachingEnabled
-	 */
-	public void setCachingEnabled(boolean cachingEnabled) {
-		mCollectionProvider.getSubscriptionDiskCache().setEnabled(cachingEnabled);
-	}
-
-
-	/**
-	 * Adjust subscription disk cache size
-	 * <p>
-	 * Default size is 50 MB
-	 *
-	 * @param cacheSizeInMb Cache size in MB
-	 */
-	public void setCacheSize(int cacheSizeInMb) {
-		mCollectionProvider.getSubscriptionDiskCache().setMaxSize(cacheSizeInMb);
-	}
-
-
-	/**
-	 * Set level of Logcat output
-	 * <p>
-	 * {@link LogLevel#LOG_LEVEL_NONE} - no logs at all
-	 * <p>
-	 * {@link LogLevel#LOG_LEVEL_ERRORS} - log only errors
-	 * <p>
-	 * {@link LogLevel#LOG_LEVEL_WARNINGS} - log errors and warnings
-	 * <p>
-	 * {@link LogLevel#LOG_LEVEL_INFO} - log errors, warnings and informative messages useful for debugging
-	 * <p>
-	 * {@link LogLevel#LOG_LEVEL_VERBOSE} - log everything
-	 *
-	 * @param level desired log level
-	 */
-	public void setLogLevel(@LogLevel int level) {
-		mLogger.setLevel(level);
 	}
 
 

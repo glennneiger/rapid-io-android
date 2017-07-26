@@ -20,6 +20,11 @@ class RapidLogger {
 	private int mLevel;
 
 
+	RapidLogger(@LogLevel int level) {
+		mLevel = level;
+	}
+
+
 	void setLevel(@LogLevel int level) {
 		mLevel = level;
 	}
