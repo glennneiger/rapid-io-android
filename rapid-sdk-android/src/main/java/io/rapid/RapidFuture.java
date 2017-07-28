@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-import android.os.Handler;
+import io.rapid.executor.RapidExecutor;
 
 
 public class RapidFuture {
@@ -11,7 +11,7 @@ public class RapidFuture {
 	private boolean mSuccess;
 	private boolean mCompleted;
 	private RapidError mError;
-	private Handler mHandler;
+	private RapidExecutor mHandler;
 
 
 	public interface SuccessCallback {
@@ -29,7 +29,7 @@ public class RapidFuture {
 	}
 
 
-	RapidFuture(Handler handler) {
+	RapidFuture(RapidExecutor handler) {
 		mHandler = handler;
 	}
 
@@ -46,7 +46,7 @@ public class RapidFuture {
 
 	public RapidFuture onSuccess(SuccessCallback successCallback) {
 		if(mSuccess)
-			mHandler.post(() -> mSuccessCallback.onSuccess());
+			mHandler.doOnMain(() -> mSuccessCallback.onSuccess());
 		mSuccessCallback = successCallback;
 		return this;
 	}
@@ -54,7 +54,7 @@ public class RapidFuture {
 
 	public RapidFuture onError(ErrorCallback errorCallback) {
 		if(mError != null)
-			mHandler.post(() -> mErrorCallback.onError(mError));
+			mHandler.doOnMain(() -> mErrorCallback.onError(mError));
 		mErrorCallback = errorCallback;
 		return this;
 	}
@@ -62,7 +62,7 @@ public class RapidFuture {
 
 	public RapidFuture onCompleted(CompleteCallback callback) {
 		if(mCompleted)
-			mHandler.post(() -> mCompletedCallback.onComplete());
+			mHandler.doOnMain(() -> mCompletedCallback.onComplete());
 		mCompletedCallback = callback;
 		return this;
 	}
@@ -73,9 +73,9 @@ public class RapidFuture {
 		mCompleted = true;
 		mError = error;
 		if(mErrorCallback != null)
-			mHandler.post(() -> mErrorCallback.onError(error));
+			mHandler.doOnMain(() -> mErrorCallback.onError(error));
 		if(mCompletedCallback != null)
-			mHandler.post(() -> mCompletedCallback.onComplete());
+			mHandler.doOnMain(() -> mCompletedCallback.onComplete());
 	}
 
 
@@ -83,9 +83,9 @@ public class RapidFuture {
 		mSuccess = true;
 		mCompleted = true;
 		if(mSuccessCallback != null)
-			mHandler.post(() -> mSuccessCallback.onSuccess());
+			mHandler.doOnMain(() -> mSuccessCallback.onSuccess());
 		if(mCompletedCallback != null)
-			mHandler.post(() -> mCompletedCallback.onComplete());
+			mHandler.doOnMain(() -> mCompletedCallback.onComplete());
 	}
 
 

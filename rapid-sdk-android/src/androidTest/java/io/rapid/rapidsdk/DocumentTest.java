@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 
 import io.rapid.Etag;
 import io.rapid.Rapid;
+import io.rapid.RapidActionFuture;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidDocumentExecutor;
 import io.rapid.RapidDocumentReference;
@@ -202,6 +203,19 @@ public class DocumentTest extends BaseRapidTest {
 			assertEquals("car_1", document.getBody().getName());
 			unlockAsync();
 		}).onError(error -> fail(error.getMessage()));
+		lockAsync();
+	}
+
+	@Test
+	public void testDisconnectAction() {
+		RapidDocumentReference<Car> doc = mCollection.newDocument();
+
+		RapidActionFuture f = doc.onDisconnect().mutate(new Car("car-2", 2334));
+		f.onError(error -> fail(error.getMessage()));
+		f.onSuccess(() -> unlockAsync());
+		lockAsync();
+
+		f.cancel().onError(error -> fail(error.getMessage())).onSuccess(() -> unlockAsync());
 		lockAsync();
 	}
 

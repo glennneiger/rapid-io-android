@@ -1,18 +1,18 @@
 package io.rapid;
 
 
-import android.os.Handler;
+import io.rapid.executor.RapidExecutor;
 
 
 abstract class Subscription {
-	final Handler mUiThreadHandler;
+	final RapidExecutor mExecutor;
 	private RapidCallback.Error mErrorCallback;
 	private BaseCollectionSubscription.OnUnsubscribeCallback mOnUnsubscribeCallback;
 	private boolean mSubscribed;
 	private String mSubscriptionId;
 
 
-	Subscription(Handler uiThreadHandler) {mUiThreadHandler = uiThreadHandler;}
+	Subscription(RapidExecutor executor) {mExecutor = executor;}
 
 
 	public Subscription onError(RapidCallback.Error callback) {
@@ -54,7 +54,7 @@ abstract class Subscription {
 		if(mErrorCallback != null && mSubscribed) {
 			mSubscribed = false;
 
-			mUiThreadHandler.post(() -> {
+			mExecutor.doOnMain(() -> {
 				synchronized(mErrorCallback) {
 					mErrorCallback.onError(error);
 				}

@@ -1,14 +1,14 @@
 package io.rapid;
 
 
-import android.os.Handler;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import io.rapid.executor.RapidExecutor;
+
 
 class CollectionProvider {
-	private final Handler mOriginalThreadHandler;
+	private final RapidExecutor mExecutor;
 	private final JsonConverterProvider mJsonConverter;
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mDebugLogger;
@@ -18,10 +18,10 @@ class CollectionProvider {
 	private Map<String, ChannelConnection> mChannelPrefixConnections = new HashMap<>();
 
 
-	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, Handler originalThreadHandler, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
+	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, RapidExecutor executor, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
-		mOriginalThreadHandler = originalThreadHandler;
+		mExecutor = executor;
 		mSubscriptionDiskCache = subscriptionDiskCache;
 		mDebugLogger = debugLogger;
 	}
@@ -49,9 +49,9 @@ class CollectionProvider {
 				mChannelConnections.put(channelName, new WebSocketChannelConnection<>(mConnection, mJsonConverter, channelName, messageClass, mDebugLogger, false));
 		}
 		if(nameIsPrefix)
-			return new RapidChannelPrefixReference<T>(mChannelPrefixConnections.get(channelName), channelName, mOriginalThreadHandler);
+			return new RapidChannelPrefixReference<T>(mChannelPrefixConnections.get(channelName), channelName, mExecutor);
 		else
-			return new RapidChannelReference<T>(mChannelConnections.get(channelName), channelName, mOriginalThreadHandler);
+			return new RapidChannelReference<T>(mChannelConnections.get(channelName), channelName, mExecutor);
 	}
 
 
@@ -62,15 +62,15 @@ class CollectionProvider {
 
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollectionConnections.containsKey(collectionName))
-			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger));
-		return new RapidCollectionReference<T>(mCollectionConnections.get(collectionName), collectionName, mOriginalThreadHandler, mJsonConverter);
+			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger, mExecutor));
+		return new RapidCollectionReference<T>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter);
 	}
 
 
 	RapidCollectionReference<Map<String, Object>> provideCollection(String collectionName) {
 		if(!mCollectionConnections.containsKey(collectionName))
-			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger));
-		return new RapidCollectionReference<Map<String, Object>>(mCollectionConnections.get(collectionName), collectionName, mOriginalThreadHandler, mJsonConverter);
+			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger, mExecutor));
+		return new RapidCollectionReference<Map<String, Object>>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter);
 	}
 
 

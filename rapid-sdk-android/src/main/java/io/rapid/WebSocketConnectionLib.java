@@ -7,6 +7,8 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 
+import io.rapid.executor.RapidExecutor;
+
 
 @SuppressWarnings("unused")
 class WebSocketConnectionLib extends WebSocketConnection {
@@ -14,9 +16,9 @@ class WebSocketConnectionLib extends WebSocketConnection {
 	private WebSocketClient mClient;
 
 
-	public WebSocketConnectionLib(String serverURI, WebSocketConnectionListener listener)
+	public WebSocketConnectionLib(String serverURI, WebSocketConnectionListener listener, RapidExecutor executor)
 	{
-		super(serverURI, listener);
+		super(serverURI, listener, executor);
 	}
 
 

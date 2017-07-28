@@ -5,7 +5,7 @@ import android.content.Context;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
-import io.rapid.utility.BackgroundExecutor;
+import io.rapid.executor.RapidExecutor;
 import io.rapid.utility.NetworkUtility;
 
 
@@ -13,8 +13,8 @@ class WebSocketConnectionAsync extends WebSocketConnection {
 	private WebSocket mClient;
 
 
-	WebSocketConnectionAsync(String serverURI, WebSocketConnectionListener listener) {
-		super(serverURI, listener);
+	WebSocketConnectionAsync(String serverURI, WebSocketConnectionListener listener, RapidExecutor executor) {
+		super(serverURI, listener, executor);
 	}
 
 
@@ -22,7 +22,7 @@ class WebSocketConnectionAsync extends WebSocketConnection {
 	void connectToServer(Context context) {
 		if(NetworkUtility.isOnline(context))
 		{
-			BackgroundExecutor.doInBackground(() -> AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
+			mExecutor.doInBackground(() -> AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
 			{
 				if(ex != null) {
 					ex.printStackTrace();

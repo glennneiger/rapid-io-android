@@ -12,8 +12,8 @@ public class BaseTest {
 	}
 
 
-	protected void print(String message) {
-		System.out.println(message);
+	protected void print(String message, Object... attrs) {
+		System.out.println(String.format(message, attrs));
 	}
 
 

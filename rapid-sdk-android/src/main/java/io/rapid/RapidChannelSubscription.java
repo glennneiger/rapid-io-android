@@ -1,7 +1,7 @@
 package io.rapid;
 
 
-import android.os.Handler;
+import io.rapid.executor.RapidExecutor;
 
 
 public class RapidChannelSubscription<T> extends Subscription {
@@ -9,7 +9,7 @@ public class RapidChannelSubscription<T> extends Subscription {
 	private RapidCallback.Message<T> mCallback;
 
 
-	RapidChannelSubscription(String channelName, Handler uiThreadHandler) {
+	RapidChannelSubscription(String channelName, RapidExecutor uiThreadHandler) {
 		super(uiThreadHandler);
 		mChannelName = channelName;
 	}

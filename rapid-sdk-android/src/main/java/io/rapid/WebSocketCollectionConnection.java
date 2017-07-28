@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.rapid.utility.BackgroundExecutor;
+import io.rapid.executor.RapidExecutor;
 import io.rapid.utility.ModifiableJSONArray;
 
 
@@ -26,14 +26,16 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	private String mCollectionName;
 	private RapidConnection mConnection;
 	private Class<T> mType;
+	private RapidExecutor mExecutor;
 	private Map<String, BaseCollectionSubscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketCollectionConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger) {
+	WebSocketCollectionConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger, RapidExecutor executor) {
 		mCollectionName = collectionName;
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mType = type;
+		mExecutor = executor;
 		mSubscriptionMemoryCache = new SubscriptionMemoryCache<>(Integer.MAX_VALUE);
 		mSubscriptionDiskCache = subscriptionDiskCache;
 		mLogger = logger;
@@ -84,6 +86,40 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
+	public RapidActionFuture onDisconnectMutate(String docId, T item, RapidMutateOptions options) {
+		RapidDocument<T> doc = new RapidDocument<>(docId, item, options);
+
+		if(item == null) {
+			return mConnection.onDisconnectDelete(mCollectionName, () -> {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("On Disconnect: Deleting document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			});
+		} else {
+			return mConnection.onDisconnectMutate(mCollectionName, () -> {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("On Disconnect: Mutating document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			});
+		}
+	}
+
+
+	@Override
+	public RapidActionFuture onDisconnectMerge(String docId, Map<String, Object> mergeMap, RapidMutateOptions options) {
+		RapidDocument<Map<String, Object>> doc = new RapidDocument<>(docId, mergeMap, options);
+		return mConnection.onDisconnectMerge(mCollectionName, () -> {
+			String documentJson = doc.toJson(mJsonConverter);
+			mLogger.logI("On Disconnect: Merging to document in collection '%s'", mCollectionName);
+			mLogger.logJson(documentJson);
+			return documentJson;
+		});
+	}
+
+
+	@Override
 	public void subscribe(BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);
@@ -119,7 +155,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					applyValueToSubscription(subscription, docs, BaseCollectionSubscription.DataState.LOADED_FROM_MEMORY_CACHE);
 				}
 			} else { // then try disk cache
-				BackgroundExecutor.fetchInBackground(() -> {
+				mExecutor.fetchInBackground(() -> {
 					try {
 						return mSubscriptionDiskCache.get(subscription);
 					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
@@ -166,7 +202,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
 
 				// disk cache
-				BackgroundExecutor.doInBackground(() -> {
+				mExecutor.doInBackground(() -> {
 					try {
 						mSubscriptionDiskCache.put(subscription, documents);
 					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
@@ -317,7 +353,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				ModifiableJSONArray finalCurrentItems = currentItems;
 
 				// update disk cache
-				BackgroundExecutor.doInBackground(() -> {
+				mExecutor.doInBackground(() -> {
 					try {
 						mSubscriptionDiskCache.put(subscription, finalCurrentItems.toString());
 					} catch(IOException | JSONException | NoSuchAlgorithmException e) {

@@ -50,6 +50,11 @@ abstract class Message {
 	}
 
 
+	public boolean shouldBeAcked() {
+		return true;
+	}
+
+
 	protected JSONObject createJsonBody() throws JSONException {
 		return new JSONObject();
 	}
@@ -87,6 +92,12 @@ abstract class Message {
 			jsonObject.put(getMessageType().getKey(), JSONObject.NULL);
 			return jsonObject;
 		}
+
+
+		@Override
+		public boolean shouldBeAcked() {
+			return false;
+		}
 	}
 
 
@@ -99,6 +110,12 @@ abstract class Message {
 
 		Ack(JSONObject json) throws JSONException {
 			super(MessageType.ACK, json);
+		}
+
+
+		@Override
+		public boolean shouldBeAcked() {
+			return false;
 		}
 	}
 
@@ -154,6 +171,12 @@ abstract class Message {
 
 		Err(JSONObject json) throws JSONException {
 			super(MessageType.ERR, json);
+		}
+
+
+		@Override
+		public boolean shouldBeAcked() {
+			return false;
 		}
 
 
@@ -1307,4 +1330,61 @@ abstract class Message {
 			return mTimestamp;
 		}
 	}
+
+
+	static class Da extends Message {
+
+		private static final String ATTR_ACTION = "act";
+		private static final String ATTR_ACTION_ID = "act-id";
+		private String mActionId;
+		private Message mActionMessage;
+
+
+		public Da(JSONObject json) throws JSONException {
+			super(MessageType.DA, json);
+		}
+
+
+		public Da(String actionId, Message actionMessage) {
+			super(MessageType.DA);
+			mActionId = actionId;
+			mActionMessage = actionMessage;
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_ACTION_ID, mActionId);
+			body.put(ATTR_ACTION, mActionMessage.toJson());
+			return body;
+		}
+	}
+
+
+	static class DaCa extends Message {
+
+		private static final String ATTR_ACTION_ID = "act-id";
+		private String mActionId;
+
+
+		public DaCa(JSONObject json) throws JSONException {
+			super(MessageType.DA_CA, json);
+		}
+
+
+		public DaCa(String actionId) {
+			super(MessageType.DA_CA);
+			mActionId = actionId;
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_ACTION_ID, mActionId);
+			return body;
+		}
+	}
+
 }

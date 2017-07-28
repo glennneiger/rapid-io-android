@@ -1,6 +1,6 @@
 package io.rapid;
 
-import android.os.Handler;
+import io.rapid.executor.RapidExecutor;
 
 import static io.rapid.ConnectionState.DISCONNECTED;
 import static io.rapid.RapidError.ErrorType.INVALID_AUTH_TOKEN;
@@ -8,7 +8,7 @@ import static io.rapid.RapidError.ErrorType.INVALID_AUTH_TOKEN;
 
 class AuthHelper
 {
-	private final Handler mOriginalThreadHandler;
+	private final RapidExecutor mOriginalThreadHandler;
 	private final RapidLogger mLogger;
 	private AuthCallback mCallback;
 
@@ -26,7 +26,7 @@ class AuthHelper
 	}
 
 
-	AuthHelper(Handler originalThreadHandler, AuthCallback callback, RapidLogger logger)
+	AuthHelper(RapidExecutor originalThreadHandler, AuthCallback callback, RapidLogger logger)
 	{
 		mOriginalThreadHandler = originalThreadHandler;
 		mCallback = callback;
