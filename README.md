@@ -16,7 +16,7 @@
 	  Documentation
 	</a>
 	<span> | </span>
-	<a href="https://rapid.io/docs/api-reference-android">
+	<a href="https://rapid.io/docs/api-reference/android">
 	  Reference
 	</a>
 </h3>
