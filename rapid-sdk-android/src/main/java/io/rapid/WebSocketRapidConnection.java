@@ -188,6 +188,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	@Override
 	public void addConnectionStateListener(RapidConnectionStateListener listener) {
 		mConnectionStateListeners.add(listener);
+		listener.onConnectionStateChanged(mConnectionState);
 	}
 
 
