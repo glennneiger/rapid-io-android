@@ -46,6 +46,8 @@ dependencies {
 	testCompile "android.arch.lifecycle:runtime:1.0.0-alpha7"
 	testCompile "android.arch.lifecycle:extensions:1.0.0-alpha7"
 
+	androidTestCompile "android.arch.lifecycle:runtime:1.0.0-alpha7"
+	androidTestCompile "android.arch.lifecycle:extensions:1.0.0-alpha7"
 	androidTestCompile 'com.android.support:support-annotations:26.0.0'
 	androidTestCompile 'com.android.support.test:runner:1.0.0'
 	androidTestCompile 'com.android.support.test:rules:1.0.0'
