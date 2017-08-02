@@ -50,10 +50,16 @@ public class AndroidRapidExecutor implements RapidExecutor {
 
 
 	@Override
-	public <T> void fetchInBackground(Fetchable<T> fetchable, FetchableCallback<T> callback) {
-		doInBackground(() -> {
-			T result = fetchable.fetch();
-			doOnMain(() -> callback.onFetched(result));
+	public <T> void fetchInBackground(final Fetchable<T> fetchable, final FetchableCallback<T> callback) {
+		doInBackground(new Runnable() {
+			@Override
+			public void run() {
+				final T result = fetchable.fetch();
+				AndroidRapidExecutor.this.doOnMain(new Runnable() {
+					@Override
+					public void run() {callback.onFetched(result);}
+				});
+			}
 		});
 	}
 }

@@ -50,13 +50,16 @@ abstract class Subscription {
 	}
 
 
-	synchronized void invokeError(RapidError error) {
+	synchronized void invokeError(final RapidError error) {
 		if(mErrorCallback != null && mSubscribed) {
 			mSubscribed = false;
 
-			mExecutor.doOnMain(() -> {
-				synchronized(mErrorCallback) {
-					mErrorCallback.onError(error);
+			mExecutor.doOnMain(new Runnable() {
+				@Override
+				public void run() {
+					synchronized(mErrorCallback) {
+						mErrorCallback.onError(error);
+					}
 				}
 			});
 		}

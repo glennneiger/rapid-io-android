@@ -44,21 +44,27 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidFuture mutate(String id, T value, RapidMutateOptions options) {
-		RapidDocument<T> doc = new RapidDocument<>(id, value, options);
+		final RapidDocument<T> doc = new RapidDocument<>(id, value, options);
 
 		if(value == null) {
-			return mConnection.delete(mCollectionName, () -> {
-				String documentJson = doc.toJson(mJsonConverter);
-				mLogger.logI("Deleting document in collection '%s'", mCollectionName);
-				mLogger.logJson(documentJson);
-				return documentJson;
+			return mConnection.delete(mCollectionName, new FutureResolver<String>() {
+				@Override
+				public String resolve() {
+					String documentJson = doc.toJson(mJsonConverter);
+					mLogger.logI("Deleting document in collection '%s'", mCollectionName);
+					mLogger.logJson(documentJson);
+					return documentJson;
+				}
 			});
 		} else {
-			return mConnection.mutate(mCollectionName, () -> {
-				String documentJson = doc.toJson(mJsonConverter);
-				mLogger.logI("Mutating document in collection '%s'", mCollectionName);
-				mLogger.logJson(documentJson);
-				return documentJson;
+			return mConnection.mutate(mCollectionName, new FutureResolver<String>() {
+				@Override
+				public String resolve() {
+					String documentJson = doc.toJson(mJsonConverter);
+					mLogger.logI("Mutating document in collection '%s'", mCollectionName);
+					mLogger.logJson(documentJson);
+					return documentJson;
+				}
 			});
 		}
 	}
@@ -66,12 +72,15 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidFuture merge(String id, Map<String, Object> mergeMap, RapidMutateOptions options) {
-		RapidDocument<Map<String, Object>> doc = new RapidDocument<>(id, mergeMap, options);
-		return mConnection.merge(mCollectionName, () -> {
-			String documentJson = doc.toJson(mJsonConverter);
-			mLogger.logI("Merging to document in collection '%s'", mCollectionName);
-			mLogger.logJson(documentJson);
-			return documentJson;
+		final RapidDocument<Map<String, Object>> doc = new RapidDocument<>(id, mergeMap, options);
+		return mConnection.merge(mCollectionName, new FutureResolver<String>() {
+			@Override
+			public String resolve() {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("Merging to document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			}
 		});
 	}
 
@@ -87,21 +96,27 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidActionFuture onDisconnectMutate(String docId, T item, RapidMutateOptions options) {
-		RapidDocument<T> doc = new RapidDocument<>(docId, item, options);
+		final RapidDocument<T> doc = new RapidDocument<>(docId, item, options);
 
 		if(item == null) {
-			return mConnection.onDisconnectDelete(mCollectionName, () -> {
-				String documentJson = doc.toJson(mJsonConverter);
-				mLogger.logI("On Disconnect: Deleting document in collection '%s'", mCollectionName);
-				mLogger.logJson(documentJson);
-				return documentJson;
+			return mConnection.onDisconnectDelete(mCollectionName, new FutureResolver<String>() {
+				@Override
+				public String resolve() {
+					String documentJson = doc.toJson(mJsonConverter);
+					mLogger.logI("On Disconnect: Deleting document in collection '%s'", mCollectionName);
+					mLogger.logJson(documentJson);
+					return documentJson;
+				}
 			});
 		} else {
-			return mConnection.onDisconnectMutate(mCollectionName, () -> {
-				String documentJson = doc.toJson(mJsonConverter);
-				mLogger.logI("On Disconnect: Mutating document in collection '%s'", mCollectionName);
-				mLogger.logJson(documentJson);
-				return documentJson;
+			return mConnection.onDisconnectMutate(mCollectionName, new FutureResolver<String>() {
+				@Override
+				public String resolve() {
+					String documentJson = doc.toJson(mJsonConverter);
+					mLogger.logI("On Disconnect: Mutating document in collection '%s'", mCollectionName);
+					mLogger.logJson(documentJson);
+					return documentJson;
+				}
 			});
 		}
 	}
@@ -109,18 +124,21 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	@Override
 	public RapidActionFuture onDisconnectMerge(String docId, Map<String, Object> mergeMap, RapidMutateOptions options) {
-		RapidDocument<Map<String, Object>> doc = new RapidDocument<>(docId, mergeMap, options);
-		return mConnection.onDisconnectMerge(mCollectionName, () -> {
-			String documentJson = doc.toJson(mJsonConverter);
-			mLogger.logI("On Disconnect: Merging to document in collection '%s'", mCollectionName);
-			mLogger.logJson(documentJson);
-			return documentJson;
+		final RapidDocument<Map<String, Object>> doc = new RapidDocument<>(docId, mergeMap, options);
+		return mConnection.onDisconnectMerge(mCollectionName, new FutureResolver<String>() {
+			@Override
+			public String resolve() {
+				String documentJson = doc.toJson(mJsonConverter);
+				mLogger.logI("On Disconnect: Merging to document in collection '%s'", mCollectionName);
+				mLogger.logJson(documentJson);
+				return documentJson;
+			}
 		});
 	}
 
 
 	@Override
-	public void subscribe(BaseCollectionSubscription<T> subscription) {
+	public void subscribe(final BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);
 		subscription.setSubscribed(true);
@@ -142,7 +160,10 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		}
 
 		mSubscriptions.put(subscriptionId, subscription);
-		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
+		subscription.setOnUnsubscribeCallback(new BaseCollectionSubscription.OnUnsubscribeCallback() {
+			@Override
+			public void onUnsubscribe() {WebSocketCollectionConnection.this.onSubscriptionUnsubscribed(subscription);}
+		});
 
 
 		// try to read from cache
@@ -155,20 +176,26 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					applyValueToSubscription(subscription, docs, BaseCollectionSubscription.DataState.LOADED_FROM_MEMORY_CACHE);
 				}
 			} else { // then try disk cache
-				mExecutor.fetchInBackground(() -> {
-					try {
-						return mSubscriptionDiskCache.get(subscription);
-					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-						e.printStackTrace();
+				mExecutor.fetchInBackground(new RapidExecutor.Fetchable<String>() {
+					@Override
+					public String fetch() {
+						try {
+							return mSubscriptionDiskCache.get(subscription);
+						} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+							e.printStackTrace();
+						}
+						return null;
 					}
-					return null;
-				}, jsonDocs -> {
-					if(jsonDocs != null) {
-						if (subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
-							mLogger.logI("Value for collection '%s' loaded from disk cache", mCollectionName);
-							mLogger.logJson(jsonDocs);
+				}, new RapidExecutor.FetchableCallback<String>() {
+					@Override
+					public void onFetched(String jsonDocs) {
+						if(jsonDocs != null) {
+							if(subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
+								mLogger.logI("Value for collection '%s' loaded from disk cache", mCollectionName);
+								mLogger.logJson(jsonDocs);
 
-							applyValueToSubscription(subscription, jsonDocs, BaseCollectionSubscription.DataState.LOADED_FROM_DISK_CACHE);
+								applyValueToSubscription(subscription, jsonDocs, BaseCollectionSubscription.DataState.LOADED_FROM_DISK_CACHE);
+							}
 						}
 					}
 				});
@@ -180,11 +207,11 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void onValue(String subscriptionId, String documents) {
+	public void onValue(String subscriptionId, final String documents) {
 		mLogger.logI("Collection '%s' value updated", mCollectionName);
 		mLogger.logJson(documents);
 
-		BaseCollectionSubscription<T> subscription = mSubscriptions.get(subscriptionId);
+		final BaseCollectionSubscription<T> subscription = mSubscriptions.get(subscriptionId);
 		if(subscription != null) {
 			try {
 				List<BaseCollectionSubscription<T>> identicalSubscriptions = getSubscriptionsWithFingerprint(subscription.getFingerprint());
@@ -202,11 +229,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
 
 				// disk cache
-				mExecutor.doInBackground(() -> {
-					try {
-						mSubscriptionDiskCache.put(subscription, documents);
-					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-						e.printStackTrace();
+				mExecutor.doInBackground(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							mSubscriptionDiskCache.put(subscription, documents);
+						} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+							e.printStackTrace();
+						}
 					}
 				});
 			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
@@ -318,7 +348,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyUpdateToDiskCache(int documentPosition, String document, BaseCollectionSubscription<T> subscription) {
+	private void applyUpdateToDiskCache(int documentPosition, String document, final BaseCollectionSubscription<T> subscription) {
 		try {
 			// disk cache
 			String jsonDocs = mSubscriptionDiskCache.get(subscription);
@@ -350,19 +380,22 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					}
 					currentItems.add(documentPosition, updatedDoc);
 				}
-				ModifiableJSONArray finalCurrentItems = currentItems;
+				final ModifiableJSONArray finalCurrentItems = currentItems;
 
 				// update disk cache
-				mExecutor.doInBackground(() -> {
-					try {
-						mSubscriptionDiskCache.put(subscription, finalCurrentItems.toString());
-					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
-						e.printStackTrace();
-						// unable to update data in cache - cache inconsistent -> clear it
+				mExecutor.doInBackground(new Runnable() {
+					@Override
+					public void run() {
 						try {
-							mSubscriptionDiskCache.remove(subscription);
-						} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
-							e1.printStackTrace();
+							mSubscriptionDiskCache.put(subscription, finalCurrentItems.toString());
+						} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+							e.printStackTrace();
+							// unable to update data in cache - cache inconsistent -> clear it
+							try {
+								mSubscriptionDiskCache.remove(subscription);
+							} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
+								e1.printStackTrace();
+							}
 						}
 					}
 				});

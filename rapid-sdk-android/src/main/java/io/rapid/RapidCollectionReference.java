@@ -2,6 +2,7 @@ package io.rapid;
 
 
 import java.util.Date;
+import java.util.List;
 
 import io.rapid.executor.RapidExecutor;
 
@@ -960,8 +961,11 @@ public class RapidCollectionReference<T> {
 	 * @param callback callback function to receive collection updates as list of documents
 	 * @return subscription with ability to unsubscribe, add error listener, etc.
 	 */
-	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback) {
-		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
+	public RapidCollectionSubscription subscribe(final RapidCallback.Collection<T> callback) {
+		return subscribeWithListUpdates(new RapidCallback.CollectionUpdates<T>() {
+			@Override
+			public void onValueChanged(List<RapidDocument<T>> rapidDocuments, ListUpdate listUpdates) {callback.onValueChanged(rapidDocuments);}
+		});
 	}
 
 
@@ -990,10 +994,13 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @param callback callback function to receive collection updates as list of documents
 	 */
-	public RapidCollectionSubscription<T> fetch(RapidCallback.Collection<T> callback) {
+	public RapidCollectionSubscription<T> fetch(final RapidCallback.Collection<T> callback) {
 		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
-		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
+		mSubscription.setCallback(new RapidCallback.CollectionUpdates<T>() {
+			@Override
+			public void onValueChanged(List<RapidDocument<T>> rapidDocuments, ListUpdate listUpdates) {callback.onValueChanged(rapidDocuments);}
+		});
 		mConnection.fetch(mSubscription);
 
 		return mSubscription;

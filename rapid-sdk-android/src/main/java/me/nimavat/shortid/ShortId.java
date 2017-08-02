@@ -1,5 +1,8 @@
 package me.nimavat.shortid;
 
+import java.util.function.Function;
+
+
 public class ShortId {
 
 	private static final int version = 6;
@@ -60,12 +63,24 @@ public class ShortId {
 			previousSeconds = seconds;
 		}
 
-		str = str + Encode.encode(Alphabet::lookup, version);
-		str = str + Encode.encode(Alphabet::lookup, clusterWorkerId);
+		str = str + Encode.encode(new Function<Integer, Character>() {
+			@Override
+			public Character apply(Integer index2) {return Alphabet.lookup(index2);}
+		}, version);
+		str = str + Encode.encode(new Function<Integer, Character>() {
+			@Override
+			public Character apply(Integer index1) {return Alphabet.lookup(index1);}
+		}, clusterWorkerId);
 		if (counter > 0) {
-			str = str + Encode.encode(Alphabet::lookup, counter);
+			str = str + Encode.encode(new Function<Integer, Character>() {
+				@Override
+				public Character apply(Integer index) {return Alphabet.lookup(index);}
+			}, counter);
 		}
-		str = str + Encode.encode(Alphabet::lookup, seconds);
+		str = str + Encode.encode(new Function<Integer, Character>() {
+			@Override
+			public Character apply(Integer index) {return Alphabet.lookup(index);}
+		}, seconds);
 
 		return str;
 	}

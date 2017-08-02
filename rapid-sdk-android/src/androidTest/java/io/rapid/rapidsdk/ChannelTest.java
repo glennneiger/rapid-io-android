@@ -8,9 +8,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import io.rapid.Rapid;
+import io.rapid.RapidCallback;
 import io.rapid.RapidChannelPrefixReference;
 import io.rapid.RapidChannelReference;
 import io.rapid.RapidChannelSubscription;
+import io.rapid.RapidError;
+import io.rapid.RapidFuture;
+import io.rapid.RapidMessage;
 import io.rapid.rapidsdk.base.BaseRapidTest;
 
 import static org.junit.Assert.assertEquals;
@@ -30,16 +34,25 @@ public class ChannelTest extends BaseRapidTest {
 
 	@Test
 	public void testNamedChannel() {
-		RapidChannelReference<Car> channel = Rapid.getInstance().channel("android_instr_test_channel_001", Car.class);
-		RapidChannelSubscription<Car> subscription = channel.subscribe(message -> {
-			assertEquals("test_channel", message.getBody().getName());
-			assertEquals(7, message.getBody().getNumber());
-			assertEquals(channel.getChannelName(), message.getChannelName());
-			unlockAsync();
-		}).onError(error -> fail(error.getMessage()));
+		final RapidChannelReference<Car> channel = Rapid.getInstance().channel("android_instr_test_channel_001", Car.class);
+		RapidChannelSubscription<Car> subscription = channel.subscribe(new RapidCallback.Message<Car>() {
+			@Override
+			public void onMessageReceived(RapidMessage<Car> message) {
+				assertEquals("test_channel", message.getBody().getName());
+				assertEquals(7, message.getBody().getNumber());
+				assertEquals(channel.getChannelName(), message.getChannelName());
+				ChannelTest.this.unlockAsync();
+			}
+		}).onError(new RapidCallback.Error() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
 
 		channel.publish(new Car("test_channel", 7))
-				.onError(error -> fail(error.getMessage()));
+				.onError(new RapidFuture.ErrorCallback() {
+					@Override
+					public void onError(RapidError error) {fail(error.getMessage());}
+				});
 
 		lockAsync();
 
@@ -50,15 +63,24 @@ public class ChannelTest extends BaseRapidTest {
 	@Test
 	public void testPrefix() {
 		RapidChannelPrefixReference<Car> channel = Rapid.getInstance().channels("android_instr_test_channel_002_", Car.class);
-		RapidChannelSubscription<Car> subscription = channel.subscribe(message -> {
-			assertEquals("test_channel", message.getBody().getName());
-			assertEquals(7, message.getBody().getNumber());
-			assertEquals("android_instr_test_channel_002_xxx", message.getChannelName());
-			unlockAsync();
-		}).onError(error -> fail(error.getMessage()));
+		RapidChannelSubscription<Car> subscription = channel.subscribe(new RapidCallback.Message<Car>() {
+			@Override
+			public void onMessageReceived(RapidMessage<Car> message) {
+				assertEquals("test_channel", message.getBody().getName());
+				assertEquals(7, message.getBody().getNumber());
+				assertEquals("android_instr_test_channel_002_xxx", message.getChannelName());
+				ChannelTest.this.unlockAsync();
+			}
+		}).onError(new RapidCallback.Error() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
 
 		Rapid.getInstance().channel("android_instr_test_channel_002_xxx", Car.class).publish(new Car("test_channel", 7))
-				.onError(error -> fail(error.getMessage()));
+				.onError(new RapidFuture.ErrorCallback() {
+					@Override
+					public void onError(RapidError error) {fail(error.getMessage());}
+				});
 
 		lockAsync();
 

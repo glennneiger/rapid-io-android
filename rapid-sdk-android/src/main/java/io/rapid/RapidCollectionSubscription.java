@@ -169,10 +169,13 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 	}
 
 
-	private synchronized void invokeChange(ListUpdate listUpdate) {
-		mExecutor.doOnMain(() -> {
-			synchronized(mCallback) {
-				mCallback.onValueChanged(new ArrayList<>(mDocuments), listUpdate);
+	private synchronized void invokeChange(final ListUpdate listUpdate) {
+		mExecutor.doOnMain(new Runnable() {
+			@Override
+			public void run() {
+				synchronized(mCallback) {
+					mCallback.onValueChanged(new ArrayList<>(mDocuments), listUpdate);
+				}
 			}
 		});
 	}

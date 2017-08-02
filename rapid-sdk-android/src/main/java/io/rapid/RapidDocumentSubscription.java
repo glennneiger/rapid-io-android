@@ -89,6 +89,9 @@ public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> 
 
 
 	private void invokeChange() {
-		mExecutor.doOnMain(() -> mCallback.onValueChanged(mDocument));
+		mExecutor.doOnMain(new Runnable() {
+			@Override
+			public void run() {mCallback.onValueChanged(mDocument);}
+		});
 	}
 }

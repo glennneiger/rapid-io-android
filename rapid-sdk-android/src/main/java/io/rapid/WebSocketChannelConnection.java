@@ -27,8 +27,11 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 
 
 	@Override
-	public void subscribe(RapidChannelSubscription<T> subscription) {
-		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
+	public void subscribe(final RapidChannelSubscription<T> subscription) {
+		subscription.setOnUnsubscribeCallback(new BaseCollectionSubscription.OnUnsubscribeCallback() {
+			@Override
+			public void onUnsubscribe() {WebSocketChannelConnection.this.onSubscriptionUnsubscribed(subscription);}
+		});
 		subscription.setSubscribed(true);
 		mSubscriptions.put(subscription.getSubscriptionId(), subscription);
 		mConnection.subscribeChannel(subscription.getSubscriptionId(), subscription, mNameIsPrefix);
@@ -44,17 +47,20 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 
 
 	@Override
-	public RapidFuture publish(T message) {
-		return mConnection.publish(mChannelName, () -> {
-			String messageJson;
-			try {
-				messageJson = mJsonConverter.get().toJson(message);
-			} catch(IOException e) {
-				throw new IllegalArgumentException(e);
+	public RapidFuture publish(final T message) {
+		return mConnection.publish(mChannelName, new FutureResolver<String>() {
+			@Override
+			public String resolve() {
+				String messageJson;
+				try {
+					messageJson = mJsonConverter.get().toJson(message);
+				} catch(IOException e) {
+					throw new IllegalArgumentException(e);
+				}
+				mLogger.logI("Publishing message to channel %s. Message:", mChannelName);
+				mLogger.logJson(messageJson);
+				return messageJson;
 			}
-			mLogger.logI("Publishing message to channel %s. Message:", mChannelName);
-			mLogger.logJson(messageJson);
-			return messageJson;
 		});
 	}
 

@@ -17,10 +17,13 @@ import java.util.concurrent.CountDownLatch;
 import io.rapid.Etag;
 import io.rapid.Rapid;
 import io.rapid.RapidActionFuture;
+import io.rapid.RapidCallback;
 import io.rapid.RapidCollectionReference;
+import io.rapid.RapidDocument;
 import io.rapid.RapidDocumentExecutor;
 import io.rapid.RapidDocumentReference;
 import io.rapid.RapidError;
+import io.rapid.RapidFuture;
 import io.rapid.RapidMutateOptions;
 import io.rapid.rapidsdk.base.BaseRapidTest;
 
@@ -48,14 +51,20 @@ public class DocumentTest extends BaseRapidTest {
 
 	@Test
 	public void testDocumentAddAndFetch() {
-		RapidDocumentReference<Car> newDoc = mCollection.newDocument();
-		int carNumber = mRandom.nextInt();
-		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(() -> {
-			newDoc.fetch(value -> {
-				assertEquals(newDoc.getId(), value.getId());
-				assertEquals(carNumber, value.getBody().getNumber());
-				unlockAsync();
-			});
+		final RapidDocumentReference<Car> newDoc = mCollection.newDocument();
+		final int carNumber = mRandom.nextInt();
+		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(new RapidFuture.SuccessCallback() {
+			@Override
+			public void onSuccess() {
+				newDoc.fetch(new RapidCallback.Document<Car>() {
+					@Override
+					public void onValueChanged(RapidDocument<Car> value) {
+						assertEquals(newDoc.getId(), value.getId());
+						assertEquals(carNumber, value.getBody().getNumber());
+						DocumentTest.this.unlockAsync();
+					}
+				});
+			}
 		});
 		lockAsync();
 	}
@@ -63,26 +72,35 @@ public class DocumentTest extends BaseRapidTest {
 
 	@Test
 	public void testConcurrencySafety() throws InterruptedException {
-		int n = 10;
+		final int n = 10;
 		String id = UUID.randomUUID().toString();
-		CountDownLatch lock = new CountDownLatch(n);
+		final CountDownLatch lock = new CountDownLatch(n);
 		for(int i = 0; i < n; i++) {
-			mCollection.document(id).execute(oldDocument -> {
-				Car car;
-				if(oldDocument == null)
-					car = new Car("car_x", 1);
-				else {
-					car = oldDocument.getBody();
-					car.setNumber(car.getNumber() + 1);
+			mCollection.document(id).execute(new RapidDocumentExecutor.Callback<Car>() {
+				@Override
+				public RapidDocumentExecutor.Result execute(RapidDocument<Car> oldDocument) {
+					Car car;
+					if(oldDocument == null)
+						car = new Car("car_x", 1);
+					else {
+						car = oldDocument.getBody();
+						car.setNumber(car.getNumber() + 1);
+					}
+					return RapidDocumentExecutor.mutate(car);
 				}
-				return RapidDocumentExecutor.mutate(car);
-			}).onCompleted(lock::countDown);
+			}).onCompleted(new RapidFuture.CompleteCallback() {
+				@Override
+				public void onComplete() {lock.countDown();}
+			});
 		}
 		lock.await();
 
-		mCollection.document(id).fetch(document -> {
-			assertEquals(n, document.getBody().getNumber());
-			unlockAsync();
+		mCollection.document(id).fetch(new RapidCallback.Document<Car>() {
+			@Override
+			public void onValueChanged(RapidDocument<Car> document) {
+				assertEquals(n, document.getBody().getNumber());
+				DocumentTest.this.unlockAsync();
+			}
 		});
 		lockAsync();
 	}
@@ -90,20 +108,35 @@ public class DocumentTest extends BaseRapidTest {
 
 	@Test
 	public void testAddRemove() {
-		String id = UUID.randomUUID().toString();
-		mCollection.document(id).fetch(document -> {
-			assertNull(document);
-			mCollection.document(id).mutate(new Car("xxx", 1)).onSuccess(() -> {
-				mCollection.document(id).fetch(document2 -> {
-					assertNotNull(document2);
-					mCollection.document(id).delete().onSuccess(() -> {
-						mCollection.document(id).fetch(document3 -> {
-							assertNull(document3);
-							unlockAsync();
+		final String id = UUID.randomUUID().toString();
+		mCollection.document(id).fetch(new RapidCallback.Document<Car>() {
+			@Override
+			public void onValueChanged(RapidDocument<Car> document) {
+				assertNull(document);
+				mCollection.document(id).mutate(new Car("xxx", 1)).onSuccess(new RapidFuture.SuccessCallback() {
+					@Override
+					public void onSuccess() {
+						mCollection.document(id).fetch(new RapidCallback.Document<Car>() {
+							@Override
+							public void onValueChanged(RapidDocument<Car> document2) {
+								assertNotNull(document2);
+								mCollection.document(id).delete().onSuccess(new RapidFuture.SuccessCallback() {
+									@Override
+									public void onSuccess() {
+										mCollection.document(id).fetch(new RapidCallback.Document<Car>() {
+											@Override
+											public void onValueChanged(RapidDocument<Car> document3) {
+												assertNull(document3);
+												DocumentTest.this.unlockAsync();
+											}
+										});
+									}
+								});
+							}
 						});
-					});
+					}
 				});
-			});
+			}
 		});
 		lockAsync();
 	}
@@ -111,15 +144,21 @@ public class DocumentTest extends BaseRapidTest {
 
 	@Test
 	public void testSimpleMutate() {
-		String id = UUID.randomUUID().toString();
-		mCollection.document(id).mutate(new Car("ford", 7)).onSuccess(() -> {
-			mCollection.document(id).fetch(document -> {
-				System.out.print("--------");
-				assertEquals(id, document.getId());
-				assertEquals("ford", document.getBody().getName());
-				assertEquals(7, document.getBody().getNumber());
-				unlockAsync();
-			});
+		final String id = UUID.randomUUID().toString();
+		mCollection.document(id).mutate(new Car("ford", 7)).onSuccess(new RapidFuture.SuccessCallback() {
+			@Override
+			public void onSuccess() {
+				mCollection.document(id).fetch(new RapidCallback.Document<Car>() {
+					@Override
+					public void onValueChanged(RapidDocument<Car> document) {
+						System.out.print("--------");
+						assertEquals(id, document.getId());
+						assertEquals("ford", document.getBody().getName());
+						assertEquals(7, document.getBody().getNumber());
+						DocumentTest.this.unlockAsync();
+					}
+				});
+			}
 		});
 		lockAsync();
 	}
@@ -134,10 +173,16 @@ public class DocumentTest extends BaseRapidTest {
 				.build();
 
 		mCollection.document(id).mutate(new Car("car", 0), options)
-				.onSuccess(Assert::fail)
-				.onError(error -> {
-					assertEquals(RapidError.ErrorType.ETAG_CONFLICT, error.getType());
-					unlockAsync();
+				.onSuccess(new RapidFuture.SuccessCallback() {
+					@Override
+					public void onSuccess() {Assert.fail();}
+				})
+				.onError(new RapidFuture.ErrorCallback() {
+					@Override
+					public void onError(RapidError error) {
+						assertEquals(RapidError.ErrorType.ETAG_CONFLICT, error.getType());
+						DocumentTest.this.unlockAsync();
+					}
 				});
 
 		lockAsync();
@@ -147,8 +192,14 @@ public class DocumentTest extends BaseRapidTest {
 				.build();
 
 		mCollection.document(id).mutate(new Car("car", 0), options2)
-				.onError(error -> fail())
-				.onSuccess(() -> unlockAsync());
+				.onError(new RapidFuture.ErrorCallback() {
+					@Override
+					public void onError(RapidError error) {fail();}
+				})
+				.onSuccess(new RapidFuture.SuccessCallback() {
+					@Override
+					public void onSuccess() {DocumentTest.this.unlockAsync();}
+				});
 
 		lockAsync();
 	}
@@ -163,24 +214,42 @@ public class DocumentTest extends BaseRapidTest {
 				.build();
 
 		doc.mutate(new Car("name", 0), options)
-				.onSuccess(() -> unlockAsync())
-				.onError(error -> fail(error.getMessage()));
+				.onSuccess(new RapidFuture.SuccessCallback() {
+					@Override
+					public void onSuccess() {DocumentTest.this.unlockAsync();}
+				})
+				.onError(new RapidFuture.ErrorCallback() {
+					@Override
+					public void onError(RapidError error) {fail(error.getMessage());}
+				});
 		lockAsync();
 
-		doc.fetch(document -> {
-			assertNotEquals(0, document.getBody().getNumber());
-			unlockAsync();
-		}).onError(error -> fail(error.getMessage()));
+		doc.fetch(new RapidCallback.Document<Car>() {
+			@Override
+			public void onValueChanged(RapidDocument<Car> document) {
+				assertNotEquals(0, document.getBody().getNumber());
+				DocumentTest.this.unlockAsync();
+			}
+		}).onError(new RapidCallback.Error() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
 		lockAsync();
 	}
 
 
 	@Test
 	public void testNotExistingDoc() {
-		mCollection.document(UUID.randomUUID().toString()).fetch(document -> {
-			assertNull(document);
-			unlockAsync();
-		}).onError(error -> fail(error.getMessage()));
+		mCollection.document(UUID.randomUUID().toString()).fetch(new RapidCallback.Document<Car>() {
+			@Override
+			public void onValueChanged(RapidDocument<Car> document) {
+				assertNull(document);
+				DocumentTest.this.unlockAsync();
+			}
+		}).onError(new RapidCallback.Error() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
 		lockAsync();
 	}
 
@@ -188,21 +257,39 @@ public class DocumentTest extends BaseRapidTest {
 	@Test
 	public void testDocumentAddMergeAndFetch() {
 		RapidDocumentReference<Car> newDoc = mCollection.newDocument();
-		int carNumber = mRandom.nextInt();
+		final int carNumber = mRandom.nextInt();
 
-		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(() -> unlockAsync()).onError(error -> fail(error.getMessage()));
+		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(new RapidFuture.SuccessCallback() {
+			@Override
+			public void onSuccess() {DocumentTest.this.unlockAsync();}
+		}).onError(new RapidFuture.ErrorCallback() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
 		lockAsync();
 
 		Map<String, Object> mergeMap = new HashMap<>();
 		mergeMap.put("number", carNumber + 1);
-		newDoc.merge(mergeMap).onSuccess(() -> unlockAsync()).onError(error -> fail(error.getMessage()));
+		newDoc.merge(mergeMap).onSuccess(new RapidFuture.SuccessCallback() {
+			@Override
+			public void onSuccess() {DocumentTest.this.unlockAsync();}
+		}).onError(new RapidFuture.ErrorCallback() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
 		lockAsync();
 
-		newDoc.fetch(document -> {
-			assertEquals(carNumber+1, document.getBody().getNumber());
-			assertEquals("car_1", document.getBody().getName());
-			unlockAsync();
-		}).onError(error -> fail(error.getMessage()));
+		newDoc.fetch(new RapidCallback.Document<Car>() {
+			@Override
+			public void onValueChanged(RapidDocument<Car> document) {
+				assertEquals(carNumber + 1, document.getBody().getNumber());
+				assertEquals("car_1", document.getBody().getName());
+				DocumentTest.this.unlockAsync();
+			}
+		}).onError(new RapidCallback.Error() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
 		lockAsync();
 	}
 
@@ -211,11 +298,23 @@ public class DocumentTest extends BaseRapidTest {
 		RapidDocumentReference<Car> doc = mCollection.newDocument();
 
 		RapidActionFuture f = doc.onDisconnect().mutate(new Car("car-2", 2334));
-		f.onError(error -> fail(error.getMessage()));
-		f.onSuccess(() -> unlockAsync());
+		f.onError(new RapidFuture.ErrorCallback() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		});
+		f.onSuccess(new RapidFuture.SuccessCallback() {
+			@Override
+			public void onSuccess() {DocumentTest.this.unlockAsync();}
+		});
 		lockAsync();
 
-		f.cancel().onError(error -> fail(error.getMessage())).onSuccess(() -> unlockAsync());
+		f.cancel().onError(new RapidFuture.ErrorCallback() {
+			@Override
+			public void onError(RapidError error) {fail(error.getMessage());}
+		}).onSuccess(new RapidFuture.SuccessCallback() {
+			@Override
+			public void onSuccess() {DocumentTest.this.unlockAsync();}
+		});
 		lockAsync();
 	}
 

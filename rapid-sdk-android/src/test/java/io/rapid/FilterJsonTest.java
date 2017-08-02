@@ -5,6 +5,8 @@ import android.os.Handler;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.util.List;
+
 import io.rapid.base.BaseTest;
 import io.rapid.converter.RapidGsonConverter;
 
@@ -47,7 +49,10 @@ public class FilterJsonTest extends BaseTest {
 				.orderBy("type")
 				.orderBy("price", Sorting.DESC)
 				.lessOrEqualThan("test", 123)
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 
 
@@ -71,7 +76,10 @@ public class FilterJsonTest extends BaseTest {
 				.between("price", 321212.3, 1213123.2)
 				.equalTo("size", 121)
 				.endAnd()
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 
 		String json = "{\"and\":[{\"mileage\":{\"lte\":34.4}},{\"and\":[{\"and\":[{\"price\":{\"gte\":321212.3}},{\"price\":{\"lte\":1213123.2}}]},{\"size\":121}]}]}";
@@ -87,7 +95,10 @@ public class FilterJsonTest extends BaseTest {
 				.beginAnd()
 				.beginAnd()
 				.endAnd()
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 		subscription.getFilter();
 	}
@@ -98,7 +109,10 @@ public class FilterJsonTest extends BaseTest {
 		RapidCollectionSubscription subscription = getNewCollection()
 				.beginAnd()
 				.endOr()
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 		subscription.getFilter();
 	}
@@ -109,7 +123,10 @@ public class FilterJsonTest extends BaseTest {
 		RapidCollectionSubscription subscription = getNewCollection()
 				.beginNot()
 				.endAnd()
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 		subscription.getFilter();
 	}
@@ -117,7 +134,10 @@ public class FilterJsonTest extends BaseTest {
 
 	@Test
 	public void test_query2json_6() throws Exception {
-		RapidCollectionSubscription subscription = getNewCollection().idEqualTo("123").idNotEqualTo("223").subscribe(rapidDocuments -> {
+		RapidCollectionSubscription subscription = getNewCollection().idEqualTo("123").idNotEqualTo("223").subscribe(new RapidCallback.Collection<Object>() {
+			@Override
+			public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+			}
 		});
 
 		String json = "{\"and\":[{\"$id\":\"123\"},{\"not\": {\"$id\":\"223\"}}]}";
@@ -131,7 +151,10 @@ public class FilterJsonTest extends BaseTest {
 				.beginAnd()
 				.between("price", 3, 5.9)
 				.endAnd()
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 
 		String json = "{\"and\":[{\"and\":[{\"price\":{\"gte\":3}},{\"price\":{\"lte\":5.9}}]}]}";
@@ -150,7 +173,10 @@ public class FilterJsonTest extends BaseTest {
 				.lessOrEqualThan("price", 10000)
 				.lessOrEqualThan("hp", 400)
 				.endAnd()
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 
 		String json = "{\"and\":[{\"or\":[{\"model\":\"A5\"},{\"model\":\"A7\"}]},{\"and\":[{\"price\":{\"lte\":10000}},{\"hp\":{\"lte\":400}}]}]}";
@@ -162,7 +188,10 @@ public class FilterJsonTest extends BaseTest {
 	public void test_query2json_9() throws Exception {
 		RapidCollectionSubscription subscription = getNewCollection()
 				.equalTo("testDouble", 2.3)
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 
 		String json = "{\"testDouble\": 2.3}";
@@ -178,7 +207,10 @@ public class FilterJsonTest extends BaseTest {
 				.equalTo("model", "A5")
 				.orderBy("p1")
 				.skip(10)
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 		JSONAssert.assertEquals(subscription.getFilter().toJson(), "{\"model\":\"A5\"}", false);
 		JSONAssert.assertEquals(subscription.getOrder().toJson().toString(), "[{\"p1\":\"asc\"}]", false);
@@ -187,7 +219,10 @@ public class FilterJsonTest extends BaseTest {
 		RapidCollectionSubscription subscription2 = getNewCollection()
 				.equalTo("model2", "A1")
 				.orderBy("p2")
-				.subscribe(rapidDocuments -> {
+				.subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {
+					}
 				});
 		JSONAssert.assertEquals(subscription2.getFilter().toJson(), "{\"model2\":\"A1\"}", false);
 		JSONAssert.assertEquals(subscription2.getOrder().toJson().toString(), "[{\"p2\":\"asc\"}]", false);
@@ -199,7 +234,10 @@ public class FilterJsonTest extends BaseTest {
 	@Test
 	public void test_array_filters() throws Exception {
 		BaseCollectionSubscription sub = getNewCollection()
-				.arrayContains("prop", "a").subscribe(rapidDocuments -> {});
+				.arrayContains("prop", "a").subscribe(new RapidCallback.Collection<Object>() {
+					@Override
+					public void onValueChanged(List<RapidDocument<Object>> rapidDocuments) {}
+				});
 
 		String json = "{\"prop\":{\"arr-cnt\":\"a\"}}";
 

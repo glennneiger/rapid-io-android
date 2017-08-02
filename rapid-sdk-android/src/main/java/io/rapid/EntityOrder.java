@@ -2,6 +2,7 @@ package io.rapid;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
+import com.annimon.stream.function.Predicate;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,8 +30,11 @@ class EntityOrder {
 	}
 
 
-	void putOrder(String property, Sorting sorting) {
-		mOrderList = Stream.of(mOrderList).filter(o -> !o.getProperty().equals(property)).collect(Collectors.toList());
+	void putOrder(final String property, Sorting sorting) {
+		mOrderList = Stream.of(mOrderList).filter(new Predicate<EntityOrderDetail>() {
+			@Override
+			public boolean test(EntityOrderDetail o) {return !o.getProperty().equals(property);}
+		}).collect(Collectors.<EntityOrderDetail>toList());
 		mOrderList.add(new EntityOrderDetail(property, sorting));
 	}
 

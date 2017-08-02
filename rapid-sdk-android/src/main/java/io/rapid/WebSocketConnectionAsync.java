@@ -2,6 +2,7 @@ package io.rapid;
 
 import android.content.Context;
 
+import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
@@ -22,43 +23,54 @@ class WebSocketConnectionAsync extends WebSocketConnection {
 	void connectToServer(Context context) {
 		if(NetworkUtility.isOnline(context))
 		{
-			mExecutor.doInBackground(() -> AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
-			{
-				if(ex != null) {
-					ex.printStackTrace();
-					CloseReason reasonEnum = CloseReason.get(ex);
-					if(mListener != null) mListener.onClose(reasonEnum);
-					return;
-				}
-
-				mClient = webSocket;
-				webSocket.setStringCallback(messageJson ->
-				{
-					Logcat.d("<--- %s", messageJson);
-					try {
-						Message parsedMessage = MessageParser.parse(messageJson);
-
-						if(parsedMessage.getMessageType() == MessageType.BATCH) {
-							for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
-								handleNewMessage(message);
+			mExecutor.doInBackground(new Runnable() {
+				@Override
+				public void run() {
+					AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", new AsyncHttpClient.WebSocketConnectCallback() {
+						@Override
+						public void onCompleted(Exception ex, WebSocket webSocket) {
+							if(ex != null) {
+								ex.printStackTrace();
+								CloseReason reasonEnum = CloseReason.get(ex);
+								if(mListener != null) mListener.onClose(reasonEnum);
+								return;
 							}
-						} else {
-							handleNewMessage(parsedMessage);
+
+							mClient = webSocket;
+							webSocket.setStringCallback(new WebSocket.StringCallback() {
+								@Override
+								public void onStringAvailable(String messageJson) {
+									Logcat.d("<--- %s", messageJson);
+									try {
+										Message parsedMessage = MessageParser.parse(messageJson);
+
+										if(parsedMessage.getMessageType() == MessageType.BATCH) {
+											for(Message message : ((Message.Batch) parsedMessage).getMessageList()) {
+												WebSocketConnectionAsync.this.handleNewMessage(message);
+											}
+										} else {
+											WebSocketConnectionAsync.this.handleNewMessage(parsedMessage);
+										}
+									} catch(Exception e) {
+										throw new Error(e);
+									}
+								}
+							});
+
+							webSocket.setClosedCallback(new CompletedCallback() {
+								@Override
+								public void onCompleted(Exception ex1) {
+									if(ex1 != null) ex1.printStackTrace();
+									CloseReason reasonEnum = CloseReason.get(ex1);
+									if(mListener != null) mListener.onClose(reasonEnum);
+								}
+							});
+
+							if(mListener != null) mListener.onOpen();
 						}
-					} catch(Exception e) {
-						throw new Error(e);
-					}
-				});
-
-				webSocket.setClosedCallback(ex1 ->
-				{
-					if(ex1 != null) ex1.printStackTrace();
-					CloseReason reasonEnum = CloseReason.get(ex1);
-					if(mListener != null) mListener.onClose(reasonEnum);
-				});
-
-				if(mListener != null) mListener.onOpen();
-			}));
+					});
+				}
+			});
 		}
 		else
 		{

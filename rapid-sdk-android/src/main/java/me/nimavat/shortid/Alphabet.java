@@ -2,6 +2,7 @@ package me.nimavat.shortid;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
+import com.annimon.stream.function.Predicate;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,8 +39,11 @@ class Alphabet {
 			throw new RuntimeException("Custom alphabet for shortid must be " + ORIGINAL.length() + " unique characters. You submitted " + _alphabet_.length() + " characters: " + _alphabet_);
 		}
 
-		List<String> characters = Arrays.asList(_alphabet_.split(""));
-		List duplicates = Stream.of(Arrays.asList(_alphabet_.split(""))).filter((String c) -> Collections.frequency(characters, c) > 1).collect(Collectors.toList());
+		final List<String> characters = Arrays.asList(_alphabet_.split(""));
+		List duplicates = Stream.of(Arrays.asList(_alphabet_.split(""))).filter(new Predicate<String>() {
+			@Override
+			public boolean test(String c) {return Collections.frequency(characters, c) > 1;}
+		}).collect(Collectors.toList());
 
 
 		if (duplicates.size() > 0) {

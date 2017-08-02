@@ -22,7 +22,7 @@ ext{
 
 buildscript {
 
-	ext.android_plugin_version = '3.0.0-alpha7'
+	ext.android_plugin_version = '3.0.0-alpha8'
 	ext.play_services_plugin_version = '3.0.0'
 
 	repositories {

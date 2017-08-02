@@ -5,6 +5,7 @@ import android.arch.lifecycle.LiveData;
 
 import java.util.List;
 
+import io.rapid.RapidCallback;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
 import io.rapid.RapidDocument;
@@ -28,7 +29,10 @@ public class RapidLiveData<T> extends LiveData<List<RapidDocument<T>>> {
 
 	@Override
 	protected void onActive() {
-		mSubscription = mRapidCollectionReference.subscribe(list -> setValue(list));
+		mSubscription = mRapidCollectionReference.subscribe(new RapidCallback.Collection<T>() {
+			@Override
+			public void onValueChanged(List<RapidDocument<T>> list) {RapidLiveData.this.setValue(list);}
+		});
 	}
 
 

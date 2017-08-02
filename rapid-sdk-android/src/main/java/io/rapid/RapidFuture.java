@@ -46,7 +46,10 @@ public class RapidFuture {
 
 	public RapidFuture onSuccess(SuccessCallback successCallback) {
 		if(mSuccess)
-			mHandler.doOnMain(() -> mSuccessCallback.onSuccess());
+			mHandler.doOnMain(new Runnable() {
+				@Override
+				public void run() {mSuccessCallback.onSuccess();}
+			});
 		mSuccessCallback = successCallback;
 		return this;
 	}
@@ -54,7 +57,10 @@ public class RapidFuture {
 
 	public RapidFuture onError(ErrorCallback errorCallback) {
 		if(mError != null)
-			mHandler.doOnMain(() -> mErrorCallback.onError(mError));
+			mHandler.doOnMain(new Runnable() {
+				@Override
+				public void run() {mErrorCallback.onError(mError);}
+			});
 		mErrorCallback = errorCallback;
 		return this;
 	}
@@ -62,20 +68,29 @@ public class RapidFuture {
 
 	public RapidFuture onCompleted(CompleteCallback callback) {
 		if(mCompleted)
-			mHandler.doOnMain(() -> mCompletedCallback.onComplete());
+			mHandler.doOnMain(new Runnable() {
+				@Override
+				public void run() {mCompletedCallback.onComplete();}
+			});
 		mCompletedCallback = callback;
 		return this;
 	}
 
 
-	void invokeError(RapidError error) {
+	void invokeError(final RapidError error) {
 		mSuccess = false;
 		mCompleted = true;
 		mError = error;
 		if(mErrorCallback != null)
-			mHandler.doOnMain(() -> mErrorCallback.onError(error));
+			mHandler.doOnMain(new Runnable() {
+				@Override
+				public void run() {mErrorCallback.onError(error);}
+			});
 		if(mCompletedCallback != null)
-			mHandler.doOnMain(() -> mCompletedCallback.onComplete());
+			mHandler.doOnMain(new Runnable() {
+				@Override
+				public void run() {mCompletedCallback.onComplete();}
+			});
 	}
 
 
@@ -83,15 +98,27 @@ public class RapidFuture {
 		mSuccess = true;
 		mCompleted = true;
 		if(mSuccessCallback != null)
-			mHandler.doOnMain(() -> mSuccessCallback.onSuccess());
+			mHandler.doOnMain(new Runnable() {
+				@Override
+				public void run() {mSuccessCallback.onSuccess();}
+			});
 		if(mCompletedCallback != null)
-			mHandler.doOnMain(() -> mCompletedCallback.onComplete());
+			mHandler.doOnMain(new Runnable() {
+				@Override
+				public void run() {mCompletedCallback.onComplete();}
+			});
 	}
 
 
 	void chainTo(RapidFuture rapidFuture) {
 		rapidFuture
-				.onSuccess(this::invokeSuccess)
-				.onError(this::invokeError);
+				.onSuccess(new SuccessCallback() {
+					@Override
+					public void onSuccess() {RapidFuture.this.invokeSuccess();}
+				})
+				.onError(new ErrorCallback() {
+					@Override
+					public void onError(RapidError error) {RapidFuture.this.invokeError(error);}
+				});
 	}
 }

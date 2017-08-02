@@ -32,19 +32,25 @@ public class RapidCollectionMapReference<T, S> {
 	}
 
 
-	public RapidCollectionSubscription subscribe(RapidCallback.CollectionMapped<S> callback) {
-		return subscribeWithListUpdates((items, listUpdate) -> callback.onValueChanged(items));
+	public RapidCollectionSubscription subscribe(final RapidCallback.CollectionMapped<S> callback) {
+		return subscribeWithListUpdates(new MapCollectionUpdatesCallback<S>() {
+			@Override
+			public void onValueChanged(List<S> items, ListUpdate listUpdate) {callback.onValueChanged(items);}
+		});
 	}
 
 
-	public RapidCollectionSubscription subscribeWithListUpdates(MapCollectionUpdatesCallback<S> callback) {
+	public RapidCollectionSubscription subscribeWithListUpdates(final MapCollectionUpdatesCallback<S> callback) {
 		RapidCollectionSubscription<T> subscription = mCollectionReference.getSubscription();
-		subscription.setCallback((rapidDocuments, listUpdate) -> {
-			List<S> result = new ArrayList<>();
-			for(RapidDocument<T> rapidDocument : rapidDocuments) {
-				result.add(mMapFunction.map(rapidDocument));
+		subscription.setCallback(new RapidCallback.CollectionUpdates<T>() {
+			@Override
+			public void onValueChanged(List<RapidDocument<T>> rapidDocuments, ListUpdate listUpdate) {
+				List<S> result = new ArrayList<>();
+				for(RapidDocument<T> rapidDocument : rapidDocuments) {
+					result.add(mMapFunction.map(rapidDocument));
+				}
+				callback.onValueChanged(result, listUpdate);
 			}
-			callback.onValueChanged(result, listUpdate);
 		});
 		mCollectionReference.getConnection().subscribe(subscription);
 
@@ -52,7 +58,10 @@ public class RapidCollectionMapReference<T, S> {
 	}
 
 
-	public <U> RapidCollectionMapReference<T, U> map(MapInnerFunction<S, U> mapFunction) {
-		return new RapidCollectionMapReference<>(mCollectionReference, document -> mapFunction.map(mMapFunction.map(document)));
+	public <U> RapidCollectionMapReference<T, U> map(final MapInnerFunction<S, U> mapFunction) {
+		return new RapidCollectionMapReference<>(mCollectionReference, new MapFunction<T, U>() {
+			@Override
+			public U map(RapidDocument<T> document) {return mapFunction.map(mMapFunction.map(document));}
+		});
 	}
 }
