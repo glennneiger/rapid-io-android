@@ -381,6 +381,18 @@ public class Rapid {
 
 
 	/**
+	 * Clear all documents from disk cache
+	 */
+	public void clearCache() {
+		try {
+			mCollectionProvider.getSubscriptionDiskCache().clear();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	/**
 	 * Set level of Logcat output
 	 * <p>
 	 * {@link LogLevel#LOG_LEVEL_NONE} - no logs at all
