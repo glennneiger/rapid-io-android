@@ -1,6 +1,8 @@
 package me.nimavat.shortid;
 
-import java.util.function.Function;
+
+import com.annimon.stream.function.Function;
+
 
 class Encode {
 

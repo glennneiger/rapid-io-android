@@ -1,10 +1,8 @@
 package io.rapid.sample;
 
 import android.databinding.DataBindingUtil;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -110,12 +108,10 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		mToggleSubscriptionMenu = menu.findItem(R.id.menu_toggle_subscription);
 		mToggleAuthMenu = menu.findItem(R.id.menu_toggle_authentication);
-		Drawable iconSub = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
 		mToggleSubscriptionMenu.setTitle(R.string.unsubscribe);
-		mToggleSubscriptionMenu.setIcon(iconSub);
-		Drawable iconAuth = VectorDrawableCompat.create(getResources(), R.drawable.ic_deauth, null);
+		mToggleSubscriptionMenu.setIcon(R.drawable.ic_cloud_off);
 		mToggleAuthMenu.setTitle(R.string.deauth);
-		mToggleAuthMenu.setIcon(iconAuth);
+		mToggleAuthMenu.setIcon(R.drawable.ic_deauth);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -182,9 +178,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private void auth()
 	{
 		if(mToggleAuthMenu != null) {
-			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_deauth, null);
 			mToggleAuthMenu.setTitle(R.string.deauth);
-			mToggleAuthMenu.setIcon(icon);
+			mToggleAuthMenu.setIcon(R.drawable.ic_deauth);
 		}
 
 		Rapid.getInstance().authorize(Config.MASTER_AUTH_TOKEN)
@@ -196,9 +191,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	private void deauth()
 	{
 		if(mToggleAuthMenu != null) {
-			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_auth, null);
 			mToggleAuthMenu.setTitle(R.string.auth);
-			mToggleAuthMenu.setIcon(icon);
+			mToggleAuthMenu.setIcon(R.drawable.ic_auth);
 		}
 
 		Rapid.getInstance().deauthorize()
@@ -209,9 +203,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	private void subscribe() {
 		if(mToggleSubscriptionMenu != null) {
-			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud_off, null);
 			mToggleSubscriptionMenu.setTitle(R.string.unsubscribe);
-			mToggleSubscriptionMenu.setIcon(icon);
+			mToggleSubscriptionMenu.setIcon(R.drawable.ic_cloud_off);
 		}
 		if (mSearchQuery!=null && !mSearchQuery.isEmpty()){
 			mTodos.contains("mTitle", mSearchQuery);
@@ -227,9 +220,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 					error.printStackTrace();
 					Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
 					if(mToggleSubscriptionMenu != null) {
-						Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud, null);
 						mToggleSubscriptionMenu.setTitle(R.string.subscribe);
-						mToggleSubscriptionMenu.setIcon(icon);
+						mToggleSubscriptionMenu.setIcon(R.drawable.ic_cloud);
 					}
 				});
 	}
@@ -237,9 +229,8 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 	private void unsubscribe() {
 		if(mToggleSubscriptionMenu != null) {
-			Drawable icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_cloud, null);
 			mToggleSubscriptionMenu.setTitle(R.string.subscribe);
-			mToggleSubscriptionMenu.setIcon(icon);
+			mToggleSubscriptionMenu.setIcon(R.drawable.ic_cloud);
 		}
 		mSubscription.unsubscribe();
 	}
