@@ -113,7 +113,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 
 	@Override
 	Filter getFilter() {
-		if(mFilterStack == null) return null;
+		if(getFilterStack() == null) return null;
 
 		if(getFilterStack().size() != 1) {
 			throw new IllegalArgumentException("Wrong filter structure");
@@ -160,7 +160,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 
 
 	Stack<Filter.Group> getFilterStack() {
-		if(mFilterStack == null) {
+		if(mFilterStack == null || mFilterStack.size() == 0) {
 			mFilterStack = new Stack<>();
 			mFilterStack.push(new Filter.And());
 		}

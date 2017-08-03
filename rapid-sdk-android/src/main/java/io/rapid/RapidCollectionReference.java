@@ -153,7 +153,7 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, String value) {
 		beginNot();
-		equalTo(property,value);
+		equalTo(property, value);
 		endNot();
 		return this;
 	}
@@ -168,7 +168,7 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, int value) {
 		beginNot();
-		equalTo(property,value);
+		equalTo(property, value);
 		endNot();
 		return this;
 	}
@@ -183,7 +183,7 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, long value) {
 		beginNot();
-		equalTo(property,value);
+		equalTo(property, value);
 		endNot();
 		return this;
 	}
@@ -198,7 +198,7 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, double value) {
 		beginNot();
-		equalTo(property,value);
+		equalTo(property, value);
 		endNot();
 		return this;
 	}
@@ -213,7 +213,7 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> notEqualTo(String property, Date value) {
 		beginNot();
-		equalTo(property,value);
+		equalTo(property, value);
 		endNot();
 		return this;
 	}
@@ -921,6 +921,17 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> first() {
 		return limit(1);
+	}
+
+
+	/**
+	 * Clear all filters
+	 *
+	 * @return collection reference itself
+	 */
+	public RapidCollectionReference<T> clearFilter() {
+		mSubscription.getFilterStack().clear();
+		return this;
 	}
 
 

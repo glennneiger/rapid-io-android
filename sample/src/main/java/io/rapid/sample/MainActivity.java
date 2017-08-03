@@ -175,8 +175,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	private void auth()
-	{
+	private void auth() {
 		if(mToggleAuthMenu != null) {
 			mToggleAuthMenu.setTitle(R.string.deauth);
 			mToggleAuthMenu.setIcon(R.drawable.ic_deauth);
@@ -188,8 +187,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	}
 
 
-	private void deauth()
-	{
+	private void deauth() {
 		if(mToggleAuthMenu != null) {
 			mToggleAuthMenu.setTitle(R.string.auth);
 			mToggleAuthMenu.setIcon(R.drawable.ic_auth);
@@ -202,11 +200,12 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 
 
 	private void subscribe() {
+		mTodos.clearFilter();
 		if(mToggleSubscriptionMenu != null) {
 			mToggleSubscriptionMenu.setTitle(R.string.unsubscribe);
 			mToggleSubscriptionMenu.setIcon(R.drawable.ic_cloud_off);
 		}
-		if (mSearchQuery!=null && !mSearchQuery.isEmpty()){
+		if(mSearchQuery != null && !mSearchQuery.isEmpty()) {
 			mTodos.contains("mTitle", mSearchQuery);
 		}
 		mSubscription = mTodos
