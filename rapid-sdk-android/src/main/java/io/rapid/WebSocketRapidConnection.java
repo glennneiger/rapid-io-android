@@ -26,7 +26,7 @@ import static io.rapid.RapidError.ErrorType.TIMEOUT;
 
 class WebSocketRapidConnection extends RapidConnection implements WebSocketConnection.WebSocketConnectionListener {
 	private final Context mContext;
-	private final RapidExecutor mExecutor;
+	private final RapidExecutor mDefaultExecutor;
 	private final String mUrl;
 	private final RapidLogger mLogger;
 	private long mConnectionTimeout = Config.DEFAULT_CONNECTION_TIMEOUT;
@@ -55,7 +55,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		super(rapidConnectionCallback);
 		mContext = context;
 		mUrl = url;
-		mExecutor = executor;
+		mDefaultExecutor = executor;
 		mLogger = logger;
 		mConnectionLossTimestamp = System.currentTimeMillis();
 
@@ -73,7 +73,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				if(mConnectionState == CONNECTED) WebSocketRapidConnection.this.sendDeauthMessage();
 			}
 		};
-		mAuth = new AuthHelper(mExecutor, authCallback, mLogger);
+		mAuth = new AuthHelper(mDefaultExecutor, authCallback, mLogger);
 	}
 
 
@@ -336,7 +336,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	public RapidActionFuture onDisconnectDelete(String collectionName, FutureResolver<String> documentJsonResolver) {
 		createWebSocketConnectionIfNeeded();
 		String actionId = IdProvider.getNewActionId();
-		RapidActionFuture future = new RapidActionFuture(mExecutor, actionId, this);
+		RapidActionFuture future = new RapidActionFuture(mDefaultExecutor, actionId, this);
 		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Del(collectionName, documentJsonResolver.resolve())));
 	}
 
@@ -345,7 +345,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	public RapidActionFuture onDisconnectMutate(String collectionName, FutureResolver<String> documentJsonResolver) {
 		createWebSocketConnectionIfNeeded();
 		String actionId = IdProvider.getNewActionId();
-		RapidActionFuture future = new RapidActionFuture(mExecutor, actionId, this);
+		RapidActionFuture future = new RapidActionFuture(mDefaultExecutor, actionId, this);
 		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Mut(collectionName, documentJsonResolver.resolve())));
 	}
 
@@ -354,7 +354,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	public RapidActionFuture onDisconnectMerge(String collectionName, FutureResolver<String> documentJsonResolver) {
 		createWebSocketConnectionIfNeeded();
 		String actionId = IdProvider.getNewActionId();
-		RapidActionFuture future = new RapidActionFuture(mExecutor, actionId, this);
+		RapidActionFuture future = new RapidActionFuture(mDefaultExecutor, actionId, this);
 		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Mer(collectionName, documentJsonResolver.resolve())));
 	}
 
@@ -383,7 +383,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			mCheckHandler.removeCallbacks(mDisconnectRunnable);
 			if(mWebSocketConnection == null) {
 				changeConnectionState(CONNECTING);
-				mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this, mExecutor);
+				mWebSocketConnection = new WebSocketConnectionAsync(mUrl, this, mDefaultExecutor);
 				mWebSocketConnection.connectToServer(mContext);
 			}
 		}
@@ -419,15 +419,25 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	private RapidFuture sendMessage(FutureResolver<Message> message) {
-		RapidFuture future = new RapidFuture(mExecutor);
-		return sendMessage(future, message);
+		return sendMessage(message, mDefaultExecutor);
+	}
+
+
+	private RapidFuture sendMessage(FutureResolver<Message> message, RapidExecutor executor) {
+		RapidFuture future = new RapidFuture(mDefaultExecutor);
+		return sendMessage(future, message, executor);
 	}
 
 
 	private RapidFuture sendMessage(RapidFuture baseFuture, FutureResolver<Message> message) {
+		return sendMessage(baseFuture, message, mDefaultExecutor);
+	}
+
+
+	private RapidFuture sendMessage(RapidFuture baseFuture, FutureResolver<Message> message, RapidExecutor executor) {
 		// send message in background
-		mExecutor.doInBackground(() -> {
-			MessageFuture messageFuture = createMessageFuture(message.resolve(), baseFuture);
+		executor.doInBackground(() -> {
+			MessageFuture messageFuture = createMessageFuture(message.resolve(), baseFuture, executor);
 			if(mConnectionState == CONNECTED) {
 				sendMessage(messageFuture);
 			} else {
@@ -438,9 +448,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	}
 
 
-	private MessageFuture createMessageFuture(Message message, RapidFuture future) {
+	private MessageFuture createMessageFuture(Message message, RapidFuture future, RapidExecutor executor) {
 		try {
-			return new MessageFuture(message, message.toJson().toString(), future);
+			return new MessageFuture(message, message.toJson().toString(), future, executor);
 		} catch(JSONException e) {
 			throw new IllegalArgumentException("Could not create message", e);
 		}
@@ -450,8 +460,11 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private void sendMessage(MessageFuture msg) {
 		if(msg.getMessage().shouldBeAcked())
 			mSentMessageList.add(msg);
-		mWebSocketConnection.sendMessage(msg.getMessageJson());
-		mLastCommunicationTimestamp = System.currentTimeMillis();
+		msg.getExecutor().doInBackground(() -> {
+			mWebSocketConnection.sendMessage(msg.getMessageJson());
+			mLastCommunicationTimestamp = System.currentTimeMillis();
+		});
+
 	}
 
 
@@ -478,8 +491,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		boolean finalReconnect = reconnect;
 
 		Message.Con m = new Message.Con(mConnectionId, finalReconnect);
-		RapidFuture future = new RapidFuture(mExecutor);
-		MessageFuture messageFuture = createMessageFuture(m, future);
+		RapidFuture future = new RapidFuture(mDefaultExecutor);
+		MessageFuture messageFuture = createMessageFuture(m, future, mDefaultExecutor);
 		sendMessage(messageFuture);
 	}
 
@@ -488,7 +501,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		switch(message.getType()) {
 			case CONNECTION_TERMINATED:
 				disconnectWebSocketConnection(false);
-				mExecutor.doOnMain(() ->
+				mDefaultExecutor.doOnMain(() ->
 				{
 					createWebSocketConnectionIfNeeded();
 					mSubscriptionCount = 0;
@@ -628,18 +641,18 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 	private void sendAuthMessage() {
 		Message.Auth m = new Message.Auth(mAuth.getAuthToken());
-		RapidFuture future = new RapidFuture(mExecutor);
+		RapidFuture future = new RapidFuture(mDefaultExecutor);
 		future.onSuccess(() -> mAuth.authSuccess());
 		future.onError(error -> mAuth.authError(error));
-		sendMessage(createMessageFuture(m, future));
+		sendMessage(createMessageFuture(m, future, mDefaultExecutor));
 	}
 
 
 	private void sendDeauthMessage() {
 		Message.Deauth m = new Message.Deauth();
-		RapidFuture future = new RapidFuture(mExecutor);
+		RapidFuture future = new RapidFuture(mDefaultExecutor);
 		future.onSuccess(() -> mAuth.deauthSuccess());
 		future.onError(error -> mAuth.deauthError());
-		sendMessage(createMessageFuture(m, future));
+		sendMessage(createMessageFuture(m, future, mDefaultExecutor));
 	}
 }

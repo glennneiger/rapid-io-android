@@ -5,7 +5,7 @@ import io.rapid.executor.RapidExecutor;
 
 
 abstract class Subscription {
-	final RapidExecutor mExecutor;
+	private RapidExecutor mExecutor;
 	private RapidCallback.Error mErrorCallback;
 	private BaseCollectionSubscription.OnUnsubscribeCallback mOnUnsubscribeCallback;
 	private boolean mSubscribed;
@@ -42,6 +42,16 @@ abstract class Subscription {
 
 	public boolean isSubscribed() {
 		return mSubscribed;
+	}
+
+
+	public void setExecutor(RapidExecutor executor) {
+		mExecutor = executor;
+	}
+
+
+	public RapidExecutor getExecutor() {
+		return mExecutor;
 	}
 
 

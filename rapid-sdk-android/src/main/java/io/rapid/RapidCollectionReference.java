@@ -960,8 +960,8 @@ public class RapidCollectionReference<T> {
 	 * @param callback callback function to receive collection updates as list of documents
 	 * @return subscription with ability to unsubscribe, add error listener, etc.
 	 */
-	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback) {
-		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
+	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback, RapidExecutor executor) {
+		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments), executor);
 	}
 
 
@@ -975,10 +975,11 @@ public class RapidCollectionReference<T> {
 	 * @param callback callback function to receive collection updates as list of documents and list update metadata
 	 * @return subscription with ability to unsubscribe, add error listener, etc.
 	 */
-	public RapidCollectionSubscription subscribeWithListUpdates(RapidCallback.CollectionUpdates<T> callback) {
+	public RapidCollectionSubscription subscribeWithListUpdates(RapidCallback.CollectionUpdates<T> callback, RapidExecutor executor) {
 		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
+		mSubscription.setExecutor(executor);
 		mConnection.subscribe(mSubscription);
 
 		return mSubscription;

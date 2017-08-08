@@ -20,8 +20,7 @@ class WebSocketConnectionAsync extends WebSocketConnection {
 
 	@Override
 	void connectToServer(Context context) {
-		if(NetworkUtility.isOnline(context))
-		{
+		if(NetworkUtility.isOnline(context)) {
 			mExecutor.doInBackground(() -> AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
 			{
 				if(ex != null) {
@@ -59,9 +58,7 @@ class WebSocketConnectionAsync extends WebSocketConnection {
 
 				if(mListener != null) mListener.onOpen();
 			}));
-		}
-		else
-		{
+		} else {
 			if(mListener != null) mListener.onClose(CloseReason.NO_INTERNET_CONNECTION);
 		}
 	}
