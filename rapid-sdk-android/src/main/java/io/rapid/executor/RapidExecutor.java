@@ -1,7 +1,11 @@
 package io.rapid.executor;
 
+import android.support.annotation.NonNull;
+
+
 public interface RapidExecutor {
 	interface Fetchable<T> {
+		@NonNull
 		T fetch();
 	}
 

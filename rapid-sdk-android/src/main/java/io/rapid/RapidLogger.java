@@ -1,6 +1,7 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -20,12 +21,17 @@ class RapidLogger {
 	private int mLevel;
 
 
+	public void logW(@NonNull String message, Object... args) {
+		log(TYPE_WARNING, message, null, args);
+	}
+
+
 	void setLevel(@LogLevel int level) {
 		mLevel = level;
 	}
 
 
-	void logE(String message, Object... args) {
+	void logE(@NonNull String message, Object... args) {
 		log(TYPE_ERROR, message, null, args);
 	}
 
@@ -35,22 +41,17 @@ class RapidLogger {
 	}
 
 
-	public void logW(String message, Object... args) {
-		log(TYPE_WARNING, message, null, args);
-	}
-
-
-	void logI(String message, Object... args) {
+	void logI(@NonNull String message, Object... args) {
 		log(TYPE_INFO, message, null, args);
 	}
 
 
-	void logJson(String json) {
+	void logJson(@NonNull String json) {
 		logJson(TYPE_VERBOSE, json);
 	}
 
 
-	private void logJson(int type, String json) {
+	private void logJson(int type, @NonNull String json) {
 		if(type > mLevel) return;
 		try {
 			String message;
@@ -66,7 +67,7 @@ class RapidLogger {
 	}
 
 
-	private void log(int type, String message, Throwable throwable, Object... args) {
+	private void log(int type, @NonNull String message, Throwable throwable, Object... args) {
 		if(type > mLevel) return;
 		String formattedMessage;
 		try {

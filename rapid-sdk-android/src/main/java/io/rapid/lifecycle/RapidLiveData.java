@@ -16,13 +16,13 @@ public class RapidLiveData<T> extends LiveData<List<RapidDocument<T>>> {
 	private RapidCollectionSubscription mSubscription;
 
 
-	public static <T> RapidLiveData<T> from(RapidCollectionReference<T> collectionReference) {
-		return new RapidLiveData<T>(collectionReference);
+	private RapidLiveData(RapidCollectionReference<T> rapidCollectionReference) {
+		mRapidCollectionReference = rapidCollectionReference;
 	}
 
 
-	private RapidLiveData(RapidCollectionReference<T> rapidCollectionReference) {
-		mRapidCollectionReference = rapidCollectionReference;
+	public static <T> RapidLiveData<T> from(RapidCollectionReference<T> collectionReference) {
+		return new RapidLiveData<T>(collectionReference);
 	}
 
 

@@ -1,5 +1,6 @@
 package io.rapid;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 
@@ -16,37 +17,37 @@ class Logcat {
 	private Logcat() {}
 
 
-	public static void d(String msg, Object... args) {
+	public static void d(@NonNull String msg, Object... args) {
 		if(IS_ENABLED) Log.d(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
-	public static void e(String msg, Object... args) {
+	public static void e(@NonNull String msg, Object... args) {
 		if(IS_ENABLED) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
-	public static void e(Throwable throwable, String msg, Object... args) {
+	public static void e(Throwable throwable, @NonNull String msg, Object... args) {
 		if(IS_ENABLED) Log.e(TAG, getCodeLocation().toString() + formatMessage(msg, args), throwable);
 	}
 
 
-	public static void i(String msg, Object... args) {
+	public static void i(@NonNull String msg, Object... args) {
 		if(IS_ENABLED) Log.i(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
-	public static void v(String msg, Object... args) {
+	public static void v(@NonNull String msg, Object... args) {
 		if(IS_ENABLED) Log.v(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
-	public static void w(String msg, Object... args) {
+	public static void w(@NonNull String msg, Object... args) {
 		if(IS_ENABLED) Log.w(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
 
-	public static void wtf(String msg, Object... args) {
+	public static void wtf(@NonNull String msg, Object... args) {
 		if(IS_ENABLED) Log.wtf(TAG, getCodeLocation().toString() + formatMessage(msg, args));
 	}
 
@@ -56,7 +57,8 @@ class Logcat {
 	}
 
 
-	private static String formatMessage(String msg, Object... args) {
+	@NonNull
+	private static String formatMessage(@NonNull String msg, @NonNull Object... args) {
 		return args.length == 0 ? msg : String.format(msg, args);
 	}
 
@@ -77,7 +79,7 @@ class Logcat {
 	private static class CodeLocation {
 		private final String mThread;
 		private final String mFileName;
-		private final String mClassName;
+		@NonNull private final String mClassName;
 		private final String mMethod;
 		private final int mLineNumber;
 
@@ -93,15 +95,16 @@ class Logcat {
 		}
 
 
+		@NonNull
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
 			if(SHOW_CODE_LOCATION) {
-					builder.append('(');
-					builder.append(mFileName);
-					builder.append(':');
-					builder.append(mLineNumber);
-					builder.append(") ");
+				builder.append('(');
+				builder.append(mFileName);
+				builder.append(':');
+				builder.append(mLineNumber);
+				builder.append(") ");
 			}
 			return builder.toString();
 		}

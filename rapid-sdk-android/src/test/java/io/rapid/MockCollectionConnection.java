@@ -1,17 +1,21 @@
 package io.rapid;
 
 
+import android.support.annotation.Nullable;
+
 import java.util.Map;
 
 
 class MockCollectionConnection<T> implements CollectionConnection<T> {
 
+	@Nullable
 	@Override
 	public RapidFuture mutate(String id, T value, RapidMutateOptions options) {
 		return null;
 	}
 
 
+	@Nullable
 	@Override
 	public RapidFuture merge(String id, Map<String, Object> mergeMap, RapidMutateOptions options) {
 		return null;
@@ -78,12 +82,14 @@ class MockCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
+	@Nullable
 	@Override
 	public RapidActionFuture onDisconnectMutate(String docId, T item, RapidMutateOptions options) {
 		return null;
 	}
 
 
+	@Nullable
 	@Override
 	public RapidActionFuture onDisconnectMerge(String docId, Map<String, Object> mergeMap, RapidMutateOptions options) {
 		return null;

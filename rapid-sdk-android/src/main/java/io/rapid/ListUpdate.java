@@ -2,6 +2,7 @@ package io.rapid;
 
 
 import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
 
@@ -60,7 +61,7 @@ public class ListUpdate {
 	}
 
 
-	public void dispatchUpdateTo(RecyclerView.Adapter adapter) {
+	public void dispatchUpdateTo(@NonNull RecyclerView.Adapter adapter) {
 		if(mType == Type.ADDED)
 			adapter.notifyItemInserted(mNewPosition);
 		if(mType == Type.MOVED)

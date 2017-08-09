@@ -73,6 +73,7 @@ class FilterValue implements Filter {
 		}
 	}
 
+
 	static class LongPropertyValue implements PropertyValue {
 
 		private final String compareType;
@@ -121,6 +122,7 @@ class FilterValue implements Filter {
 			}
 		}
 	}
+
 
 	static class NullPropertyValue implements PropertyValue {
 

@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import java.util.Map;
 
 import io.rapid.executor.RapidExecutor;
@@ -17,7 +19,7 @@ import io.rapid.executor.RapidExecutor;
 public class RapidDocumentReference<T> {
 	private final CollectionConnection<T> mImpl;
 	private final String mId;
-	private final RapidDocumentSubscription<T> mSubscription;
+	@NonNull private final RapidDocumentSubscription<T> mSubscription;
 	private RapidExecutor mExecutor;
 
 
@@ -90,6 +92,7 @@ public class RapidDocumentReference<T> {
 	}
 
 
+	@NonNull
 	public RapidDocumentOnDisconnectReference<T> onDisconnect() {
 		return new RapidDocumentOnDisconnectReference<>(mImpl, mId);
 	}
@@ -108,7 +111,8 @@ public class RapidDocumentReference<T> {
 	 *                         you need to return one of `RapidDocumentExecutor.mutate(value)`, `RapidDocumentExecutor.delete()` or `RapidDocumentExecutor.cancel()`
 	 * @return RapidFuture providing callbacks for onComplete, onCollectionError, onSuccess events
 	 */
-	public RapidFuture execute(RapidDocumentExecutor.Callback<T> documentExecutor) {
+	@NonNull
+	public RapidFuture execute(@NonNull RapidDocumentExecutor.Callback<T> documentExecutor) {
 		RapidFuture result = new RapidFuture(mExecutor);
 		fetch(document -> {
 					RapidDocumentExecutor.Result<T> executorResult = documentExecutor.execute(document);
@@ -163,6 +167,7 @@ public class RapidDocumentReference<T> {
 	 *
 	 * @param callback callback function providing updated document on Main thread
 	 */
+	@NonNull
 	public RapidDocumentSubscription<T> subscribe(RapidCallback.Document<T> callback) {
 		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
@@ -177,6 +182,7 @@ public class RapidDocumentReference<T> {
 	 *
 	 * @param callback callback function providing document value on Main thread
 	 */
+	@NonNull
 	public RapidDocumentSubscription<T> fetch(RapidCallback.Document<T> callback) {
 		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");

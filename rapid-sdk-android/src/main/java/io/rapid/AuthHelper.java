@@ -1,58 +1,54 @@
 package io.rapid;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import io.rapid.executor.RapidExecutor;
 
 import static io.rapid.ConnectionState.DISCONNECTED;
 import static io.rapid.RapidError.ErrorType.INVALID_AUTH_TOKEN;
 
 
-class AuthHelper
-{
+class AuthHelper {
 	private final RapidExecutor mOriginalThreadHandler;
 	private final RapidLogger mLogger;
 	private AuthCallback mCallback;
 
-	private String mAuthToken;
+	@Nullable private String mAuthToken;
 	private boolean mAuthenticated = false;
 	private boolean mPendingAuth = false;
-	private RapidFuture mAuthFuture;
+	@Nullable private RapidFuture mAuthFuture;
 	private boolean mPendingDeauth = false;
 
 
-	interface AuthCallback
-	{
+	interface AuthCallback {
 		void sendAuthMessage();
 		void sendDeauthMessage();
 	}
 
 
-	AuthHelper(RapidExecutor originalThreadHandler, AuthCallback callback, RapidLogger logger)
-	{
+	AuthHelper(RapidExecutor originalThreadHandler, AuthCallback callback, RapidLogger logger) {
 		mOriginalThreadHandler = originalThreadHandler;
 		mCallback = callback;
 		mLogger = logger;
 	}
 
 
-	boolean isAuthenticated()
-	{
+	boolean isAuthenticated() {
 		return mAuthenticated;
 	}
 
 
-	RapidFuture deauthorize(ConnectionState connectionState)
-	{
+	@NonNull
+	RapidFuture deauthorize(ConnectionState connectionState) {
 		mLogger.logI("Deauthorizing");
 		RapidFuture deauthFuture = new RapidFuture(mOriginalThreadHandler);
-		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED)
-		{
+		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED) {
 			mPendingDeauth = false;
 			mAuthToken = null;
 			deauthFuture.invokeSuccess();
 			mLogger.logI("Deauthorization successful");
-		}
-		else
-		{
+		} else {
 			mPendingDeauth = true;
 			mCallback.sendDeauthMessage();
 		}
@@ -60,24 +56,19 @@ class AuthHelper
 	}
 
 
-	RapidFuture authorize(String token)
-	{
+	@Nullable
+	RapidFuture authorize(@Nullable String token) {
 		mAuthFuture = new RapidFuture(mOriginalThreadHandler);
 		mLogger.logI("Authorizing with token '%s'", token);
-		if(token == null)
-		{
+		if(token == null) {
 			RapidError error = new RapidError(INVALID_AUTH_TOKEN);
 			mLogger.logE(error);
 			mAuthFuture.invokeError(error);
-		}
-		else if(!token.equals(mAuthToken) || (!mAuthenticated && !mPendingAuth) )
-		{
+		} else if(!token.equals(mAuthToken) || (!mAuthenticated && !mPendingAuth)) {
 			mAuthToken = token;
 			mPendingAuth = true;
 			mCallback.sendAuthMessage();
-		}
-		else if(mAuthenticated)
-		{
+		} else if(mAuthenticated) {
 			mLogger.logI("Already authorized with the same token");
 			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
 			future.invokeSuccess();
@@ -87,38 +78,33 @@ class AuthHelper
 	}
 
 
-	String getAuthToken()
-	{
+	@Nullable
+	String getAuthToken() {
 		return mAuthToken;
 	}
 
 
-	boolean isAuthRequired()
-	{
+	boolean isAuthRequired() {
 		return mAuthToken != null && !mPendingAuth && !mAuthenticated;
 	}
 
 
-	boolean isAuthPending()
-	{
+	boolean isAuthPending() {
 		return mPendingAuth && !mPendingDeauth;
 	}
 
 
-	boolean isDeauthPending()
-	{
+	boolean isDeauthPending() {
 		return mPendingDeauth;
 	}
 
 
-	void setAuthPending()
-	{
+	void setAuthPending() {
 		mPendingAuth = true;
 	}
 
 
-	void authSuccess()
-	{
+	void authSuccess() {
 		mLogger.logI("Authorization successful");
 		mAuthenticated = true;
 		mPendingAuth = false;
@@ -127,30 +113,26 @@ class AuthHelper
 	}
 
 
-	void authError(RapidError err)
-	{
+	void authError(RapidError err) {
 		mPendingAuth = false;
 		if(mAuthFuture != null) mAuthFuture.invokeError(err);
 		mAuthFuture = null;
 	}
 
 
-	void deauthSuccess()
-	{
+	void deauthSuccess() {
 		mLogger.logI("Deauthorization successful");
 		mAuthenticated = false;
 		mPendingDeauth = false;
 	}
 
 
-	void deauthError()
-	{
+	void deauthError() {
 		mPendingDeauth = false;
 	}
 
 
-	void onClose()
-	{
+	void onClose() {
 		mAuthenticated = false;
 	}
 }

@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,7 @@ import java.util.Map;
 
 class IndexCache {
 	private static IndexCache sInstance;
-	private Map<String, List<String>> mCache = new HashMap<>();
+	@NonNull private Map<String, List<String>> mCache = new HashMap<>();
 
 
 	static IndexCache getInstance() {

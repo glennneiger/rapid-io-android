@@ -11,16 +11,6 @@ class EntityOrderDetail {
 	}
 
 
-	String getProperty() {
-		return mProperty;
-	}
-
-
-	public void setProperty(String property) {
-		mProperty = property;
-	}
-
-
 	public Sorting getSorting() {
 		return mSorting;
 	}
@@ -28,5 +18,15 @@ class EntityOrderDetail {
 
 	public void setSorting(Sorting sorting) {
 		mSorting = sorting;
+	}
+
+
+	String getProperty() {
+		return mProperty;
+	}
+
+
+	public void setProperty(String property) {
+		mProperty = property;
 	}
 }

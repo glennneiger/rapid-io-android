@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +31,7 @@ public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> 
 	}
 
 
+	@NonNull
 	@Override
 	public RapidDocumentSubscription<T> onError(RapidCallback.Error callback) {
 		return (RapidDocumentSubscription<T>) super.onError(callback);
@@ -46,18 +50,21 @@ public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> 
 	}
 
 
+	@NonNull
 	@Override
 	Filter getFilter() {
 		return new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, mId));
 	}
 
 
+	@Nullable
 	@Override
 	EntityOrder getOrder() {
 		return null;
 	}
 
 
+	@NonNull
 	@Override
 	List<RapidDocument<T>> getDocuments() {
 		List<RapidDocument<T>> list = new ArrayList<>();

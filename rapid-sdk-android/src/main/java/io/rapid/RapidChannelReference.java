@@ -1,8 +1,6 @@
 package io.rapid;
 
 
-import android.os.Handler;
-
 import io.rapid.executor.RapidExecutor;
 
 

@@ -1,6 +1,8 @@
 package io.rapid;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -13,30 +15,26 @@ import io.rapid.executor.RapidExecutor;
 @SuppressWarnings("unused")
 class WebSocketConnectionLib extends WebSocketConnection {
 
-	private WebSocketClient mClient;
+	@Nullable private WebSocketClient mClient;
 
 
-	public WebSocketConnectionLib(String serverURI, WebSocketConnectionListener listener, RapidExecutor executor)
-	{
+	public WebSocketConnectionLib(String serverURI, WebSocketConnectionListener listener, RapidExecutor executor) {
 		super(serverURI, listener, executor);
 	}
 
 
 	@Override
-	void connectToServer(Context context)
-	{
-		mClient = new WebSocketClient(URI.create(mServerURI))
-		{
+	void connectToServer(Context context) {
+		mClient = new WebSocketClient(URI.create(mServerURI)) {
 			@Override
-			public void onOpen(ServerHandshake handshakeData)
-			{
+			public void onOpen(@NonNull ServerHandshake handshakeData) {
 				Logcat.d("Status message: " + handshakeData.getHttpStatusMessage() + "; HTTP status: " + handshakeData.getHttpStatus());
 				if(mListener != null) mListener.onOpen();
 			}
 
 
 			@Override
-			public void onMessage(String messageJson) {
+			public void onMessage(@NonNull String messageJson) {
 				Logcat.d(messageJson);
 				try {
 					Message parsedMessage = MessageParser.parse(messageJson);
@@ -55,8 +53,7 @@ class WebSocketConnectionLib extends WebSocketConnection {
 
 
 			@Override
-			public void onClose(int code, String reason, boolean remote)
-			{
+			public void onClose(int code, String reason, boolean remote) {
 				Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
 				CloseReason reasonEnum = CloseReason.get(code);
 				if(mListener != null) mListener.onClose(reasonEnum);
@@ -64,16 +61,14 @@ class WebSocketConnectionLib extends WebSocketConnection {
 
 
 			@Override
-			public void onError(Exception ex)
-			{
+			public void onError(@NonNull Exception ex) {
 				ex.printStackTrace();
 //				if(mListener != null) mListener.onError(ex);
 			}
 
 
 			@Override
-			public void onClosing(int code, String reason, boolean remote)
-			{
+			public void onClosing(int code, String reason, boolean remote) {
 				super.onClosing(code, reason, remote);
 
 				Logcat.d("Code: " + code + "; reason: " + reason + "; remote:" + Boolean.toString(remote));
@@ -86,9 +81,8 @@ class WebSocketConnectionLib extends WebSocketConnection {
 
 
 	@Override
-	void sendMessage(String message)
-	{
-		if(mClient != null){
+	void sendMessage(@NonNull String message) {
+		if(mClient != null) {
 			Logcat.d(message);
 			mClient.send(message);
 		}
@@ -96,8 +90,7 @@ class WebSocketConnectionLib extends WebSocketConnection {
 
 
 	@Override
-	void disconnectFromServer(boolean sendDisconnectMessage)
-	{
+	void disconnectFromServer(boolean sendDisconnectMessage) {
 		super.disconnectFromServer(sendDisconnectMessage);
 		if(mClient != null) mClient.close();
 	}

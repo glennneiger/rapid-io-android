@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -28,7 +31,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 
 
 	@Override
-	synchronized int onDocumentUpdated(RapidDocument<T> document) {
+	synchronized int onDocumentUpdated(@NonNull RapidDocument<T> document) {
 
 		ListUpdate listUpdate = null;
 		document.setOrder(mOrder);
@@ -61,7 +64,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 				mDocuments.add(newDocumentPosition, document);
 			} else {
 				listUpdate = new ListUpdate(ListUpdate.Type.ADDED, ListUpdate.NO_POSITION, newDocumentPosition);
-                mDocuments.add(newDocumentPosition, document);
+				mDocuments.add(newDocumentPosition, document);
 			}
 		}
 		invokeChange(listUpdate);
@@ -75,6 +78,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 	}
 
 
+	@NonNull
 	@Override
 	public RapidCollectionSubscription<T> onError(RapidCallback.Error callback) {
 		return (RapidCollectionSubscription<T>) super.onError(callback);
@@ -87,15 +91,15 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 	}
 
 
-	@Override
-	List<RapidDocument<T>> getDocuments() {
-		return mDocuments;
-	}
-
-
 	void setSkip(int skip) {
 		mSkip = skip;
 		invalidateFingerprintCache();
+	}
+
+
+	@Override
+	List<RapidDocument<T>> getDocuments() {
+		return mDocuments;
 	}
 
 
@@ -111,6 +115,7 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 	}
 
 
+	@Nullable
 	@Override
 	Filter getFilter() {
 		if(mFilterStack == null) return null;
@@ -119,21 +124,6 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 			throw new IllegalArgumentException("Wrong filter structure");
 		}
 		return removeRedundantGroups(mFilterStack.peek());
-	}
-
-
-	private Filter removeRedundantGroups(Filter.Group rootFilter) {
-
-		// remove root redundant and/or
-		// TODO: do this inside Filter tree as well
-		// TODO: remove unnecessary nested ANDs/ORs
-		if(rootFilter.filters.size() == 0) {
-			return null;
-		} else if(rootFilter.filters.size() == 1) {
-			return new Filter.Single(rootFilter.filters.get(0));
-		} else {
-			return rootFilter;
-		}
 	}
 
 
@@ -166,6 +156,21 @@ public class RapidCollectionSubscription<T> extends BaseCollectionSubscription<T
 		}
 		invalidateFingerprintCache();
 		return mFilterStack;
+	}
+
+
+	private Filter removeRedundantGroups(@NonNull Filter.Group rootFilter) {
+
+		// remove root redundant and/or
+		// TODO: do this inside Filter tree as well
+		// TODO: remove unnecessary nested ANDs/ORs
+		if(rootFilter.filters.size() == 0) {
+			return null;
+		} else if(rootFilter.filters.size() == 1) {
+			return new Filter.Single(rootFilter.filters.get(0));
+		} else {
+			return rootFilter;
+		}
 	}
 
 

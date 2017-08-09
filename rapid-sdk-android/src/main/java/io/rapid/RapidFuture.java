@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import io.rapid.executor.RapidExecutor;
 
 
@@ -44,6 +46,7 @@ public class RapidFuture {
 	}
 
 
+	@NonNull
 	public RapidFuture onSuccess(SuccessCallback successCallback) {
 		if(mSuccess)
 			mHandler.doOnMain(() -> mSuccessCallback.onSuccess());
@@ -52,6 +55,7 @@ public class RapidFuture {
 	}
 
 
+	@NonNull
 	public RapidFuture onError(ErrorCallback errorCallback) {
 		if(mError != null)
 			mHandler.doOnMain(() -> mErrorCallback.onError(mError));
@@ -60,6 +64,7 @@ public class RapidFuture {
 	}
 
 
+	@NonNull
 	public RapidFuture onCompleted(CompleteCallback callback) {
 		if(mCompleted)
 			mHandler.doOnMain(() -> mCompletedCallback.onComplete());
@@ -89,7 +94,7 @@ public class RapidFuture {
 	}
 
 
-	void chainTo(RapidFuture rapidFuture) {
+	void chainTo(@NonNull RapidFuture rapidFuture) {
 		rapidFuture
 				.onSuccess(this::invokeSuccess)
 				.onError(this::invokeError);

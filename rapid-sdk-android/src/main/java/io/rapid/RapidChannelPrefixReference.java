@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import io.rapid.executor.RapidExecutor;
 
 
@@ -19,6 +21,7 @@ public class RapidChannelPrefixReference<T> {
 	}
 
 
+	@NonNull
 	public RapidChannelSubscription<T> subscribe(RapidCallback.Message<T> callback) {
 		RapidChannelSubscription<T> subscription = new RapidChannelSubscription<>(mChannelName, mExecutor);
 		subscription.setSubscriptionId(IdProvider.getNewSubscriptionId());
@@ -26,9 +29,6 @@ public class RapidChannelPrefixReference<T> {
 		mChannelConnection.subscribe(subscription);
 		return subscription;
 	}
-
-
-
 
 
 	public String getChannelName() {

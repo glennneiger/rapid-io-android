@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,13 +40,13 @@ public class RapidMutateOptions {
 	}
 
 
-	void setExpectedEtag(Etag expectedEtag) {
-		mExpectedEtag = expectedEtag;
+	Etag getExpectedEtag() {
+		return mExpectedEtag;
 	}
 
 
-	Etag getExpectedEtag() {
-		return mExpectedEtag;
+	void setExpectedEtag(Etag expectedEtag) {
+		mExpectedEtag = expectedEtag;
 	}
 
 
@@ -55,7 +57,7 @@ public class RapidMutateOptions {
 
 	public static class Builder {
 		private Etag mExpectedEtag;
-		private List<String> mFillWithTimestampProperties = new ArrayList<>();
+		@NonNull private List<String> mFillWithTimestampProperties = new ArrayList<>();
 
 
 		/**
@@ -64,6 +66,7 @@ public class RapidMutateOptions {
 		 * @param expectedEtag Expected Etag value (can be one of Etag.fromValue("my-etag"), Etag.NO_ETAG, Etag.ANY_ETAG)
 		 * @return builder itself
 		 */
+		@NonNull
 		public Builder expectEtag(Etag expectedEtag) {
 			mExpectedEtag = expectedEtag;
 			return this;
@@ -76,6 +79,7 @@ public class RapidMutateOptions {
 		 * @param property property to be filled
 		 * @return builder itself
 		 */
+		@NonNull
 		public Builder fillPropertyWithServerTimestamp(String property) {
 			mFillWithTimestampProperties.add(property);
 			return this;
@@ -87,6 +91,7 @@ public class RapidMutateOptions {
 		 *
 		 * @return options object
 		 */
+		@NonNull
 		public RapidMutateOptions build() {
 			return new RapidMutateOptions(mExpectedEtag, mFillWithTimestampProperties);
 		}

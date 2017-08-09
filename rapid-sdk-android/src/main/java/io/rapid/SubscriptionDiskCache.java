@@ -2,6 +2,8 @@ package io.rapid;
 
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.jakewharton.disklrucache.DiskLruCache;
 
@@ -24,13 +26,14 @@ class SubscriptionDiskCache {
 	private boolean mEnabled = true;
 
 
-	SubscriptionDiskCache(Context context, String apiKey, int maxSizeInMb) throws IOException {
+	SubscriptionDiskCache(@NonNull Context context, String apiKey, int maxSizeInMb) throws IOException {
 		// TODO better cache dir
 		mCache = DiskLruCache.open(new File(context.getCacheDir() + "/rapid/" + apiKey), 0, 1, maxSizeInMb * 1_000_000);
 	}
 
 
-	public synchronized String get(BaseCollectionSubscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+	@Nullable
+	public synchronized String get(@NonNull BaseCollectionSubscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return null;
 		String fingerprint = subscription.getFingerprint();
@@ -81,7 +84,7 @@ class SubscriptionDiskCache {
 //	}
 
 
-	public synchronized void put(BaseCollectionSubscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized void put(@NonNull BaseCollectionSubscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return;
 
@@ -118,7 +121,7 @@ class SubscriptionDiskCache {
 	}
 
 
-	synchronized void remove(BaseCollectionSubscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	synchronized void remove(@NonNull BaseCollectionSubscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
@@ -127,7 +130,7 @@ class SubscriptionDiskCache {
 	}
 
 
-	private synchronized String getDocument(BaseCollectionSubscription subscription, String documentId) throws IOException, JSONException, NoSuchAlgorithmException {
+	private synchronized String getDocument(@NonNull BaseCollectionSubscription subscription, String documentId) throws IOException, JSONException, NoSuchAlgorithmException {
 		DiskLruCache.Snapshot record = mCache.get(getDocumentKey(subscription, documentId));
 		if(record != null) {
 			String jsonValue = record.getString(DEFAULT_INDEX);
@@ -139,7 +142,7 @@ class SubscriptionDiskCache {
 	}
 
 
-	private synchronized void putDocument(BaseCollectionSubscription subscription, String documentId, String documentJson) throws IOException, JSONException, NoSuchAlgorithmException {
+	private synchronized void putDocument(@NonNull BaseCollectionSubscription subscription, String documentId, String documentJson) throws IOException, JSONException, NoSuchAlgorithmException {
 		DiskLruCache.Editor editor = mCache.edit(getDocumentKey(subscription, documentId));
 		editor.set(DEFAULT_INDEX, documentJson);
 		editor.commit();
@@ -147,7 +150,7 @@ class SubscriptionDiskCache {
 	}
 
 
-	private String getDocumentKey(BaseCollectionSubscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+	private String getDocumentKey(@NonNull BaseCollectionSubscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		return Sha1Utility.sha1(subscription.getCollectionName() + "/" + documentId);
 	}
 }

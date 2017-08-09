@@ -4,7 +4,7 @@ package io.rapid;
 import io.rapid.executor.RapidExecutor;
 
 
-public class RapidActionFuture extends RapidFuture{
+public class RapidActionFuture extends RapidFuture {
 	private final String mActionId;
 	private RapidConnection mRapidConnection;
 
@@ -15,7 +15,8 @@ public class RapidActionFuture extends RapidFuture{
 		mRapidConnection = rapidConnection;
 	}
 
-	public RapidFuture cancel(){
+
+	public RapidFuture cancel() {
 		return mRapidConnection.cancelOnDisconnect(mActionId);
 	}
 
