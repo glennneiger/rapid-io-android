@@ -5,35 +5,73 @@ import android.arch.lifecycle.LiveData;
 
 import java.util.List;
 
+import io.rapid.RapidCollectionMapReference;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
 import io.rapid.RapidDocument;
+import io.rapid.RapidDocumentReference;
+import io.rapid.RapidDocumentSubscription;
 
 
-public class RapidLiveData<T> extends LiveData<List<RapidDocument<T>>> {
+public class RapidLiveData {
+	public static <T> LiveData<RapidDocument<T>> from(RapidDocumentReference<T> documentReference) {
+		LiveData<RapidDocument<T>> liveData = new LiveData<RapidDocument<T>>() {
+			private RapidDocumentSubscription<T> mSubscription;
 
-	private RapidCollectionReference<T> mRapidCollectionReference;
-	private RapidCollectionSubscription mSubscription;
+
+			@Override
+			protected void onActive() {
+				mSubscription = documentReference.subscribe(this::setValue);
+			}
 
 
-	public static <T> RapidLiveData<T> from(RapidCollectionReference<T> collectionReference) {
-		return new RapidLiveData<T>(collectionReference);
+			@Override
+			protected void onInactive() {
+				mSubscription.unsubscribe();
+			}
+		};
+		return liveData;
 	}
 
 
-	private RapidLiveData(RapidCollectionReference<T> rapidCollectionReference) {
-		mRapidCollectionReference = rapidCollectionReference;
+	public static <T> LiveData<List<RapidDocument<T>>> from(RapidCollectionReference<T> documentReference) {
+		LiveData<List<RapidDocument<T>>> liveData = new LiveData<List<RapidDocument<T>>>() {
+			private RapidCollectionSubscription mSubscription;
+
+
+			@Override
+			protected void onActive() {
+				mSubscription = documentReference.subscribe(this::setValue);
+			}
+
+
+			@Override
+			protected void onInactive() {
+				mSubscription.unsubscribe();
+			}
+		};
+		return liveData;
 	}
 
 
-	@Override
-	protected void onActive() {
-		mSubscription = mRapidCollectionReference.subscribe(list -> setValue(list));
+	public static <T, S> LiveData<List<S>> from(RapidCollectionMapReference<T, S> documentReference) {
+		LiveData<List<S>> liveData = new LiveData<List<S>>() {
+			private RapidCollectionSubscription mSubscription;
+
+
+			@Override
+			protected void onActive() {
+				mSubscription = documentReference.subscribe(this::setValue);
+			}
+
+
+			@Override
+			protected void onInactive() {
+				mSubscription.unsubscribe();
+			}
+		};
+		return liveData;
 	}
 
 
-	@Override
-	protected void onInactive() {
-		mSubscription.unsubscribe();
-	}
 }
