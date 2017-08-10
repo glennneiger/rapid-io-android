@@ -14,7 +14,7 @@ import io.rapid.RapidDocumentSubscription;
 
 
 public class RapidLiveData {
-	public static <T> LiveData<RapidDocument<T>> from(RapidDocumentReference<T> documentReference) {
+	public static <T> LiveData<RapidDocument<T>> from(final RapidDocumentReference<T> documentReference) {
 		LiveData<RapidDocument<T>> liveData = new LiveData<RapidDocument<T>>() {
 			private RapidDocumentSubscription<T> mSubscription;
 
@@ -34,7 +34,7 @@ public class RapidLiveData {
 	}
 
 
-	public static <T> LiveData<List<RapidDocument<T>>> from(RapidCollectionReference<T> documentReference) {
+	public static <T> LiveData<List<RapidDocument<T>>> from(final RapidCollectionReference<T> documentReference) {
 		LiveData<List<RapidDocument<T>>> liveData = new LiveData<List<RapidDocument<T>>>() {
 			private RapidCollectionSubscription mSubscription;
 
@@ -54,7 +54,7 @@ public class RapidLiveData {
 	}
 
 
-	public static <T, S> LiveData<List<S>> from(RapidCollectionMapReference<T, S> documentReference) {
+	public static <T, S> LiveData<List<S>> from(final RapidCollectionMapReference<T, S> documentReference) {
 		LiveData<List<S>> liveData = new LiveData<List<S>>() {
 			private RapidCollectionSubscription mSubscription;
 
