@@ -21,7 +21,7 @@ public class RapidLiveData {
 
 			@Override
 			protected void onActive() {
-				mSubscription = documentReference.subscribe(this::setValue);
+				mSubscription = documentReference.subscribe(document -> setValue(document));
 			}
 
 
@@ -41,7 +41,7 @@ public class RapidLiveData {
 
 			@Override
 			protected void onActive() {
-				mSubscription = documentReference.subscribe(this::setValue);
+				mSubscription = documentReference.subscribe(rapidDocuments -> setValue(rapidDocuments));
 			}
 
 
@@ -61,7 +61,7 @@ public class RapidLiveData {
 
 			@Override
 			protected void onActive() {
-				mSubscription = documentReference.subscribe(this::setValue);
+				mSubscription = documentReference.subscribe(rapidDocuments -> setValue(rapidDocuments));
 			}
 
 
