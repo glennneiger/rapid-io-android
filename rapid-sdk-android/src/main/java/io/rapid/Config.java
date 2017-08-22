@@ -5,7 +5,6 @@ import android.text.format.DateUtils;
 
 class Config {
 	static final int DEFAULT_LIMIT = 100;
-	static final String ID_IDENTIFIER = "$id";
 	static final long DEFAULT_CONNECTION_TIMEOUT = Long.MAX_VALUE;
 	static final long CONNECTION_RETRY_PERIOD = 5 * DateUtils.SECOND_IN_MILLIS;
 	static final long HB_PERIOD = 10 * DateUtils.SECOND_IN_MILLIS;

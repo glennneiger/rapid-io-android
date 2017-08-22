@@ -48,7 +48,7 @@ public class RapidDocumentSubscription<T> extends BaseCollectionSubscription<T> 
 
 	@Override
 	Filter getFilter() {
-		return new FilterValue(Config.ID_IDENTIFIER, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, mId));
+		return new FilterValue(RapidCollectionReference.PROPERTY_ID, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, mId));
 	}
 
 

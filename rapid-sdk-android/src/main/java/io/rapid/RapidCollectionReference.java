@@ -44,6 +44,21 @@ import io.rapid.executor.RapidExecutor;
 @SuppressWarnings("WeakerAccess")
 public class RapidCollectionReference<T> {
 
+	/**
+	 * Special property for filtering - Document ID
+	 */
+	public static final String PROPERTY_ID = "$id";
+
+	/**
+	 * Special property for filtering - Created Timestamp
+	 */
+	public static final String PROPERTY_CREATED_TIMESTAMP = "$created";
+
+	/**
+	 * Special property for filtering = Modified Timestamp
+	 */
+	public static final String PROPERTY_MODIFIED_TIMESTAMP = "$modified";
+
 	private final String mCollectionName;
 	private final RapidExecutor mExecutor;
 	private final JsonConverterProvider mJsonConverter;
@@ -590,7 +605,7 @@ public class RapidCollectionReference<T> {
 	 */
 	public RapidCollectionReference<T> idEqualTo(String id) {
 
-		equalTo(Config.ID_IDENTIFIER, id);
+		equalTo(PROPERTY_ID, id);
 		return this;
 	}
 
@@ -602,7 +617,7 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> idNotEqualTo(String id) {
-		notEqualTo(Config.ID_IDENTIFIER, id);
+		notEqualTo(PROPERTY_ID, id);
 		return this;
 	}
 
@@ -866,7 +881,7 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> orderByDocumentId() {
-		return orderBy(Config.ID_IDENTIFIER, Sorting.ASC);
+		return orderBy(PROPERTY_ID, Sorting.ASC);
 	}
 
 
@@ -879,7 +894,7 @@ public class RapidCollectionReference<T> {
 	 * @return collection reference itself
 	 */
 	public RapidCollectionReference<T> orderByDocumentId(Sorting sorting) {
-		return orderBy(Config.ID_IDENTIFIER, sorting);
+		return orderBy(PROPERTY_ID, sorting);
 	}
 
 
