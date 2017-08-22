@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import io.rapid.executor.RapidExecutor;
 
 
@@ -14,6 +16,14 @@ public class RapidChannelSubscription<T> extends Subscription {
 		mChannelName = channelName;
 	}
 
+
+	@NonNull
+	@Override
+	public RapidChannelSubscription<T> onError(RapidCallback.Error callback) {
+		return (RapidChannelSubscription<T>) super.onError(callback);
+	}
+
+
 	public void setCallback(RapidCallback.Message<T> callback) {
 		mCallback = callback;
 	}
@@ -21,12 +31,6 @@ public class RapidChannelSubscription<T> extends Subscription {
 
 	String getChannelName() {
 		return mChannelName;
-	}
-
-
-	@Override
-	public RapidChannelSubscription<T> onError(RapidCallback.Error callback) {
-		return (RapidChannelSubscription<T>) super.onError(callback);
 	}
 
 

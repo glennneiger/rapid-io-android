@@ -1,6 +1,10 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+
 public enum Sorting {
 	ASC("asc"), DESC("desc");
 
@@ -12,7 +16,8 @@ public enum Sorting {
 	}
 
 
-	static Sorting fromKey(String key) {
+	@NonNull
+	static Sorting fromKey(@Nullable String key) {
 		if(key == null) return ASC;
 
 		for(Sorting item : Sorting.values()) {

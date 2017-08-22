@@ -1,5 +1,8 @@
 package io.rapid;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +35,7 @@ abstract class Message {
 	}
 
 
+	@NonNull
 	public JSONObject toJson() throws JSONException {
 		JSONObject json = new JSONObject();
 		JSONObject body = createJsonBody();
@@ -42,7 +46,7 @@ abstract class Message {
 	}
 
 
-	public void fromJson(JSONObject json) throws JSONException {
+	public void fromJson(@Nullable JSONObject json) throws JSONException {
 		if(json != null) {
 			mEventId = json.optJSONObject(mMessageType.getKey()).optString(ATTR_EVENT_ID);
 			parseJsonBody(json.optJSONObject(mMessageType.getKey()));
@@ -86,6 +90,7 @@ abstract class Message {
 		}
 
 
+		@NonNull
 		@Override
 		public JSONObject toJson() throws JSONException {
 			JSONObject jsonObject = new JSONObject();
@@ -144,7 +149,8 @@ abstract class Message {
 			}
 
 
-			static Type get(String key) {
+			@NonNull
+			static Type get(@Nullable String key) {
 				if(key == null) return INTERNAL_ERROR;
 
 				for(Type item : Type.values()) {
@@ -190,7 +196,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mType = Type.get(jsonBody.optString(ATTR_ERR_TYPE));
 			mErrorMessage = jsonBody.optString(ATTR_ERR_MSG);
@@ -234,7 +240,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mToken = jsonBody.optString(ATTR_TOKEN);
 		}
@@ -288,7 +294,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
 			mDocument = jsonBody.optString(ATTR_DOC);
@@ -336,7 +342,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mChannelId = jsonBody.optString(ATTR_CHAN_ID);
 			mDocument = jsonBody.optString(ATTR_BODY);
@@ -380,7 +386,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mConnectionId = jsonBody.optString(ATTR_CON_ID);
 		}
@@ -422,7 +428,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
 			mDocument = jsonBody.optString(ATTR_DOC);
@@ -453,6 +459,7 @@ abstract class Message {
 		}
 
 
+		@NonNull
 		@Override
 		public JSONObject toJson() throws JSONException {
 			JSONObject jsonObject = new JSONObject();
@@ -476,6 +483,7 @@ abstract class Message {
 		}
 
 
+		@NonNull
 		@Override
 		public JSONObject toJson() throws JSONException {
 			JSONObject json = new JSONObject();
@@ -490,7 +498,7 @@ abstract class Message {
 
 
 		@Override
-		public void fromJson(JSONObject json) throws JSONException {
+		public void fromJson(@NonNull JSONObject json) throws JSONException {
 			if(mMessageList == null) {
 				mMessageList = new ArrayList<>();
 			}
@@ -566,7 +574,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mLimit = Config.DEFAULT_LIMIT;
 			mSkip = 0;
@@ -669,7 +677,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			try {
@@ -740,7 +748,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mLimit = Config.DEFAULT_LIMIT;
 			mSkip = 0;
@@ -830,7 +838,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 		}
@@ -869,7 +877,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 		}
@@ -907,7 +915,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
@@ -958,7 +966,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			mChannelName = jsonBody.optString(ATTR_CHANNEL_ID);
@@ -1008,7 +1016,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
@@ -1057,7 +1065,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
 			mFetchId = jsonBody.optString(ATTR_FETCH_ID);
@@ -1112,7 +1120,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
@@ -1169,7 +1177,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
 			try {
@@ -1231,7 +1239,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mCollectionId = jsonBody.optString(ATTR_COL_ID);
 			mDocument = jsonBody.optString(ATTR_DOC);
@@ -1275,7 +1283,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
@@ -1320,7 +1328,7 @@ abstract class Message {
 
 
 		@Override
-		protected void parseJsonBody(JSONObject jsonBody) {
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mTimestamp = jsonBody.optLong(ATTR_TIMESTAMP);
 		}

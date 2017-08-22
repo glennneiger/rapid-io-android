@@ -1,9 +1,13 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
+
 public class RapidDocumentExecutor<T> {
 
 	public interface Callback<T> {
+		@NonNull
 		Result execute(RapidDocument<T> oldDocument);
 	}
 

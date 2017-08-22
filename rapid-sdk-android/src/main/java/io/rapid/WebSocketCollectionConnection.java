@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,14 +23,14 @@ import io.rapid.utility.ModifiableJSONArray;
 class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 	private final JsonConverterProvider mJsonConverter;
-	private final SubscriptionMemoryCache<T> mSubscriptionMemoryCache;
+	@NonNull private final SubscriptionMemoryCache<T> mSubscriptionMemoryCache;
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mLogger;
 	private String mCollectionName;
 	private RapidConnection mConnection;
 	private Class<T> mType;
 	private RapidExecutor mExecutor;
-	private Map<String, BaseCollectionSubscription<T>> mSubscriptions = new HashMap<>();
+	@NonNull private Map<String, BaseCollectionSubscription<T>> mSubscriptions = new HashMap<>();
 
 
 	WebSocketCollectionConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger, RapidExecutor executor) {
@@ -43,7 +46,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidFuture mutate(String id, T value, RapidMutateOptions options) {
+	public RapidFuture mutate(String id, @Nullable T value, RapidMutateOptions options) {
 		RapidDocument<T> doc = new RapidDocument<>(id, value, options);
 
 		if(value == null) {
@@ -77,7 +80,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void fetch(BaseCollectionSubscription<T> subscription) {
+	public void fetch(@NonNull BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscribed(true);
 		mConnection.fetch(subscriptionId, subscription);
@@ -86,7 +89,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public RapidActionFuture onDisconnectMutate(String docId, T item, RapidMutateOptions options) {
+	public RapidActionFuture onDisconnectMutate(String docId, @Nullable T item, RapidMutateOptions options) {
 		RapidDocument<T> doc = new RapidDocument<>(docId, item, options);
 
 		if(item == null) {
@@ -120,7 +123,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void subscribe(BaseCollectionSubscription<T> subscription) {
+	public void subscribe(@NonNull BaseCollectionSubscription<T> subscription) {
 		String subscriptionId = IdProvider.getNewSubscriptionId();
 		subscription.setSubscriptionId(subscriptionId);
 		subscription.setSubscribed(true);
@@ -136,7 +139,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				// update the subscription with already existing data
 				applyValueToSubscription(subscription, identicalSubscriptions.get(0).getDocuments(), identicalSubscriptions.get(0).getDataState());
 			}
-		} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+		} catch(@NonNull JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			mConnection.subscribe(subscription);
 		}
@@ -150,7 +153,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 			// first try in-memory cache
 			List<RapidDocument<T>> docs = mSubscriptionMemoryCache.get(subscription);
 			if(docs != null) {
-				if (subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
+				if(subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
 					mLogger.logI("Value for collection '%s' loaded from in-memory cache", mCollectionName);
 					applyValueToSubscription(subscription, docs, BaseCollectionSubscription.DataState.LOADED_FROM_MEMORY_CACHE);
 				}
@@ -158,13 +161,13 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mExecutor.fetchInBackground(() -> {
 					try {
 						return mSubscriptionDiskCache.get(subscription);
-					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+					} catch(@NonNull IOException | JSONException | NoSuchAlgorithmException e) {
 						e.printStackTrace();
 					}
 					return null;
 				}, jsonDocs -> {
 					if(jsonDocs != null) {
-						if (subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
+						if(subscription.getDataState() != BaseCollectionSubscription.DataState.LOADED_FROM_SERVER) {
 							mLogger.logI("Value for collection '%s' loaded from disk cache", mCollectionName);
 							mLogger.logJson(jsonDocs);
 
@@ -173,14 +176,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 					}
 				});
 			}
-		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+		} catch(@NonNull IOException | JSONException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 	}
 
 
 	@Override
-	public void onValue(String subscriptionId, String documents) {
+	public void onValue(String subscriptionId, @NonNull String documents) {
 		mLogger.logI("Collection '%s' value updated", mCollectionName);
 		mLogger.logJson(documents);
 
@@ -191,7 +194,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				for(BaseCollectionSubscription s : identicalSubscriptions) {
 					applyValueToSubscription(s, documents, BaseCollectionSubscription.DataState.LOADED_FROM_SERVER);
 				}
-			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+			} catch(@NonNull JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
 				applyValueToSubscription(subscription, documents, BaseCollectionSubscription.DataState.LOADED_FROM_SERVER);
 			}
@@ -205,11 +208,11 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mExecutor.doInBackground(() -> {
 					try {
 						mSubscriptionDiskCache.put(subscription, documents);
-					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+					} catch(@NonNull IOException | JSONException | NoSuchAlgorithmException e) {
 						e.printStackTrace();
 					}
 				});
-			} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+			} catch(@NonNull IOException | JSONException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
 			}
 		}
@@ -225,7 +228,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public synchronized void onUpdate(String subscriptionId, String document) {
+	public synchronized void onUpdate(String subscriptionId, @NonNull String document) {
 		mLogger.logI("Document in collection '%s' updated", mCollectionName);
 		mLogger.logJson(document);
 
@@ -242,7 +245,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				// apply update to disk cache
 				applyUpdateToDiskCache(documentPosition, document, subscription);
 
-			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+			} catch(@NonNull JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
 				applyUpdateToSubscription(document, subscription);
 			}
@@ -251,7 +254,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@Override
-	public void onRemove(String subscriptionId, String document) {
+	public void onRemove(String subscriptionId, @NonNull String document) {
 		onUpdate(subscriptionId, document);
 	}
 
@@ -297,20 +300,20 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private int applyUpdateToSubscription(String document, BaseCollectionSubscription<T> subscription) {
+	private int applyUpdateToSubscription(String document, @NonNull BaseCollectionSubscription<T> subscription) {
 		int documentPosition = subscription.onDocumentUpdated(parseDocument(document));
 
 		// try to update in-memory cache
 		try {
 
 			mSubscriptionMemoryCache.put(subscription, subscription.getDocuments());
-		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+		} catch(@NonNull IOException | JSONException | NoSuchAlgorithmException e) {
 			Logcat.d("Unable to update subscription cache. Need to remove this subscription from cache.");
 			e.printStackTrace();
 			// unable to update data in cache - cache inconsistent -> clear it
 			try {
 				mSubscriptionMemoryCache.remove(subscription);
-			} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
+			} catch(@NonNull IOException | NoSuchAlgorithmException | JSONException e1) {
 				e1.printStackTrace();
 			}
 		}
@@ -318,7 +321,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyUpdateToDiskCache(int documentPosition, String document, BaseCollectionSubscription<T> subscription) {
+	private void applyUpdateToDiskCache(int documentPosition, String document, @NonNull BaseCollectionSubscription<T> subscription) {
 		try {
 			// disk cache
 			String jsonDocs = mSubscriptionDiskCache.get(subscription);
@@ -356,19 +359,19 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 				mExecutor.doInBackground(() -> {
 					try {
 						mSubscriptionDiskCache.put(subscription, finalCurrentItems.toString());
-					} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+					} catch(@NonNull IOException | JSONException | NoSuchAlgorithmException e) {
 						e.printStackTrace();
 						// unable to update data in cache - cache inconsistent -> clear it
 						try {
 							mSubscriptionDiskCache.remove(subscription);
-						} catch(IOException | NoSuchAlgorithmException | JSONException e1) {
+						} catch(@NonNull IOException | NoSuchAlgorithmException | JSONException e1) {
 							e1.printStackTrace();
 						}
 					}
 				});
 			}
 
-		} catch(IOException | JSONException | NoSuchAlgorithmException e) {
+		} catch(@NonNull IOException | JSONException | NoSuchAlgorithmException e) {
 			Logcat.d("Unable to update disk subscription cache.");
 			e.printStackTrace();
 		}
@@ -385,7 +388,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void applyValueToSubscription(BaseCollectionSubscription subscription, List<RapidDocument<T>> documents, BaseCollectionSubscription.DataState dataState) {
+	private void applyValueToSubscription(BaseCollectionSubscription subscription, @NonNull List<RapidDocument<T>> documents, BaseCollectionSubscription.DataState dataState) {
 		if(subscription instanceof RapidDocumentSubscription) {
 			((RapidDocumentSubscription) subscription).setDocument(documents.isEmpty() ? null : documents.get(0), dataState);
 		} else if(subscription instanceof RapidCollectionSubscription) {
@@ -394,13 +397,14 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
+	@NonNull
 	private List<BaseCollectionSubscription<T>> getSubscriptionsWithFingerprint(String fingerprint) {
 		ArrayList<BaseCollectionSubscription<T>> list = new ArrayList<>();
 		for(BaseCollectionSubscription<T> s : mSubscriptions.values()) {
 			try {
 				if(s.getFingerprint().equals(fingerprint))
 					list.add(s);
-			} catch(JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
+			} catch(@NonNull JSONException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
 			}
 		}
@@ -408,7 +412,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
-	private void onSubscriptionUnsubscribed(BaseCollectionSubscription<T> subscription) {
+	private void onSubscriptionUnsubscribed(@NonNull BaseCollectionSubscription<T> subscription) {
 		mLogger.logI("Unsubscribing from collection '%s'", mCollectionName);
 
 		mSubscriptions.remove(subscription.getSubscriptionId());
@@ -416,6 +420,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
+	@NonNull
 	private List<RapidDocument<T>> parseDocumentList(String documents) {
 		List<RapidDocument<T>> list = new ArrayList<>();
 		try {
@@ -435,7 +440,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 		try {
 			JSONObject jsonObject = new JSONObject(document);
 			return RapidDocument.fromJsonObject(jsonObject, mJsonConverter, mType);
-		} catch(IOException | JSONException e) {
+		} catch(@NonNull IOException | JSONException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}

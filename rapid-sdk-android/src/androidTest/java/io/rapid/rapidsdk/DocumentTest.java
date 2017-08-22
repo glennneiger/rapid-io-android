@@ -1,5 +1,6 @@
 package io.rapid.rapidsdk;
 
+import android.support.annotation.NonNull;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -36,7 +37,7 @@ import static org.junit.Assert.fail;
 public class DocumentTest extends BaseRapidTest {
 
 	private RapidCollectionReference<Car> mCollection;
-	private Random mRandom = new Random();
+	@NonNull private Random mRandom = new Random();
 
 
 	@Before

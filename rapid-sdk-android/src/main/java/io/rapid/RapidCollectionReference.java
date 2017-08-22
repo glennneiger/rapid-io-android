@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import java.util.Date;
 
 import io.rapid.executor.RapidExecutor;
@@ -85,6 +87,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> equalTo(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
@@ -98,6 +101,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> equalTo(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
@@ -111,6 +115,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> equalTo(String property, long value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
@@ -124,6 +129,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> equalTo(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value)));
 		return this;
@@ -137,6 +143,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> equalTo(String property, boolean value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.BooleanPropertyValue(value)));
 		return this;
@@ -150,6 +157,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> equalTo(String property, Date value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_EQUAL, value, mJsonConverter)));
 		return this;
@@ -166,6 +174,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> notEqualTo(String property, String value) {
 		beginNot();
 		equalTo(property, value);
@@ -181,6 +190,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> notEqualTo(String property, int value) {
 		beginNot();
 		equalTo(property, value);
@@ -196,6 +206,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> notEqualTo(String property, long value) {
 		beginNot();
 		equalTo(property, value);
@@ -211,6 +222,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> notEqualTo(String property, double value) {
 		beginNot();
 		equalTo(property, value);
@@ -226,6 +238,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> notEqualTo(String property, Date value) {
 		beginNot();
 		equalTo(property, value);
@@ -244,6 +257,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessThan(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
@@ -257,6 +271,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
@@ -270,6 +285,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessThan(String property, long value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
@@ -283,6 +299,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value)));
 		return this;
@@ -296,6 +313,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessThan(String property, Date value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_LESS_THAN, value, mJsonConverter)));
 		return this;
@@ -312,6 +330,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessOrEqualThan(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
@@ -325,6 +344,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessOrEqualThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
@@ -338,6 +358,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessOrEqualThan(String property, long value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
@@ -351,6 +372,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessOrEqualThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value)));
 		return this;
@@ -364,6 +386,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> lessOrEqualThan(String property, Date value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_LESS_OR_EQUAL_THAN, value, mJsonConverter)));
 		return this;
@@ -380,6 +403,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterThan(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
@@ -393,6 +417,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
@@ -406,6 +431,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterThan(String property, long value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
@@ -419,6 +445,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value)));
 		return this;
@@ -432,6 +459,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterThan(String property, Date value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_THAN, value, mJsonConverter)));
 		return this;
@@ -448,6 +476,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
@@ -461,6 +490,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
@@ -474,6 +504,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, long value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
@@ -487,6 +518,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value)));
 		return this;
@@ -500,6 +532,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> greaterOrEqualThan(String property, Date value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DatePropertyValue(FilterValue.PropertyValue.TYPE_GREATER_OR_EQUAL_THAN, value, mJsonConverter)));
 		return this;
@@ -517,6 +550,7 @@ public class RapidCollectionReference<T> {
 	 * @param to       right bound for value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> between(String property, String from, String to) {
 		beginAnd();
 		greaterOrEqualThan(property, from);
@@ -534,6 +568,7 @@ public class RapidCollectionReference<T> {
 	 * @param to       right bound for value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> between(String property, int from, int to) {
 		beginAnd();
 		greaterOrEqualThan(property, from);
@@ -551,6 +586,7 @@ public class RapidCollectionReference<T> {
 	 * @param to       right bound for value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> between(String property, long from, long to) {
 		beginAnd();
 		greaterOrEqualThan(property, from);
@@ -568,6 +604,7 @@ public class RapidCollectionReference<T> {
 	 * @param to       right bound for value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> between(String property, double from, double to) {
 		beginAnd();
 		greaterOrEqualThan(property, from);
@@ -585,6 +622,7 @@ public class RapidCollectionReference<T> {
 	 * @param to       right bound for value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> between(String property, Date from, Date to) {
 		beginAnd();
 		greaterOrEqualThan(property, from);
@@ -603,6 +641,7 @@ public class RapidCollectionReference<T> {
 	 * @param id desired ID value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> idEqualTo(String id) {
 
 		equalTo(PROPERTY_ID, id);
@@ -616,6 +655,7 @@ public class RapidCollectionReference<T> {
 	 * @param id desired ID value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> idNotEqualTo(String id) {
 		notEqualTo(PROPERTY_ID, id);
 		return this;
@@ -632,6 +672,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> contains(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_CONTAINS, value)));
 		return this;
@@ -645,6 +686,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> startsWith(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_STARTS_WITH, value)));
 		return this;
@@ -658,6 +700,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> endsWith(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_ENDS_WITH, value)));
 		return this;
@@ -674,6 +717,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> arrayContains(String property, String value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.StringPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
@@ -687,6 +731,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> arrayContains(String property, int value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.IntPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
@@ -700,6 +745,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> arrayContains(String property, long value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.LongPropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
@@ -713,6 +759,7 @@ public class RapidCollectionReference<T> {
 	 * @param value    desired value
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> arrayContains(String property, double value) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.DoublePropertyValue(FilterValue.PropertyValue.TYPE_ARRAY_CONTAINS, value)));
 		return this;
@@ -725,6 +772,7 @@ public class RapidCollectionReference<T> {
 	 * @param property property name
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> isNull(String property) {
 		mSubscription.getFilterStack().peek().add(new FilterValue(property, new FilterValue.NullPropertyValue(FilterValue.PropertyValue.TYPE_EQUAL)));
 		return this;
@@ -737,6 +785,7 @@ public class RapidCollectionReference<T> {
 	 * @param property property name
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> isNotNull(String property) {
 		beginNot();
 		isNull(property);
@@ -755,6 +804,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> beginOr() {
 		Filter.Or or = new Filter.Or();
 		mSubscription.getFilterStack().peek().add(or);
@@ -770,6 +820,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> beginAnd() {
 		Filter.And and = new Filter.And();
 		mSubscription.getFilterStack().peek().add(and);
@@ -785,6 +836,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> beginNot() {
 		Filter.Not not = new Filter.Not();
 		mSubscription.getFilterStack().peek().add(not);
@@ -800,6 +852,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> endOr() {
 		if(!(mSubscription.getFilterStack().peek() instanceof Filter.Or))
 			throw new IllegalArgumentException("Trying to end OR group inside another group.");
@@ -816,6 +869,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> endAnd() {
 		if(!(mSubscription.getFilterStack().peek() instanceof Filter.And))
 			throw new IllegalArgumentException("Trying to end AND group inside another group.");
@@ -832,6 +886,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> endNot() {
 		if(!(mSubscription.getFilterStack().peek() instanceof Filter.Not))
 			throw new IllegalArgumentException("Trying to end NOT group inside another group.");
@@ -853,6 +908,7 @@ public class RapidCollectionReference<T> {
 	 * @param sorting  sorting direction
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> orderBy(String property, Sorting sorting) {
 		mSubscription.orderBy(property, sorting);
 
@@ -868,6 +924,7 @@ public class RapidCollectionReference<T> {
 	 * @param property desired property
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> orderBy(String property) {
 		return orderBy(property, Sorting.ASC);
 	}
@@ -880,6 +937,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> orderByDocumentId() {
 		return orderBy(PROPERTY_ID, Sorting.ASC);
 	}
@@ -893,6 +951,7 @@ public class RapidCollectionReference<T> {
 	 * @param sorting sorting direction
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> orderByDocumentId(Sorting sorting) {
 		return orderBy(PROPERTY_ID, sorting);
 	}
@@ -909,6 +968,7 @@ public class RapidCollectionReference<T> {
 	 * @param limit upper limit for number of returned documents (max. 250)
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> limit(int limit) {
 		mSubscription.setLimit(limit);
 		return this;
@@ -923,6 +983,7 @@ public class RapidCollectionReference<T> {
 	 * @param skip number of skipped documents
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> skip(int skip) {
 		mSubscription.setSkip(skip);
 		return this;
@@ -934,6 +995,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public RapidCollectionReference<T> first() {
 		return limit(1);
 	}
@@ -960,6 +1022,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @return document reference
 	 */
+	@NonNull
 	public RapidDocumentReference<T> newDocument() {
 		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection);
 	}
@@ -973,6 +1036,7 @@ public class RapidCollectionReference<T> {
 	 * @param documentId document ID
 	 * @return
 	 */
+	@NonNull
 	public RapidDocumentReference<T> document(String documentId) {
 		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection, documentId);
 	}
@@ -986,7 +1050,7 @@ public class RapidCollectionReference<T> {
 	 * @param callback callback function to receive collection updates as list of documents
 	 * @return subscription with ability to unsubscribe, add error listener, etc.
 	 */
-	public RapidCollectionSubscription subscribe(RapidCallback.Collection<T> callback) {
+	public RapidCollectionSubscription subscribe(@NonNull RapidCallback.Collection<T> callback) {
 		return subscribeWithListUpdates((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
 	}
 
@@ -1016,7 +1080,7 @@ public class RapidCollectionReference<T> {
 	 *
 	 * @param callback callback function to receive collection updates as list of documents
 	 */
-	public RapidCollectionSubscription<T> fetch(RapidCallback.Collection<T> callback) {
+	public RapidCollectionSubscription<T> fetch(@NonNull RapidCallback.Collection<T> callback) {
 		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback((rapidDocuments, listUpdates) -> callback.onValueChanged(rapidDocuments));
@@ -1032,6 +1096,7 @@ public class RapidCollectionReference<T> {
 	 * @param mapFunction function that will transform every single document coming to subscribe callback
 	 * @return collection reference itself
 	 */
+	@NonNull
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
 		return new RapidCollectionMapReference<>(this, mapFunction);
 	}

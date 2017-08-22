@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.LruCache;
 
 import org.json.JSONException;
@@ -27,7 +29,8 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public synchronized List<RapidDocument<T>> get(BaseCollectionSubscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
+	@Nullable
+	public synchronized List<RapidDocument<T>> get(@NonNull BaseCollectionSubscription subscription) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return null;
 		String fingerprint = subscription.getFingerprint();
@@ -44,7 +47,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	public synchronized void put(BaseCollectionSubscription subscription, List<RapidDocument<T>> value) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized void put(@NonNull BaseCollectionSubscription subscription, @Nullable List<RapidDocument<T>> value) throws IOException, JSONException, NoSuchAlgorithmException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
@@ -74,7 +77,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	synchronized void remove(BaseCollectionSubscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
+	synchronized void remove(@NonNull BaseCollectionSubscription subscription) throws IOException, NoSuchAlgorithmException, JSONException {
 		if(!mEnabled)
 			return;
 		String fingerprint = subscription.getFingerprint();
@@ -83,7 +86,7 @@ class SubscriptionMemoryCache<T> {
 	}
 
 
-	private String getDocumentKey(BaseCollectionSubscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+	private String getDocumentKey(@NonNull BaseCollectionSubscription subscription, String documentId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		return Sha1Utility.sha1(subscription.getCollectionName() + "/" + documentId);
 	}
 }

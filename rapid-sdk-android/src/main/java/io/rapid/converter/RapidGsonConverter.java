@@ -1,6 +1,8 @@
 package io.rapid.converter;
 
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -30,7 +32,7 @@ public class RapidGsonConverter implements RapidJsonConverter {
 
 
 	@SuppressWarnings("WeakerAccess")
-	public RapidGsonConverter(GsonBuilder gsonBuilder) {
+	public RapidGsonConverter(@NonNull GsonBuilder gsonBuilder) {
 		mGson = gsonBuilder
 				.registerTypeAdapter(Date.class, new GsonUtcDateAdapter())
 				.create();
@@ -38,7 +40,7 @@ public class RapidGsonConverter implements RapidJsonConverter {
 
 
 	@Override
-	public <T> T fromJson(String json, Class<T> type) {
+	public <T> T fromJson(String json, @NonNull Class<T> type) {
 		return mGson.fromJson(json, type);
 	}
 
@@ -51,7 +53,7 @@ public class RapidGsonConverter implements RapidJsonConverter {
 
 	static class GsonUtcDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
-		private final DateFormat dateFormat;
+		@NonNull private final DateFormat dateFormat;
 
 
 		GsonUtcDateAdapter() {
@@ -60,6 +62,7 @@ public class RapidGsonConverter implements RapidJsonConverter {
 		}
 
 
+		@NonNull
 		@Override
 		public synchronized JsonElement serialize(Date date, Type type, JsonSerializationContext jsonSerializationContext) {
 			return new JsonPrimitive(dateFormat.format(date));
@@ -67,7 +70,7 @@ public class RapidGsonConverter implements RapidJsonConverter {
 
 
 		@Override
-		public synchronized Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+		public synchronized Date deserialize(@NonNull JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
 			try {
 				return dateFormat.parse(jsonElement.getAsString());
 			} catch(ParseException e) {

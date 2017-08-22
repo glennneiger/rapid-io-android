@@ -1,6 +1,8 @@
 package io.rapid.base;
 
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +14,7 @@ public class BaseTest {
 	}
 
 
-	protected void print(String message, Object... attrs) {
+	protected void print(@NonNull String message, Object... attrs) {
 		System.out.println(String.format(message, attrs));
 	}
 
@@ -23,12 +25,12 @@ public class BaseTest {
 	}
 
 
-	protected void printJson(JSONArray jsonArray) throws JSONException {
+	protected void printJson(@NonNull JSONArray jsonArray) throws JSONException {
 		System.out.println(jsonArray.toString());
 	}
 
 
-	private void printJson(JSONObject jsonObject) throws JSONException {
+	private void printJson(@NonNull JSONObject jsonObject) throws JSONException {
 		System.out.println(jsonObject.toString());
 	}
 }

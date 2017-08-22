@@ -1,5 +1,8 @@
 package io.rapid;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
@@ -15,7 +18,8 @@ class EntityOrder {
 	private List<EntityOrderDetail> mOrderList = new ArrayList<>();
 
 
-	static EntityOrder fromJson(JSONArray array) {
+	@Nullable
+	static EntityOrder fromJson(@Nullable JSONArray array) {
 		if(array == null) return null;
 
 		EntityOrder order = new EntityOrder();
@@ -29,17 +33,7 @@ class EntityOrder {
 	}
 
 
-	void putOrder(String property, Sorting sorting) {
-		mOrderList = Stream.of(mOrderList).filter(o -> !o.getProperty().equals(property)).collect(Collectors.toList());
-		mOrderList.add(new EntityOrderDetail(property, sorting));
-	}
-
-
-	List<EntityOrderDetail> getOrderList() {
-		return mOrderList;
-	}
-
-
+	@NonNull
 	public JSONArray toJson() throws JSONException {
 		JSONArray array = new JSONArray();
 		for(EntityOrderDetail order : mOrderList) {
@@ -49,5 +43,16 @@ class EntityOrder {
 		}
 
 		return array;
+	}
+
+
+	void putOrder(String property, Sorting sorting) {
+		mOrderList = Stream.of(mOrderList).filter(o -> !o.getProperty().equals(property)).collect(Collectors.toList());
+		mOrderList.add(new EntityOrderDetail(property, sorting));
+	}
+
+
+	List<EntityOrderDetail> getOrderList() {
+		return mOrderList;
 	}
 }

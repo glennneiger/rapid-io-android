@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,7 +18,7 @@ interface Filter {
 
 
 	abstract class Group implements Filter {
-		List<Filter> filters = new ArrayList<>();
+		@NonNull List<Filter> filters = new ArrayList<>();
 
 
 		Group(Filter... filters) {
@@ -23,6 +26,7 @@ interface Filter {
 		}
 
 
+		@Nullable
 		protected abstract String getKeyword();
 
 
@@ -52,6 +56,7 @@ interface Filter {
 		}
 
 
+		@Nullable
 		@Override
 		protected String getKeyword() {
 			return null;
@@ -72,6 +77,7 @@ interface Filter {
 		}
 
 
+		@NonNull
 		@Override
 		protected String getKeyword() {
 			return "and";
@@ -87,6 +93,7 @@ interface Filter {
 		}
 
 
+		@NonNull
 		@Override
 		protected String getKeyword() {
 			return "not";
@@ -113,6 +120,7 @@ interface Filter {
 		}
 
 
+		@NonNull
 		@Override
 		protected String getKeyword() {
 			return "or";

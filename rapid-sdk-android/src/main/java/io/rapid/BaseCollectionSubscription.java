@@ -1,6 +1,8 @@
 package io.rapid;
 
 
+import android.support.annotation.Nullable;
+
 import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
@@ -13,8 +15,8 @@ import io.rapid.utility.Sha1Utility;
 
 public abstract class BaseCollectionSubscription<T> extends Subscription {
 	private final String mCollectionName;
-	private String mFingerprintCache;
 	protected DataState mDataState = DataState.NO_DATA;
+	@Nullable private String mFingerprintCache;
 
 
 	public enum DataState {NO_DATA, LOADED_FROM_DISK_CACHE, LOADED_FROM_MEMORY_CACHE, LOADED_FROM_SERVER}
@@ -43,6 +45,7 @@ public abstract class BaseCollectionSubscription<T> extends Subscription {
 	abstract Filter getFilter();
 
 
+	@Nullable
 	abstract EntityOrder getOrder();
 
 
@@ -59,13 +62,14 @@ public abstract class BaseCollectionSubscription<T> extends Subscription {
 	}
 
 
+	@Nullable
 	String getFingerprint() throws JSONException, UnsupportedEncodingException, NoSuchAlgorithmException {
 		if(mFingerprintCache == null) {
 			long startMs = System.currentTimeMillis();
 			StringBuilder subscriptionString = new StringBuilder();
 			subscriptionString.append(getCollectionName());
 			subscriptionString.append("#");
-			if(getFilter() !=  null) subscriptionString.append(getFilter().toJson());
+			if(getFilter() != null) subscriptionString.append(getFilter().toJson());
 			subscriptionString.append("#");
 			subscriptionString.append(getLimit());
 			subscriptionString.append("#");

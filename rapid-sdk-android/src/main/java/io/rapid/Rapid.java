@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -20,13 +21,13 @@ import io.rapid.utility.Sha1Utility;
 
 
 public class Rapid {
-	private static Map<String, Rapid> sInstances = new HashMap<>();
+	@NonNull private static Map<String, Rapid> sInstances = new HashMap<>();
 	private static Context sApplicationContext;
 	private final String mApiKey;
 	private JsonConverterProvider mJsonConverter;
 	private RapidConnection mRapidConnection;
 	private CollectionProvider mCollectionProvider;
-	private RapidLogger mLogger = new RapidLogger();
+	@NonNull private RapidLogger mLogger = new RapidLogger();
 
 
 	private Rapid(Context context, String apiKey) {
@@ -172,7 +173,7 @@ public class Rapid {
 	}
 
 
-	static void injectContext(Context context) {
+	static void injectContext(@NonNull Context context) {
 		sApplicationContext = context.getApplicationContext();
 
 		// try to auto-init from AndroidManifest metadata
@@ -226,6 +227,7 @@ public class Rapid {
 	}
 
 
+	@NonNull
 	public <T> RapidChannelReference<T> channel(String channelName, Class<T> messageClass) {
 		return ((RapidChannelReference) mCollectionProvider.provideChannel(channelName, messageClass, false));
 	}

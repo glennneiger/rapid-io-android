@@ -1,12 +1,14 @@
 package io.rapid.rapidsdk.base;
 
 
+import android.support.annotation.NonNull;
+
 import java.util.concurrent.CountDownLatch;
 
 
 public class AsyncLock {
 
-	private CountDownLatch mSignal = new CountDownLatch(1);
+	@NonNull private CountDownLatch mSignal = new CountDownLatch(1);
 
 
 	public void lock() {
