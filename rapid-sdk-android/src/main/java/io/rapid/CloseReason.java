@@ -2,7 +2,7 @@ package io.rapid;
 
 enum CloseReason
 {
-	UNKNOWN, INTERNET_CONNECTION_LOST, NO_INTERNET_CONNECTION, CLOSED_MANUALLY, CLOSED_FROM_SERVER;
+	UNKNOWN, INTERNET_CONNECTION_LOST, NO_INTERNET_CONNECTION, CLOSED_MANUALLY, CLOSED_FROM_SERVER, HANDSHAKE_ERROR;
 
 
 	// for lib connection
@@ -32,6 +32,8 @@ enum CloseReason
 			switch(ex.getMessage()) {
 				case "Software caused connection abort":
 					return INTERNET_CONNECTION_LOST;
+				case "Unable to complete websocket handshake":
+					return HANDSHAKE_ERROR;
 				default:
 					return UNKNOWN;
 			}
