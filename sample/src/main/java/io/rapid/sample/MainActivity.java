@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		enableStrictMode();
+//		enableStrictMode();
 		Rapid.getInstance().setLogLevel(LogLevel.LOG_LEVEL_NONE);
 
 		mViewModel = new MainViewModel();
