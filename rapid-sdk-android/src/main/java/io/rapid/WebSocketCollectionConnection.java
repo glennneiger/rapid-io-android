@@ -300,6 +300,12 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	}
 
 
+	@Override
+	public boolean hasSubscription(String subscriptionId) {
+		return mSubscriptions.containsKey(subscriptionId);
+	}
+
+
 	private int applyUpdateToSubscription(String document, @NonNull BaseCollectionSubscription<T> subscription) {
 		int documentPosition = subscription.onDocumentUpdated(parseDocument(document));
 

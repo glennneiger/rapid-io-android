@@ -29,7 +29,8 @@ class CollectionProvider {
 	}
 
 
-	public ChannelConnection findChannelBySubscriptionId(String subscriptionId) {
+	@NonNull
+	ChannelConnection findChannelBySubscriptionId(String subscriptionId) {
 		for(String channelName : mChannelConnections.keySet()) {
 			if(mChannelConnections.get(channelName).hasSubscription(subscriptionId))
 				return mChannelConnections.get(channelName);
@@ -81,6 +82,16 @@ class CollectionProvider {
 
 	CollectionConnection findCollectionByName(String collectionName) {
 		return mCollectionConnections.get(collectionName);
+	}
+
+
+	@NonNull
+	CollectionConnection findCollectionBySubscriptionId(String subscriptionId) {
+		for(String channelName : mCollectionConnections.keySet()) {
+			if(mCollectionConnections.get(channelName).hasSubscription(subscriptionId))
+				return mCollectionConnections.get(channelName);
+		}
+		throw new IllegalArgumentException("BaseCollectionSubscription not found");
 	}
 
 

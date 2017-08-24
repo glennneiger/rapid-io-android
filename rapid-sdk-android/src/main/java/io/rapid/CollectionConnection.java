@@ -19,4 +19,5 @@ interface CollectionConnection<T> {
 	void fetch(BaseCollectionSubscription<T> subscription);
 	RapidActionFuture onDisconnectMutate(String docId, T item, RapidMutateOptions options);
 	RapidActionFuture onDisconnectMerge(String docId, Map<String, Object> mergeMap, RapidMutateOptions options);
+	boolean hasSubscription(String subscriptionId);
 }

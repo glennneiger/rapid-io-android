@@ -225,7 +225,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
 		RapidFuture future = sendMessage(() -> messageSub);
-		future.onError(error -> mCallback.onCollectionError(subscription.getSubscriptionId(), subscription.getCollectionName(), error));
+		future.onError(error -> mCallback.onCollectionError(subscription.getSubscriptionId(), error));
 	}
 
 
@@ -250,7 +250,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mSubscriptionCount++;
 		createWebSocketConnectionIfNeeded();
 		RapidFuture future = sendMessage(() -> messageFtc);
-		future.onError(error -> mCallback.onCollectionError(fetchId, subscription.getCollectionName(), error));
+		future.onError(error -> mCallback.onCollectionError(fetchId, error));
 	}
 
 
@@ -538,7 +538,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private synchronized void handleCaMessage(@NonNull Message.Ca message) {
 		mSubscriptionCount--;
 		disconnectWebSocketConnectionIfNeeded();
-		getCallback().onCollectionError(message.getSubscriptionId(), message.getCollectionId(), new RapidError(SUBSCRIPTION_CANCELLED));
+		getCallback().onCollectionError(message.getSubscriptionId(), new RapidError(SUBSCRIPTION_CANCELLED));
 	}
 
 

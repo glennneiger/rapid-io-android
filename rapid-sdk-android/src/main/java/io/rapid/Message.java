@@ -1091,16 +1091,13 @@ abstract class Message {
 
 	static class Ca extends Message {
 		private static final String ATTR_SUB_ID = "sub-id";
-		private static final String ATTR_COL_ID = "col-id";
 
 		private String mSubscriptionId;
-		private String mCollectionId;
 
 
 		public Ca(String collectionId, String subscriptionId) {
 			super(MessageType.CA);
 
-			mCollectionId = collectionId;
 			mSubscriptionId = subscriptionId;
 		}
 
@@ -1114,7 +1111,6 @@ abstract class Message {
 		protected JSONObject createJsonBody() throws JSONException {
 			JSONObject body = super.createJsonBody();
 			body.put(ATTR_SUB_ID, mSubscriptionId);
-			body.put(ATTR_COL_ID, mCollectionId);
 			return body;
 		}
 
@@ -1123,7 +1119,6 @@ abstract class Message {
 		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
 			super.parseJsonBody(jsonBody);
 			mSubscriptionId = jsonBody.optString(ATTR_SUB_ID);
-			mCollectionId = jsonBody.optString(ATTR_COL_ID);
 		}
 
 
@@ -1132,9 +1127,6 @@ abstract class Message {
 		}
 
 
-		String getCollectionId() {
-			return mCollectionId;
-		}
 	}
 
 

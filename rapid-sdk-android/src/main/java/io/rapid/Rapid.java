@@ -62,8 +62,8 @@ public class Rapid {
 
 
 			@Override
-			public void onCollectionError(String subscriptionId, String collectionId, RapidError error) {
-				mCollectionProvider.findCollectionByName(collectionId).onError(subscriptionId, error);
+			public void onCollectionError(String subscriptionId, RapidError error) {
+				mCollectionProvider.findCollectionBySubscriptionId(subscriptionId).onError(subscriptionId, error);
 			}
 
 
