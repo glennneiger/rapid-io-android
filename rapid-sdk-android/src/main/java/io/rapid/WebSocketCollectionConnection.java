@@ -398,7 +398,7 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 
 
 	@NonNull
-	private List<BaseCollectionSubscription<T>> getSubscriptionsWithFingerprint(String fingerprint) {
+	private synchronized List<BaseCollectionSubscription<T>> getSubscriptionsWithFingerprint(String fingerprint) {
 		ArrayList<BaseCollectionSubscription<T>> list = new ArrayList<>();
 		for(BaseCollectionSubscription<T> s : mSubscriptions.values()) {
 			try {
