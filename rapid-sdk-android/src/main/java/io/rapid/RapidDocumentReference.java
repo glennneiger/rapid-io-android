@@ -36,6 +36,17 @@ public class RapidDocumentReference<T> {
 	}
 
 
+	public CollectionConnection<T> getConnection() {
+		return mImpl;
+	}
+
+
+	@NonNull
+	RapidDocumentSubscription<T> getSubscription() {
+		return mSubscription;
+	}
+
+
 	/**
 	 * Returns unique document ID
 	 *
@@ -190,4 +201,17 @@ public class RapidDocumentReference<T> {
 		mImpl.fetch(mSubscription);
 		return mSubscription;
 	}
+
+
+	/**
+	 * Convenience method for manipulating data before they are received within subscribe callback.
+	 *
+	 * @param mapFunction function that will transform document coming to subscribe callback
+	 * @return document reference itself
+	 */
+	@NonNull
+	public <S> RapidDocumentMapReference<T, S> map(RapidDocumentMapReference.MapFunction<T, S> mapFunction) {
+		return new RapidDocumentMapReference<>(this, mapFunction);
+	}
+
 }

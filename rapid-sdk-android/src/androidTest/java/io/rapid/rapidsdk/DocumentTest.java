@@ -19,6 +19,7 @@ import io.rapid.Etag;
 import io.rapid.Rapid;
 import io.rapid.RapidActionFuture;
 import io.rapid.RapidCollectionReference;
+import io.rapid.RapidDocument;
 import io.rapid.RapidDocumentExecutor;
 import io.rapid.RapidDocumentReference;
 import io.rapid.RapidError;
@@ -200,12 +201,13 @@ public class DocumentTest extends BaseRapidTest {
 		lockAsync();
 
 		newDoc.fetch(document -> {
-			assertEquals(carNumber+1, document.getBody().getNumber());
+			assertEquals(carNumber + 1, document.getBody().getNumber());
 			assertEquals("car_1", document.getBody().getName());
 			unlockAsync();
 		}).onError(error -> fail(error.getMessage()));
 		lockAsync();
 	}
+
 
 	@Test
 	public void testDisconnectAction() {
@@ -217,6 +219,21 @@ public class DocumentTest extends BaseRapidTest {
 		lockAsync();
 
 		f.cancel().onError(error -> fail(error.getMessage())).onSuccess(() -> unlockAsync());
+		lockAsync();
+	}
+
+
+	@Test
+	public void testDocumentAddAndMapFetch() {
+		RapidDocumentReference<Car> newDoc = mCollection.newDocument();
+		int carNumber = mRandom.nextInt();
+		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(() -> {
+			newDoc.map(RapidDocument::getBody)
+					.fetch(value -> {
+						assertEquals(carNumber, value.getNumber());
+						unlockAsync();
+					});
+		});
 		lockAsync();
 	}
 

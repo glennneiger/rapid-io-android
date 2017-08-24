@@ -30,6 +30,11 @@ public class RapidCallback {
 	}
 
 
+	public interface DocumentMapped<T> {
+		void onValueChanged(T item);
+	}
+
+
 	public interface Error {
 		void onError(RapidError error);
 	}
