@@ -63,13 +63,17 @@ public class Rapid {
 
 			@Override
 			public void onCollectionError(String subscriptionId, RapidError error) {
-				mCollectionProvider.findCollectionBySubscriptionId(subscriptionId).onError(subscriptionId, error);
+				CollectionConnection collectionConnection = mCollectionProvider.findCollectionBySubscriptionId(subscriptionId);
+				if(collectionConnection != null)
+					collectionConnection.onError(subscriptionId, error);
 			}
 
 
 			@Override
 			public void onChannelError(String subscriptionId, String channelId, RapidError error) {
-				mCollectionProvider.findChannelBySubscriptionId(subscriptionId).onError(subscriptionId, error);
+				ChannelConnection channelConnection = mCollectionProvider.findChannelBySubscriptionId(subscriptionId);
+				if(channelConnection != null)
+					channelConnection.onError(subscriptionId, error);
 			}
 
 
@@ -93,7 +97,9 @@ public class Rapid {
 
 			@Override
 			public void onChannelMessage(String subscriptionId, String channelName, String body) {
-				mCollectionProvider.findChannelBySubscriptionId(subscriptionId).onMessage(subscriptionId, channelName, body);
+				ChannelConnection channelConnection = mCollectionProvider.findChannelBySubscriptionId(subscriptionId);
+				if(channelConnection != null)
+					channelConnection.onMessage(subscriptionId, channelName, body);
 			}
 		}, executor, mLogger);
 

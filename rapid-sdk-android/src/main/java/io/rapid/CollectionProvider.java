@@ -2,6 +2,7 @@ package io.rapid;
 
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ class CollectionProvider {
 	}
 
 
-	@NonNull
+	@Nullable
 	ChannelConnection findChannelBySubscriptionId(String subscriptionId) {
 		for(String channelName : mChannelConnections.keySet()) {
 			if(mChannelConnections.get(channelName).hasSubscription(subscriptionId))
@@ -39,7 +40,7 @@ class CollectionProvider {
 			if(mChannelPrefixConnections.get(channelName).hasSubscription(subscriptionId))
 				return mChannelPrefixConnections.get(channelName);
 		}
-		throw new IllegalArgumentException("BaseCollectionSubscription not found");
+		return null;
 	}
 
 
@@ -85,13 +86,13 @@ class CollectionProvider {
 	}
 
 
-	@NonNull
+	@Nullable
 	CollectionConnection findCollectionBySubscriptionId(String subscriptionId) {
 		for(String channelName : mCollectionConnections.keySet()) {
 			if(mCollectionConnections.get(channelName).hasSubscription(subscriptionId))
 				return mCollectionConnections.get(channelName);
 		}
-		throw new IllegalArgumentException("BaseCollectionSubscription not found");
+		return null;
 	}
 
 
