@@ -11,8 +11,10 @@ import com.annimon.stream.Stream;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import io.rapid.executor.RapidExecutor;
@@ -51,6 +53,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	};
 	@NonNull private Runnable mDisconnectRunnable = () -> disconnectWebSocketConnection(true);
 	@NonNull private Queue<RapidCallback.TimeOffset> mTimeOffsetCallbacks = new LinkedList<>();
+	private Map<String, RapidActionFuture> mOnDisconnectFutures = new HashMap<>();
 
 
 	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, RapidExecutor executor, RapidLogger logger) {
@@ -115,6 +118,9 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			case CA_CH:
 				handleCaMessage((Message.CaCh) message);
 				break;
+			case CA_DA:
+				handleCaDaMessage((Message.CaDa) message);
+				break;
 			case ACK:
 				handleAckMessage((Message.Ack) message);
 				break;
@@ -144,6 +150,13 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				mCallback.onChannelMessage(mesMessage.getSubscriptionId(), mesMessage.getChannelName(), mesMessage.getBody());
 				break;
 		}
+	}
+
+
+	private void handleCaDaMessage(Message.CaDa message) {
+		RapidActionFuture rapidActionFuture = mOnDisconnectFutures.get(message.getActionId());
+		if(rapidActionFuture != null)
+			rapidActionFuture.invokeError(new RapidError(RapidError.ErrorType.ON_DISCONNECT_ACTION_CANCELLED));
 	}
 
 
@@ -331,7 +344,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 
 
 	@Override
-	public RapidFuture getSetverTimeOffset(RapidCallback.TimeOffset callback) {
+	public RapidFuture getServerTimeOffset(RapidCallback.TimeOffset callback) {
 		createWebSocketConnectionIfNeeded();
 		mTimeOffsetCallbacks.add(callback);
 		return sendMessage(Message.ReqTs::new);
@@ -344,6 +357,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		createWebSocketConnectionIfNeeded();
 		String actionId = IdProvider.getNewActionId();
 		RapidActionFuture future = new RapidActionFuture(mExecutor, actionId, this);
+		mOnDisconnectFutures.put(actionId, future);
 		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Del(collectionName, documentJsonResolver.resolve())));
 	}
 
@@ -354,6 +368,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		createWebSocketConnectionIfNeeded();
 		String actionId = IdProvider.getNewActionId();
 		RapidActionFuture future = new RapidActionFuture(mExecutor, actionId, this);
+		mOnDisconnectFutures.put(actionId, future);
 		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Mut(collectionName, documentJsonResolver.resolve())));
 	}
 
@@ -364,6 +379,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		createWebSocketConnectionIfNeeded();
 		String actionId = IdProvider.getNewActionId();
 		RapidActionFuture future = new RapidActionFuture(mExecutor, actionId, this);
+		mOnDisconnectFutures.put(actionId, future);
 		return (RapidActionFuture) sendMessage(future, () -> new Message.Da(actionId, new Message.Mer(collectionName, documentJsonResolver.resolve())));
 	}
 

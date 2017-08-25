@@ -1095,7 +1095,7 @@ abstract class Message {
 		private String mSubscriptionId;
 
 
-		public Ca(String collectionId, String subscriptionId) {
+		public Ca(String subscriptionId) {
 			super(MessageType.CA);
 
 			mSubscriptionId = subscriptionId;
@@ -1125,8 +1125,45 @@ abstract class Message {
 		public String getSubscriptionId() {
 			return mSubscriptionId;
 		}
+	}
 
 
+	static class CaDa extends Message {
+		private static final String ATTR_ACTION_ID = "act-id";
+
+		private String mActionId;
+
+
+		public CaDa(String actionId) {
+			super(MessageType.CA_DA);
+
+			mActionId = actionId;
+		}
+
+
+		CaDa(JSONObject json) throws JSONException {
+			super(MessageType.CA_DA, json);
+		}
+
+
+		@Override
+		protected JSONObject createJsonBody() throws JSONException {
+			JSONObject body = super.createJsonBody();
+			body.put(ATTR_ACTION_ID, mActionId);
+			return body;
+		}
+
+
+		@Override
+		protected void parseJsonBody(@NonNull JSONObject jsonBody) {
+			super.parseJsonBody(jsonBody);
+			mActionId = jsonBody.optString(ATTR_ACTION_ID);
+		}
+
+
+		public String getActionId() {
+			return mActionId;
+		}
 	}
 
 

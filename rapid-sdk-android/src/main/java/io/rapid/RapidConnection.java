@@ -75,7 +75,7 @@ abstract class RapidConnection {
 	public abstract void setConnectionTimeout(long connectionTimeoutMs);
 
 
-	public abstract RapidFuture getSetverTimeOffset(RapidCallback.TimeOffset callback);
+	public abstract RapidFuture getServerTimeOffset(RapidCallback.TimeOffset callback);
 
 
 	public abstract RapidActionFuture onDisconnectDelete(String collectionName, FutureResolver<String> documentJson);

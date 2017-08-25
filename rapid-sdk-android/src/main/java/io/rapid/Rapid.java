@@ -274,7 +274,7 @@ public class Rapid {
 	 * @param callback called with time offset in milliseconds
 	 */
 	public RapidFuture getServerTimeOffset(RapidCallback.TimeOffset callback) {
-		return mRapidConnection.getSetverTimeOffset(callback);
+		return mRapidConnection.getServerTimeOffset(callback);
 	}
 
 

@@ -17,7 +17,8 @@ public class RapidError extends Error {
 		CONNECTION_TERMINATED("connection-terminated", "Connection terminated"),
 		INVALID_AUTH_TOKEN("invalid-auth-token", "Invalid Auth Token"),
 		UNKNOWN_ERROR("unknown", "Unknown Error"),
-		ETAG_CONFLICT("etag-conflict", "ETAG Confilct");
+		ETAG_CONFLICT("etag-conflict", "ETAG Conflict"),
+		ON_DISCONNECT_ACTION_CANCELLED("on-disconnect-action-cancelled", "OnDisconnect action was cancelled");
 
 		private String mName;
 		private String mMessage;
