@@ -665,6 +665,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		RapidFuture future = new RapidFuture(mExecutor);
 		future.onSuccess(() -> mAuth.deauthSuccess());
 		future.onError(error -> mAuth.deauthError());
-		sendMessage(createMessageFuture(m, future));
+
+		sendMessage(future, () -> m);
 	}
 }
