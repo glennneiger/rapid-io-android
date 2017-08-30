@@ -621,6 +621,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				break;
 			}
 		}
+
+		disconnectWebSocketConnectionIfNeeded();
 	}
 
 

@@ -3,6 +3,9 @@ package io.rapid;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.rapid.executor.RapidExecutor;
 
 import static io.rapid.ConnectionState.DISCONNECTED;
@@ -17,7 +20,7 @@ class AuthHelper {
 	@Nullable private String mAuthToken;
 	private boolean mAuthenticated = false;
 	private boolean mPendingAuth = false;
-	@Nullable private RapidFuture mAuthFuture;
+	private List<RapidFuture> mAuthFutureList = new ArrayList<>();
 	private boolean mPendingDeauth = false;
 
 
@@ -58,23 +61,24 @@ class AuthHelper {
 
 	@Nullable
 	RapidFuture authorize(@Nullable String token) {
-		mAuthFuture = new RapidFuture(mOriginalThreadHandler);
+		RapidFuture authFuture = new RapidFuture(mOriginalThreadHandler);
 		mLogger.logI("Authorizing with token '%s'", token);
 		if(token == null) {
 			RapidError error = new RapidError(INVALID_AUTH_TOKEN);
 			mLogger.logE(error);
-			mAuthFuture.invokeError(error);
+			authFuture.invokeError(error);
+			return authFuture;
 		} else if(!token.equals(mAuthToken) || (!mAuthenticated && !mPendingAuth)) {
 			mAuthToken = token;
 			mPendingAuth = true;
 			mCallback.sendAuthMessage();
 		} else if(mAuthenticated) {
 			mLogger.logI("Already authorized with the same token");
-			RapidFuture future = new RapidFuture(mOriginalThreadHandler);
-			future.invokeSuccess();
-			return future;
+			authFuture.invokeSuccess();
+			return authFuture;
 		}
-		return mAuthFuture;
+		mAuthFutureList.add(authFuture);
+		return authFuture;
 	}
 
 
@@ -108,15 +112,19 @@ class AuthHelper {
 		mLogger.logI("Authorization successful");
 		mAuthenticated = true;
 		mPendingAuth = false;
-		if(mAuthFuture != null) mAuthFuture.invokeSuccess();
-		mAuthFuture = null;
+		for(RapidFuture future : mAuthFutureList) {
+			future.invokeSuccess();
+		}
+		mAuthFutureList.clear();
 	}
 
 
 	void authError(RapidError err) {
 		mPendingAuth = false;
-		if(mAuthFuture != null) mAuthFuture.invokeError(err);
-		mAuthFuture = null;
+		for(RapidFuture future : mAuthFutureList) {
+			future.invokeError(err);
+		}
+		mAuthFutureList.clear();
 	}
 
 

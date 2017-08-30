@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			return false;
 		});
 
-		auth();
+//		auth();
 
 		Rapid.getInstance().addConnectionStateListener(state -> {
 			mViewModel.connectionState.set(state);
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		});
 
 		mTodos = Rapid.getInstance().collection("todos_01", Todo.class);
-		subscribe();
+//		subscribe();
 
 		mBinding.searchField.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 			case R.id.menu_toggle_subscription:
-				if(mSubscription.isSubscribed()) unsubscribe();
+				if(mSubscription != null && mSubscription.isSubscribed()) unsubscribe();
 				else subscribe();
 				return true;
 			case R.id.menu_toggle_authentication:
@@ -184,6 +184,10 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 		Rapid.getInstance().authorize(Config.MASTER_AUTH_TOKEN)
 				.onSuccess(() -> log("Auth success"))
 				.onError(error -> log("Auth fail: " + error.getMessage()));
+
+		Rapid.getInstance().authorize(Config.MASTER_AUTH_TOKEN)
+				.onSuccess(() -> log("Auth success"))
+				.onError(error -> log("Auth fail: " + error.getMessage()));
 	}
 
 
@@ -231,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements TodoItemViewModel
 			mToggleSubscriptionMenu.setTitle(R.string.subscribe);
 			mToggleSubscriptionMenu.setIcon(R.drawable.ic_cloud);
 		}
-		mSubscription.unsubscribe();
+		if(mSubscription != null) mSubscription.unsubscribe();
 	}
 
 
