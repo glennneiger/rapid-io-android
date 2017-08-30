@@ -1,6 +1,8 @@
 package io.rapid.utility;
 
 
+import android.support.annotation.NonNull;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -9,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 public class Sha1Utility {
 
 
-	public static String sha1(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static String sha1(@NonNull String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		MessageDigest md = MessageDigest.getInstance("SHA-1");
 		byte[] textBytes = text.getBytes("iso-8859-1");
 		md.update(textBytes, 0, textBytes.length);
@@ -18,7 +20,7 @@ public class Sha1Utility {
 	}
 
 
-	private static String convertToHex(byte[] data) {
+	private static String convertToHex(@NonNull byte[] data) {
 		StringBuilder buf = new StringBuilder();
 		for(byte b : data) {
 			int halfbyte = (b >>> 4) & 0x0F;

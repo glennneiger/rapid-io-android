@@ -1,15 +1,17 @@
 package io.rapid;
 
-enum CloseReason
-{
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+
+enum CloseReason {
 	UNKNOWN, INTERNET_CONNECTION_LOST, NO_INTERNET_CONNECTION, CLOSED_MANUALLY, CLOSED_FROM_SERVER, HANDSHAKE_ERROR;
 
 
 	// for lib connection
-	static CloseReason get(int code)
-	{
-		switch(code)
-		{
+	@NonNull
+	static CloseReason get(int code) {
+		switch(code) {
 			case 1006:
 				return INTERNET_CONNECTION_LOST;
 			case -1:
@@ -23,7 +25,8 @@ enum CloseReason
 
 
 	// for Async connection
-	static CloseReason get(Exception ex) {
+	@NonNull
+	static CloseReason get(@Nullable Exception ex) {
 		if(ex == null) {
 			return CLOSED_FROM_SERVER;
 		} else if(ex.getMessage() == null) {

@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
+
 public class RapidError extends Error {
 
 	private ErrorType mType;
@@ -14,7 +17,8 @@ public class RapidError extends Error {
 		CONNECTION_TERMINATED("connection-terminated", "Connection terminated"),
 		INVALID_AUTH_TOKEN("invalid-auth-token", "Invalid Auth Token"),
 		UNKNOWN_ERROR("unknown", "Unknown Error"),
-		ETAG_CONFLICT("etag-conflict", "ETAG Confilct");
+		ETAG_CONFLICT("etag-conflict", "ETAG Conflict"),
+		ON_DISCONNECT_ACTION_CANCELLED("on-disconnect-action-cancelled", "OnDisconnect action was cancelled");
 
 		private String mName;
 		private String mMessage;
@@ -26,7 +30,8 @@ public class RapidError extends Error {
 		}
 
 
-		public static ErrorType fromServerError(Message.Err serverError, MessageFuture messageFuture) {
+		@NonNull
+		public static ErrorType fromServerError(@NonNull Message.Err serverError, @NonNull MessageFuture messageFuture) {
 			ErrorType result = UNKNOWN_ERROR; // default error type
 			Message.Err.Type errorType = serverError.getType();
 			for(ErrorType type : values()) {
@@ -40,9 +45,8 @@ public class RapidError extends Error {
 			if(serverError.getErrorMessage() != null)
 				result.setMessage(serverError.getErrorMessage());
 
-			if(result == PERMISSION_DENIED && messageFuture.getMessage() instanceof Message.Sub)
-			{
-				Message.Sub msg = (Message.Sub)messageFuture.getMessage();
+			if(result == PERMISSION_DENIED && messageFuture.getMessage() instanceof Message.Sub) {
+				Message.Sub msg = (Message.Sub) messageFuture.getMessage();
 				result.setMessage("Permission denied, collection: " + msg.getCollectionId());
 			}
 
@@ -66,7 +70,7 @@ public class RapidError extends Error {
 	}
 
 
-	public RapidError(ErrorType type) {
+	public RapidError(@NonNull ErrorType type) {
 		super("Rapid Error: " + type.getMessage());
 		mType = type;
 	}

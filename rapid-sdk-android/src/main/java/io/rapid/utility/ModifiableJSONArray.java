@@ -1,5 +1,7 @@
 package io.rapid.utility;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +19,8 @@ public class ModifiableJSONArray extends JSONArray {
 	}
 
 
-	public static ModifiableJSONArray removeItem(JSONArray jsonArray, int index) throws JSONException {
+	@NonNull
+	public static ModifiableJSONArray removeItem(@NonNull JSONArray jsonArray, int index) throws JSONException {
 
 		ModifiableJSONArray output = new ModifiableJSONArray();
 		int len = jsonArray.length();

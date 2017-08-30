@@ -1,12 +1,13 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
 import android.util.Base64;
 
 
 class AppMetadata {
 
-	private final String mUrl;
+	@NonNull private final String mUrl;
 
 
 	AppMetadata(String apiKey) {
@@ -14,6 +15,7 @@ class AppMetadata {
 	}
 
 
+	@NonNull
 	String getUrl() {
 		return mUrl;
 	}

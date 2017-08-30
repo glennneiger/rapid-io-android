@@ -1,6 +1,7 @@
 package io.rapid;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
@@ -19,9 +20,8 @@ class WebSocketConnectionAsync extends WebSocketConnection {
 
 
 	@Override
-	void connectToServer(Context context) {
-		if(NetworkUtility.isOnline(context))
-		{
+	void connectToServer(@NonNull Context context) {
+		if(NetworkUtility.isOnline(context)) {
 			mExecutor.doInBackground(() -> AsyncHttpClient.getDefaultInstance().websocket(mServerURI, "websocket", (ex, webSocket) ->
 			{
 				if(ex != null) {
@@ -59,9 +59,7 @@ class WebSocketConnectionAsync extends WebSocketConnection {
 
 				if(mListener != null) mListener.onOpen();
 			}));
-		}
-		else
-		{
+		} else {
 			if(mListener != null) mListener.onClose(CloseReason.NO_INTERNET_CONNECTION);
 		}
 	}

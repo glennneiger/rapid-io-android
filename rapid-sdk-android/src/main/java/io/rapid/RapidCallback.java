@@ -19,14 +19,19 @@ public class RapidCallback {
 		void onValueChanged(RapidDocument<T> document);
 	}
 
+
 	public interface Message<T> {
 		void onMessageReceived(RapidMessage<T> message);
 	}
 
 
-
 	public interface CollectionMapped<T> {
 		void onValueChanged(List<T> items);
+	}
+
+
+	public interface DocumentMapped<T> {
+		void onValueChanged(T item);
 	}
 
 

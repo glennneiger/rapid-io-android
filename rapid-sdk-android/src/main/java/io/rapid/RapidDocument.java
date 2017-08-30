@@ -2,6 +2,7 @@ package io.rapid;
 
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,22 +39,21 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	RapidDocument(String id, T value, RapidMutateOptions options) {
+	RapidDocument(String id, T value, @Nullable RapidMutateOptions options) {
 		this.id = id;
 		body = value;
-		if (options != null) {
+		if(options != null) {
 			this.etag = options.getExpectedEtag();
 			mFillWithTimestampProperties = options.getFillWithTimestampProperties();
 		}
 	}
 
 
-	static <T> RapidDocument<T> fromJsonObject(JSONObject jsonObject, JsonConverterProvider jsonConverter, Class<T> documentType)
-			throws	IOException {
+	static <T> RapidDocument<T> fromJsonObject(@NonNull JSONObject jsonObject, @NonNull JsonConverterProvider jsonConverter, Class<T> documentType)
+			throws IOException {
 		JSONArray sortingJSONArray = jsonObject.optJSONArray(KEY_SKEY);
 		List<String> sortingList = new ArrayList<>();
-		if(sortingJSONArray != null)
-		{
+		if(sortingJSONArray != null) {
 			for(int i = 0; i < sortingJSONArray.length(); i++) {
 				sortingList.add(sortingJSONArray.optString(i));
 			}
@@ -66,19 +66,17 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	@Override
 	public int compareTo(@NonNull RapidDocument<T> doc) {
 		int depth = 0;
-		while(sorting.get(depth).compareTo(doc.getSorting().get(depth)) == 0)
-		{
+		while(sorting.get(depth).compareTo(doc.getSorting().get(depth)) == 0) {
 			depth++;
 
-			if(depth == sorting.size())
-			{
+			if(depth == sorting.size()) {
 				depth--;
 				break;
 			}
 		}
 
 		Sorting sortingType;
-		if (order == null){
+		if(order == null) {
 			sortingType = Sorting.ASC;
 		} else if(depth == sorting.size() - 1) // last sorting by created_timestamp
 			// TODO: temp fix until DocumentDB supports multiple order
@@ -96,62 +94,20 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	String toJson(JsonConverterProvider jsonConverter)
-	{
-		try
-		{
-			JSONObject jsonBody = new JSONObject();
-			jsonBody.put(KEY_ID, id);
-			if(etag != null)
-				jsonBody.put(KEY_ETAG, etag.getSerialized());
-			if (body != null)
-				jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.get().toJson(body)));
-
-
-			// handle server values
-			// timestamp
-			if(mFillWithTimestampProperties != null) {
-				if(jsonBody.optJSONObject(KEY_BODY) != null) {
-					for(String fillWithTimestampProperty : mFillWithTimestampProperties) {
-						JSONObject replacePosition = jsonBody.getJSONObject(KEY_BODY);
-						String[] parts = fillWithTimestampProperty.contains(".") ? fillWithTimestampProperty.split("\\.") : new String[]{fillWithTimestampProperty};
-						for(int i = 0; i < parts.length; i++) {
-							String part = parts[i];
-							if (part.isEmpty()) continue;
-							if(i != parts.length - 1) {
-								if(replacePosition.optJSONObject(part) == null)
-									replacePosition.put(part, new JSONObject());
-								replacePosition = replacePosition.optJSONObject(part);
-							} else {
-								replacePosition.put(part, ServerValue.TIMESTAMP);
-							}
-						}
-					}
-				}
-			}
-
-			return jsonBody.toString();
-		}
-		catch(IOException | JSONException e)
-		{
-			throw new IllegalArgumentException(e);
-		}
+	@NonNull
+	@Override
+	public String toString() {
+		return "RapidDocument(" + getId() + ": " + getBody().toString() + ")";
 	}
 
 
-	public boolean hasSameContentAs(RapidDocument otherDocument) {
+	public boolean hasSameContentAs(@NonNull RapidDocument otherDocument) {
 		if(!this.id.equals(otherDocument.id))
 			return false;
 		else if(this.etag == null || otherDocument.etag == null)
 			return false;
 		else
 			return this.etag.equals(otherDocument.etag);
-	}
-
-
-	@Override
-	public String toString() {
-		return "RapidDocument(" + getId() + ": " + getBody().toString() + ")";
 	}
 
 
@@ -165,31 +121,66 @@ public class RapidDocument<T> implements Comparable<RapidDocument<T>> {
 	}
 
 
-	String getCreatedTimestamp()
-	{
-		return createdTimestamp;
-	}
-
-
 	public T getBody() {
 		return body;
 	}
 
 
-	List<String> getSorting()
-	{
+	String toJson(@NonNull JsonConverterProvider jsonConverter) {
+		try {
+			JSONObject jsonBody = new JSONObject();
+			jsonBody.put(KEY_ID, id);
+			if(etag != null)
+				jsonBody.put(KEY_ETAG, etag.getSerialized());
+			if(body != null)
+				jsonBody.put(KEY_BODY, new JSONObject(jsonConverter.get().toJson(body)));
+
+
+			// handle server values
+			// timestamp
+			if(mFillWithTimestampProperties != null) {
+				if(jsonBody.optJSONObject(KEY_BODY) != null) {
+					for(String fillWithTimestampProperty : mFillWithTimestampProperties) {
+						JSONObject replacePosition = jsonBody.getJSONObject(KEY_BODY);
+						String[] parts = fillWithTimestampProperty.contains(".") ? fillWithTimestampProperty.split("\\.") : new String[]{fillWithTimestampProperty};
+						for(int i = 0; i < parts.length; i++) {
+							String part = parts[i];
+							if(part.isEmpty()) continue;
+							if(i != parts.length - 1) {
+								if(replacePosition.optJSONObject(part) == null)
+									replacePosition.put(part, new JSONObject());
+								replacePosition = replacePosition.optJSONObject(part);
+							} else {
+								replacePosition.put(part, ServerValue.TIMESTAMP);
+							}
+						}
+					}
+				}
+			}
+
+			return jsonBody.toString();
+		} catch(@NonNull IOException | JSONException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+
+	String getCreatedTimestamp() {
+		return createdTimestamp;
+	}
+
+
+	List<String> getSorting() {
 		return sorting;
 	}
 
 
-	EntityOrder getOrder()
-	{
+	EntityOrder getOrder() {
 		return order;
 	}
 
 
-	void setOrder(EntityOrder order)
-	{
+	void setOrder(EntityOrder order) {
 		this.order = order;
 	}
 }

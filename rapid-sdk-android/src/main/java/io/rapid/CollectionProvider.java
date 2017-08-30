@@ -1,6 +1,9 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,9 +16,9 @@ class CollectionProvider {
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mDebugLogger;
 	private RapidConnection mConnection;
-	private Map<String, CollectionConnection> mCollectionConnections = new HashMap<>();
-	private Map<String, ChannelConnection> mChannelConnections = new HashMap<>();
-	private Map<String, ChannelConnection> mChannelPrefixConnections = new HashMap<>();
+	@NonNull private Map<String, CollectionConnection> mCollectionConnections = new HashMap<>();
+	@NonNull private Map<String, ChannelConnection> mChannelConnections = new HashMap<>();
+	@NonNull private Map<String, ChannelConnection> mChannelPrefixConnections = new HashMap<>();
 
 
 	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, RapidExecutor executor, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
@@ -27,7 +30,8 @@ class CollectionProvider {
 	}
 
 
-	public ChannelConnection findChannelBySubscriptionId(String subscriptionId) {
+	@Nullable
+	ChannelConnection findChannelBySubscriptionId(String subscriptionId) {
 		for(String channelName : mChannelConnections.keySet()) {
 			if(mChannelConnections.get(channelName).hasSubscription(subscriptionId))
 				return mChannelConnections.get(channelName);
@@ -36,10 +40,11 @@ class CollectionProvider {
 			if(mChannelPrefixConnections.get(channelName).hasSubscription(subscriptionId))
 				return mChannelPrefixConnections.get(channelName);
 		}
-		throw new IllegalArgumentException("BaseCollectionSubscription not found");
+		return null;
 	}
 
 
+	@NonNull
 	<T> RapidChannelPrefixReference<T> provideChannel(String channelName, Class<T> messageClass, boolean nameIsPrefix) {
 		if(nameIsPrefix) {
 			if(!mChannelPrefixConnections.containsKey(channelName))
@@ -60,6 +65,7 @@ class CollectionProvider {
 	}
 
 
+	@NonNull
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollectionConnections.containsKey(collectionName))
 			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger, mExecutor));
@@ -67,6 +73,7 @@ class CollectionProvider {
 	}
 
 
+	@NonNull
 	RapidCollectionReference<Map<String, Object>> provideCollection(String collectionName) {
 		if(!mCollectionConnections.containsKey(collectionName))
 			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger, mExecutor));
@@ -76,6 +83,16 @@ class CollectionProvider {
 
 	CollectionConnection findCollectionByName(String collectionName) {
 		return mCollectionConnections.get(collectionName);
+	}
+
+
+	@Nullable
+	CollectionConnection findCollectionBySubscriptionId(String subscriptionId) {
+		for(String channelName : mCollectionConnections.keySet()) {
+			if(mCollectionConnections.get(channelName).hasSubscription(subscriptionId))
+				return mCollectionConnections.get(channelName);
+		}
+		return null;
 	}
 
 

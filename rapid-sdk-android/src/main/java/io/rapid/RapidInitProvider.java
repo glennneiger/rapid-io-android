@@ -21,7 +21,7 @@ public class RapidInitProvider extends ContentProvider {
 
 
 	@Override
-	public void attachInfo(Context context, ProviderInfo providerInfo) {
+	public void attachInfo(Context context, @Nullable ProviderInfo providerInfo) {
 		if(providerInfo == null) {
 			throw new NullPointerException("RapidInitProvider ProviderInfo cannot be null.");
 		}

@@ -7,15 +7,13 @@ import org.json.JSONException;
 import io.rapid.executor.RapidExecutor;
 
 
-abstract class WebSocketConnection
-{
+abstract class WebSocketConnection {
+	protected RapidExecutor mExecutor;
 	String mServerURI;
 	WebSocketConnectionListener mListener;
-	protected RapidExecutor mExecutor;
 
 
-	interface WebSocketConnectionListener
-	{
+	interface WebSocketConnectionListener {
 		void onOpen();
 		void onMessage(Message message);
 		void onClose(CloseReason reason);
@@ -23,8 +21,7 @@ abstract class WebSocketConnection
 	}
 
 
-	WebSocketConnection(String serverURI, WebSocketConnectionListener listener, RapidExecutor executor)
-	{
+	WebSocketConnection(String serverURI, WebSocketConnectionListener listener, RapidExecutor executor) {
 		mServerURI = serverURI;
 		mListener = listener;
 		mExecutor = executor;
@@ -35,16 +32,11 @@ abstract class WebSocketConnection
 	abstract void sendMessage(String message);
 
 
-	void disconnectFromServer(boolean sendDisconnectMessage)
-	{
-		if(sendDisconnectMessage)
-		{
-			try
-			{
+	void disconnectFromServer(boolean sendDisconnectMessage) {
+		if(sendDisconnectMessage) {
+			try {
 				sendMessage(new Message.Dis().toJson().toString());
-			}
-			catch(JSONException e)
-			{
+			} catch(JSONException e) {
 				e.printStackTrace();
 			}
 		}

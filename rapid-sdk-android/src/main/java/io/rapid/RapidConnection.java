@@ -10,7 +10,7 @@ abstract class RapidConnection {
 		void onValue(String subscriptionId, String collectionId, String documentsJson);
 		void onFetchResult(String fetchId, String collectionId, String documentsJson);
 		void onUpdate(String subscriptionId, String collectionId, String documentJson);
-		void onCollectionError(String subscriptionId, String collectionId, RapidError error);
+		void onCollectionError(String subscriptionId, RapidError error);
 		void onChannelError(String subscriptionId, String channelId, RapidError error);
 		void onRemove(String subscriptionId, String collectionId, String documentJson);
 		void onTimedOut();
@@ -75,7 +75,7 @@ abstract class RapidConnection {
 	public abstract void setConnectionTimeout(long connectionTimeoutMs);
 
 
-	public abstract RapidFuture getSetverTimeOffset(RapidCallback.TimeOffset callback);
+	public abstract RapidFuture getServerTimeOffset(RapidCallback.TimeOffset callback);
 
 
 	public abstract RapidActionFuture onDisconnectDelete(String collectionName, FutureResolver<String> documentJson);

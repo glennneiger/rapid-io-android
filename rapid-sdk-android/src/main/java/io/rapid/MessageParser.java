@@ -46,6 +46,8 @@ class MessageParser {
 				return new Message.Ca(json);
 			case CA_CH:
 				return new Message.CaCh(json);
+			case CA_DA:
+				return new Message.CaDa(json);
 			case PUB:
 				return new Message.Pub(json);
 			case DEL:

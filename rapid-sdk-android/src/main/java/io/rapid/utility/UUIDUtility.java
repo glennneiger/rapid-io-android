@@ -1,18 +1,20 @@
 package io.rapid.utility;
 
 
+import android.support.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
 
 public class UUIDUtility {
 
-	public static String base64(UUID uuid) {
+	public static String base64(@NonNull UUID uuid) {
 		return encode(getBytes(uuid));
 	}
 
 
-	private static String encode(byte[] data) {
+	private static String encode(@NonNull byte[] data) {
 		char[] tbl = {
 				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
 				'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
@@ -50,7 +52,7 @@ public class UUIDUtility {
 	}
 
 
-	private static byte[] getBytes(UUID uuid) {
+	private static byte[] getBytes(@NonNull UUID uuid) {
 		ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
 		bb.putLong(uuid.getMostSignificantBits());
 		bb.putLong(uuid.getLeastSignificantBits());

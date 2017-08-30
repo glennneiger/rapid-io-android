@@ -9,6 +9,7 @@ import io.rapid.RapidCollectionMapReference;
 import io.rapid.RapidCollectionReference;
 import io.rapid.RapidCollectionSubscription;
 import io.rapid.RapidDocument;
+import io.rapid.RapidDocumentMapReference;
 import io.rapid.RapidDocumentReference;
 import io.rapid.RapidDocumentSubscription;
 
@@ -16,6 +17,26 @@ import io.rapid.RapidDocumentSubscription;
 public class RapidLiveData {
 	public static <T> LiveData<RapidDocument<T>> from(final RapidDocumentReference<T> documentReference) {
 		LiveData<RapidDocument<T>> liveData = new LiveData<RapidDocument<T>>() {
+			private RapidDocumentSubscription<T> mSubscription;
+
+
+			@Override
+			protected void onActive() {
+				mSubscription = documentReference.subscribe(document -> setValue(document));
+			}
+
+
+			@Override
+			protected void onInactive() {
+				mSubscription.unsubscribe();
+			}
+		};
+		return liveData;
+	}
+
+
+	public static <T, S> LiveData<S> from(final RapidDocumentMapReference<T, S> documentReference) {
+		LiveData<S> liveData = new LiveData<S>() {
 			private RapidDocumentSubscription<T> mSubscription;
 
 

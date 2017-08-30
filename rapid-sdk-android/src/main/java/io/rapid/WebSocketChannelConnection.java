@@ -1,19 +1,21 @@
 package io.rapid;
 
 
+import android.support.annotation.NonNull;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 
 class WebSocketChannelConnection<T> implements ChannelConnection<T> {
+	private final Class<T> mMessageClass;
+	private final RapidLogger mLogger;
 	private RapidConnection mConnection;
 	private JsonConverterProvider mJsonConverter;
 	private String mChannelName;
-	private final Class<T> mMessageClass;
-	private final RapidLogger mLogger;
 	private boolean mNameIsPrefix;
-	private Map<String, RapidChannelSubscription<T>> mSubscriptions = new HashMap<>();
+	@NonNull private Map<String, RapidChannelSubscription<T>> mSubscriptions = new HashMap<>();
 
 
 	WebSocketChannelConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String channelName, Class<T> messageClass, RapidLogger debugLogger, boolean nameIsPrefix) {
@@ -27,19 +29,11 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 
 
 	@Override
-	public void subscribe(RapidChannelSubscription<T> subscription) {
+	public void subscribe(@NonNull RapidChannelSubscription<T> subscription) {
 		subscription.setOnUnsubscribeCallback(() -> onSubscriptionUnsubscribed(subscription));
 		subscription.setSubscribed(true);
 		mSubscriptions.put(subscription.getSubscriptionId(), subscription);
 		mConnection.subscribeChannel(subscription.getSubscriptionId(), subscription, mNameIsPrefix);
-	}
-
-
-	private void onSubscriptionUnsubscribed(RapidChannelSubscription subscription) {
-		mLogger.logI("Unsubscribing from channel '%s'", mChannelName);
-
-		mSubscriptions.remove(subscription.getSubscriptionId());
-		mConnection.onUnsubscribe(subscription);
 	}
 
 
@@ -60,7 +54,7 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 
 
 	@Override
-	public void onMessage(String subscriptionId, String channelName, String messageBody) {
+	public void onMessage(String subscriptionId, String channelName, @NonNull String messageBody) {
 
 		mLogger.logI("New message in channel '%s'", mChannelName);
 		mLogger.logJson(messageBody);
@@ -85,6 +79,14 @@ class WebSocketChannelConnection<T> implements ChannelConnection<T> {
 	@Override
 	public boolean hasSubscription(String subscriptionId) {
 		return mSubscriptions.containsKey(subscriptionId);
+	}
+
+
+	private void onSubscriptionUnsubscribed(@NonNull RapidChannelSubscription subscription) {
+		mLogger.logI("Unsubscribing from channel '%s'", mChannelName);
+
+		mSubscriptions.remove(subscription.getSubscriptionId());
+		mConnection.onUnsubscribe(subscription);
 	}
 
 

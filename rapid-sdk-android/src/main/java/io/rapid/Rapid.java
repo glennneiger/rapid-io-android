@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -20,13 +21,13 @@ import io.rapid.utility.Sha1Utility;
 
 
 public class Rapid {
-	private static Map<String, Rapid> sInstances = new HashMap<>();
+	@NonNull private static Map<String, Rapid> sInstances = new HashMap<>();
 	private static Context sApplicationContext;
 	private final String mApiKey;
 	private JsonConverterProvider mJsonConverter;
 	private RapidConnection mRapidConnection;
 	private CollectionProvider mCollectionProvider;
-	private RapidLogger mLogger = new RapidLogger();
+	@NonNull private RapidLogger mLogger = new RapidLogger();
 
 
 	private Rapid(Context context, String apiKey) {
@@ -61,14 +62,18 @@ public class Rapid {
 
 
 			@Override
-			public void onCollectionError(String subscriptionId, String collectionId, RapidError error) {
-				mCollectionProvider.findCollectionByName(collectionId).onError(subscriptionId, error);
+			public void onCollectionError(String subscriptionId, RapidError error) {
+				CollectionConnection collectionConnection = mCollectionProvider.findCollectionBySubscriptionId(subscriptionId);
+				if(collectionConnection != null)
+					collectionConnection.onError(subscriptionId, error);
 			}
 
 
 			@Override
 			public void onChannelError(String subscriptionId, String channelId, RapidError error) {
-				mCollectionProvider.findChannelBySubscriptionId(subscriptionId).onError(subscriptionId, error);
+				ChannelConnection channelConnection = mCollectionProvider.findChannelBySubscriptionId(subscriptionId);
+				if(channelConnection != null)
+					channelConnection.onError(subscriptionId, error);
 			}
 
 
@@ -92,7 +97,9 @@ public class Rapid {
 
 			@Override
 			public void onChannelMessage(String subscriptionId, String channelName, String body) {
-				mCollectionProvider.findChannelBySubscriptionId(subscriptionId).onMessage(subscriptionId, channelName, body);
+				ChannelConnection channelConnection = mCollectionProvider.findChannelBySubscriptionId(subscriptionId);
+				if(channelConnection != null)
+					channelConnection.onMessage(subscriptionId, channelName, body);
 			}
 		}, executor, mLogger);
 
@@ -172,7 +179,7 @@ public class Rapid {
 	}
 
 
-	static void injectContext(Context context) {
+	static void injectContext(@NonNull Context context) {
 		sApplicationContext = context.getApplicationContext();
 
 		// try to auto-init from AndroidManifest metadata
@@ -226,6 +233,7 @@ public class Rapid {
 	}
 
 
+	@NonNull
 	public <T> RapidChannelReference<T> channel(String channelName, Class<T> messageClass) {
 		return ((RapidChannelReference) mCollectionProvider.provideChannel(channelName, messageClass, false));
 	}
@@ -272,7 +280,7 @@ public class Rapid {
 	 * @param callback called with time offset in milliseconds
 	 */
 	public RapidFuture getServerTimeOffset(RapidCallback.TimeOffset callback) {
-		return mRapidConnection.getSetverTimeOffset(callback);
+		return mRapidConnection.getServerTimeOffset(callback);
 	}
 
 

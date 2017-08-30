@@ -1,5 +1,7 @@
 package io.rapid;
 
+import android.support.annotation.Nullable;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -281,6 +283,7 @@ public class SortUtilityTest extends BaseTest {
 	}
 
 
+	@Nullable
 	private RapidDocument createDoc(EntityOrder order, String... sortingKey) {
 		RapidDocument doc = new RapidDocument(UUID.randomUUID().toString(), new ArrayList<>(Arrays.asList(sortingKey)), "timestamp", Etag.NO_ETAG, null);
 		doc.setOrder(order);
