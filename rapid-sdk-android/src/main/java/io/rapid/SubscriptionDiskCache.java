@@ -13,10 +13,14 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 import io.rapid.utility.Sha1Utility;
+import io.rapid.utility.StreamUtility;
+import io.rapid.utility.XorUtility;
 
 
 class SubscriptionDiskCache {
@@ -39,7 +43,9 @@ class SubscriptionDiskCache {
 		String fingerprint = subscription.getFingerprint();
 		DiskLruCache.Snapshot record = mCache.get(fingerprint);
 		if(record != null) {
-			String jsonValue = record.getString(DEFAULT_INDEX);
+			InputStream inputstream = record.getInputStream(DEFAULT_INDEX);
+			byte[] rec = StreamUtility.toByteArray(inputstream);
+			String jsonValue = XorUtility.xor(rec, subscription.getAuthToken());
 			Logcat.d("Reading from subscription cache. key=%s; value=%s", fingerprint, jsonValue);
 			JSONArray documentIdArray = new JSONArray(jsonValue);
 			JSONArray documentArray = new JSONArray();
@@ -84,7 +90,7 @@ class SubscriptionDiskCache {
 //	}
 
 
-	public synchronized void put(@NonNull BaseCollectionSubscription subscription, String jsonValue) throws IOException, JSONException, NoSuchAlgorithmException {
+	public synchronized void put(@NonNull BaseCollectionSubscription subscription, String jsonValue) throws IOException, JSONException, 	NoSuchAlgorithmException {
 		if(!mEnabled)
 			return;
 
@@ -94,13 +100,16 @@ class SubscriptionDiskCache {
 			JSONObject document = documentArray.getJSONObject(i);
 			String documentId = Sha1Utility.sha1(document.optString(RapidDocument.KEY_ID));
 			documentIdArray.put(documentId);
-			putDocument(subscription, documentId, document.toString());
+			putDocument(subscription, documentId, document.toString(), subscription.getAuthToken());
 		}
 
 		String documentIdArrayJson = documentIdArray.toString();
 		String fingerprint = subscription.getFingerprint();
 		DiskLruCache.Editor editor = mCache.edit(fingerprint);
-		editor.set(DEFAULT_INDEX, documentIdArrayJson);
+		OutputStream out = editor.newOutputStream(DEFAULT_INDEX);
+		out.write(XorUtility.xor(documentIdArrayJson, subscription.getAuthToken()));
+		out.flush();
+		out.close();
 		editor.commit();
 		Logcat.d("Saving to disk subscription cache. key=%s; value=%s", fingerprint, documentIdArrayJson);
 	}
@@ -133,7 +142,9 @@ class SubscriptionDiskCache {
 	private synchronized String getDocument(@NonNull BaseCollectionSubscription subscription, String documentId) throws IOException, JSONException, NoSuchAlgorithmException {
 		DiskLruCache.Snapshot record = mCache.get(getDocumentKey(subscription, documentId));
 		if(record != null) {
-			String jsonValue = record.getString(DEFAULT_INDEX);
+			InputStream inputstream = record.getInputStream(DEFAULT_INDEX);
+			byte[] rec = StreamUtility.toByteArray(inputstream);
+			String jsonValue = XorUtility.xor(rec, subscription.getAuthToken());
 			Logcat.d("Reading from document cache. key=%s; value=%s", getDocumentKey(subscription, documentId), jsonValue);
 			return jsonValue;
 		}
@@ -142,9 +153,12 @@ class SubscriptionDiskCache {
 	}
 
 
-	private synchronized void putDocument(@NonNull BaseCollectionSubscription subscription, String documentId, String documentJson) throws IOException, JSONException, NoSuchAlgorithmException {
+	private synchronized void putDocument(@NonNull BaseCollectionSubscription subscription, String documentId, String documentJson, String authToken) throws IOException, JSONException, NoSuchAlgorithmException {
 		DiskLruCache.Editor editor = mCache.edit(getDocumentKey(subscription, documentId));
-		editor.set(DEFAULT_INDEX, documentJson);
+		OutputStream out = editor.newOutputStream(DEFAULT_INDEX);
+		out.write(XorUtility.xor(documentJson, subscription.getAuthToken()));
+		out.flush();
+		out.close();
 		editor.commit();
 		Logcat.d("Saving to disk document cache. key=%s; value=%s", getDocumentKey(subscription, documentId), documentJson);
 	}

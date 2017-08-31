@@ -25,6 +25,7 @@ public class Rapid {
 	private static Context sApplicationContext;
 	private final String mApiKey;
 	private JsonConverterProvider mJsonConverter;
+	private AuthHelper mAuthHelper;
 	private RapidConnection mRapidConnection;
 	private CollectionProvider mCollectionProvider;
 	@NonNull private RapidLogger mLogger = new RapidLogger();
@@ -37,6 +38,7 @@ public class Rapid {
 
 		mApiKey = apiKey;
 		mJsonConverter = new JsonConverterProvider(new RapidGsonConverter());
+		mAuthHelper = new AuthHelper();
 		RapidExecutor executor = new AndroidRapidExecutor(new Handler());
 
 		AppMetadata appMetadata = new AppMetadata(apiKey);
@@ -101,7 +103,7 @@ public class Rapid {
 				if(channelConnection != null)
 					channelConnection.onMessage(subscriptionId, channelName, body);
 			}
-		}, executor, mLogger);
+		}, executor, mLogger, mAuthHelper);
 
 		SubscriptionDiskCache subscriptionDiskCache;
 		try {
@@ -114,7 +116,7 @@ public class Rapid {
 			throw new IllegalStateException("BaseCollectionSubscription cache could not be initialized");
 		}
 
-		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, executor, subscriptionDiskCache, mLogger);
+		mCollectionProvider = new CollectionProvider(mRapidConnection, mJsonConverter, mAuthHelper, executor, subscriptionDiskCache, mLogger);
 	}
 
 

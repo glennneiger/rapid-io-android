@@ -66,14 +66,17 @@ public class RapidCollectionReference<T> {
 	private final JsonConverterProvider mJsonConverter;
 	private RapidCollectionSubscription<T> mSubscription;
 	private CollectionConnection<T> mConnection;
+	private AuthHelper mAuthHelper;
 
 
-	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, RapidExecutor executor, JsonConverterProvider jsonConverter) {
+	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, RapidExecutor executor, JsonConverterProvider
+			jsonConverter, AuthHelper authHelper) {
 		mCollectionName = collectionName;
 		mConnection = collectionConnection;
 		mExecutor = executor;
 		mJsonConverter = jsonConverter;
 		mSubscription = new RapidCollectionSubscription<>(mCollectionName, mExecutor);
+		mAuthHelper = authHelper;
 	}
 
 
@@ -1024,7 +1027,7 @@ public class RapidCollectionReference<T> {
 	 */
 	@NonNull
 	public RapidDocumentReference<T> newDocument() {
-		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection);
+		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection, mAuthHelper);
 	}
 
 
@@ -1038,7 +1041,7 @@ public class RapidCollectionReference<T> {
 	 */
 	@NonNull
 	public RapidDocumentReference<T> document(String documentId) {
-		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection, documentId);
+		return new RapidDocumentReference<>(mExecutor, mCollectionName, mConnection, documentId, mAuthHelper);
 	}
 
 
@@ -1069,6 +1072,7 @@ public class RapidCollectionReference<T> {
 		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
+		mSubscription.setAuthToken(mAuthHelper.getAuthToken());
 		mConnection.subscribe(mSubscription);
 
 		return mSubscription;
@@ -1098,7 +1102,7 @@ public class RapidCollectionReference<T> {
 	 */
 	@NonNull
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
-		return new RapidCollectionMapReference<>(this, mapFunction);
+		return new RapidCollectionMapReference<>(this, mapFunction, mAuthHelper);
 	}
 
 

@@ -11,6 +11,7 @@ public class RapidCollectionMapReference<T, S> {
 
 	private final MapFunction<T, S> mMapFunction;
 	private final RapidCollectionReference<T> mCollectionReference;
+	private AuthHelper mAuthHelper;
 
 
 	public interface MapFunction<T, S> {
@@ -30,9 +31,10 @@ public class RapidCollectionMapReference<T, S> {
 	}
 
 
-	RapidCollectionMapReference(RapidCollectionReference<T> collectionReference, MapFunction<T, S> mapFunction) {
+	RapidCollectionMapReference(RapidCollectionReference<T> collectionReference, MapFunction<T, S> mapFunction, AuthHelper authHelper) {
 		mCollectionReference = collectionReference;
 		mMapFunction = mapFunction;
+		mAuthHelper = authHelper;
 	}
 
 
@@ -50,6 +52,7 @@ public class RapidCollectionMapReference<T, S> {
 			}
 			callback.onValueChanged(result, listUpdate);
 		});
+		subscription.setAuthToken(mAuthHelper.getAuthToken());
 		mCollectionReference.getConnection().subscribe(subscription);
 
 		return subscription;
@@ -74,7 +77,7 @@ public class RapidCollectionMapReference<T, S> {
 
 
 	@NonNull
-	public <U> RapidCollectionMapReference<T, U> map(@NonNull MapInnerFunction<S, U> mapFunction) {
-		return new RapidCollectionMapReference<>(mCollectionReference, document -> mapFunction.map(mMapFunction.map(document)));
+	public <U> RapidCollectionMapReference<T, U> map(@NonNull MapInnerFunction<S, U> mapFunction, AuthHelper auth) {
+		return new RapidCollectionMapReference<>(mCollectionReference, document -> mapFunction.map(mMapFunction.map(document)), auth);
 	}
 }

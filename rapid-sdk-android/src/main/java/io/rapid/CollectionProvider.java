@@ -13,6 +13,7 @@ import io.rapid.executor.RapidExecutor;
 class CollectionProvider {
 	private final RapidExecutor mExecutor;
 	private final JsonConverterProvider mJsonConverter;
+	private final AuthHelper mAuthHelper;
 	private final SubscriptionDiskCache mSubscriptionDiskCache;
 	private final RapidLogger mDebugLogger;
 	private RapidConnection mConnection;
@@ -21,9 +22,10 @@ class CollectionProvider {
 	@NonNull private Map<String, ChannelConnection> mChannelPrefixConnections = new HashMap<>();
 
 
-	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, RapidExecutor executor, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
+	CollectionProvider(RapidConnection connection, JsonConverterProvider jsonConverter, AuthHelper authHelper, RapidExecutor executor, SubscriptionDiskCache subscriptionDiskCache, RapidLogger debugLogger) {
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
+		mAuthHelper = authHelper;
 		mExecutor = executor;
 		mSubscriptionDiskCache = subscriptionDiskCache;
 		mDebugLogger = debugLogger;
@@ -69,7 +71,7 @@ class CollectionProvider {
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollectionConnections.containsKey(collectionName))
 			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger, mExecutor));
-		return new RapidCollectionReference<T>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter);
+		return new RapidCollectionReference<T>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter, mAuthHelper);
 	}
 
 
@@ -77,7 +79,7 @@ class CollectionProvider {
 	RapidCollectionReference<Map<String, Object>> provideCollection(String collectionName) {
 		if(!mCollectionConnections.containsKey(collectionName))
 			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger, mExecutor));
-		return new RapidCollectionReference<Map<String, Object>>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter);
+		return new RapidCollectionReference<Map<String, Object>>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter, mAuthHelper);
 	}
 
 
