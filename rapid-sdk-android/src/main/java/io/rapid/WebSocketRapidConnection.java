@@ -56,7 +56,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 	private Map<String, RapidActionFuture> mOnDisconnectFutures = new HashMap<>();
 
 
-	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, RapidExecutor executor, RapidLogger logger) {
+	WebSocketRapidConnection(Context context, String url, Callback rapidConnectionCallback, RapidExecutor executor, RapidLogger logger, AuthHelper authHelper) {
 		super(rapidConnectionCallback);
 		mContext = context;
 		mUrl = url;
@@ -78,7 +78,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 				if(mConnectionState == CONNECTED) WebSocketRapidConnection.this.sendDeauthMessage();
 			}
 		};
-		mAuth = new AuthHelper(mExecutor, authCallback, mLogger);
+		mAuth = authHelper;
+		mAuth.setupAuthHelper(mExecutor, authCallback, mLogger);
 	}
 
 

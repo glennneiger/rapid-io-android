@@ -10,6 +10,7 @@ abstract class Subscription {
 	private BaseCollectionSubscription.OnUnsubscribeCallback mOnUnsubscribeCallback;
 	private boolean mSubscribed;
 	private String mSubscriptionId;
+	private String mAuthToken;
 
 
 	Subscription(RapidExecutor executor) {mExecutor = executor;}
@@ -48,6 +49,12 @@ abstract class Subscription {
 	void setSubscribed(boolean subscribed) {
 		mSubscribed = subscribed;
 	}
+
+
+	String getAuthToken() {return mAuthToken;}
+
+
+	void setAuthToken(String authToken) {mAuthToken = authToken;}
 
 
 	synchronized void invokeError(RapidError error) {

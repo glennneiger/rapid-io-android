@@ -21,18 +21,20 @@ public class RapidDocumentReference<T> {
 	private final String mId;
 	@NonNull private final RapidDocumentSubscription<T> mSubscription;
 	private RapidExecutor mExecutor;
+	private AuthHelper mAuth;
 
 
-	RapidDocumentReference(RapidExecutor executor, String collectionName, CollectionConnection<T> impl) {
-		this(executor, collectionName, impl, IdProvider.getNewDocumentId());
+	RapidDocumentReference(RapidExecutor executor, String collectionName, CollectionConnection<T> impl, AuthHelper auth) {
+		this(executor, collectionName, impl, IdProvider.getNewDocumentId(), auth);
 	}
 
 
-	RapidDocumentReference(RapidExecutor executor, String collectionName, CollectionConnection<T> impl, String documentId) {
+	RapidDocumentReference(RapidExecutor executor, String collectionName, CollectionConnection<T> impl, String documentId, AuthHelper auth) {
 		mExecutor = executor;
 		mId = documentId;
 		mImpl = impl;
 		mSubscription = new RapidDocumentSubscription<>(documentId, collectionName, executor);
+		mAuth = auth;
 	}
 
 
@@ -183,6 +185,7 @@ public class RapidDocumentReference<T> {
 		if(mSubscription.isSubscribed())
 			throw new IllegalStateException("There is already a subscription subscribed to this reference. Unsubscribe it first.");
 		mSubscription.setCallback(callback);
+		mSubscription.setAuthToken(mAuth.getAuthToken());
 		mImpl.subscribe(mSubscription);
 		return mSubscription;
 	}
@@ -210,8 +213,8 @@ public class RapidDocumentReference<T> {
 	 * @return document reference itself
 	 */
 	@NonNull
-	public <S> RapidDocumentMapReference<T, S> map(RapidDocumentMapReference.MapFunction<T, S> mapFunction) {
-		return new RapidDocumentMapReference<>(this, mapFunction);
+	public <S> RapidDocumentMapReference<T, S> map(RapidDocumentMapReference.MapFunction<T, S> mapFunction, AuthHelper auth) {
+		return new RapidDocumentMapReference<>(this, mapFunction, auth);
 	}
 
 }

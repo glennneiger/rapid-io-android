@@ -13,8 +13,8 @@ import static io.rapid.RapidError.ErrorType.INVALID_AUTH_TOKEN;
 
 
 class AuthHelper {
-	private final RapidExecutor mOriginalThreadHandler;
-	private final RapidLogger mLogger;
+	private RapidExecutor mOriginalThreadHandler;
+	private RapidLogger mLogger;
 	private AuthCallback mCallback;
 
 	@Nullable private String mAuthToken;
@@ -30,7 +30,12 @@ class AuthHelper {
 	}
 
 
-	AuthHelper(RapidExecutor originalThreadHandler, AuthCallback callback, RapidLogger logger) {
+	AuthHelper() {
+
+	}
+
+
+	void setupAuthHelper(RapidExecutor originalThreadHandler, AuthCallback callback, RapidLogger logger) {
 		mOriginalThreadHandler = originalThreadHandler;
 		mCallback = callback;
 		mLogger = logger;

@@ -10,6 +10,7 @@ public class RapidDocumentMapReference<T, S> {
 
 	private final MapFunction<T, S> mMapFunction;
 	private final RapidDocumentReference<T> mDocumentReference;
+	private AuthHelper mAuthHelper;
 
 
 	public interface MapFunction<T, S> {
@@ -29,9 +30,10 @@ public class RapidDocumentMapReference<T, S> {
 	}
 
 
-	RapidDocumentMapReference(RapidDocumentReference<T> documentReference, MapFunction<T, S> mapFunction) {
+	RapidDocumentMapReference(RapidDocumentReference<T> documentReference, MapFunction<T, S> mapFunction, AuthHelper authHelper) {
 		mDocumentReference = documentReference;
 		mMapFunction = mapFunction;
+		mAuthHelper = authHelper;
 	}
 
 
@@ -42,6 +44,7 @@ public class RapidDocumentMapReference<T, S> {
 		subscription.setCallback(document -> {
 			callback.onValueChanged(mMapFunction.map(document));
 		});
+		subscription.setAuthToken(mAuthHelper.getAuthToken());
 		mDocumentReference.getConnection().subscribe(subscription);
 		return subscription;
 	}
@@ -60,7 +63,7 @@ public class RapidDocumentMapReference<T, S> {
 
 
 	@NonNull
-	public <U> RapidDocumentMapReference<T, U> map(@NonNull MapInnerFunction<S, U> mapFunction) {
-		return new RapidDocumentMapReference<>(mDocumentReference, document -> mapFunction.map(mMapFunction.map(document)));
+	public <U> RapidDocumentMapReference<T, U> map(@NonNull MapInnerFunction<S, U> mapFunction, AuthHelper auth) {
+		return new RapidDocumentMapReference<>(mDocumentReference, document -> mapFunction.map(mMapFunction.map(document)), auth);
 	}
 }
