@@ -16,6 +16,7 @@ class AuthHelper {
 	private RapidExecutor mOriginalThreadHandler;
 	private RapidLogger mLogger;
 	private AuthCallback mCallback;
+	private AuthTokenCallback mTokenCallback;
 
 	@Nullable private String mAuthToken;
 	private boolean mAuthenticated = false;
@@ -30,9 +31,12 @@ class AuthHelper {
 	}
 
 
-	AuthHelper() {
-
+	interface AuthTokenCallback {
+		void onTokenChanged();
 	}
+
+
+	AuthHelper() {}
 
 
 	void setupAuthHelper(RapidExecutor originalThreadHandler, AuthCallback callback, RapidLogger logger) {
@@ -53,13 +57,14 @@ class AuthHelper {
 		RapidFuture deauthFuture = new RapidFuture(mOriginalThreadHandler);
 		if(mAuthToken == null || !mAuthenticated || connectionState == DISCONNECTED) {
 			mPendingDeauth = false;
-			mAuthToken = null;
 			deauthFuture.invokeSuccess();
 			mLogger.logI("Deauthorization successful");
 		} else {
 			mPendingDeauth = true;
 			mCallback.sendDeauthMessage();
 		}
+		mAuthToken = null;
+		tokenChanged();
 		return deauthFuture;
 	}
 
@@ -75,6 +80,7 @@ class AuthHelper {
 			return authFuture;
 		} else if(!token.equals(mAuthToken) || (!mAuthenticated && !mPendingAuth)) {
 			mAuthToken = token;
+			tokenChanged();
 			mPendingAuth = true;
 			mCallback.sendAuthMessage();
 		} else if(mAuthenticated) {
@@ -113,6 +119,12 @@ class AuthHelper {
 	}
 
 
+	public void setTokenCallback(AuthTokenCallback tokenCallback)
+	{
+		mTokenCallback = tokenCallback;
+	}
+
+
 	void authSuccess() {
 		mLogger.logI("Authorization successful");
 		mAuthenticated = true;
@@ -147,5 +159,10 @@ class AuthHelper {
 
 	void onClose() {
 		mAuthenticated = false;
+	}
+
+
+	private void tokenChanged()	{
+		if(mTokenCallback != null) mTokenCallback.onTokenChanged();
 	}
 }

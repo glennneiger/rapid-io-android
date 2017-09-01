@@ -33,13 +33,25 @@ class WebSocketCollectionConnection<T> implements CollectionConnection<T> {
 	@NonNull private Map<String, BaseCollectionSubscription<T>> mSubscriptions = new HashMap<>();
 
 
-	WebSocketCollectionConnection(RapidConnection connection, JsonConverterProvider jsonConverter, String collectionName, Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger, RapidExecutor executor) {
+	WebSocketCollectionConnection(RapidConnection connection, JsonConverterProvider jsonConverter, AuthHelper authHelper, String collectionName,
+								  Class<T> type, SubscriptionDiskCache subscriptionDiskCache, RapidLogger logger, RapidExecutor executor) {
 		mCollectionName = collectionName;
 		mConnection = connection;
 		mJsonConverter = jsonConverter;
 		mType = type;
 		mExecutor = executor;
 		mSubscriptionMemoryCache = new SubscriptionMemoryCache<>(Integer.MAX_VALUE);
+		authHelper.setTokenCallback(() ->
+		{
+			try
+			{
+				mSubscriptionMemoryCache.clear();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		});
 		mSubscriptionDiskCache = subscriptionDiskCache;
 		mLogger = logger;
 	}
