@@ -70,7 +70,8 @@ class CollectionProvider {
 	@NonNull
 	<T> RapidCollectionReference<T> provideCollection(String collectionName, Class<T> itemClass) {
 		if(!mCollectionConnections.containsKey(collectionName))
-			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, itemClass, mSubscriptionDiskCache, mDebugLogger, mExecutor));
+			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, mAuthHelper, collectionName, itemClass,
+					mSubscriptionDiskCache, mDebugLogger, mExecutor));
 		return new RapidCollectionReference<T>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter, mAuthHelper);
 	}
 
@@ -78,7 +79,7 @@ class CollectionProvider {
 	@NonNull
 	RapidCollectionReference<Map<String, Object>> provideCollection(String collectionName) {
 		if(!mCollectionConnections.containsKey(collectionName))
-			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger, mExecutor));
+			mCollectionConnections.put(collectionName, new WebSocketCollectionConnection<>(mConnection, mJsonConverter, mAuthHelper, collectionName, Map.class, mSubscriptionDiskCache, mDebugLogger, mExecutor));
 		return new RapidCollectionReference<Map<String, Object>>(mCollectionConnections.get(collectionName), collectionName, mExecutor, mJsonConverter, mAuthHelper);
 	}
 
