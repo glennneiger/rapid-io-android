@@ -147,6 +147,22 @@ public class RapidDocumentReference<T> {
 								result.invokeError(error);
 							}
 						}).onSuccess(result::invokeSuccess);
+					} else if(executorResult.getType() == RapidDocumentExecutor.Result.TYPE_MERGE) {
+						RapidMutateOptions options = executorResult.getOptions();
+						if(options == null)
+							options = new RapidMutateOptions.Builder().build();
+
+						options.setExpectedEtag(document != null ? document.getEtag() : Etag.NO_ETAG);
+
+						merge((Map<String, Object>)executorResult.getValue(), options).onError(error -> {
+							if(error.getType() == RapidError.ErrorType.ETAG_CONFLICT) {
+								execute(documentExecutor)
+										.onSuccess(result::invokeSuccess)
+										.onError(result::invokeError);
+							} else {
+								result.invokeError(error);
+							}
+						}).onSuccess(result::invokeSuccess);
 					}
 				}
 		);
