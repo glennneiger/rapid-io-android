@@ -3,6 +3,8 @@ package io.rapid;
 
 import android.support.annotation.NonNull;
 
+import java.util.Map;
+
 
 public class RapidDocumentExecutor<T> {
 
@@ -37,6 +39,21 @@ public class RapidDocumentExecutor<T> {
 
 
 	/**
+	 * Return this if you decided to merge the document based on the most recent data
+	 */
+	public static <T> Result merge(Map<String, Object> value) {
+		return merge(value, null);
+	}
+
+
+	/**
+	 * Return this if you decided to merge the document based on the most recent data
+	 */
+	public static <T> Result merge(Map<String, Object> value, RapidMutateOptions options) { return new Result<>(Result.TYPE_MERGE, value, options);
+	}
+
+
+	/**
 	 * Return this if you decided not to do anything with the document
 	 */
 	public static Result cancel() {
@@ -47,6 +64,7 @@ public class RapidDocumentExecutor<T> {
 	public static class Result<T> {
 		static final int TYPE_CANCEL = 0;
 		static final int TYPE_MUTATE = 1;
+		static final int TYPE_MERGE = 2;
 
 		private int mType;
 		private T mValue;
