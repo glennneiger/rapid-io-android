@@ -21,9 +21,12 @@ import io.rapid.executor.RapidExecutor;
 
 import static io.rapid.Config.CHECKER_HANDLER_PERIOD;
 import static io.rapid.Config.HB_PERIOD;
+import static io.rapid.Config.MESSAGE_SIZE_LIMIT;
 import static io.rapid.ConnectionState.CONNECTED;
 import static io.rapid.ConnectionState.CONNECTING;
 import static io.rapid.ConnectionState.DISCONNECTED;
+import static io.rapid.RapidError.ErrorType.DOCUMENT_SIZE_LIMIT_EXCEEDED;
+import static io.rapid.RapidError.ErrorType.MESSAGE_SIZE_LIMIT_EXCEEDED;
 import static io.rapid.RapidError.ErrorType.SUBSCRIPTION_CANCELLED;
 import static io.rapid.RapidError.ErrorType.TIMEOUT;
 
@@ -454,13 +457,34 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		// send message in background
 		mExecutor.doInBackground(() -> {
 			MessageFuture messageFuture = createMessageFuture(message.resolve(), baseFuture);
-			if(mConnectionState == CONNECTED) {
-				sendMessage(messageFuture);
+			if(messageFuture.getMessage() instanceof Message.Mut) {
+				int documentSize = ((Message.Mut)messageFuture.getMessage()).getDocument().getBytes().length;
+				if(documentSize > 10) {
+					baseFuture.invokeError(new RapidError(DOCUMENT_SIZE_LIMIT_EXCEEDED));
+				} else {
+					sendOrSaveMessage(messageFuture);
+				}
+			} else if(messageFuture.getMessage() instanceof Message.Pub) {
+				int documentSize = ((Message.Pub)messageFuture.getMessage()).getDocument().getBytes().length;
+				if(documentSize > MESSAGE_SIZE_LIMIT) {
+					baseFuture.invokeError(new RapidError(MESSAGE_SIZE_LIMIT_EXCEEDED));
+				} else {
+					sendOrSaveMessage(messageFuture);
+				}
 			} else {
-				if(!(messageFuture.getMessage() instanceof Message.Nop)) mPendingMessageList.add(messageFuture);
+				sendOrSaveMessage(messageFuture);
 			}
 		});
 		return baseFuture;
+	}
+
+
+	private void sendOrSaveMessage(MessageFuture messageFuture) {
+		if(mConnectionState == CONNECTED) {
+			sendMessage(messageFuture);
+		} else {
+			if(!(messageFuture.getMessage() instanceof Message.Nop)) mPendingMessageList.add(messageFuture);
+		}
 	}
 
 

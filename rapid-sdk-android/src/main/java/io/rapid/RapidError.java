@@ -18,7 +18,11 @@ public class RapidError extends Error {
 		INVALID_AUTH_TOKEN("invalid-auth-token", "Invalid Auth Token"),
 		UNKNOWN_ERROR("unknown", "Unknown Error"),
 		ETAG_CONFLICT("etag-conflict", "ETAG Conflict"),
-		ON_DISCONNECT_ACTION_CANCELLED("on-disconnect-action-cancelled", "OnDisconnect action was cancelled");
+		ON_DISCONNECT_ACTION_CANCELLED("on-disconnect-action-cancelled", "OnDisconnect action was cancelled"),
+		DOCUMENT_SIZE_LIMIT_EXCEEDED("document-size-limit-exceeded", String.format("Document size limit exceeded. Limit is %1$skB",
+				Config.DOCUMENT_SIZE_LIMIT/1024)),
+		MESSAGE_SIZE_LIMIT_EXCEEDED("message-size-limit-exceeded", String.format("Message size limit exceeded. Limit is %1$skB",
+				Config.MESSAGE_SIZE_LIMIT/1024));
 
 		private String mName;
 		private String mMessage;

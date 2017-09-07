@@ -12,4 +12,6 @@ class Config {
 	static final String API_KEY_METADATA = "io.rapid.apikey";
 	static final int CACHE_DEFAULT_SIZE_MB = 50;
 	static final long WEBSOCKET_DISCONNECT_TIMEOUT = 30 * DateUtils.SECOND_IN_MILLIS;
+	static final int DOCUMENT_SIZE_LIMIT = 10 * 1024; //kB
+	static final int MESSAGE_SIZE_LIMIT = 3 * 1024; //kB
 }
