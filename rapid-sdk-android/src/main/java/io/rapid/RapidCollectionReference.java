@@ -67,6 +67,7 @@ public class RapidCollectionReference<T> {
 	private RapidCollectionSubscription<T> mSubscription;
 	private CollectionConnection<T> mConnection;
 	private AuthHelper mAuthHelper;
+	private AuthHelper mAuth;
 
 
 	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, RapidExecutor executor, JsonConverterProvider
@@ -1102,7 +1103,7 @@ public class RapidCollectionReference<T> {
 	 */
 	@NonNull
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
-		return new RapidCollectionMapReference<>(this, mapFunction, mAuthHelper);
+		return new RapidCollectionMapReference<>(this, mapFunction);
 	}
 
 
@@ -1116,6 +1117,11 @@ public class RapidCollectionReference<T> {
 	}
 
 	// Private
+
+
+	AuthHelper getAuth() {
+		return mAuth;
+	}
 
 
 	CollectionConnection<T> getConnection() {

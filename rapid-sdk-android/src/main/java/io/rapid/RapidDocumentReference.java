@@ -154,7 +154,7 @@ public class RapidDocumentReference<T> {
 
 						options.setExpectedEtag(document != null ? document.getEtag() : Etag.NO_ETAG);
 
-						merge((Map<String, Object>)executorResult.getValue(), options).onError(error -> {
+						merge((Map<String, Object>) executorResult.getValue(), options).onError(error -> {
 							if(error.getType() == RapidError.ErrorType.ETAG_CONFLICT) {
 								execute(documentExecutor)
 										.onSuccess(result::invokeSuccess)
@@ -229,8 +229,12 @@ public class RapidDocumentReference<T> {
 	 * @return document reference itself
 	 */
 	@NonNull
-	public <S> RapidDocumentMapReference<T, S> map(RapidDocumentMapReference.MapFunction<T, S> mapFunction, AuthHelper auth) {
-		return new RapidDocumentMapReference<>(this, mapFunction, auth);
+	public <S> RapidDocumentMapReference<T, S> map(RapidDocumentMapReference.MapFunction<T, S> mapFunction) {
+		return new RapidDocumentMapReference<>(this, mapFunction);
 	}
 
+
+	AuthHelper getAuth() {
+		return mAuth;
+	}
 }
