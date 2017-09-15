@@ -67,7 +67,6 @@ public class RapidCollectionReference<T> {
 	private RapidCollectionSubscription<T> mSubscription;
 	private CollectionConnection<T> mConnection;
 	private AuthHelper mAuthHelper;
-	private AuthHelper mAuth;
 
 
 	RapidCollectionReference(CollectionConnection<T> collectionConnection, String collectionName, RapidExecutor executor, JsonConverterProvider
@@ -1120,7 +1119,7 @@ public class RapidCollectionReference<T> {
 
 
 	AuthHelper getAuth() {
-		return mAuth;
+		return mAuthHelper;
 	}
 
 
