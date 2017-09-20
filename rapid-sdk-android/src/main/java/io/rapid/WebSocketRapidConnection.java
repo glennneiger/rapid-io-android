@@ -457,6 +457,8 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		// send message in background
 		mExecutor.doInBackground(() -> {
 			MessageFuture messageFuture = createMessageFuture(message.resolve(), baseFuture);
+
+			// perform document size check
 			if(messageFuture.getMessage() instanceof Message.Mut) {
 				int documentSize = ((Message.Mut) messageFuture.getMessage()).getDocument().getBytes().length;
 				if(documentSize > 10) {

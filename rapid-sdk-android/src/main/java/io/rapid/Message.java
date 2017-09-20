@@ -138,7 +138,8 @@ abstract class Message {
 			PERMISSION_DENIED("permission-denied"),
 			CONNECTION_TERMINATED("connection-terminated"),
 			INVALID_AUTH_TOKEN("invalid-auth-token"),
-			ETAG_CONFLICT("etag-conflict");
+			ETAG_CONFLICT("etag-conflict"),
+			CLIENT_ERROR("client-error");
 
 
 			private String mKey;
