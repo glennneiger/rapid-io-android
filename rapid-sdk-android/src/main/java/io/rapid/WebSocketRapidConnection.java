@@ -458,22 +458,25 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 		mExecutor.doInBackground(() -> {
 			MessageFuture messageFuture = createMessageFuture(message.resolve(), baseFuture);
 			if(messageFuture.getMessage() instanceof Message.Mut) {
-				int documentSize = ((Message.Mut)messageFuture.getMessage()).getDocument().getBytes().length;
+				int documentSize = ((Message.Mut) messageFuture.getMessage()).getDocument().getBytes().length;
 				if(documentSize > 10) {
 					baseFuture.invokeError(new RapidError(DOCUMENT_SIZE_LIMIT_EXCEEDED));
-				} else {
-					sendOrSaveMessage(messageFuture);
+					return;
 				}
-			} else if(messageFuture.getMessage() instanceof Message.Pub) {
-				int documentSize = ((Message.Pub)messageFuture.getMessage()).getDocument().getBytes().length;
+			} else if(messageFuture.getMessage() instanceof Message.Mer) {
+				int documentSize = ((Message.Mer) messageFuture.getMessage()).getDocument().getBytes().length;
 				if(documentSize > MESSAGE_SIZE_LIMIT) {
 					baseFuture.invokeError(new RapidError(MESSAGE_SIZE_LIMIT_EXCEEDED));
-				} else {
-					sendOrSaveMessage(messageFuture);
+					return;
 				}
-			} else {
-				sendOrSaveMessage(messageFuture);
+			} else if(messageFuture.getMessage() instanceof Message.Pub) {
+				int documentSize = ((Message.Pub) messageFuture.getMessage()).getDocument().getBytes().length;
+				if(documentSize > MESSAGE_SIZE_LIMIT) {
+					baseFuture.invokeError(new RapidError(MESSAGE_SIZE_LIMIT_EXCEEDED));
+					return;
+				}
 			}
+			sendOrSaveMessage(messageFuture);
 		});
 		return baseFuture;
 	}

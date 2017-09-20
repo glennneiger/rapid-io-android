@@ -22,12 +22,12 @@ ext{
 
 buildscript {
 
-	ext.android_plugin_version = '3.0.0-beta4'
+	ext.android_plugin_version = '3.0.0-beta5'
 	ext.play_services_plugin_version = '3.0.0'
 
 	repositories {
 		jcenter()
-		maven { url 'https://maven.google.com' }
+		google()
 	}
 
 	dependencies {
@@ -41,7 +41,7 @@ buildscript {
 allprojects {
 	repositories {
 		jcenter()
-		maven { url 'https://maven.google.com' }
+		google()
 	}
 }
 

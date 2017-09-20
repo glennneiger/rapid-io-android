@@ -1102,7 +1102,7 @@ public class RapidCollectionReference<T> {
 	 */
 	@NonNull
 	public <S> RapidCollectionMapReference<T, S> map(RapidCollectionMapReference.MapFunction<T, S> mapFunction) {
-		return new RapidCollectionMapReference<>(this, mapFunction, mAuthHelper);
+		return new RapidCollectionMapReference<>(this, mapFunction);
 	}
 
 
@@ -1116,6 +1116,11 @@ public class RapidCollectionReference<T> {
 	}
 
 	// Private
+
+
+	AuthHelper getAuth() {
+		return mAuthHelper;
+	}
 
 
 	CollectionConnection<T> getConnection() {
