@@ -461,7 +461,7 @@ class WebSocketRapidConnection extends RapidConnection implements WebSocketConne
 			// perform document size check
 			if(messageFuture.getMessage() instanceof Message.Mut) {
 				int documentSize = ((Message.Mut) messageFuture.getMessage()).getDocument().getBytes().length;
-				if(documentSize > 10) {
+				if(documentSize > MESSAGE_SIZE_LIMIT) {
 					baseFuture.invokeError(new RapidError(DOCUMENT_SIZE_LIMIT_EXCEEDED));
 					return;
 				}
