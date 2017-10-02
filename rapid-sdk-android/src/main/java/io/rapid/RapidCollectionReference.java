@@ -986,11 +986,12 @@ public class RapidCollectionReference<T> {
 	 * @param skip number of skipped documents
 	 * @return collection reference itself
 	 */
-	@NonNull
-	public RapidCollectionReference<T> skip(int skip) {
-		mSubscription.setSkip(skip);
-		return this;
-	}
+	// TODO: uncomment when implemented on server
+//	@NonNull
+//	public RapidCollectionReference<T> skip(int skip) {
+//		mSubscription.setSkip(skip);
+//		return this;
+//	}
 
 
 	/**

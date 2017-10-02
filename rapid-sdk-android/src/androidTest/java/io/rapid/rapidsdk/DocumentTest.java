@@ -237,4 +237,24 @@ public class DocumentTest extends BaseRapidTest {
 		lockAsync();
 	}
 
+
+	@Test
+	public void testMergeDelete() {
+		RapidDocumentReference<Car> newDoc = mCollection.newDocument();
+		int carNumber = mRandom.nextInt();
+		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(() -> {
+			HashMap<String, Object> mergeMap = new HashMap<>();
+			mergeMap.put("name", null);
+			newDoc.merge(mergeMap)
+					.onSuccess(() -> {
+						newDoc.fetch(document -> {
+							assertNull(document.getBody().getName());
+							unlockAsync();
+						}).onError(error -> fail(error.getMessage()));
+					}).onError(error -> fail(error.getMessage()));
+		}).onError(error -> fail(error.getMessage()));
+		lockAsync();
+	}
+
+
 }

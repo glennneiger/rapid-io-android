@@ -34,6 +34,7 @@ public class RapidGsonConverter implements RapidJsonConverter {
 	@SuppressWarnings("WeakerAccess")
 	public RapidGsonConverter(@NonNull GsonBuilder gsonBuilder) {
 		mGson = gsonBuilder
+				.serializeNulls()
 				.registerTypeAdapter(Date.class, new GsonUtcDateAdapter())
 				.create();
 	}
