@@ -256,5 +256,19 @@ public class DocumentTest extends BaseRapidTest {
 		lockAsync();
 	}
 
+	@Test
+	public void testDocumentAddAndFetchFirst() {
+		RapidDocumentReference<Car> newDoc = mCollection.newDocument();
+		int carNumber = mRandom.nextInt();
+		newDoc.mutate(new Car("car_1", carNumber)).onSuccess(() -> {
+			mCollection.equalTo("number", carNumber).fetchFirst(value -> {
+				assertEquals(newDoc.getId(), value.getId());
+				assertEquals(carNumber, value.getBody().getNumber());
+				unlockAsync();
+			});
+		});
+		lockAsync();
+	}
+
 
 }

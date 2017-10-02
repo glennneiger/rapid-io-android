@@ -1096,6 +1096,21 @@ public class RapidCollectionReference<T> {
 
 
 	/**
+	 * Directly fetch the first document satisfying the specified filter
+	 *
+	 * @param callback callback function receiving fetched document
+	 */
+	public RapidCollectionSubscription<T> fetchFirst(RapidCallback.Document<T> callback) {
+		return first().fetch(rapidDocuments -> {
+			if(rapidDocuments.size() != 1)
+				callback.onValueChanged(null);
+			else
+				callback.onValueChanged(rapidDocuments.get(0));
+		});
+	}
+
+
+	/**
 	 * Convenience method for manipulating data before they are received within subscribe callback.
 	 *
 	 * @param mapFunction function that will transform every single document coming to subscribe callback
