@@ -23,6 +23,7 @@ class AuthHelper {
 	private boolean mPendingAuth = false;
 	private List<RapidFuture> mAuthFutureList = new ArrayList<>();
 	private boolean mPendingDeauth = false;
+	private RapidFuture mDeauthFuture;
 
 
 	interface AuthCallback {
@@ -65,6 +66,7 @@ class AuthHelper {
 		}
 		mAuthToken = null;
 		tokenChanged();
+		mDeauthFuture = deauthFuture;
 		return deauthFuture;
 	}
 
@@ -149,11 +151,13 @@ class AuthHelper {
 		mLogger.logI("Deauthorization successful");
 		mAuthenticated = false;
 		mPendingDeauth = false;
+		mDeauthFuture.invokeSuccess();
 	}
 
 
 	void deauthError() {
 		mPendingDeauth = false;
+		mDeauthFuture.invokeError(new RapidError(RapidError.ErrorType.DEAUTH_ERROR));
 	}
 
 

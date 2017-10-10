@@ -21,9 +21,10 @@ public class RapidError extends Error {
 		ON_DISCONNECT_ACTION_CANCELLED("on-disconnect-action-cancelled", "OnDisconnect action was cancelled"),
 		CLIENT_ERROR("client-error", "Client Error"),
 		DOCUMENT_SIZE_LIMIT_EXCEEDED("document-size-limit-exceeded", String.format("Document size limit exceeded. Limit is %1$skB",
-				Config.DOCUMENT_SIZE_LIMIT/1024)),
+				Config.DOCUMENT_SIZE_LIMIT / 1024)),
 		MESSAGE_SIZE_LIMIT_EXCEEDED("message-size-limit-exceeded", String.format("Message size limit exceeded. Limit is %1$skB",
-				Config.MESSAGE_SIZE_LIMIT/1024));
+				Config.MESSAGE_SIZE_LIMIT / 1024)),
+		DEAUTH_ERROR("deauth-error", "Error while deauthorizing");
 
 		private String mName;
 		private String mMessage;
